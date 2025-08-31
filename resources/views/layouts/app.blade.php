@@ -11,39 +11,64 @@
       <link rel="preconnect" href="https://fonts.bunny.net">
       <link href="https://fonts.bunny.net/css?family=figtree:400,500,600&display=swap" rel="stylesheet" />
 
-      <!-- Scripts -->
+      <!-- Vite -->
       @vite(['resources/css/app.css', 'resources/js/app.js'])
 
-      <!-- Styles -->
+      <!-- APLICAR MARGEN INICIAL ANTES DE ALPINE (evita solape en primer paint) -->
+      <script>
+        (function () {
+          const collapsed = localStorage.getItem('sidebar:collapsed') === '1';
+          document.documentElement.classList.toggle('sb-collapsed', collapsed);
+        })();
+      </script>
+      <style>
+        /* margen inicial del contenido (sin depender de Alpine) */
+        .app-main {
+          margin-left: 18rem; /* = w-72 */
+          transition: margin-left .5s cubic-bezier(.16,1,.3,1);
+        }
+        .sb-collapsed .app-main {
+          margin-left: 5rem; /* = w-20 */
+        }
+        /* opcional en mobile: ocupar todo el ancho */
+        @media (max-width: 767px) {
+          .app-main { margin-left: 0; }
+        }
+      </style>
+
       @livewireStyles
   </head>
-  <body class="font-sans antialiased bg-gray-100">
+  <body class="font-sans antialiased bg-gray-100"
+        x-data
+        x-init="
+          // Escucha el toggle del sidebar para actualizar el margen en caliente
+          window.addEventListener('sidebar:toggle', e => {
+            document.documentElement.classList.toggle('sb-collapsed', e.detail === true);
+          });
+        ">
       <x-banner />
 
-      {{-- Layout principal --}}
-      <div class="min-h-screen flex">
-          {{-- Sidebar para desktop --}}
-          <x-sidebar />
+      {{-- Sidebar fijo --}}
+      <x-sidebar />
 
-          {{-- Contenido principal --}}
-          <div class="flex-1 flex flex-col min-w-0">
-              {{-- Header mobile (opcional si lo tenés) --}}
-              <x-mobile-header />
+      {{-- Contenido principal --}}
+      <div class="app-main min-h-screen flex flex-col min-w-0">
+          {{-- Header mobile (opcional) --}}
+          <x-mobile-header />
 
-              {{-- Header de página (sección opcional) --}}
-              @hasSection('header')
-                  <header class="bg-white shadow">
-                      <div class="max-w-7xl mx-auto py-6 px-4 sm:px-6 lg:px-8">
-                          @yield('header')
-                      </div>
-                  </header>
-              @endif
+          {{-- Header de página --}}
+          @hasSection('header')
+              <header class="bg-white shadow">
+                  <div class="max-w-7xl mx-auto py-6 px-4 sm:px-6 lg:px-8">
+                      @yield('header')
+                  </div>
+              </header>
+          @endif
 
-              {{-- Contenido --}}
-              <main class="flex-1 p-4 md:p-6">
-                  @yield('content')
-              </main>
-          </div>
+          {{-- Contenido --}}
+          <main class="flex-1 p-4 md:p-6">
+              @yield('content')
+          </main>
       </div>
 
       {{-- Drawer mobile (si lo usás) --}}
@@ -51,5 +76,6 @@
 
       @stack('modals')
       @livewireScripts
+      @stack('scripts')
   </body>
 </html>

@@ -17,39 +17,41 @@ class OrderSidebar extends Component
     public float $total = 0.0;
     public bool $finishing = false;
 
-    public function mount(OrderService $orders, ?int $orderId = null): void
+    public function mount(?int $orderId = null): void
     {
         $this->orderId = $orderId ?? (int) session('draft_order_id');
         $this->ensureDraftExists();
-        $this->refreshOrder($orders);
+        $this->refreshOrder();
     }
 
     #[On('order-updated')]
-    public function onOrderUpdated(OrderService $orders): void
+    public function onOrderUpdated(): void
     {
-        $this->refreshOrder($orders);
+        $this->refreshOrder();
     }
 
-    // 👇 IMPORTANTE: primero payloads (id), luego DI (OrderService)
+    // 🔥 CORREGIDO: Solo recibir el payload, resolver OrderService internamente
     #[On('draft-changed')]
-    public function onDraftChanged(int $id, OrderService $orders): void
+    public function onDraftChanged(int $id): void
     {
         $this->orderId = $id;
-        $this->refreshOrder($orders);
+        $this->refreshOrder();
     }
 
-    // 👇 NUEVO: Escuchar cuando se añade un item desde otro componente
+    // 🔥 CORREGIDO: Solo recibir el payload, resolver OrderService internamente
     #[On('item-added-to-order')]
-    public function onItemAddedToOrder(int $orderId, OrderService $orders): void
+    public function onItemAddedToOrder(int $orderId): void
     {
         // Solo actualizar si es nuestro pedido actual
         if ($this->orderId === $orderId) {
-            $this->refreshOrder($orders);
+            $this->refreshOrder();
         }
     }
 
-    public function refreshOrder(OrderService $orders): void
+    // 🔥 CORREGIDO: Resolver OrderService internamente
+    public function refreshOrder(): void
     {
+        $orders = app(OrderService::class);
         $snap = $orders->snapshot($this->orderId);
         $this->items = $snap['items'] ?? [];
         $this->total = $snap['total'] ?? 0.0;
@@ -93,40 +95,49 @@ class OrderSidebar extends Component
         }
     }
 
-    public function add(int $itemId, OrderService $orders): void
+    // 🔥 CORREGIDO: Resolver OrderService internamente
+    public function add(int $itemId): void
     {
+        $orders = app(OrderService::class);
         $this->guardDraft();
         $orders->mutateItem($this->orderId, $itemId, +1);
-        $this->refreshOrder($orders);
+        $this->refreshOrder();
         
         // 👇 CORREGIDO: Emitir evento global para que otros componentes se sincronicen
         $this->dispatch('order-updated');
     }
 
-    public function sub(int $itemId, OrderService $orders): void
+    // 🔥 CORREGIDO: Resolver OrderService internamente
+    public function sub(int $itemId): void
     {
+        $orders = app(OrderService::class);
         $this->guardDraft();
         $orders->mutateItem($this->orderId, $itemId, -1);
-        $this->refreshOrder($orders);
+        $this->refreshOrder();
         
         // 👇 CORREGIDO: Emitir evento global
         $this->dispatch('order-updated');
     }
 
-    public function remove(int $itemId, OrderService $orders): void
+    // 🔥 CORREGIDO: Resolver OrderService internamente
+    public function remove(int $itemId): void
     {
+        $orders = app(OrderService::class);
         $this->guardDraft();
         $orders->removeItem($this->orderId, $itemId);
-        $this->refreshOrder($orders);
+        $this->refreshOrder();
         
         // 👇 CORREGIDO: Emitir evento global
         $this->dispatch('order-updated');
     }
 
-    public function finalize(StockService $stock): void
+    // 🔥 CORREGIDO: Resolver StockService internamente
+    public function finalize(): void
     {
         if ($this->finishing) return;
         $this->finishing = true;
+
+        $stock = app(StockService::class);
 
         $draftId = (int) session('draft_order_id');
         if ($draftId !== (int) $this->orderId) {

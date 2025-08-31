@@ -1,13 +1,21 @@
-import './bootstrap';
+import './bootstrap'
 
-import Alpine from 'alpinejs'
+// 👇 Livewire 3 ya incluye Alpine automáticamente
+// Solo necesitamos registrar plugins adicionales antes de que Livewire inicie Alpine
 
-window.Alpine = Alpine
+import collapse from '@alpinejs/collapse'
 
-// Store global para abrir/cerrar el drawer móvil
-Alpine.store('ui', {
-  drawer: false
+// 👇 Hook into Livewire's Alpine initialization
+document.addEventListener('livewire:init', () => {
+    // Alpine ya está disponible através de Livewire, solo agregamos plugins
+    window.Alpine.plugin(collapse)
 })
 
-Alpine.start()
-
+// 👇 ELIMINAR: No iniciamos Alpine manualmente
+// import Alpine from 'alpinejs'
+// window.Alpine = Alpine
+// Alpine.plugin(collapse)
+// if (!window.__ALPINE_STARTED__) {
+//   Alpine.start()
+//   window.__ALPINE_STARTED__ = true
+// }

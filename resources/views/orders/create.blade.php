@@ -8,11 +8,11 @@
 <div class="max-w-screen-2xl mx-auto px-3 sm:px-6">
 
   {{-- Mensajes --}}
-@if(session('ok'))
-  <div class="mb-4 rounded-lg bg-green-50 text-green-800 px-3 py-2 text-sm">
-    {!! session('ok') !!} {{-- importante: escapar si no confiás en el contenido --}}
-  </div>
-@endif
+  @if(session('ok'))
+    <div class="mb-4 rounded-lg bg-green-50 text-green-800 px-3 py-2 text-sm">
+      {!! session('ok') !!}
+    </div>
+  @endif
 
   @if($errors->any())
     <div class="mb-4 rounded-lg bg-red-50 text-red-800 px-3 py-2 text-sm">
@@ -32,12 +32,15 @@
             Aún no hay productos. Crea uno para empezar.
           </div>
         @else
-<div class="grid grid-cols-2 sm:grid-cols-3 gap-3">
-  @foreach($products as $p)
-    @livewire('product-card', ['orderId' => $order->id, 'productId' => $p->id], key('prod-'.$p->id))
-  @endforeach
-</div>
-
+          <div class="grid grid-cols-2 sm:grid-cols-3 gap-3">
+            @foreach($products as $p)
+              {{-- Pasar sólo productId y usar :key en el include del componente --}}
+              <livewire:product-card
+                :product-id="$p->id"
+                :key="'product-card-'.$p->id"
+              />
+            @endforeach
+          </div>
 
           {{-- Paginación --}}
           <div class="mt-4">
@@ -50,7 +53,8 @@
     {{-- DERECHA: Pedido en curso --}}
     <aside class="shrink-0 self-start" style="width:520px; min-width:520px;">
       <div class="sticky" style="top:6rem;">
-@livewire('order-sidebar', ['orderId' => $order->id], key('sidebar-'.$order->id))
+        {{-- OrderSidebar usa el draft de sesión --}}
+        <livewire:order-sidebar :key="'order-sidebar'" />
       </div>
     </aside>
 

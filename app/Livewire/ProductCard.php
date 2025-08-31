@@ -1,116 +1,189 @@
 <?php
+declare(strict_types=1);
 
-// app/Livewire/ProductCard.php
 namespace App\Livewire;
 
-use Livewire\Component;
-use Livewire\Attributes\On;
-use App\Models\Product;
 use App\Models\Order;
+use App\Models\Product;
 use App\Services\OrderService;
+use DomainException;
+use Illuminate\Database\Eloquent\ModelNotFoundException;
+use Livewire\Attributes\On;
+use Livewire\Component;
 
 class ProductCard extends Component
 {
-    public int $productId;
     public ?Product $product = null;
+    public ?int $productId = null;
+
+    public int $qty = 1;
     public int $currentStock = 0;
-    public bool $isActive = true;
+    public bool $isActive = false;
+    public bool $isAdding = false;
 
-    public function mount(int $productId)
-    {
-        $this->productId = $productId;
+    public string $displayMode = 'card';
+    public string $buttonText = 'Agregar';
+    public string $buttonClass = '';
+
+    public function mount(
+        mixed $product = null,
+        ?int $productId = null,
+        int $qty = 1,
+        string $displayMode = 'card',
+        string $buttonText = 'Agregar',
+        string $buttonClass = ''
+    ): void {
+        $this->qty         = max(1, $qty);
+        $this->displayMode = $displayMode;
+        $this->buttonText  = $buttonText;
+        $this->buttonClass = $buttonClass;
+
+        if ($product instanceof Product) {
+            $this->product   = $product;
+            $this->productId = $product->id;
+        } elseif ($productId !== null) {
+            $this->productId = $productId;
+        } elseif (is_int($product)) { // retrocompat
+            $this->productId = $product;
+        }
+
         $this->refreshProduct();
     }
 
-    #[On('draft-changed')]
-    public function onDraftChanged(int $id): void
-    {
-        // El sidebar creó un nuevo draft, refrescar producto por si cambió el stock
-        $this->refreshProduct();
-    }
-
-    #[On('order-updated')]
-    public function onOrderUpdated(): void
-    {
-        // Cuando se actualiza cualquier pedido, refrescar el stock
-        $this->refreshProduct();
-    }
-
-    #[On('order-finalized')]
-    public function onOrderFinalized(int $id): void
-    {
-        // Cuando se finaliza un pedido, el stock se reduce, actualizar
-        $this->refreshProduct();
-    }
-
+    #[On('draft-changed')]   public function onDraftChanged(int $id): void   { $this->refreshProduct(); }
+    #[On('order-updated')]   public function onOrderUpdated(): void          { $this->refreshProduct(); }
+    #[On('order-finalized')] public function onOrderFinalized(int $id): void { $this->refreshProduct(); }
     #[On('stock-updated')]
     public function onStockUpdated(int $productId): void
     {
-        // Si se actualiza el stock de este producto específicamente
-        if ($this->productId === $productId) {
-            $this->refreshProduct();
-        }
+        if ($this->productId === $productId) $this->refreshProduct();
     }
 
-    /**
-     * Refresca los datos del producto desde la base de datos
-     */
     private function refreshProduct(): void
     {
-        $this->product = Product::find($this->productId);
-        
-        if ($this->product) {
-            $this->currentStock = $this->product->stock;
-            $this->isActive = $this->product->is_active;
-        } else {
+        if (!$this->productId) {
+            $this->product = null;
             $this->currentStock = 0;
             $this->isActive = false;
-        }
-    }
-
-    /**
-     * Obtiene el ID del pedido draft actual desde la sesión
-     */
-    private function getCurrentDraftId(): int
-    {
-        $draftId = (int) session('draft_order_id');
-        
-        if (!$draftId) {
-            // Si no hay draft en sesión, crear uno nuevo
-            $draft = Order::create();
-            session(['draft_order_id' => $draft->id]);
-            $draftId = $draft->id;
-        }
-        
-        return $draftId;
-    }
-
-    public function add(OrderService $orders): void
-    {
-        // Verificar stock actualizado antes de agregar
-        $this->refreshProduct();
-        
-        if (!$this->isActive || $this->currentStock <= 0) {
-            $this->dispatch('notify', type: 'error', message: 'Sin stock o inactivo.');
+            $this->qty = 1;
             return;
         }
 
-        // 👇 CORREGIDO: Obtener el draft ID actual dinámicamente
-        $currentDraftId = $this->getCurrentDraftId();
-        
-        $orders->addItem($currentDraftId, $this->productId, 1);
-        
-        // 👇 Refrescar producto después de agregar (por si el stock cambió)
-        $this->refreshProduct();
-        
-        // 👇 CORREGIDO: Notificar al sidebar con el ID correcto
-        $this->dispatch('item-added-to-order', orderId: $currentDraftId);
-        $this->dispatch('order-updated');
-        $this->dispatch('notify', type: 'success', message: 'Agregado');
+        if (!$this->product || $this->product->id !== $this->productId) {
+            $this->product = Product::find($this->productId);
+        } else {
+            $this->product->refresh();
+        }
+
+        if ($this->product) {
+            $this->currentStock = (int) $this->product->stock;
+            $this->isActive     = (bool) $this->product->is_active;
+            $this->qty          = max(1, min($this->qty, max(0, $this->currentStock)));
+        } else {
+            $this->currentStock = 0;
+            $this->isActive     = false;
+            $this->qty          = 1;
+        }
+    }
+
+    private function getCurrentDraftId(): int
+    {
+        $draftId = (int) session('draft_order_id', 0);
+        if ($draftId) return $draftId;
+
+        $draft = Order::create(); // STATUS_DRAFT por defecto
+        session(['draft_order_id' => $draft->id]);
+        return (int) $draft->id;
+    }
+
+    public function incrementQty(): void { if ($this->qty < $this->currentStock) $this->qty++; }
+    public function decrementQty(): void { if ($this->qty > 1) $this->qty--; }
+    public function updatedQty(): void   { $this->qty = max(1, min($this->qty, max(0, $this->currentStock))); }
+
+    public function add(): void
+    {
+        if ($this->isAdding) return;
+        $this->isAdding = true;
+
+        try {
+            // 🔎 Log al inicio (debug temporal)
+            \Log::info('ProductCard@add fired', ['productId' => $this->productId]);
+
+            if (!$this->productId) {
+                $this->dispatch('notify', type:'error', message:'Producto inválido.');
+                return;
+            }
+
+            $this->refreshProduct();
+
+            if (!$this->product) {
+                $this->dispatch('notify', type:'error', message:'Producto no encontrado.');
+                return;
+            }
+            if (!$this->isActive) {
+                $this->dispatch('notify', type:'error', message:'Producto inactivo.');
+                return;
+            }
+            if ($this->currentStock < $this->qty) {
+                $this->dispatch('notify', type:'error', message:'Stock insuficiente.');
+                return;
+            }
+
+            $draftId = $this->getCurrentDraftId();
+            $orders  = app(OrderService::class);
+            $orders->addItem($draftId, $this->productId, $this->qty);
+
+            $this->refreshProduct();
+
+            $this->dispatch('item-added-to-order', orderId:$draftId);
+            $this->dispatch('order-updated');
+            $this->dispatch('stock-updated', productId:$this->productId);
+
+            $msg = $this->qty === 1 ? 'Agregado al pedido' : "Agregados {$this->qty} al pedido";
+            $this->dispatch('notify', type:'success', message:$msg);
+
+            if ($this->displayMode === 'button') $this->qty = 1;
+
+        } catch (ModelNotFoundException) {
+            $this->dispatch('notify', type:'error', message:'Producto no encontrado.');
+        } catch (DomainException $e) {
+            $this->dispatch('notify', type:'error', message:$e->getMessage());
+        } catch (\Throwable $e) {
+            \Log::error('Error adding product to order', [
+                'message'    => $e->getMessage(),
+                'product_id' => $this->productId,
+                'qty'        => $this->qty,
+                'draft_id'   => session('draft_order_id'),
+            ]);
+            $this->dispatch('notify', type:'error', message:'Error al agregar producto.');
+        } finally {
+            $this->isAdding = false;
+        }
+    }
+
+    public function addOne(): void
+    {
+        $prev = $this->qty;
+        $this->qty = 1;
+        $this->add();
+        $this->qty = $prev;
     }
 
     public function render()
     {
         return view('livewire.product-card');
     }
+
+    // dentro de la clase ProductCard
+public int $clicks = 0; // 👈 contador de test
+
+public function testClick(): void
+{
+    $this->clicks++;
+    \Log::info('ProductCard@testClick fired', [
+        'productId' => $this->productId,
+        'clicks'    => $this->clicks,
+    ]);
+}
+
 }

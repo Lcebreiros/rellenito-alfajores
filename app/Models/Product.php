@@ -13,4 +13,8 @@ class Product extends Model
     public function adjustments() { return $this->hasMany(StockAdjustment::class); }
 
     public function scopeActive($q){ return $q->where('is_active', true); }
+
+    public function recipeItems() {
+  return $this->hasMany(\App\Models\ProductRecipe::class);
+}
 }
