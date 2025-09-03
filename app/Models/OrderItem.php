@@ -3,10 +3,13 @@
 namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
+use App\Models\Concerns\BelongsToUser;
 
 class OrderItem extends Model
 {
-    protected $fillable = ['order_id', 'product_id','quantity','unit_price','subtotal'];
+    use BelongsToUser;
+
+    protected $fillable = ['user_id','order_id', 'product_id','quantity','unit_price','subtotal'];
     protected $casts = ['unit_price'=>'decimal:2','subtotal'=>'decimal:2'];
 
     public function order(){ return $this->belongsTo(Order::class); }

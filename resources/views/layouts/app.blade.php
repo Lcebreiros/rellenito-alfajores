@@ -1,81 +1,108 @@
 <!DOCTYPE html>
-<html lang="{{ str_replace('_', '-', app()->getLocale()) }}">
-  <head>
-      <meta charset="utf-8">
-      <meta name="viewport" content="width=device-width, initial-scale=1">
-      <meta name="csrf-token" content="{{ csrf_token() }}">
+<html lang="{{ str_replace('_', '-', app()->getLocale()) }}"
+      class="{{ \App\Models\Setting::get('theme', 'light') === 'dark' ? 'dark' : '' }}">
 
-      <title>{{ config('app.name', 'Laravel') }}</title>
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="csrf-token" content="{{ csrf_token() }}">
 
-      <!-- Fonts -->
-      <link rel="preconnect" href="https://fonts.bunny.net">
-      <link href="https://fonts.bunny.net/css?family=figtree:400,500,600&display=swap" rel="stylesheet" />
+  <title>{{ config('app.name', 'Laravel') }}</title>
 
-      <!-- Vite -->
-      @vite(['resources/css/app.css', 'resources/js/app.js'])
+  {{-- Fuentes --}}
+  <link rel="preconnect" href="https://fonts.bunny.net">
+  <link href="https://fonts.bunny.net/css?family=figtree:400,500,600&display=swap" rel="stylesheet" />
 
-      <!-- APLICAR MARGEN INICIAL ANTES DE ALPINE (evita solape en primer paint) -->
-      <script>
-        (function () {
-          const collapsed = localStorage.getItem('sidebar:collapsed') === '1';
-          document.documentElement.classList.toggle('sb-collapsed', collapsed);
-        })();
-      </script>
-      <style>
-        /* margen inicial del contenido (sin depender de Alpine) */
-        .app-main {
-          margin-left: 18rem; /* = w-72 */
-          transition: margin-left .5s cubic-bezier(.16,1,.3,1);
-        }
-        .sb-collapsed .app-main {
-          margin-left: 5rem; /* = w-20 */
-        }
-        /* opcional en mobile: ocupar todo el ancho */
-        @media (max-width: 767px) {
-          .app-main { margin-left: 0; }
-        }
-      </style>
+  {{-- Vite --}}
+  @vite(['resources/css/app.css', 'resources/js/app.js'])
 
-      @livewireStyles
-  </head>
-  <body class="font-sans antialiased bg-gray-100"
-        x-data
-        x-init="
-          // Escucha el toggle del sidebar para actualizar el margen en caliente
-          window.addEventListener('sidebar:toggle', e => {
-            document.documentElement.classList.toggle('sb-collapsed', e.detail === true);
-          });
-        ">
-      <x-banner />
+  {{-- Estado inicial del sidebar antes de Alpine --}}
+  <script>
+    (function () {
+      const collapsed = localStorage.getItem('sidebar:collapsed') === '1';
+      document.documentElement.classList.toggle('sb-collapsed', collapsed);
+    })();
+  </script>
 
-      {{-- Sidebar fijo --}}
-      <x-sidebar />
+  <style>
+    .app-main{
+      margin-left: 18rem; /* w-72 */
+      transition: margin-left .5s cubic-bezier(.16,1,.3,1);
+      min-width: 0;
+    }
+    .sb-collapsed .app-main{ margin-left: 5rem; } /* w-20 */
+    @media (max-width: 767px) { .app-main{ margin-left: 0; } }
+  </style>
 
-      {{-- Contenido principal --}}
-      <div class="app-main min-h-screen flex flex-col min-w-0">
-          {{-- Header mobile (opcional) --}}
-          <x-mobile-header />
+  @livewireStyles
+</head>
 
-          {{-- Header de página --}}
-          @hasSection('header')
-              <header class="bg-white shadow">
-                  <div class="max-w-7xl mx-auto py-6 px-4 sm:px-6 lg:px-8">
-                      @yield('header')
-                  </div>
-              </header>
-          @endif
+<body class="font-sans antialiased bg-gray-100 dark:bg-neutral-950 dark:text-neutral-100"
+      x-data
+      x-init="
+        window.addEventListener('sidebar:toggle', e => {
+          document.documentElement.classList.toggle('sb-collapsed', e.detail === true);
+        });
+      ">
 
-          {{-- Contenido --}}
-          <main class="flex-1 p-4 md:p-6">
-              @yield('content')
-          </main>
-      </div>
+  <x-banner />
 
-      {{-- Drawer mobile (si lo usás) --}}
-      <x-mobile-drawer />
+  {{-- Sidebar fijo (solo desktop) --}}
+  <x-sidebar />
 
-      @stack('modals')
-      @livewireScripts
-      @stack('scripts')
-  </body>
+  {{-- Contenido principal --}}
+  <div class="app-main min-h-screen flex flex-col">
+    <x-mobile-header />
+
+    {{-- HEADER: slot Jetstream o sección Blade --}}
+    @if (isset($header))
+      <header class="bg-white border-b border-neutral-200 dark:bg-neutral-900 dark:border-neutral-800">
+        <div class="max-w-7xl mx-auto py-6 px-4 sm:px-6 lg:px-8">
+          {{ $header }}
+        </div>
+      </header>
+    @else
+      @hasSection('header')
+        <header class="bg-white border-b border-neutral-200 dark:bg-neutral-900 dark:border-neutral-800">
+          <div class="max-w-7xl mx-auto py-6 px-4 sm:px-6 lg:px-8">
+            @yield('header')
+          </div>
+        </header>
+      @endif
+    @endif
+
+    {{-- CONTENIDO: padding extra en mobile para no tapar con la bottom bar --}}
+    <main class="flex-1 p-4 md:p-6 pb-24 md:pb-6">
+      @if (isset($slot))
+        {{ $slot }}
+      @else
+        @yield('content')
+      @endif
+    </main>
+  </div>
+
+  {{-- Modal de bienvenida --}}
+  <livewire:welcome-modal />
+
+  {{-- ⛔ Drawer mobile reemplazado por la bottom bar --}}
+  {{-- <x-mobile-drawer /> --}}
+
+  @stack('modals')
+  @livewireScripts
+
+  {{-- Tema instantáneo si Livewire emite `theme-updated` --}}
+  <script>
+    window.addEventListener('theme-updated', (e) => {
+      const theme = e.detail?.theme || 'light';
+      document.documentElement.classList.toggle('dark', theme === 'dark');
+    });
+  </script>
+
+  {{-- ===== Bottom bar (usa tus imágenes y añade el menú "Más") ===== --}}
+  {{-- Espaciador para que nada quede detrás de la barra en mobile --}}
+  <div class="h-16 md:hidden"></div>
+  <x-bottom-nav />
+
+  @stack('scripts')
+</body>
 </html>

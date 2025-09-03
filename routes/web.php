@@ -2,7 +2,9 @@
 
 use Illuminate\Support\Facades\Route;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Storage;
 
+// Controllers
 use App\Http\Controllers\ProductController;
 use App\Http\Controllers\OrderController;
 use App\Http\Controllers\StockController;
@@ -10,28 +12,66 @@ use App\Http\Controllers\SupplyController;
 use App\Http\Controllers\ProductCostController;
 use App\Http\Controllers\CalculatorController;
 
-use App\Models\Product;
-use App\Models\Supply;
-use App\Services\CostService;
+// Livewire (route binding)
+use App\Livewire\Orders\Ticket as OrderTicket;
+use App\Livewire\Dashboard;
 
+//
+// PÚBLICO: logos desde storage (evita symlink en hosting compartido)
+//
+Route::get('/branding/receipt-logo', function () {
+    $disk = Storage::disk('public');
+    $path = 'branding/receipt-logo.png';
+    abort_unless($disk->exists($path), 404);
+
+    $full = $disk->path($path);
+    return response()->file($full, [
+        'Content-Type'  => $disk->mimeType($path) ?? 'image/png',
+        'Cache-Control' => 'public, max-age=604800',
+    ]);
+})->name('branding.receipt-logo');
+
+Route::get('/branding/app-logo', function () {
+    $disk = Storage::disk('public');
+    $path = 'branding/app-logo.png';
+    abort_unless($disk->exists($path), 404);
+
+    $full = $disk->path($path);
+    return response()->file($full, [
+        'Content-Type'  => $disk->mimeType($path) ?? 'image/png',
+        'Cache-Control' => 'public, max-age=604800',
+    ]);
+})->name('branding.app-logo');
+
+//
 // Raíz => login (Jetstream)
+//
 Route::redirect('/', '/login');
 
+//
+// ÁREA PRIVADA
+//
 Route::middleware([
     'auth:sanctum',
     config('jetstream.auth_session'),
     'verified',
 ])->group(function () {
 
-    // Dashboard
-    Route::view('/dashboard', 'dashboard')->name('dashboard');
+    // ============ DASHBOARD (Livewire) ============
+    Route::get('/dashboard', function () {
+        return view('dashboard');
+    })->name('dashboard');
+    
+    // API endpoint para guardar posiciones de widgets (AJAX)
+    Route::post('/dashboard/update-positions', [Dashboard::class, 'updatePositions'])
+        ->name('dashboard.update-positions');
 
-    // Productos
+    // ============ PRODUCTOS ============
     Route::resource('products', ProductController::class)->except('show');
     Route::patch('products/{product}/stock', [ProductController::class, 'updateStock'])
         ->name('products.stock.update');
 
-    // Pedidos
+    // ============ PEDIDOS ============
     Route::get('orders/create', [OrderController::class, 'create'])->name('orders.create');
     Route::post('orders/{order}/items', [OrderController::class, 'addItem'])->name('orders.items.store');
     Route::delete('orders/{order}/items/{item}', [OrderController::class, 'removeItem'])->name('orders.items.destroy');
@@ -43,63 +83,38 @@ Route::middleware([
     Route::get('/orders/download-report', [OrderController::class, 'downloadReport'])
         ->name('orders.download-report');
 
-    // Stock
+    // ============ STOCK ============
     Route::get('/stock', [StockController::class, 'index'])->name('stock.index');
     Route::get('/stock/export/csv', [StockController::class, 'exportCsv'])->name('stock.export.csv');
 
-    /**
-     * ===== CALCULADORA DE COSTOS (VISTA ÚNICA) =====
-     */
-
-    // ÚNICA ruta GET de la calculadora
-    Route::get('/calculator', [CalculatorController::class, 'show'])
-        ->name('calculator.show');
-
-    // Alias para compatibilidad con links viejos
+    // ============ CALCULADORA DE COSTOS ============
+    Route::get('/calculator', [CalculatorController::class, 'show'])->name('calculator.show');
     Route::get('/costing/calculator', fn(Request $r) => redirect()->route('calculator.show', $r->query()))
         ->name('costing.calculator');
 
-    /**
-     * ===== RUTAS DE INSUMOS =====
-     */
-    
-    // CRUD de insumos - CORREGIDO (sin duplicaciones)
-    Route::post('/supplies/quick-store', [SupplyController::class, 'quickStore'])
-        ->name('supplies.quick-store');
-    Route::post('/supplies', [SupplyController::class, 'store'])
-        ->name('supplies.store');
-    Route::put('/supplies/{supply}', [SupplyController::class, 'update'])
-        ->name('supplies.update');
-    Route::delete('/supplies/{supply}', [SupplyController::class, 'destroy'])
-        ->name('supplies.destroy');
-    Route::post('/supplies/{supply}/purchase', [SupplyController::class, 'storePurchase'])
-        ->name('supplies.purchase.store');
+    // ============ INSUMOS ============
+    Route::post('/supplies/quick-store', [SupplyController::class, 'quickStore'])->name('supplies.quick-store');
+    Route::post('/supplies', [SupplyController::class, 'store'])->name('supplies.store');
+    Route::put('/supplies/{supply}', [SupplyController::class, 'update'])->name('supplies.update');
+    Route::delete('/supplies/{supply}', [SupplyController::class, 'destroy'])->name('supplies.destroy');
+    Route::post('/supplies/{supply}/purchase', [SupplyController::class, 'storePurchase'])->name('supplies.purchase.store');
 
-    // Redirecciones para rutas de insumos (hacia calculadora)
-    Route::get('/supplies', function (Request $r) {
-        return redirect()->route('calculator.show', $r->query());
-    })->name('supplies.index');
+    // Redirecciones de insumos hacia calculadora
+    Route::get('/supplies', fn(Request $r) => redirect()->route('calculator.show', $r->query()))->name('supplies.index');
+    Route::get('/supplies/create', fn(Request $r) => redirect()->route('calculator.show', $r->query()))->name('supplies.create');
 
-    Route::get('/supplies/create', function (Request $r) {
-        return redirect()->route('calculator.show', $r->query());
-    })->name('supplies.create');
-
-    /**
-     * ===== RUTAS DE ANÁLISIS DE COSTOS =====
-     */
-    
+    // ============ ANÁLISIS DE COSTOS ============
     Route::prefix('products/{product}')->group(function () {
-        // Guardar análisis de costos
-        Route::post('/costings', [ProductCostController::class, 'storeAnalysis'])
-            ->name('products.costings.store');
-        
-        // Listar análisis de costos (JSON)
-        Route::get('/costings', [ProductCostController::class, 'analyses'])
-            ->name('products.costings.index');
-        
-        // Agregar ingrediente a receta
-        Route::post('/recipe', [ProductCostController::class, 'addRecipeItem'])
-            ->name('products.recipe.add');
+        Route::post('/costings', [ProductCostController::class, 'storeAnalysis'])->name('products.costings.store');
+        Route::get('/costings', [ProductCostController::class, 'analyses'])->name('products.costings.index');
+        Route::post('/recipe', [ProductCostController::class, 'addRecipeItem'])->name('products.recipe.add');
     });
 
+    // ============ SETTINGS ============
+    Route::get('/settings', fn () => view('settings'))->name('settings');
+
+    // ============ TICKET (Livewire) ============
+    Route::get('/orders/{order}/ticket', OrderTicket::class)
+        ->whereNumber('order')
+        ->name('orders.ticket');
 });

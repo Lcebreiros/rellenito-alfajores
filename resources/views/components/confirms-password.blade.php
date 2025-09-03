@@ -1,4 +1,8 @@
-@props(['title' => __('Confirm Password'), 'content' => __('For your security, please confirm your password to continue.'), 'button' => __('Confirm')])
+@props([
+    'title' => __('Confirm Password'),
+    'content' => __('For your security, please confirm your password to continue.'),
+    'button' => __('Confirm')
+])
 
 @php
     $confirmableId = md5($attributes->wire('then'));
@@ -17,28 +21,47 @@
 @once
 <x-dialog-modal wire:model.live="confirmingPassword">
     <x-slot name="title">
-        {{ $title }}
+        <span class="text-gray-900 dark:text-neutral-100">
+            {{ $title }}
+        </span>
     </x-slot>
 
     <x-slot name="content">
-        {{ $content }}
+        <p class="text-gray-600 dark:text-neutral-300">
+            {{ $content }}
+        </p>
 
-        <div class="mt-4" x-data="{}" x-on:confirming-password.window="setTimeout(() => $refs.confirmable_password.focus(), 250)">
-            <x-input type="password" class="mt-1 block w-3/4" placeholder="{{ __('Password') }}" autocomplete="current-password"
-                        x-ref="confirmable_password"
-                        wire:model="confirmablePassword"
-                        wire:keydown.enter="confirmPassword" />
+        <div class="mt-4" 
+             x-data="{}"
+             x-on:confirming-password.window="setTimeout(() => $refs.confirmable_password.focus(), 250)">
+            <x-input
+                type="password"
+                class="mt-1 block w-3/4"
+                placeholder="{{ __('Password') }}"
+                autocomplete="current-password"
+                x-ref="confirmable_password"
+                wire:model="confirmablePassword"
+                wire:keydown.enter="confirmPassword"
+            />
 
             <x-input-error for="confirmable_password" class="mt-2" />
         </div>
     </x-slot>
 
     <x-slot name="footer">
-        <x-secondary-button wire:click="stopConfirmingPassword" wire:loading.attr="disabled">
+        <x-secondary-button
+            wire:click="stopConfirmingPassword"
+            wire:loading.attr="disabled"
+        >
             {{ __('Cancel') }}
         </x-secondary-button>
 
-        <x-button class="ms-3" dusk="confirm-password-button" wire:click="confirmPassword" wire:loading.attr="disabled">
+        <x-button
+            class="ms-3"
+            dusk="confirm-password-button"
+            wire:click="confirmPassword"
+            wire:loading.attr="disabled"
+        >
             {{ $button }}
         </x-button>
     </x-slot>

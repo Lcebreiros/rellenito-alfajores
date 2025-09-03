@@ -132,81 +132,84 @@ class OrderSidebar extends Component
     }
 
     // 🔥 CORREGIDO: Resolver StockService internamente
-    public function finalize(): void
-    {
-        if ($this->finishing) return;
-        $this->finishing = true;
+public function finalize(): void
+{
+    if ($this->finishing) return;
+    $this->finishing = true;
 
-        $stock = app(StockService::class);
+    $stock = app(StockService::class);
 
-        $draftId = (int) session('draft_order_id');
-        if ($draftId !== (int) $this->orderId) {
-            $this->dispatch('notify', type:'error', message:'Pedido no pertenece a tu sesión.');
-            $this->finishing = false;
-            return;
-        }
+    $draftId = (int) session('draft_order_id');
+    if ($draftId !== (int) $this->orderId) {
+        $this->dispatch('notify', type:'error', message:'Pedido no pertenece a tu sesión.');
+        $this->finishing = false;
+        return;
+    }
 
-        try {
-            $finishedId = null;
-            $affectedProductIds = [];
+    try {
+        $finishedId = null;
+        $affectedProductIds = [];
 
-            DB::transaction(function () use ($stock, &$finishedId, &$affectedProductIds) {
-                $order = Order::with(['items.product'])
-                    ->lockForUpdate()
-                    ->findOrFail($this->orderId);
+        DB::transaction(function () use ($stock, &$finishedId, &$affectedProductIds) {
+            $order = Order::with(['items.product'])
+                ->lockForUpdate()
+                ->findOrFail($this->orderId);
 
-                if ($order->items->isEmpty()) {
-                    throw new DomainException('El pedido está vacío.');
-                }
-
-                foreach ($order->items as $item) {
-                    if ($item->product->stock < $item->quantity) {
-                        throw new DomainException("Stock insuficiente: {$item->product->name}");
-                    }
-                }
-
-                foreach ($order->items as $item) {
-                    $stock->adjust($item->product, -$item->quantity, 'order', $order);
-                    $affectedProductIds[] = $item->product->id;
-                }
-
-                $order->recalcTotal();
-                $order->status = Order::STATUS_COMPLETED;
-                $order->save();
-
-                $finishedId = (int) $order->id;
-            });
-
-            // 👇 CORREGIDO: Limpiar sesión ANTES de crear nuevo draft
-            session()->forget('draft_order_id');
-            
-            // 👇 CORREGIDO: Crear nuevo draft y forzar actualización
-            $this->startNewDraft();
-            
-            // 👇 NUEVO: Forzar re-render completo
-            $this->js('$wire.$refresh()');
-
-            // 👇 NUEVO: Notificar que el stock cambió para productos específicos
-            foreach ($affectedProductIds as $productId) {
-                $this->dispatch('stock-updated', productId: $productId);
+            if ($order->items->isEmpty()) {
+                throw new DomainException('El pedido está vacío.');
             }
 
-            $url = route('orders.show', ['order' => $finishedId]);
-            $this->dispatch('notify',
-                type:'success',
-                message:"Pedido #$finishedId creado correctamente. <a href=\"{$url}\" class=\"underline\">Ver</a>"
-            );
+            foreach ($order->items as $item) {
+                if ($item->product->stock < $item->quantity) {
+                    throw new DomainException("Stock insuficiente: {$item->product->name}");
+                }
+            }
 
-            // 👇 CORREGIDO: Emitir evento global para historial
-            $this->dispatch('order-finalized', id: $finishedId);
+            foreach ($order->items as $item) {
+                $stock->adjust($item->product, -$item->quantity, 'order', $order);
+                $affectedProductIds[] = $item->product->id;
+            }
 
-        } catch (\Throwable $e) {
-            $msg = $e instanceof DomainException ? $e->getMessage() : 'No se pudo finalizar el pedido.';
-            $this->dispatch('notify', type:'error', message:$msg);
-        } finally {
-            $this->finishing = false;
+            $order->recalcTotal();
+            $order->status = Order::STATUS_COMPLETED;
+            $order->save();
+
+            $finishedId = (int) $order->id;
+        });
+
+        // Limpiar draft actual y preparar uno nuevo
+        session()->forget('draft_order_id');
+        $this->startNewDraft();
+        $this->js('$wire.$refresh()');
+
+        // Avisar cambios de stock
+        foreach ($affectedProductIds as $productId) {
+            $this->dispatch('stock-updated', productId: $productId);
         }
+
+        $url = route('orders.show', ['order' => $finishedId]);
+        $this->dispatch('notify',
+            type:'success',
+            message:"Pedido #$finishedId creado correctamente. <a href=\"{$url}\" class=\"underline\">Ver</a>"
+        );
+
+        // ✅ Evento que escucha la vista (toast + modal comprobante)
+        $this->dispatch('order-confirmed', orderId: $finishedId);
+
+        // (Opcional) alias de compatibilidad
+        $this->dispatch('order:confirmed', orderId: $finishedId);
+
+        // (Opcional) mantené tu evento anterior si alguien más lo usa
+        // $this->dispatch('order-finalized', id: $finishedId);
+
+    } catch (\Throwable $e) {
+        $msg = $e instanceof DomainException ? $e->getMessage() : 'No se pudo finalizar el pedido.';
+        $this->dispatch('notify', type:'error', message:$msg);
+    } finally {
+        $this->finishing = false;
     }
+}
+
 
     public function cancel(): void
     {

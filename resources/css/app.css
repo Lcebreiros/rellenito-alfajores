@@ -5,3 +5,9 @@
 [x-cloak] {
     display: none;
 }
+
+@layer components {
+  .card-dark { @apply rounded-2xl border bg-white border-neutral-200 dark:bg-neutral-900 dark:border-neutral-800; }
+  .muted-dark { @apply text-neutral-500 dark:text-neutral-400; }
+  .divider-dark { @apply border-neutral-200 dark:border-neutral-800; }
+}
