@@ -13,7 +13,9 @@
           supports-[backdrop-filter]:bg-white/70 supports-[backdrop-filter]:dark:bg-neutral-950/70';
   $wrap = 'mx-auto max-w-3xl px-2 sm:px-3 relative';
   $grid = 'grid grid-cols-6 items-center h-16 gap-1 relative z-10';  // 6 = 5 items + "Más"
-  $pillLabel = 'text-[10px] sm:text-[11px] font-semibold leading-tight whitespace-nowrap tracking-tight';
+  $pillLabel = 'text-[10px] sm:text-[11px] font-semibold leading-tight tracking-tight
+              text-center whitespace-normal break-words min-w-0';
+
 
   // Determinar qué tab está activo para la animación
   $activeIndex = 0;
@@ -23,187 +25,225 @@
   elseif ($isActive('stock.index')) $activeIndex = 4;
 @endphp
 
-<nav x-data="{ 
-  moreOpen: false,
-  activeIndex: {{ $activeIndex }},
-  init() {
-    this.$watch('activeIndex', () => this.updateIndicator());
-  },
-  updateIndicator() {
-    // La animación se maneja via CSS usando transform
-  }
-}" 
-class="{{ $bar }}" aria-label="Navegación inferior">
+<nav
+  x-data="{ 
+    moreOpen: false,
+    activeIndex: {{ $activeIndex }},
+    updateIndicator() {
+      // Busca todos los tabs clicables
+      const tabsWrap = this.$refs.tabsWrap
+      const tabs = tabsWrap?.querySelectorAll('[data-tab]') ?? []
+      const ind = this.$refs.indicator
+      const track = this.$refs.track
+
+      if (!tabs.length || !ind || !track) return
+
+      const i = Math.max(0, Math.min(this.activeIndex, tabs.length - 1))
+      const rect = tabs[i].getBoundingClientRect()
+      const parentRect = track.getBoundingClientRect()
+
+      const left = rect.left - parentRect.left
+      const width = rect.width
+
+      // Asignar ancho y translateX con transform (para animación suave)
+      ind.style.width = `${width}px`
+      ind.style.transform = `translateX(${left}px)`
+    },
+    init() {
+      // inicial
+      this.$nextTick(() => this.updateIndicator())
+
+      // re-calcular al cambiar el índice
+      this.$watch('activeIndex', () => this.updateIndicator())
+
+      // re-calcular en resize (cambios de viewport, safe-area, etc.)
+      const ro = new ResizeObserver(() => this.updateIndicator())
+      ro.observe(this.$refs.track)
+      window.addEventListener('resize', this.updateIndicator)
+    },
+  }"
+  class="{{ $bar }}"
+  aria-label="Navegación inferior"
+>
+
   
-  {{-- PASTILLA ANIMADA DE FONDO --}}
+  {{-- PASTILLA ANIMADA DE FONDO (track absoluto + indicador medido) --}}
   <div class="absolute inset-x-0 top-0 h-16 px-2 sm:px-3 pointer-events-none">
-    <div class="mx-auto max-w-3xl h-full relative">
-      <div class="absolute top-2 w-[calc((100%-4px)/6)] h-12 rounded-2xl
+    <div class="mx-auto max-w-3xl h-full relative" x-ref="track">
+      <div x-ref="indicator"
+           class="absolute top-2 h-12 rounded-2xl
                   bg-gradient-to-br from-white to-neutral-50 
                   dark:from-neutral-100 dark:to-neutral-200
                   shadow-lg shadow-neutral-900/10 dark:shadow-black/20
                   ring-1 ring-black/[0.08] dark:ring-white/[0.1]
-                  transition-transform duration-500 ease-[cubic-bezier(0.34,1.56,0.64,1)]
-                  will-change-transform"
-           :style="`transform: translateX(${activeIndex * (100/6 + 0.16667)}%)`">
-        {{-- Highlight superior sutil --}}
+                  transition-[transform,width] duration-400
+                  ease-[cubic-bezier(0.34,1.56,0.64,1)]
+                  will-change-transform">
         <div class="absolute inset-x-2 top-0.5 h-px bg-white/60 rounded-full"></div>
       </div>
     </div>
   </div>
 
+
   <div class="{{ $wrap }}">
-    <div class="{{ $grid }}">
+    <div class="{{ $grid }}" x-ref="tabsWrap">
 
-      {{-- Dashboard --}}
-      <a href="{{ route('dashboard') }}" wire:navigate data-turbo="false"
-         @click="activeIndex = 0"
-         class="group flex justify-center touch-manipulation transition-all duration-200
-                hover:scale-110 active:scale-95"
-         aria-current="{{ $isActive('dashboard') ? 'page' : 'false' }}">
-        <div class="inline-flex flex-col items-center justify-center gap-1.5 px-2 py-2 rounded-2xl
-                    min-w-[60px] min-h-[52px] transition-all duration-300">
-          <div class="relative">
-            <img src="{{ asset('images/dashboard.png') }}" alt="Dashboard"
-                 class="w-6 h-6 object-contain transition-all duration-300 
-                        {{ $isActive('dashboard') ? 'scale-110 drop-shadow-sm' : 'opacity-70 group-hover:opacity-90 group-hover:scale-105' }}">
-            {{-- Glow effect para elemento activo --}}
-            @if($isActive('dashboard'))
-            <div class="absolute inset-0 w-6 h-6 bg-blue-400/20 rounded-full blur-sm animate-pulse"></div>
-            @endif
-          </div>
-          <span class="{{ $pillLabel }} transition-all duration-300
-                       {{ $isActive('dashboard') ? 'text-neutral-900 dark:text-neutral-900 font-bold' : 'text-neutral-600 dark:text-neutral-400 group-hover:text-neutral-800 dark:group-hover:text-neutral-300' }}">
-            Dashboard
-          </span>
-        </div>
-      </a>
 
-      {{-- Crear pedido --}}
-      <a href="{{ route('orders.create') }}" wire:navigate data-turbo="false"
-         @click="activeIndex = 1"
-         class="group flex justify-center touch-manipulation transition-all duration-200
-                hover:scale-110 active:scale-95"
-         aria-current="{{ $isActive('orders.create') ? 'page' : 'false' }}">
-        <div class="inline-flex flex-col items-center justify-center gap-1.5 px-2 py-2 rounded-2xl
-                    min-w-[60px] min-h-[52px] transition-all duration-300">
-          <div class="relative">
-            <img src="{{ asset('images/crear-pedido.png') }}" alt="Crear pedido"
-                 class="w-6 h-6 object-contain transition-all duration-300
-                        {{ $isActive('orders.create') ? 'scale-110 drop-shadow-sm' : 'opacity-70 group-hover:opacity-90 group-hover:scale-105' }}">
-            @if($isActive('orders.create'))
-            <div class="absolute inset-0 w-6 h-6 bg-green-400/20 rounded-full blur-sm animate-pulse"></div>
-            @endif
-          </div>
-          <span class="{{ $pillLabel }} transition-all duration-300
-                       {{ $isActive('orders.create') ? 'text-neutral-900 dark:text-neutral-900 font-bold' : 'text-neutral-600 dark:text-neutral-400 group-hover:text-neutral-800 dark:group-hover:text-neutral-300' }}">
-            Crear
-          </span>
-        </div>
-      </a>
+{{-- Dashboard --}}
+<a href="{{ route('dashboard') }}" wire:navigate data-turbo="false"
+   @click="activeIndex = 0"
+   data-tab
+   class="group flex justify-center touch-manipulation transition-all duration-200
+          hover:scale-110 active:scale-95"
+   aria-current="{{ $isActive('dashboard') ? 'page' : 'false' }}">
+  <div class="inline-flex flex-col items-center justify-center gap-1.5 px-2 py-2 rounded-2xl
+              min-w-0 min-h-[52px] transition-all duration-300">
+    <div class="relative">
+      <img src="{{ asset('images/dashboard.png') }}" alt="Dashboard"
+           class="w-6 h-6 object-contain transition-all duration-300 
+                  {{ $isActive('dashboard') ? 'scale-110 drop-shadow-sm' : 'opacity-70 group-hover:opacity-90 group-hover:scale-105' }}">
+      @if($isActive('dashboard'))
+        <div class="absolute inset-0 w-6 h-6 bg-blue-400/20 rounded-full blur-sm animate-pulse"></div>
+      @endif
+    </div>
+    <span class="{{ $pillLabel }} transition-all duration-300
+                 {{ $isActive('dashboard') ? 'text-neutral-900 dark:text-neutral-900 font-bold' : 'text-neutral-600 dark:text-neutral-400 group-hover:text-neutral-800 dark:group-hover:text-neutral-300' }}">
+      Dashboard
+    </span>
+  </div>
+</a>
 
-      {{-- Lista de pedidos --}}
-      <a href="{{ $ordersUrl }}" wire:navigate data-turbo="false"
-         @click="activeIndex = 2"
-         class="group flex justify-center touch-manipulation transition-all duration-200
-                hover:scale-110 active:scale-95"
-         aria-current="{{ $isActive('orders.index') ? 'page' : 'false' }}">
-        <div class="inline-flex flex-col items-center justify-center gap-1.5 px-2 py-2 rounded-2xl
-                    min-w-[60px] min-h-[52px] transition-all duration-300">
-          <div class="relative">
-            <img src="{{ asset('images/pedidos.png') }}" alt="Pedidos"
-                 class="w-6 h-6 object-contain transition-all duration-300
-                        {{ $isActive('orders.index') ? 'scale-110 drop-shadow-sm' : 'opacity-70 group-hover:opacity-90 group-hover:scale-105' }}">
-            @if($isActive('orders.index'))
-            <div class="absolute inset-0 w-6 h-6 bg-blue-400/20 rounded-full blur-sm animate-pulse"></div>
-            @endif
-          </div>
-          <span class="{{ $pillLabel }} transition-all duration-300
-                       {{ $isActive('orders.index') ? 'text-neutral-900 dark:text-neutral-900 font-bold' : 'text-neutral-600 dark:text-neutral-400 group-hover:text-neutral-800 dark:group-hover:text-neutral-300' }}">
-            Pedidos
-          </span>
-        </div>
-      </a>
+{{-- Crear pedido --}}
+<a href="{{ route('orders.create') }}" wire:navigate data-turbo="false"
+   @click="activeIndex = 1"
+   data-tab
+   class="group flex justify-center touch-manipulation transition-all duration-200
+          hover:scale-110 active:scale-95"
+   aria-current="{{ $isActive('orders.create') ? 'page' : 'false' }}">
+  <div class="inline-flex flex-col items-center justify-center gap-1.5 px-2 py-2 rounded-2xl
+              min-w-0 min-h-[52px] transition-all duration-300">
+    <div class="relative">
+      <img src="{{ asset('images/crear-pedido.png') }}" alt="Crear pedido"
+           class="w-6 h-6 object-contain transition-all duration-300
+                  {{ $isActive('orders.create') ? 'scale-110 drop-shadow-sm' : 'opacity-70 group-hover:opacity-90 group-hover:scale-105' }}">
+      @if($isActive('orders.create'))
+        <div class="absolute inset-0 w-6 h-6 bg-green-400/20 rounded-full blur-sm animate-pulse"></div>
+      @endif
+    </div>
+    <span class="{{ $pillLabel }} transition-all duration-300
+                 {{ $isActive('orders.create') ? 'text-neutral-900 dark:text-neutral-900 font-bold' : 'text-neutral-600 dark:text-neutral-400 group-hover:text-neutral-800 dark:group-hover:text-neutral-300' }}">
+      Crear
+    </span>
+  </div>
+</a>
 
-      {{-- Productos --}}
-      <a href="{{ route('products.index') }}" wire:navigate data-turbo="false"
-         @click="activeIndex = 3"
-         class="group flex justify-center touch-manipulation transition-all duration-200
-                hover:scale-110 active:scale-95"
-         aria-current="{{ $isActive('products.*') ? 'page' : 'false' }}">
-        <div class="inline-flex flex-col items-center justify-center gap-1.5 px-2 py-2 rounded-2xl
-                    min-w-[60px] min-h-[52px] transition-all duration-300">
-          <div class="relative">
-            <img src="{{ asset('images/productos.png') }}" alt="Productos"
-                 class="w-6 h-6 object-contain transition-all duration-300
-                        {{ $isActive('products.*') ? 'scale-110 drop-shadow-sm' : 'opacity-70 group-hover:opacity-90 group-hover:scale-105' }}">
-            @if($isActive('products.*'))
-            <div class="absolute inset-0 w-6 h-6 bg-purple-400/20 rounded-full blur-sm animate-pulse"></div>
-            @endif
-          </div>
-          <span class="{{ $pillLabel }} transition-all duration-300
-                       {{ $isActive('products.*') ? 'text-neutral-900 dark:text-neutral-900 font-bold' : 'text-neutral-600 dark:text-neutral-400 group-hover:text-neutral-800 dark:group-hover:text-neutral-300' }}">
-            Productos
-          </span>
-        </div>
-      </a>
+{{-- Lista de pedidos --}}
+<a href="{{ $ordersUrl }}" wire:navigate data-turbo="false"
+   @click="activeIndex = 2"
+   data-tab
+   class="group flex justify-center touch-manipulation transition-all duration-200
+          hover:scale-110 active:scale-95"
+   aria-current="{{ $isActive('orders.index') ? 'page' : 'false' }}">
+  <div class="inline-flex flex-col items-center justify-center gap-1.5 px-2 py-2 rounded-2xl
+              min-w-0 min-h-[52px] transition-all duration-300">
+    <div class="relative">
+      <img src="{{ asset('images/pedidos.png') }}" alt="Pedidos"
+           class="w-6 h-6 object-contain transition-all duration-300
+                  {{ $isActive('orders.index') ? 'scale-110 drop-shadow-sm' : 'opacity-70 group-hover:opacity-90 group-hover:scale-105' }}">
+      @if($isActive('orders.index'))
+        <div class="absolute inset-0 w-6 h-6 bg-blue-400/20 rounded-full blur-sm animate-pulse"></div>
+      @endif
+    </div>
+    <span class="{{ $pillLabel }} transition-all duration-300
+                 {{ $isActive('orders.index') ? 'text-neutral-900 dark:text-neutral-900 font-bold' : 'text-neutral-600 dark:text-neutral-400 group-hover:text-neutral-800 dark:group-hover:text-neutral-300' }}">
+      Pedidos
+    </span>
+  </div>
+</a>
 
-      {{-- Stock --}}
-      <a href="{{ route('stock.index') }}#stock" wire:navigate data-turbo="false"
-         @click="activeIndex = 4"
-         class="group flex justify-center touch-manipulation transition-all duration-200
-                hover:scale-110 active:scale-95"
-         aria-current="{{ $isActive('stock.index') ? 'page' : 'false' }}">
-        <div class="inline-flex flex-col items-center justify-center gap-1.5 px-2 py-2 rounded-2xl
-                    min-w-[60px] min-h-[52px] transition-all duration-300">
-          <div class="relative">
-            <img src="{{ asset('images/stock.png') }}" alt="Stock"
-                 class="w-6 h-6 object-contain transition-all duration-300
-                        {{ $isActive('stock.index') ? 'scale-110 drop-shadow-sm' : 'opacity-70 group-hover:opacity-90 group-hover:scale-105' }}">
-            @if($isActive('stock.index'))
-            <div class="absolute inset-0 w-6 h-6 bg-orange-400/20 rounded-full blur-sm animate-pulse"></div>
-            @endif
-          </div>
-          <span class="{{ $pillLabel }} transition-all duration-300
-                       {{ $isActive('stock.index') ? 'text-neutral-900 dark:text-neutral-900 font-bold' : 'text-neutral-600 dark:text-neutral-400 group-hover:text-neutral-800 dark:group-hover:text-neutral-300' }}">
-            Stock
-          </span>
-        </div>
-      </a>
+{{-- Productos --}}
+<a href="{{ route('products.index') }}" wire:navigate data-turbo="false"
+   @click="activeIndex = 3"
+   data-tab
+   class="group flex justify-center touch-manipulation transition-all duration-200
+          hover:scale-110 active:scale-95"
+   aria-current="{{ $isActive('products.*') ? 'page' : 'false' }}">
+  <div class="inline-flex flex-col items-center justify-center gap-1.5 px-2 py-2 rounded-2xl
+              min-w-0 min-h-[52px] transition-all duration-300">
+    <div class="relative">
+      <img src="{{ asset('images/productos.png') }}" alt="Productos"
+           class="w-6 h-6 object-contain transition-all duration-300
+                  {{ $isActive('products.*') ? 'scale-110 drop-shadow-sm' : 'opacity-70 group-hover:opacity-90 group-hover:scale-105' }}">
+      @if($isActive('products.*'))
+        <div class="absolute inset-0 w-6 h-6 bg-purple-400/20 rounded-full blur-sm animate-pulse"></div>
+      @endif
+    </div>
+    <span class="{{ $pillLabel }} transition-all duration-300
+                 {{ $isActive('products.*') ? 'text-neutral-900 dark:text-neutral-900 font-bold' : 'text-neutral-600 dark:text-neutral-400 group-hover:text-neutral-800 dark:group-hover:text-neutral-300' }}">
+      Productos
+    </span>
+  </div>
+</a>
 
-      {{-- Más: menú con Configuración, Perfil y Salir --}}
-      <div class="relative flex justify-center">
-        <button type="button"
-                @click.stop="moreOpen = !moreOpen"
-                @keydown.escape.window="moreOpen = false"
-                @click.outside="moreOpen = false"
-                class="group touch-manipulation transition-all duration-200
-                       hover:scale-110 active:scale-95"
-                aria-haspopup="menu" 
-                :aria-expanded="moreOpen">
-          <div class="inline-flex flex-col items-center justify-center gap-1.5 px-2 py-2 rounded-2xl
-                       min-w-[60px] min-h-[52px] transition-all duration-300"
-               :class="moreOpen ? 'scale-110' : ''">
-            <div class="relative">
-              {{-- Avatar o ícono de configuración --}}
-              @if (Laravel\Jetstream\Jetstream::managesProfilePhotos())
-                <img class="w-6 h-6 rounded-full object-cover ring-2 transition-all duration-300"
-                     :class="moreOpen ? 'ring-white dark:ring-neutral-200 scale-110 drop-shadow-sm' : 'ring-transparent opacity-70 group-hover:opacity-90 group-hover:scale-105'"
-                     src="{{ Auth::user()->profile_photo_url }}" alt="{{ Auth::user()->name }}">
-                <div x-show="moreOpen" class="absolute inset-0 w-6 h-6 bg-indigo-400/20 rounded-full blur-sm animate-pulse"></div>
-              @else
-                <img src="{{ asset('images/configuraciones.png') }}" alt="Más" 
-                     class="w-6 h-6 object-contain transition-all duration-300"
-                     :class="moreOpen ? 'scale-110 drop-shadow-sm' : 'opacity-70 group-hover:opacity-90 group-hover:scale-105'">
-                <div x-show="moreOpen" class="absolute inset-0 w-6 h-6 bg-indigo-400/20 rounded-full blur-sm animate-pulse"></div>
-              @endif
-            </div>
-            <span class="{{ $pillLabel }} transition-all duration-300"
-                  :class="moreOpen ? 'text-neutral-900 dark:text-neutral-900 font-bold' : 'text-neutral-600 dark:text-neutral-400 group-hover:text-neutral-800 dark:group-hover:text-neutral-300'">
-              Más
-            </span>
-          </div>
-        </button>
+{{-- Stock --}}
+<a href="{{ route('stock.index') }}#stock" wire:navigate data-turbo="false"
+   @click="activeIndex = 4"
+   data-tab
+   class="group flex justify-center touch-manipulation transition-all duration-200
+          hover:scale-110 active:scale-95"
+   aria-current="{{ $isActive('stock.index') ? 'page' : 'false' }}">
+  <div class="inline-flex flex-col items-center justify-center gap-1.5 px-2 py-2 rounded-2xl
+              min-w-0 min-h-[52px] transition-all duration-300">
+    <div class="relative">
+      <img src="{{ asset('images/stock.png') }}" alt="Stock"
+           class="w-6 h-6 object-contain transition-all duration-300
+                  {{ $isActive('stock.index') ? 'scale-110 drop-shadow-sm' : 'opacity-70 group-hover:opacity-90 group-hover:scale-105' }}">
+      @if($isActive('stock.index'))
+        <div class="absolute inset-0 w-6 h-6 bg-orange-400/20 rounded-full blur-sm animate-pulse"></div>
+      @endif
+    </div>
+    <span class="{{ $pillLabel }} transition-all duration-300
+                 {{ $isActive('stock.index') ? 'text-neutral-900 dark:text-neutral-900 font-bold' : 'text-neutral-600 dark:text-neutral-400 group-hover:text-neutral-800 dark:group-hover:text-neutral-300' }}">
+      Stock
+    </span>
+  </div>
+</a>
+
+{{-- Más: menú con Configuración, Perfil y Salir --}}
+<div class="relative flex justify-center">
+  <button type="button"
+          @click.stop="activeIndex = 5; moreOpen = !moreOpen"
+          @keydown.escape.window="moreOpen = false"
+          @click.outside="moreOpen = false"
+          data-tab
+          class="group touch-manipulation transition-all duration-200
+                 hover:scale-110 active:scale-95"
+          aria-haspopup="menu" 
+          :aria-expanded="moreOpen">
+    <div class="inline-flex flex-col items-center justify-center gap-1.5 px-2 py-2 rounded-2xl
+                 min-w-0 min-h-[52px] transition-all duration-300"
+         :class="moreOpen ? 'scale-110' : ''">
+      <div class="relative">
+        @if (Laravel\Jetstream\Jetstream::managesProfilePhotos())
+          <img class="w-6 h-6 rounded-full object-cover ring-2 transition-all duration-300"
+               :class="moreOpen ? 'ring-white dark:ring-neutral-200 scale-110 drop-shadow-sm' : 'ring-transparent opacity-70 group-hover:opacity-90 group-hover:scale-105'"
+               src="{{ Auth::user()->profile_photo_url }}" alt="{{ Auth::user()->name }}">
+          <div x-show="moreOpen" class="absolute inset-0 w-6 h-6 bg-indigo-400/20 rounded-full blur-sm animate-pulse"></div>
+        @else
+          <img src="{{ asset('images/configuraciones.png') }}" alt="Más" 
+               class="w-6 h-6 object-contain transition-all duration-300"
+               :class="moreOpen ? 'scale-110 drop-shadow-sm' : 'opacity-70 group-hover:opacity-90 group-hover:scale-105'">
+          <div x-show="moreOpen" class="absolute inset-0 w-6 h-6 bg-indigo-400/20 rounded-full blur-sm animate-pulse"></div>
+        @endif
+      </div>
+      <span class="{{ $pillLabel }} transition-all duration-300"
+            :class="moreOpen ? 'text-neutral-900 dark:text-neutral-900 font-bold' : 'text-neutral-600 dark:text-neutral-400 group-hover:text-neutral-800 dark:group-hover:text-neutral-300'">
+        Más
+      </span>
+    </div>
+  </button>
+</div>
+
 
         {{-- Popover ultra profesional --}}
         <div x-show="moreOpen" 
