@@ -4,26 +4,37 @@
   // Igual que en tu sidebar:
   $ordersUrl = Route::has('orders.index') ? route('orders.index') : route('orders.create');
 
+  
+
   // helpers
   $isActive = function ($pattern) { return request()->routeIs($pattern); };
+
+  // NUEVO: fallbacks seguros para links del popover
+  $settingsUrl = Route::has('settings')
+      ? route('settings')
+      : (Route::has('settings.index')
+          ? route('settings.index')
+          : (Route::has('profile.show') ? route('profile.show') : '#'));
+
+  $profileUrl = Route::has('profile.show') ? route('profile.show') : '#';
 
   $bar = 'fixed bottom-0 inset-x-0 z-50 md:hidden
           border-t border-neutral-200/50 dark:border-neutral-800/50
           bg-white/80 dark:bg-neutral-950/80 backdrop-blur-xl
           supports-[backdrop-filter]:bg-white/70 supports-[backdrop-filter]:dark:bg-neutral-950/70';
   $wrap = 'mx-auto max-w-3xl px-2 sm:px-3 relative';
-  $grid = 'grid grid-cols-6 items-center h-16 gap-1 relative z-10';  // 6 = 5 items + "Más"
+  $grid = 'grid grid-cols-6 items-center h-16 gap-1 relative z-10';
   $pillLabel = 'text-[10px] sm:text-[11px] font-semibold leading-tight tracking-tight
-              text-center whitespace-normal break-words min-w-0';
+                text-center whitespace-normal break-words min-w-0';
 
-
-  // Determinar qué tab está activo para la animación
+  // Activo
   $activeIndex = 0;
   if ($isActive('orders.create')) $activeIndex = 1;
   elseif ($isActive('orders.index')) $activeIndex = 2;
   elseif ($isActive('products.*')) $activeIndex = 3;
   elseif ($isActive('stock.index')) $activeIndex = 4;
 @endphp
+
 
 <nav
   x-data="{ 
@@ -49,18 +60,22 @@
       ind.style.width = `${width}px`
       ind.style.transform = `translateX(${left}px)`
     },
-    init() {
-      // inicial
-      this.$nextTick(() => this.updateIndicator())
+init() {
+  // inicial
+  this.$nextTick(() => this.updateIndicator())
 
-      // re-calcular al cambiar el índice
-      this.$watch('activeIndex', () => this.updateIndicator())
+  // re-calcular al cambiar el índice
+  this.$watch('activeIndex', () => this.updateIndicator())
 
-      // re-calcular en resize (cambios de viewport, safe-area, etc.)
-      const ro = new ResizeObserver(() => this.updateIndicator())
-      ro.observe(this.$refs.track)
-      window.addEventListener('resize', this.updateIndicator)
-    },
+  // re-calcular en resize (cambios de viewport, safe-area, etc.)
+  const ro = new ResizeObserver(() => this.updateIndicator())
+  ro.observe(this.$refs.track)
+  window.addEventListener('resize', this.updateIndicator)
+
+  // 🔹 Recalcular luego de navegaciones SPA de Livewire
+  window.addEventListener('livewire:navigated', () => this.updateIndicator())
+},
+
   }"
   class="{{ $bar }}"
   aria-label="Navegación inferior"
@@ -284,36 +299,37 @@
 
           {{-- Menu items --}}
           <div class="py-2">
-            {{-- Configuración --}}
-            <a href="{{ route('settings') }}" wire:navigate data-turbo="false"
-               @click="moreOpen = false"
-               class="flex items-center gap-3 px-4 py-3 text-sm group
-                      hover:bg-neutral-100/80 dark:hover:bg-neutral-800/50
-                      active:bg-neutral-200/80 dark:active:bg-neutral-700/50
-                      transition-all duration-200 touch-manipulation">
-              <div class="w-8 h-8 rounded-xl bg-neutral-100 dark:bg-neutral-800 flex items-center justify-center group-hover:bg-neutral-200 dark:group-hover:bg-neutral-700 transition-colors">
-                <img src="{{ asset('images/configuraciones.png') }}" alt="Configuración" class="w-4 h-4 opacity-75">
-              </div>
-              <span class="font-medium text-neutral-700 dark:text-neutral-300 group-hover:text-neutral-900 dark:group-hover:text-neutral-100">Configuración</span>
-            </a>
+{{-- Configuración (usar $settingsUrl) --}}
+<a href="{{ $settingsUrl }}" wire:navigate data-turbo="false"
+   @click="moreOpen = false"
+   class="flex items-center gap-3 px-4 py-3 text-sm group
+          hover:bg-neutral-100/80 dark:hover:bg-neutral-800/50
+          active:bg-neutral-200/80 dark:active:bg-neutral-700/50
+          transition-all duration-200 touch-manipulation">
+  <div class="w-8 h-8 rounded-xl bg-neutral-100 dark:bg-neutral-800 flex items-center justify-center group-hover:bg-neutral-200 dark:group-hover:bg-neutral-700 transition-colors">
+    <img src="{{ asset('images/configuraciones.png') }}" alt="Configuración" class="w-4 h-4 opacity-75">
+  </div>
+  <span class="font-medium text-neutral-700 dark:text-neutral-300 group-hover:text-neutral-900 dark:group-hover:text-neutral-100">Configuración</span>
+</a>
 
             {{-- Perfil --}}
-            <a href="{{ route('profile.show') }}" wire:navigate data-turbo="false"
-               @click="moreOpen = false"
-               class="flex items-center gap-3 px-4 py-3 text-sm group
-                      hover:bg-neutral-100/80 dark:hover:bg-neutral-800/50
-                      active:bg-neutral-200/80 dark:active:bg-neutral-700/50
-                      transition-all duration-200 touch-manipulation">
-              <div class="w-8 h-8 rounded-xl bg-neutral-100 dark:bg-neutral-800 flex items-center justify-center group-hover:bg-neutral-200 dark:group-hover:bg-neutral-700 transition-colors">
-                @if (Laravel\Jetstream\Jetstream::managesProfilePhotos())
-                  <img class="w-5 h-5 rounded-lg object-cover" 
-                       src="{{ Auth::user()->profile_photo_url }}" alt="{{ Auth::user()->name }}">
-                @else
-                  <img src="{{ asset('images/productos.png') }}" alt="Perfil" class="w-4 h-4 opacity-75">
-                @endif
-              </div>
-              <span class="font-medium text-neutral-700 dark:text-neutral-300 group-hover:text-neutral-900 dark:group-hover:text-neutral-100">Perfil</span>
-            </a>
+{{-- Perfil (usar $profileUrl) --}}
+<a href="{{ $profileUrl }}" wire:navigate data-turbo="false"
+   @click="moreOpen = false"
+   class="flex items-center gap-3 px-4 py-3 text-sm group
+          hover:bg-neutral-100/80 dark:hover:bg-neutral-800/50
+          active:bg-neutral-200/80 dark:active:bg-neutral-700/50
+          transition-all duration-200 touch-manipulation">
+  <div class="w-8 h-8 rounded-xl bg-neutral-100 dark:bg-neutral-800 flex items-center justify-center group-hover:bg-neutral-200 dark:group-hover:bg-neutral-700 transition-colors">
+    @if (Laravel\Jetstream\Jetstream::managesProfilePhotos())
+      <img class="w-5 h-5 rounded-lg object-cover" 
+           src="{{ Auth::user()->profile_photo_url }}" alt="{{ Auth::user()->name }}">
+    @else
+      <img src="{{ asset('images/productos.png') }}" alt="Perfil" class="w-4 h-4 opacity-75">
+    @endif
+  </div>
+  <span class="font-medium text-neutral-700 dark:text-neutral-300 group-hover:text-neutral-900 dark:group-hover:text-neutral-100">Perfil</span>
+</a>
           </div>
 
           {{-- Divisor elegante --}}
