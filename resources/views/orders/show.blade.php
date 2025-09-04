@@ -27,12 +27,29 @@
 
 @section('content')
 @php
-  $customerName  = $order->customer_name ?? $order->user->name ?? 'Cliente';
-  $customerEmail = $order->customer_email ?? $order->user->email ?? '';
-  $customerPhone = $order->customer_phone ?? '';
-  $shippingAddr  = $order->shipping_address ?? '';
-  $notes         = $order->notes ?? null;
+  // ---------- Cliente / contacto ----------
+  $client       = $order->client ?? null;
+  $userOwner    = $order->user ?? null;
 
+  $customerName  = $client->name
+                    ?? $order->customer_name
+                    ?? ($userOwner->name ?? 'Sin cliente');
+
+  $customerEmail = $client->email
+                    ?? $order->customer_email
+                    ?? null;
+
+  $customerPhone = $client->phone
+                    ?? $order->customer_phone
+                    ?? null;
+
+  $shippingAddr  = $order->shipping_address
+                    ?? ($client->address ?? null);
+
+  // Soporta ambas convenciones: note / notes
+  $notes         = $order->note ?? $order->notes ?? null;
+
+  // ---------- Totales / items ----------
   $fmt = fn($n) => '$'.number_format((float)$n, 2, ',', '.');
 
   $items = $order->items ?? collect();
@@ -70,11 +87,13 @@
       @endif
 
       @can('update', $order)
-        <a href="{{ route('orders.edit', $order) }}"
-           class="inline-flex items-center justify-center gap-2 px-3 py-2 rounded-lg bg-indigo-600 text-white hover:bg-indigo-700 transition-colors text-sm">
-          <svg class="w-4 h-4" viewBox="0 0 24 24" fill="none"><path d="M16.5 3.5a2.121 2.121 0 1 1 3 3L8 18l-4 1 1-4 11.5-11.5Z" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>
-          Editar
-        </a>
+        @if(\Illuminate\Support\Facades\Route::has('orders.edit'))
+          <a href="{{ route('orders.edit', $order) }}"
+             class="inline-flex items-center justify-center gap-2 px-3 py-2 rounded-lg bg-indigo-600 text-white hover:bg-indigo-700 transition-colors text-sm">
+            <svg class="w-4 h-4" viewBox="0 0 24 24" fill="none"><path d="M16.5 3.5a2.121 2.121 0 1 1 3 3L8 18l-4 1 1-4 11.5-11.5Z" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>
+            Editar
+          </a>
+        @endif
       @endcan
 
       <button onclick="window.print()"
@@ -185,26 +204,46 @@
     <div class="lg:col-span-5 xl:col-span-4 space-y-6">
       {{-- Cliente --}}
       <div class="bg-white dark:bg-neutral-900 rounded-2xl border border-neutral-200 dark:border-neutral-800 shadow-sm">
-        <div class="px-5 sm:px-6 py-5 border-b border-neutral-100 dark:border-neutral-800/60">
+        <div class="px-5 sm:px-6 py-5 border-b border-neutral-100 dark:border-neutral-800/60 flex items-center justify-between">
           <h3 class="text-base font-semibold text-neutral-900 dark:text-neutral-100">Cliente</h3>
+
+          @if(!$order->client && \Illuminate\Support\Facades\Route::has('clients.index'))
+            <a href="{{ route('clients.index') }}"
+               class="text-xs px-2 py-1 rounded-md bg-neutral-100 dark:bg-neutral-800 text-neutral-700 dark:text-neutral-200 hover:bg-neutral-200 dark:hover:bg-neutral-700">
+              Asignar cliente
+            </a>
+          @endif
         </div>
+
         <div class="px-5 sm:px-6 py-5 space-y-4">
           <div>
             <div class="text-xs text-neutral-500 dark:text-neutral-400 mb-1">Nombre</div>
-            <div class="font-medium text-neutral-900 dark:text-neutral-100 text-[15px]">{{ $customerName }}</div>
+            <div class="font-medium text-neutral-900 dark:text-neutral-100 text-[15px]">
+              {{ $customerName ?: 'Sin cliente' }}
+            </div>
           </div>
 
           @if($customerEmail)
-            <div>
-              <div class="text-xs text-neutral-500 dark:text-neutral-400 mb-1">Email</div>
-              <div class="font-medium text-neutral-700 dark:text-neutral-200 text-sm break-all">{{ $customerEmail }}</div>
+            <div class="flex items-center justify-between gap-3">
+              <div>
+                <div class="text-xs text-neutral-500 dark:text-neutral-400 mb-1">Email</div>
+                <div class="font-medium text-neutral-700 dark:text-neutral-200 text-sm break-all">{{ $customerEmail }}</div>
+              </div>
+              <a href="mailto:{{ $customerEmail }}" class="shrink-0 inline-flex items-center px-2 py-1.5 rounded-md bg-indigo-600 text-white text-xs hover:bg-indigo-700">
+                Enviar
+              </a>
             </div>
           @endif
 
           @if($customerPhone)
-            <div>
-              <div class="text-xs text-neutral-500 dark:text-neutral-400 mb-1">Teléfono</div>
-              <div class="font-medium text-neutral-700 dark:text-neutral-200">{{ $customerPhone }}</div>
+            <div class="flex items-center justify-between gap-3">
+              <div>
+                <div class="text-xs text-neutral-500 dark:text-neutral-400 mb-1">Teléfono</div>
+                <div class="font-medium text-neutral-700 dark:text-neutral-200">{{ $customerPhone }}</div>
+              </div>
+              <a href="tel:{{ preg_replace('/\s+/', '', $customerPhone) }}" class="shrink-0 inline-flex items-center px-2 py-1.5 rounded-md bg-emerald-600 text-white text-xs hover:bg-emerald-700">
+                Llamar
+              </a>
             </div>
           @endif
 
@@ -219,7 +258,7 @@
             <div class="pt-2">
               <div class="text-xs text-neutral-500 dark:text-neutral-400 mb-1">Notas</div>
               <div class="text-neutral-700 dark:text-neutral-200 bg-neutral-50 dark:bg-neutral-950/40 border border-neutral-100 dark:border-neutral-800/60 rounded-lg p-3 text-sm leading-relaxed">
-                {{ Str::limit($notes, 200) }}
+                {{ \Illuminate\Support\Str::limit($notes, 200) }}
               </div>
             </div>
           @endif

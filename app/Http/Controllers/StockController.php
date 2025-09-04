@@ -10,42 +10,24 @@ class StockController extends Controller
 {
     public function index(Request $request)
     {
-        $q        = trim((string) $request->input('q', ''));
-        $status   = (string) $request->input('status', ''); // in, low, out
-        $orderBy  = (string) $request->input('order_by', 'name'); // name|stock|value
-        $dir      = (string) $request->input('dir', 'asc');       // asc|desc
-
-        $products = Product::query()
-            ->when($q !== '', function ($query) use ($q) {
-                $query->where(function ($w) use ($q) {
-                    $w->where('name', 'like', "%{$q}%")
-                      ->orWhere('sku', 'like', "%{$q}%")
-                      ->orWhere('barcode', 'like', "%{$q}%");
-                });
-            })
-            ->when($status !== '', function ($query) use ($status) {
-                // Suponiendo columnas: stock (int), reorder_level (int|null)
-                // Ajustá 'reorder_level' si tu modelo usa otro nombre.
-                $query->when($status === 'out', fn($q) => $q->where('stock', '<=', 0))
-                      ->when($status === 'low', fn($q) => $q->where('stock', '>', 0)->whereColumn('stock', '<=', 'reorder_level'))
-                      ->when($status === 'in',  fn($q) => $q->where('stock', '>', 0)->where(function($w){
-                          $w->whereNull('reorder_level')->orWhereColumn('stock', '>', 'reorder_level');
-                      }));
-            });
+        [$query, $meta] = $this->buildProductsQuery($request);
 
         // Orden
-        $products = match ($orderBy) {
-            'stock' => $products->orderBy('stock', $dir),
-            'value' => $products->orderByRaw('(COALESCE(price,0) * COALESCE(stock,0)) ' . ($dir === 'desc' ? 'desc' : 'asc')),
-            default => $products->orderBy('name', $dir),
+        $orderBy = (string) $request->input('order_by', 'name'); // name|stock|value
+        $dir     = strtolower((string) $request->input('dir', 'asc')) === 'desc' ? 'desc' : 'asc';
+
+        $query = match ($orderBy) {
+            'stock' => $query->orderBy('stock', $dir),
+            'value' => $query->orderByRaw('(COALESCE(price,0) * COALESCE(stock,0)) ' . $dir), // <-- si tu columna no es price, cámbiala aquí también
+            default => $query->orderBy('name', $dir),
         };
 
-        $products = $products->paginate(24)->withQueryString();
+        $products = $query->paginate(24)->withQueryString();
 
-        // Totales para el resumen
-        $totals = (clone $products->getCollection())
+        // Totales (de la página actual; si querés de todo el dataset, hacé una query aparte sin paginate)
+        $totals = $products->getCollection()
             ->reduce(function ($acc, $p) {
-                $price = (float) ($p->price ?? 0);
+                $price = (float) ($p->price ?? 0);  // <-- si tu columna no es price, cámbiala aquí también
                 $stock = (int) ($p->stock ?? 0);
                 $acc['items'] += 1;
                 $acc['units'] += $stock;
@@ -53,30 +35,20 @@ class StockController extends Controller
                 return $acc;
             }, ['items' => 0, 'units' => 0, 'value' => 0.0]);
 
-        return view('stock.index', compact('products', 'totals', 'q', 'status', 'orderBy', 'dir'));
+        return view('stock.index', [
+            'products' => $products,
+            'totals'   => $totals,
+            'q'        => $meta['q'],
+            'status'   => $meta['status'],
+            'orderBy'  => $orderBy,
+            'dir'      => $dir,
+        ]);
     }
 
     public function exportCsv(Request $request): StreamedResponse
     {
-        $q      = trim((string) $request->input('q', ''));
-        $status = (string) $request->input('status', '');
-
-        $query = Product::query()
-            ->when($q !== '', function ($query) use ($q) {
-                $query->where(function ($w) use ($q) {
-                    $w->where('name', 'like', "%{$q}%")
-                      ->orWhere('sku', 'like', "%{$q}%")
-                      ->orWhere('barcode', 'like', "%{$q}%");
-                });
-            })
-            ->when($status !== '', function ($query) use ($status) {
-                $query->when($status === 'out', fn($q) => $q->where('stock', '<=', 0))
-                      ->when($status === 'low', fn($q) => $q->where('stock', '>', 0)->whereColumn('stock', '<=', 'reorder_level'))
-                      ->when($status === 'in',  fn($q) => $q->where('stock', '>', 0)->where(function($w){
-                          $w->whereNull('reorder_level')->orWhereColumn('stock', '>', 'reorder_level');
-                      }));
-            })
-            ->orderBy('name');
+        [$query] = $this->buildProductsQuery($request);
+        $query->orderBy('name');
 
         $filename = 'reporte_stock_' . now()->format('Ymd_His') . '.csv';
 
@@ -92,11 +64,14 @@ class StockController extends Controller
                     $sku    = (string) ($p->sku ?? '');
                     $stock  = (int) ($p->stock ?? 0);
                     $min    = (int) ($p->reorder_level ?? 0);
-                    $price  = (float) ($p->price ?? 0);
+                    $price  = (float) ($p->price ?? 0); // <-- si tu columna no es price, cámbiala aquí también
                     $value  = $price * $stock;
 
                     fputcsv($out, [
-                        $name, $sku, $stock, $min,
+                        $name,
+                        $sku,
+                        $stock,
+                        $min,
                         number_format($price, 2, '.', ''),
                         number_format($value, 2, '.', ''),
                     ]);
@@ -107,5 +82,103 @@ class StockController extends Controller
         }, $filename, [
             'Content-Type' => 'text/csv; charset=UTF-8',
         ]);
+    }
+
+    /**
+     * Construye la query de productos con búsqueda por nombre, SKU, barcode y PRECIO (incluye rangos).
+     */
+    private function buildProductsQuery(Request $request): array
+    {
+        $q      = trim((string) $request->input('q', ''));
+        $status = (string) $request->input('status', ''); // in, low, out
+
+        // --- Helpers para parsear precio/rango ---
+        $parseMoney = static function (string $raw): ?float {
+            $s = trim($raw);
+
+            // Quitar símbolos de moneda y espacios duros
+            $s = str_ireplace(['ARS', 'ARG', '$'], '', $s);
+            $s = preg_replace('/[^\d.,]/u', '', $s); // solo dígitos, coma y punto
+
+            if ($s === '') return null;
+
+            // Caso típico AR: 1.234,56  -> 1234.56
+            if (preg_match('/^\d{1,3}(\.\d{3})+,\d{1,2}$/', $s)) {
+                $s = str_replace('.', '', $s);
+                $s = str_replace(',', '.', $s);
+            } else {
+                // Reemplazar coma por punto si aparece como decimal
+                // (no perfecto, pero robusto para inputs comunes)
+                // "123,45" -> "123.45"
+                if (substr_count($s, ',') === 1 && substr_count($s, '.') === 0) {
+                    $s = str_replace(',', '.', $s);
+                } else {
+                    // Quitar separadores de miles ambiguos
+                    $s = str_replace(',', '', $s);
+                }
+            }
+
+            return is_numeric($s) ? (float) $s : null;
+        };
+
+        $detectRange = static function (string $raw) use ($parseMoney): array {
+            // Admite "100-150", "100..150", "100 – 150" (con guiones varios)
+            if (preg_match('/^\s*(.+?)\s*(?:\-|–|—|\.{2,})\s*(.+?)\s*$/u', $raw, $m)) {
+                $min = $parseMoney($m[1] ?? '');
+                $max = $parseMoney($m[2] ?? '');
+                if ($min !== null || $max !== null) {
+                    if ($min !== null && $max !== null && $min > $max) {
+                        [$min, $max] = [$max, $min];
+                    }
+                    return [$min, $max];
+                }
+            }
+            return [null, null];
+        };
+
+        // Derivar intención de búsqueda de PRECIO (exacto o rango)
+        [$priceMin, $priceMax] = $detectRange($q);
+        $priceExact = null;
+        if ($priceMin === null && $priceMax === null) {
+            $priceExact = $parseMoney($q);
+        }
+
+// dentro de buildProductsQuery()
+
+$products = Product::query()
+    ->when($q !== '', function ($query) use ($q, $priceExact, $priceMin, $priceMax) {
+        $query->where(function ($w) use ($q, $priceExact, $priceMin, $priceMax) {
+            // Nombre / SKU
+            $w->where('name', 'like', "%{$q}%")
+              ->orWhere('sku', 'like', "%{$q}%");
+
+            // PRECIO: exacto con tolerancia ±0.005 (dos decimales) o rango
+            if ($priceExact !== null) {
+                $t = 0.005;
+                $w->orWhereBetween('price', [$priceExact - $t, $priceExact + $t]);
+            } elseif ($priceMin !== null || $priceMax !== null) {
+                $w->orWhere(function ($pw) use ($priceMin, $priceMax) {
+                    if ($priceMin !== null) $pw->where('price', '>=', $priceMin);
+                    if ($priceMax !== null) $pw->where('price', '<=', $priceMax);
+                });
+            }
+        });
+    })
+    ->when($status !== '', function ($query) use ($status) {
+        $query->when($status === 'out', fn($q) => $q->where('stock', '<=', 0))
+              ->when($status === 'low', fn($q) => $q->where('stock', '>', 0)->whereColumn('stock', '<=', 'reorder_level'))
+              ->when($status === 'in',  fn($q) => $q->where('stock', '>', 0)->where(function($w){
+                  $w->whereNull('reorder_level')->orWhereColumn('stock', '>', 'reorder_level');
+              }));
+    });
+
+
+        return [$products, [
+            'q'      => $q,
+            'status' => $status,
+            'price_exact' => $priceExact,
+            'price_min'   => $priceMin,
+            'price_max'   => $priceMax,
+        ]];
     }
 }

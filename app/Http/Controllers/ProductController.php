@@ -56,4 +56,13 @@ class ProductController extends Controller
         $stock->setAbsolute($product, $data['stock'], 'admin set');
         return back()->with('ok','Stock actualizado');
     }
+    public function destroy(Product $product)
+    {
+        try {
+            $product->delete(); // si el modelo usa SoftDeletes, hará borrado lógico
+            return redirect()->route('products.index')->with('ok','Producto eliminado');
+        } catch (\Throwable $e) {
+            return back()->with('error','No se pudo eliminar. Puede estar referenciado por otros registros.');
+        }
+    }
 }

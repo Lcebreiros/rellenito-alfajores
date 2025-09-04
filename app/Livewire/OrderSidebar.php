@@ -7,6 +7,7 @@ use Livewire\Component;
 use App\Services\OrderService;
 use App\Services\StockService;
 use App\Models\Order;
+use App\Models\Client;
 use Illuminate\Support\Facades\DB;
 use DomainException;
 
@@ -17,11 +18,15 @@ class OrderSidebar extends Component
     public float $total = 0.0;
     public bool $finishing = false;
 
+    // 👇 NUEVO: campo editable para el nombre del cliente
+    public ?string $customerName = '';
+
     public function mount(?int $orderId = null): void
     {
         $this->orderId = $orderId ?? (int) session('draft_order_id');
         $this->ensureDraftExists();
         $this->refreshOrder();
+        $this->loadCustomerFromOrder(); // 👈 cargar nombre si ya tiene cliente
     }
 
     #[On('order-updated')]
@@ -30,25 +35,22 @@ class OrderSidebar extends Component
         $this->refreshOrder();
     }
 
-    // 🔥 CORREGIDO: Solo recibir el payload, resolver OrderService internamente
     #[On('draft-changed')]
     public function onDraftChanged(int $id): void
     {
         $this->orderId = $id;
         $this->refreshOrder();
+        $this->loadCustomerFromOrder();
     }
 
-    // 🔥 CORREGIDO: Solo recibir el payload, resolver OrderService internamente
     #[On('item-added-to-order')]
     public function onItemAddedToOrder(int $orderId): void
     {
-        // Solo actualizar si es nuestro pedido actual
         if ($this->orderId === $orderId) {
             $this->refreshOrder();
         }
     }
 
-    // 🔥 CORREGIDO: Resolver OrderService internamente
     public function refreshOrder(): void
     {
         $orders = app(OrderService::class);
@@ -61,7 +63,7 @@ class OrderSidebar extends Component
     {
         $sid = (int) session('draft_order_id');
         if (!$sid) {
-            $draft = Order::create();
+            $draft = Order::create(); // client_id NULL
             session(['draft_order_id' => $draft->id]);
             $this->orderId = (int) $draft->id;
             return;
@@ -79,11 +81,9 @@ class OrderSidebar extends Component
         $this->orderId = (int) $draft->id;
         $this->items = [];
         $this->total = 0.0;
+        $this->customerName = ''; // 👈 limpiar cliente
 
-        // 👇 CORREGIDO: Emitir evento global para que otros componentes se enteren
         $this->dispatch('draft-changed', id: $this->orderId);
-        
-        // 👇 NUEVO: Forzar re-render de este componente
         $this->skipRender = false;
     }
 
@@ -95,121 +95,137 @@ class OrderSidebar extends Component
         }
     }
 
-    // 🔥 CORREGIDO: Resolver OrderService internamente
+    // 👇 NUEVO: cuando se edita el nombre, sincronizamos cliente en la orden
+    public function updatedCustomerName($value): void
+    {
+        $name = trim((string) $value);
+
+        $order = Order::find($this->orderId);
+        if (!$order || $order->status !== Order::STATUS_DRAFT) return;
+
+        if ($name === '') {
+            // Si se borró el nombre, desvinculamos el cliente
+            $order->client_id = null;
+            $order->save();
+            return;
+        }
+
+        // Buscamos o creamos un cliente con ese nombre (email/teléfono pueden ir después)
+        $client = Client::firstOrCreate(['name' => $name]);
+        $order->client()->associate($client);
+        $order->save();
+    }
+
+    // 👇 NUEVO: cargar el nombre del cliente actual del draft
+    private function loadCustomerFromOrder(): void
+    {
+        $order = Order::with('client')->find($this->orderId);
+        $this->customerName = $order?->client?->name ?? '';
+    }
+
     public function add(int $itemId): void
     {
         $orders = app(OrderService::class);
         $this->guardDraft();
         $orders->mutateItem($this->orderId, $itemId, +1);
         $this->refreshOrder();
-        
-        // 👇 CORREGIDO: Emitir evento global para que otros componentes se sincronicen
         $this->dispatch('order-updated');
     }
 
-    // 🔥 CORREGIDO: Resolver OrderService internamente
     public function sub(int $itemId): void
     {
         $orders = app(OrderService::class);
         $this->guardDraft();
         $orders->mutateItem($this->orderId, $itemId, -1);
         $this->refreshOrder();
-        
-        // 👇 CORREGIDO: Emitir evento global
         $this->dispatch('order-updated');
     }
 
-    // 🔥 CORREGIDO: Resolver OrderService internamente
     public function remove(int $itemId): void
     {
         $orders = app(OrderService::class);
         $this->guardDraft();
         $orders->removeItem($this->orderId, $itemId);
         $this->refreshOrder();
-        
-        // 👇 CORREGIDO: Emitir evento global
         $this->dispatch('order-updated');
     }
 
-    // 🔥 CORREGIDO: Resolver StockService internamente
-public function finalize(): void
-{
-    if ($this->finishing) return;
-    $this->finishing = true;
+    public function finalize(): void
+    {
+        if ($this->finishing) return;
+        $this->finishing = true;
 
-    $stock = app(StockService::class);
+        $stock = app(StockService::class);
 
-    $draftId = (int) session('draft_order_id');
-    if ($draftId !== (int) $this->orderId) {
-        $this->dispatch('notify', type:'error', message:'Pedido no pertenece a tu sesión.');
-        $this->finishing = false;
-        return;
-    }
-
-    try {
-        $finishedId = null;
-        $affectedProductIds = [];
-
-        DB::transaction(function () use ($stock, &$finishedId, &$affectedProductIds) {
-            $order = Order::with(['items.product'])
-                ->lockForUpdate()
-                ->findOrFail($this->orderId);
-
-            if ($order->items->isEmpty()) {
-                throw new DomainException('El pedido está vacío.');
-            }
-
-            foreach ($order->items as $item) {
-                if ($item->product->stock < $item->quantity) {
-                    throw new DomainException("Stock insuficiente: {$item->product->name}");
-                }
-            }
-
-            foreach ($order->items as $item) {
-                $stock->adjust($item->product, -$item->quantity, 'order', $order);
-                $affectedProductIds[] = $item->product->id;
-            }
-
-            $order->recalcTotal();
-            $order->status = Order::STATUS_COMPLETED;
-            $order->save();
-
-            $finishedId = (int) $order->id;
-        });
-
-        // Limpiar draft actual y preparar uno nuevo
-        session()->forget('draft_order_id');
-        $this->startNewDraft();
-        $this->js('$wire.$refresh()');
-
-        // Avisar cambios de stock
-        foreach ($affectedProductIds as $productId) {
-            $this->dispatch('stock-updated', productId: $productId);
+        $draftId = (int) session('draft_order_id');
+        if ($draftId !== (int) $this->orderId) {
+            $this->dispatch('notify', type:'error', message:'Pedido no pertenece a tu sesión.');
+            $this->finishing = false;
+            return;
         }
 
-        $url = route('orders.show', ['order' => $finishedId]);
-        $this->dispatch('notify',
-            type:'success',
-            message:"Pedido #$finishedId creado correctamente. <a href=\"{$url}\" class=\"underline\">Ver</a>"
-        );
+        try {
+            $finishedId = null;
+            $affectedProductIds = [];
 
-        // ✅ Evento que escucha la vista (toast + modal comprobante)
-        $this->dispatch('order-confirmed', orderId: $finishedId);
+            DB::transaction(function () use ($stock, &$finishedId, &$affectedProductIds) {
+                $order = Order::with(['items.product'])
+                    ->lockForUpdate()
+                    ->findOrFail($this->orderId);
 
-        // (Opcional) alias de compatibilidad
-        $this->dispatch('order:confirmed', orderId: $finishedId);
+                // 👇 Asegurar cliente si se escribió nombre y aún no está asociado
+                $name = trim((string) $this->customerName);
+                if ($name !== '' && !$order->client_id) {
+                    $client = Client::firstOrCreate(['name' => $name]);
+                    $order->client()->associate($client);
+                }
 
-        // (Opcional) mantené tu evento anterior si alguien más lo usa
-        // $this->dispatch('order-finalized', id: $finishedId);
+                if ($order->items->isEmpty()) {
+                    throw new DomainException('El pedido está vacío.');
+                }
 
-    } catch (\Throwable $e) {
-        $msg = $e instanceof DomainException ? $e->getMessage() : 'No se pudo finalizar el pedido.';
-        $this->dispatch('notify', type:'error', message:$msg);
-    } finally {
-        $this->finishing = false;
+                foreach ($order->items as $item) {
+                    if ($item->product->stock < $item->quantity) {
+                        throw new DomainException("Stock insuficiente: {$item->product->name}");
+                    }
+                }
+
+                foreach ($order->items as $item) {
+                    $stock->adjust($item->product, -$item->quantity, 'order', $order);
+                    $affectedProductIds[] = $item->product->id;
+                }
+
+                $order->recalcTotal();
+                $order->status = Order::STATUS_COMPLETED;
+                $order->save();
+
+                $finishedId = (int) $order->id;
+            });
+
+            session()->forget('draft_order_id');
+            $this->startNewDraft();
+            $this->js('$wire.$refresh()');
+
+            foreach ($affectedProductIds as $productId) {
+                $this->dispatch('stock-updated', productId: $productId);
+            }
+
+            $url = route('orders.show', ['order' => $finishedId]);
+            $this->dispatch('notify',
+                type:'success',
+                message:"Pedido #$finishedId creado correctamente. <a href=\"{$url}\" class=\"underline\">Ver</a>"
+            );
+
+            $this->dispatch('order-confirmed', orderId: $finishedId);
+            $this->dispatch('order:confirmed', orderId: $finishedId);
+
+        } catch (\Throwable $e) {
+            $msg = $e instanceof DomainException ? $e->getMessage() : 'No se pudo finalizar el pedido.';
+            $this->dispatch('notify', type:'error', message:$msg);
+        } finally {
+            $this->finishing = false;
+        }
     }
-}
-
 
     public function cancel(): void
     {
@@ -229,10 +245,7 @@ public function finalize(): void
 
         session()->forget('draft_order_id');
         $this->startNewDraft();
-        
-        // 👇 NUEVO: Forzar re-render completo
         $this->js('$wire.$refresh()');
-        
         $this->dispatch('notify', type:'info', message:'Pedido cancelado');
     }
 

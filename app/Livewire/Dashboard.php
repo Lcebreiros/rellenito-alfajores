@@ -1,170 +1,118 @@
 <?php
-// app/Livewire/Dashboard.php
 
 namespace App\Livewire;
 
-use Livewire\Component;
-use App\Models\DashboardWidget;
-use Illuminate\Support\Facades\Auth;
-use Illuminate\Support\Facades\File;
-use Illuminate\Support\Str;
 use Livewire\Attributes\On;
+use Livewire\Component;
+use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\File;   // 👈 importa File
+use Illuminate\Support\Str;            // 👈 importa Str
+use App\Models\DashboardLayout;
 
 class Dashboard extends Component
 {
-    /** @var array<int, array> */
-    public $widgets = [];
+    /** @var array<int, array{id:string, key:string}> */
+    public array $layout = [];
 
-    /** @var array<string, array{name:string,description:string,size:string,component:string}> */
-    public $availableWidgets = [];
+    /** @var array<string, array{component:string,label:string,size?:string}> */
+    public array $available = [];
 
-    public $editMode = false;
+    public bool $editMode = false;
 
-    public function mount(): void
+    private function loadAvailable(): array
     {
-        $this->discoverWidgets();
-        $this->loadUserWidgets();
+        $dir = app_path('Livewire/Dashboard');
 
-        $this->dispatch('dashboard-edit-toggled', ['editMode' => $this->editMode]);
-    }
+        if (!is_dir($dir)) return [];
 
-    protected function discoverWidgets(): void
-    {
-        $widgetPath = app_path('Livewire/Dashboard');
+        $files = collect(File::files($dir))
+            ->filter(fn($f) => $f->getFilenameWithoutExtension() !== 'Dashboard') // evita el manager si está ahí
+            ->values();
 
-        if (!File::exists($widgetPath)) {
-            File::makeDirectory($widgetPath, 0755, true);
-            return;
+        // Si tienes subcarpeta Widgets, inclúyela:
+        if (is_dir($dir.'/Widgets')) {
+            $files = $files->merge(File::files($dir.'/Widgets'));
         }
 
-        foreach (File::files($widgetPath) as $file) {
-            $className = 'App\\Livewire\\Dashboard\\' . $file->getFilenameWithoutExtension();
+        $out = [];
+        foreach ($files as $f) {
+            $class = $f->getFilenameWithoutExtension();
+            $fqcn  = str_contains($f->getPath(), 'Widgets')
+                ? "App\\Livewire\\Dashboard\\Widgets\\{$class}"
+                : "App\\Livewire\\Dashboard\\{$class}";
 
-            if (class_exists($className)) {
-                $instance  = app($className);
-                $widgetKey = Str::kebab($file->getFilenameWithoutExtension());
+            $key   = Str::kebab($class);
+            $label = Str::headline($class);
 
-                $this->availableWidgets[$widgetKey] = [
-                    'name'        => $instance->title       ?? Str::title(str_replace('-', ' ', $widgetKey)),
-                    'description' => $instance->description ?? '',
-                    'size'        => $instance->size        ?? 'medium',
-                    'component'   => $className,
+            if (class_exists($fqcn)) {
+                $out[$key] = [
+                    'component' => $fqcn,
+                    'label'     => $label,
                 ];
             }
         }
+
+        return $out;
     }
 
-    protected function loadUserWidgets(): void
+    public function mount(): void
     {
-        $this->widgets = DashboardWidget::query()
-            ->where('user_id', Auth::id())
-            ->where('is_visible', true)
-            ->orderBy('position')
-            ->get()
-            ->map(function (DashboardWidget $widget) {
-                $config = $this->availableWidgets[$widget->widget_type] ?? null;
-                if (!$config) return null;
+        // 👇 usa autodescubrimiento (y si no encuentra nada, cae a config)
+        $this->available = $this->loadAvailable();
+        if (empty($this->available)) {
+            $this->available = config('dashboard.widgets', []);
+        }
 
-                return [
-                    'id'        => $widget->id,
-                    'type'      => $widget->widget_type,
-                    'name'      => $config['name'],
-                    'size'      => $config['size'],
-                    'position'  => $widget->position,
-                    'component' => $config['component'],
-                    'settings'  => $widget->settings ?? [],
-                ];
-            })
+        $user  = Auth::user();
+        $saved = DashboardLayout::firstOrCreate(['user_id' => $user->id]);
+        $this->layout = $saved->layout ?: [];
+
+        // Layout inicial por defecto (usa keys detectadas)
+        if (empty($this->layout) && !empty($this->available)) {
+            $keys = array_keys($this->available);
+            foreach (array_slice($keys, 0, 3) as $k) {
+                $this->layout[] = ['id' => uniqid('w_'), 'key' => $k];
+            }
+            $this->persist();
+        }
+    }
+
+    public function toggleEdit(): void
+    {
+        $this->editMode = ! $this->editMode;
+    }
+
+    public function addWidget(string $key): void
+    {
+        if (! isset($this->available[$key])) return;
+        $this->layout[] = ['id' => uniqid('w_'), 'key' => $key];
+        $this->persist();
+    }
+
+    public function removeWidget(string $id): void
+    {
+        $this->layout = array_values(array_filter($this->layout, fn($w) => $w['id'] !== $id));
+        $this->persist();
+    }
+
+    #[On('dashboard-reorder')]
+    public function reorder(array $orderedIds): void
+    {
+        $map = collect($this->layout)->keyBy('id');
+        $this->layout = collect($orderedIds)
+            ->map(fn($id) => $map->get($id))
             ->filter()
             ->values()
-            ->toArray();
+            ->all();
+        $this->persist();
     }
 
-    /**
-     * Eventos externos (cliente → servidor)
-     * Usa Livewire.dispatch(...) o Livewire.dispatchTo('dashboard', ...)
-     */
-
-    #[On('dash.reorder')]
-    public function updateWidgetPositions($widgetPositions): void
+    protected function persist(): void
     {
-        foreach ($widgetPositions as $index => $widgetId) {
-            DashboardWidget::query()
-                ->where('id', $widgetId)
-                ->where('user_id', Auth::id())
-                ->update(['position' => $index]);
-        }
-
-        $this->loadUserWidgets();
-        $this->dispatch('positions-updated'); // browser event (opcional)
-    }
-
-    #[On('dash.addWidget')]
-    public function addWidget(string $widgetType): void
-    {
-        if (!isset($this->availableWidgets[$widgetType])) {
-            session()->flash('error', 'Widget no válido.');
-            return;
-        }
-
-        $exists = DashboardWidget::query()
-            ->where('user_id', Auth::id())
-            ->where('widget_type', $widgetType)
-            ->exists();
-
-        if ($exists) {
-            session()->flash('error', 'Este widget ya está añadido a tu dashboard.');
-            return;
-        }
-
-        $maxPosition = DashboardWidget::where('user_id', Auth::id())->max('position') ?? -1;
-
-        DashboardWidget::create([
-            'user_id'     => Auth::id(),
-            'widget_type' => $widgetType,
-            'position'    => $maxPosition + 1,
-            'is_visible'  => true,
-            'settings'    => [],
-        ]);
-
-        $this->loadUserWidgets();
-        session()->flash('success', 'Widget añadido correctamente.');
-    }
-
-    #[On('dash.removeWidget')]
-    public function removeWidget(int $widgetId): void
-    {
-        DashboardWidget::query()
-            ->where('id', $widgetId)
-            ->where('user_id', Auth::id())
-            ->delete();
-
-        $this->loadUserWidgets();
-        session()->flash('success', 'Widget eliminado correctamente.');
-    }
-
-    #[On('dash.toggleEdit')]
-    public function toggleEditMode(): void
-    {
-        $this->editMode = !$this->editMode;
-        $this->dispatch('dashboard-edit-toggled', editMode: $this->editMode);
-    }
-
-    public function getWidgetSizeClass($size): string
-    {
-        return match ($size) {
-            'small'  => 'col-span-12 md:col-span-6 lg:col-span-4',
-            'medium' => 'col-span-12 md:col-span-6',
-            'large'  => 'col-span-12 lg:col-span-8',
-            'wide'   => 'col-span-12',
-            default  => 'col-span-12 md:col-span-6',
-        };
-    }
-
-    public function getResponsiveWidgetClass($size): string
-    {
-        // Si vas con grid 3×3 estricto, mantenlo 1×1
-        return 'col-span-1';
+        DashboardLayout::updateOrCreate(
+            ['user_id' => Auth::id()],
+            ['layout'  => $this->layout]
+        );
     }
 
     public function render()

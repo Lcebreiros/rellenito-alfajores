@@ -17,7 +17,24 @@
 
   {{-- Contenido principal (flex con min-h-0 para scroll interno) --}}
   <div class="flex-1 p-6 overflow-hidden flex flex-col min-h-0">
-    
+    {{-- Campo: Nombre de cliente --}}
+<div class="mb-4">
+  <label class="block text-xs font-medium text-slate-600 dark:text-neutral-300 mb-1">
+    Cliente
+  </label>
+  <input
+    type="text"
+    wire:model.lazy="customerName"
+    placeholder="Nombre del cliente"
+    class="w-full rounded-xl border border-slate-300/70 dark:border-neutral-700 bg-white dark:bg-neutral-900
+           px-3 py-2 text-sm text-slate-900 dark:text-neutral-100
+           focus:outline-none focus:ring-2 focus:ring-indigo-500/70 focus:border-indigo-500/70"
+  />
+  <p class="mt-1 text-[11px] text-slate-500 dark:text-neutral-400">
+    Si no existe, se creará automáticamente al guardar el pedido.
+  </p>
+</div>
+
     {{-- Área con scroll interno --}}
     <div class="flex-1 overflow-y-auto overscroll-contain min-h-0">
       @if(empty($items))

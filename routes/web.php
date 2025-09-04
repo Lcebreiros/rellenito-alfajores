@@ -70,18 +70,24 @@ Route::middleware([
     Route::resource('products', ProductController::class)->except('show');
     Route::patch('products/{product}/stock', [ProductController::class, 'updateStock'])
         ->name('products.stock.update');
+    Route::patch('products/{product}/stock', [ProductController::class, 'updateStock'])
+     ->name('products.update-stock');
 
     // ============ PEDIDOS ============
+Route::middleware(['auth'])->group(function () {
+    // 1) Descarga (colócala antes de orders/{order})
+    Route::get('orders/download-report', [OrderController::class, 'downloadReport'])
+        ->name('orders.download-report');
+
+    // 2) Resto
     Route::get('orders/create', [OrderController::class, 'create'])->name('orders.create');
     Route::post('orders/{order}/items', [OrderController::class, 'addItem'])->name('orders.items.store');
     Route::delete('orders/{order}/items/{item}', [OrderController::class, 'removeItem'])->name('orders.items.destroy');
     Route::post('orders/{order}/finalize', [OrderController::class, 'finalize'])->name('orders.finalize');
     Route::post('orders/{order}/cancel', [OrderController::class, 'cancel'])->name('orders.cancel');
     Route::get('orders', [OrderController::class, 'index'])->name('orders.index');
-    Route::get('orders/{order}', [OrderController::class, 'show'])
-        ->whereNumber('order')->name('orders.show');
-    Route::get('/orders/download-report', [OrderController::class, 'downloadReport'])
-        ->name('orders.download-report');
+    Route::get('orders/{order}', [OrderController::class, 'show'])->whereNumber('order')->name('orders.show');
+});
 
     // ============ STOCK ============
     Route::get('/stock', [StockController::class, 'index'])->name('stock.index');

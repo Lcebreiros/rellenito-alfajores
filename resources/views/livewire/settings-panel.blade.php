@@ -37,58 +37,185 @@
         <p class="text-sm text-neutral-600 dark:text-neutral-400">Cambiá entre Modo Día y Modo Noche</p>
       </div>
 
-      {{-- SWITCH Día/Noche --}}
-      <div x-data="{ t: @entangle('theme').live }" class="select-none">
-        <button type="button"
-                @click="t = (t === 'light' ? 'dark' : 'light'); $wire.setTheme(t)"
-                @keydown.space.prevent="t = (t === 'light' ? 'dark' : 'light'); $wire.setTheme(t)"
-                @keydown.enter.prevent="t = (t === 'light' ? 'dark' : 'light'); $wire.setTheme(t)"
-                role="switch" :aria-checked="t === 'dark'"
-                :aria-label="t === 'dark' ? 'Night mode' : 'Day mode'"
-                class="relative w-[11.5rem] h-14 rounded-full border p-1 overflow-hidden
-                       transition-colors duration-300 ease-out focus:outline-none focus-visible:ring-2 focus-visible:ring-neutral-400"
-                :class="t === 'dark' ? 'bg-black border-black' : 'bg-neutral-200 border-neutral-300'">
+      {{-- BOTÓN SIMPLE PARA MÓVIL --}}
+      <div x-data="{ 
+          t: @entangle('theme').live,
+          isChanging: false,
 
-          {{-- Label DAY (izq, sólo en día) --}}
-          <span x-cloak
-                class="absolute left-3 top-1/2 -translate-y-1/2 text-xs font-semibold whitespace-nowrap
-                       transition-opacity duration-200"
-                :class="t === 'light' ? 'opacity-100 text-neutral-900' : 'opacity-0 pointer-events-none'">
-            DAY MODE
-          </span>
+          async toggleTheme() {
+              if (this.isChanging) return;
+              
+              this.isChanging = true;
+              const newTheme = this.t === 'light' ? 'dark' : 'light';
+              
+              try {
+                  // Cambio optimista
+                  this.t = newTheme;
+                  this.applyThemeImmediate(newTheme);
+                  
+                  // Enviar a Livewire
+                  await $wire.setTheme(newTheme);
+                  
+                  // Respaldo en localStorage
+                  localStorage.setItem('theme', newTheme);
+                  
+              } catch (error) {
+                  console.error('Error al cambiar tema:', error);
+                  // Revertir en caso de error
+                  this.t = this.t === 'light' ? 'dark' : 'light';
+                  this.applyThemeImmediate(this.t);
+              } finally {
+                  setTimeout(() => this.isChanging = false, 400);
+              }
+          },
 
-          {{-- Label NIGHT (der, sólo en noche) --}}
-          <span x-cloak
-                class="absolute right-3 top-1/2 -translate-y-1/2 text-xs font-semibold whitespace-nowrap
-                       transition-opacity duration-200"
-                :class="t === 'dark' ? 'opacity-100 text-white' : 'opacity-0 pointer-events-none'">
-            NIGHT MODE
-          </span>
+          applyThemeImmediate(theme) {
+              if (theme === 'dark') {
+                  document.documentElement.classList.add('dark');
+              } else {
+                  document.documentElement.classList.remove('dark');
+              }
+          }
+      }" class="block md:hidden">
 
-          {{-- KNOB: IZQ (noche) / DER (día) — SIEMPRE BLANCO --}}
-          <div class="absolute top-1 h-12 w-12 rounded-full border shadow flex items-center justify-center
-                      transition-[left,background-color,border-color] duration-300 ease-out
-                      bg-white border-neutral-300 text-neutral-900"
-               :class="t === 'dark' ? 'left-1' : 'left-[calc(100%-3.25rem)]'">
-            <template x-if="t === 'light'">
-              <svg xmlns="http://www.w3.org/2000/svg" class="w-6 h-6" viewBox="0 0 24 24" fill="none">
-                <circle cx="12" cy="12" r="4" stroke="currentColor" stroke-width="2"></circle>
-                <path d="M12 2v2M12 20v2M4 12H2M22 12h-2M5 5l1.5 1.5M17.5 17.5L19 19M5 19l1.5-1.5M17.5 6.5L19 5"
-                      stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
-              </svg>
-            </template>
-            <template x-if="t === 'dark'">
-              <svg xmlns="http://www.w3.org/2000/svg" class="w-6 h-6" viewBox="0 0 24 24" fill="none">
-                <path d="M21 12.8a9 9 0 1 1-9.8-9 7 7 0 0 0 9.8 9z"
-                      stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
-              </svg>
-            </template>
-          </div>
-        </button>
+          <button type="button"
+                  @click="toggleTheme()"
+                  :disabled="isChanging"
+                  class="relative w-14 h-14 rounded-full border-2 shadow-lg
+                         transition-all duration-300 ease-out
+                         focus:outline-none focus-visible:ring-2 focus-visible:ring-offset-2
+                         touch-manipulation disabled:opacity-70
+                         flex items-center justify-center"
+                  :class="t === 'dark' ? 
+                      'bg-black border-neutral-700 text-white focus-visible:ring-neutral-400' : 
+                      'bg-white border-neutral-300 text-neutral-900 focus-visible:ring-indigo-400'">
 
-        <p class="mt-2 text-xs text-neutral-600 dark:text-neutral-400">Se aplica sin recargar.</p>
+              {{-- Contenedor del ícono con animación de giro --}}
+              <div class="transition-transform duration-300 ease-out"
+                   :class="isChanging ? 'rotate-180' : 'rotate-0'">
+                  
+                  {{-- Sol (Day Mode) --}}
+                  <template x-if="t === 'light'">
+                      <svg xmlns="http://www.w3.org/2000/svg" class="w-6 h-6" viewBox="0 0 24 24" fill="none">
+                          <circle cx="12" cy="12" r="4" stroke="currentColor" stroke-width="2"></circle>
+                          <path d="M12 2v2M12 20v2M4 12H2M22 12h-2M5 5l1.5 1.5M17.5 17.5L19 19M5 19l1.5-1.5M17.5 6.5L19 5"
+                                stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+                      </svg>
+                  </template>
+                  
+                  {{-- Luna (Night Mode) --}}
+                  <template x-if="t === 'dark'">
+                      <svg xmlns="http://www.w3.org/2000/svg" class="w-6 h-6" viewBox="0 0 24 24" fill="none">
+                          <path d="M21 12.8a9 9 0 1 1-9.8-9 7 7 0 0 0 9.8 9z"
+                                stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                      </svg>
+                  </template>
+              </div>
+
+              {{-- Loading indicator --}}
+              <div x-show="isChanging" 
+                   x-transition:enter="transition ease-out duration-200"
+                   x-transition:enter-start="opacity-0 scale-50"
+                   x-transition:enter-end="opacity-100 scale-100"
+                   x-transition:leave="transition ease-in duration-200"
+                   x-transition:leave-start="opacity-100 scale-100"
+                   x-transition:leave-end="opacity-0 scale-50"
+                   class="absolute inset-0 flex items-center justify-center bg-current/10 rounded-full">
+                  <div class="w-3 h-3 border border-current border-t-transparent rounded-full animate-spin"></div>
+              </div>
+          </button>
+      </div>
+
+      {{-- SWITCH COMPLEJO PARA DESKTOP --}}
+      <div x-data="{ 
+          t: @entangle('theme').live,
+          isChanging: false,
+          
+          async toggleTheme() {
+              if (this.isChanging) return;
+              
+              this.isChanging = true;
+              const newTheme = this.t === 'light' ? 'dark' : 'light';
+              
+              try {
+                  this.t = newTheme;
+                  this.applyThemeImmediate(newTheme);
+                  await $wire.setTheme(newTheme);
+                  localStorage.setItem('theme', newTheme);
+              } catch (error) {
+                  console.error('Error al cambiar tema:', error);
+                  this.t = this.t === 'light' ? 'dark' : 'light';
+                  this.applyThemeImmediate(this.t);
+              } finally {
+                  setTimeout(() => this.isChanging = false, 300);
+              }
+          },
+
+          applyThemeImmediate(theme) {
+              if (theme === 'dark') {
+                  document.documentElement.classList.add('dark');
+              } else {
+                  document.documentElement.classList.remove('dark');
+              }
+          }
+      }" class="hidden md:block select-none">
+
+          <button type="button"
+                  @click="toggleTheme()"
+                  @keydown.space.prevent="toggleTheme()"
+                  @keydown.enter.prevent="toggleTheme()"
+                  role="switch" 
+                  :aria-checked="t === 'dark'"
+                  :aria-label="t === 'dark' ? 'Night mode' : 'Day mode'"
+                  :disabled="isChanging"
+                  class="relative w-[11.5rem] h-14 rounded-full border p-1 overflow-hidden
+                         transition-all duration-300 ease-out focus:outline-none 
+                         focus-visible:ring-2 focus-visible:ring-neutral-400
+                         disabled:opacity-70"
+                  :class="t === 'dark' ? 'bg-black border-black' : 'bg-neutral-200 border-neutral-300'">
+
+              {{-- Label DAY --}}
+              <span x-cloak
+                    class="absolute left-3 top-1/2 -translate-y-1/2 text-xs font-semibold whitespace-nowrap
+                           transition-opacity duration-200 pointer-events-none"
+                    :class="t === 'light' ? 'opacity-100 text-neutral-900' : 'opacity-0'">
+                  DAY MODE
+              </span>
+
+              {{-- Label NIGHT --}}
+              <span x-cloak
+                    class="absolute right-3 top-1/2 -translate-y-1/2 text-xs font-semibold whitespace-nowrap
+                           transition-opacity duration-200 pointer-events-none"
+                    :class="t === 'dark' ? 'opacity-100 text-white' : 'opacity-0'">
+                  NIGHT MODE
+              </span>
+
+              {{-- KNOB --}}
+              <div class="absolute top-1 h-12 w-12 rounded-full border shadow flex items-center justify-center
+                          transition-all duration-300 ease-out will-change-transform
+                          bg-white border-neutral-300 text-neutral-900"
+                   :style="{ left: t === 'dark' ? '0.25rem' : 'calc(100% - 3.25rem)' }">
+                  
+                  <template x-if="t === 'light'">
+                      <svg xmlns="http://www.w3.org/2000/svg" class="w-6 h-6" viewBox="0 0 24 24" fill="none">
+                          <circle cx="12" cy="12" r="4" stroke="currentColor" stroke-width="2"></circle>
+                          <path d="M12 2v2M12 20v2M4 12H2M22 12h-2M5 5l1.5 1.5M17.5 17.5L19 19M5 19l1.5-1.5M17.5 6.5L19 5"
+                                stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+                      </svg>
+                  </template>
+                  
+                  <template x-if="t === 'dark'">
+                      <svg xmlns="http://www.w3.org/2000/svg" class="w-6 h-6" viewBox="0 0 24 24" fill="none">
+                          <path d="M21 12.8a9 9 0 1 1-9.8-9 7 7 0 0 0 9.8 9z"
+                                stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                      </svg>
+                  </template>
+              </div>
+          </button>
       </div>
     </div>
+
+    <p class="mt-2 text-xs text-neutral-600 dark:text-neutral-400">Se aplica sin recargar.</p>
   </div>
 
   {{-- CARD: Título del sitio --}}
@@ -170,10 +297,5 @@
     <p class="mt-3 text-xs text-neutral-600 dark:text-neutral-400">
       Consejo: subí una versión horizontal con fondo transparente para que se vea bien en el ticket.
     </p>
-  </div>
-
-  
-  
-    </div>
   </div>
 </div>

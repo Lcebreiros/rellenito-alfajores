@@ -6,14 +6,15 @@
     <i class="fas fa-history text-indigo-600 mr-3"></i> Historial de Pedidos
   </h1>
   <div class="flex gap-2 mt-3 sm:mt-0">
-    <button id="toggleFilters"
+    <button id="toggleFilters" type="button"
             class="inline-flex items-center px-3 py-2 bg-white dark:bg-neutral-900 border border-neutral-300 dark:border-neutral-700 rounded-lg font-medium text-neutral-700 dark:text-neutral-200 hover:bg-neutral-50 dark:hover:bg-neutral-800 transition-colors">
       <i class="fas fa-filter mr-2 text-sm"></i>
       <span class="filter-text">Mostrar Filtros</span>
       <i class="fas fa-chevron-down ml-2 text-xs transition-transform duration-200" id="filterChevron"></i>
     </button>
 
-    <button id="downloadReportBtn"
+    {{-- Abre modal de descarga --}}
+    <button data-modal-open="downloadModal" id="downloadReportBtn" type="button"
       class="inline-flex items-center gap-2 px-4 py-2 rounded-lg shadow-sm bg-green-600 text-white font-semibold hover:bg-green-700 transition-colors">
       <i class="fa-solid fa-download"></i><span>Descargar</span>
     </button>
@@ -47,7 +48,7 @@
     </div>
   @endif
 
-  {{-- Filtros rápidos por período --}}
+  {{-- Filtros rápidos --}}
   <div class="bg-white dark:bg-neutral-900 rounded-xl shadow-sm p-4 mb-6 border border-neutral-100 dark:border-neutral-800">
     <div class="flex flex-wrap gap-2 mb-2">
       <span class="text-sm font-medium text-neutral-700 dark:text-neutral-300 flex items-center py-2">
@@ -56,15 +57,9 @@
       @php
         $currentPeriod = request('period','');
         $periods = [
-          '' => 'Todos',
-          'today' => 'Hoy',
-          'yesterday' => 'Ayer',
-          'this_week' => 'Esta semana',
-          'last_week' => 'Semana pasada',
-          'last_7_days' => 'Últimos 7 días',
-          'this_month' => 'Este mes',
-          'last_month' => 'Mes pasado',
-          'last_30_days' => 'Últimos 30 días',
+          '' => 'Todos','today' => 'Hoy','yesterday' => 'Ayer','this_week' => 'Esta semana',
+          'last_week' => 'Semana pasada','last_7_days' => 'Últimos 7 días','this_month' => 'Este mes',
+          'last_month' => 'Mes pasado','last_30_days' => 'Últimos 30 días',
         ];
       @endphp
       @foreach($periods as $period => $label)
@@ -77,7 +72,7 @@
     </div>
   </div>
 
-  {{-- Búsqueda --}}
+  {{-- Búsqueda + filtros avanzados --}}
   <div class="bg-white dark:bg-neutral-900 rounded-xl shadow-sm p-4 mb-6 border border-neutral-100 dark:border-neutral-800">
     <div class="flex flex-col sm:flex-row gap-3">
       <div class="flex-1">
@@ -87,8 +82,7 @@
             <input type="text" name="q" value="{{ request('q') }}" placeholder="Buscar por ID, cliente, notas…"
                    class="w-full pl-10 pr-4 py-2.5 rounded-lg border-neutral-300 dark:border-neutral-700 bg-white dark:bg-neutral-900 text-neutral-900 dark:text-neutral-100 focus:border-indigo-500 focus:ring-indigo-500 transition-colors">
           </div>
-          {{-- mantener filtros --}}
-          @foreach(['status','period','from','to'] as $keep)
+          @foreach(['status','period','from','to','client','client_id'] as $keep)
             @if(request($keep)) <input type="hidden" name="{{ $keep }}" value="{{ request($keep) }}"> @endif
           @endforeach
           <button type="submit" class="px-4 py-2.5 bg-indigo-600 text-white rounded-lg hover:bg-indigo-700 transition-colors">
@@ -98,33 +92,17 @@
       </div>
 
       {{-- Filtros activos --}}
-      @if(request()->anyFilled(['status','period','from','to','q']))
+      @if(request()->anyFilled(['status','period','from','to','q','client','client_id']))
         <div class="flex flex-wrap items-center gap-2">
           <span class="text-xs text-neutral-500 dark:text-neutral-400">Filtros activos:</span>
-          @if(request('status'))
-            <span class="inline-flex items-center px-2 py-1 rounded-full text-xs bg-indigo-100 text-indigo-800 dark:bg-indigo-900/40 dark:text-indigo-300">
-              Estado: {{ ucfirst(request('status')) }}
-              <a href="{{ request()->fullUrlWithQuery(['status'=>null]) }}" class="ml-1 hover:opacity-70"><i class="fas fa-times text-xs"></i></a>
-            </span>
-          @endif
-          @if(request('period'))
-            <span class="inline-flex items-center px-2 py-1 rounded-full text-xs bg-purple-100 text-purple-800 dark:bg-purple-900/40 dark:text-purple-300">
-              Período: {{ $periods[request('period')] ?? request('period') }}
-              <a href="{{ request()->fullUrlWithQuery(['period'=>null]) }}" class="ml-1 hover:opacity-70"><i class="fas fa-times text-xs"></i></a>
-            </span>
-          @endif
-          @if(request('from'))
-            <span class="inline-flex items-center px-2 py-1 rounded-full text-xs bg-blue-100 text-blue-800 dark:bg-blue-900/40 dark:text-blue-300">
-              Desde: {{ request('from') }}
-              <a href="{{ request()->fullUrlWithQuery(['from'=>null]) }}" class="ml-1 hover:opacity-70"><i class="fas fa-times text-xs"></i></a>
-            </span>
-          @endif
-          @if(request('to'))
-            <span class="inline-flex items-center px-2 py-1 rounded-full text-xs bg-green-100 text-green-800 dark:bg-green-900/40 dark:text-green-300">
-              Hasta: {{ request('to') }}
-              <a href="{{ request()->fullUrlWithQuery(['to'=>null]) }}" class="ml-1 hover:opacity-70"><i class="fas fa-times text-xs"></i></a>
-            </span>
-          @endif
+          @foreach(['status'=>'Estado','period'=>'Período','from'=>'Desde','to'=>'Hasta','client'=>'Cliente','client_id'=>'Cliente ID'] as $key=>$label)
+            @if(request($key))
+              <span class="inline-flex items-center px-2 py-1 rounded-full text-xs bg-neutral-100 dark:bg-neutral-800 text-neutral-700 dark:text-neutral-200">
+                {{ $label }}: {{ $key==='period' ? ($periods[request('period')] ?? request('period')) : request($key) }}
+                <a href="{{ request()->fullUrlWithQuery([$key=>null]) }}" class="ml-1 hover:opacity-70"><i class="fas fa-times text-xs"></i></a>
+              </span>
+            @endif
+          @endforeach
           <a href="{{ route('orders.index') }}"
              class="inline-flex items-center px-2 py-1 rounded-full text-xs bg-neutral-100 text-neutral-700 hover:bg-neutral-200 dark:bg-neutral-800 dark:text-neutral-200 dark:hover:bg-neutral-700">
             <i class="fas fa-times mr-1"></i> Limpiar todo
@@ -135,7 +113,8 @@
   </div>
 
   {{-- Panel de Filtros Avanzados (colapsable) --}}
-  <div id="filtersPanel" class="hidden bg-white dark:bg-neutral-900 rounded-xl shadow-sm p-5 mb-6 border border-neutral-100 dark:border-neutral-800 transition-all duration-300">
+  <div id="filtersPanel" class="hidden bg-white dark:bg-neutral-900 rounded-xl shadow-sm p-5 mb-6 border border-neutral-100 dark:border-neutral-800 transition-all duration-300"
+       aria-hidden="true">
     <div class="mb-4 pb-3 border-b border-neutral-100 dark:border-neutral-800">
       <h3 class="text-lg font-semibold text-neutral-800 dark:text-neutral-100 flex items-center">
         <i class="fas fa-sliders-h text-indigo-600 mr-2"></i> Filtros Avanzados
@@ -144,31 +123,30 @@
     <form method="GET" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 items-end">
       @if(request('q')) <input type="hidden" name="q" value="{{ request('q') }}"> @endif
       <div>
-        <label class="block text-sm font-medium text-neutral-700 dark:text-neutral-300 mb-2 flex items-center">
-          <i class="fas fa-flag text-neutral-500 dark:text-neutral-400 mr-2 text-sm"></i> Estado
-        </label>
+        <label class="block text-sm font-medium text-neutral-700 dark:text-neutral-300 mb-2">Estado</label>
         <select name="status" class="w-full rounded-lg border-neutral-300 dark:border-neutral-700 bg-white dark:bg-neutral-900 text-neutral-900 dark:text-neutral-100 focus:border-indigo-500 focus:ring-indigo-500 px-4 py-2.5 transition-colors">
-          <option value="">Todos los estados</option>
+          <option value="">Todos</option>
           <option value="completed" {{ request('status')==='completed'?'selected':'' }}>Completado</option>
           <option value="draft"     {{ request('status')==='draft'?'selected':'' }}>Borrador</option>
           <option value="canceled"  {{ request('status')==='canceled'?'selected':'' }}>Cancelado</option>
         </select>
       </div>
       <div>
-        <label class="block text-sm font-medium text-neutral-700 dark:text-neutral-300 mb-2 flex items-center">
-          <i class="fas fa-calendar-alt text-neutral-500 dark:text-neutral-400 mr-2 text-sm"></i> Fecha Desde
-        </label>
+        <label class="block text-sm font-medium text-neutral-700 dark:text-neutral-300 mb-2">Fecha Desde</label>
         <input type="date" name="from" value="{{ request('from') }}"
                class="w-full rounded-lg border-neutral-300 dark:border-neutral-700 bg-white dark:bg-neutral-900 text-neutral-900 dark:text-neutral-100 focus:border-indigo-500 focus:ring-indigo-500 px-4 py-2.5 transition-colors">
       </div>
       <div>
-        <label class="block text-sm font-medium text-neutral-700 dark:text-neutral-300 mb-2 flex items-center">
-          <i class="fas fa-calendar-alt text-neutral-500 dark:text-neutral-400 mr-2 text-sm"></i> Fecha Hasta
-        </label>
+        <label class="block text-sm font-medium text-neutral-700 dark:text-neutral-300 mb-2">Fecha Hasta</label>
         <input type="date" name="to" value="{{ request('to') }}"
                class="w-full rounded-lg border-neutral-300 dark:border-neutral-700 bg-white dark:bg-neutral-900 text-neutral-900 dark:text-neutral-100 focus:border-indigo-500 focus:ring-indigo-500 px-4 py-2.5 transition-colors">
       </div>
-      <div class="flex gap-2">
+      <div>
+        <label class="block text-sm font-medium text-neutral-700 dark:text-neutral-300 mb-2">Cliente (texto)</label>
+        <input type="text" name="client" value="{{ request('client') }}" placeholder="Nombre del cliente"
+               class="w-full rounded-lg border-neutral-300 dark:border-neutral-700 bg-white dark:bg-neutral-900 text-neutral-900 dark:text-neutral-100 focus:border-indigo-500 focus:ring-indigo-500 px-4 py-2.5 transition-colors">
+      </div>
+      <div class="md:col-span-2 lg:col-span-4 flex gap-2">
         <button type="submit" class="flex-1 bg-indigo-600 text-white px-4 py-2.5 rounded-lg hover:bg-indigo-700 transition-colors flex items-center justify-center">
           <i class="fas fa-search mr-2"></i> Aplicar
         </button>
@@ -180,18 +158,13 @@
     </form>
   </div>
 
-  {{-- Resumen de resultados + orden --}}
+  {{-- Resumen + orden --}}
   @if($orders->total() > 0)
     <div class="mb-4 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 text-sm">
       <div class="text-neutral-600 dark:text-neutral-300 bg-blue-50 dark:bg-neutral-800/40 rounded-lg px-3 py-1.5 flex items-center">
         <i class="fas fa-info-circle text-blue-500 dark:text-blue-300 mr-2 text-xs"></i>
         {{ $orders->firstItem() }}–{{ $orders->lastItem() }} de {{ $orders->total() }}
       </div>
-      <div class="flex items-center gap-3">
-        <button id="downloadReportBtn2"
-                class="inline-flex items-center px-3 py-1.5 bg-emerald-600 text-white rounded-lg hover:bg-emerald-700 transition-colors text-sm font-medium">
-          <i class="fas fa-download mr-1.5 text-xs"></i> Exportar
-        </button>
         <div class="flex items-center gap-2">
           <span class="text-neutral-500 dark:text-neutral-400 text-xs">Ordenar:</span>
           <select onchange="window.location.href=this.value" class="text-xs border-neutral-300 dark:border-neutral-700 bg-white dark:bg-neutral-900 text-neutral-900 dark:text-neutral-100 rounded px-2 py-1">
@@ -205,7 +178,7 @@
     </div>
   @endif
 
-  {{-- TABLA --}}
+  {{-- Tabla --}}
   @php
     $statusBadge = fn($s) => match($s){
       'completed' => ['text'=>'Completado','cls'=>'bg-emerald-100 text-emerald-700 dark:bg-emerald-900/40 dark:text-emerald-300'],
@@ -214,6 +187,7 @@
       default     => ['text'=>ucfirst($s??'—'),'cls'=>'bg-neutral-100 text-neutral-700 dark:bg-neutral-800 dark:text-neutral-100'],
     };
     $receiptRoute = \Illuminate\Support\Facades\Route::has('orders.ticket');
+    $fmt = fn($n)=> '$'.number_format((float)$n,2,',','.');
   @endphp
 
   <div class="bg-white dark:bg-neutral-900 rounded-xl shadow-sm border border-neutral-100 dark:border-neutral-800 overflow-hidden">
@@ -232,17 +206,13 @@
         </thead>
         <tbody class="divide-y divide-neutral-100 dark:divide-neutral-800">
           @forelse($orders as $o)
-            @php
-              $badge = $statusBadge($o->status);
-              $itemsQty = (int)($o->items_qty ?? optional($o->items)->sum('quantity') ?? 0);
-              $fmt = fn($n)=> '$'.number_format((float)$n,2,',','.');
-            @endphp
+            @php $badge = $statusBadge($o->status); @endphp
             <tr class="hover:bg-neutral-50 dark:hover:bg-neutral-800/50 transition-colors">
               <td class="px-6 py-3 font-semibold text-neutral-900 dark:text-neutral-100">#{{ $o->id }}</td>
               <td class="px-3 py-3">
                 <div class="max-w-xs">
                   <div class="font-medium text-neutral-800 dark:text-neutral-100 truncate">
-                    {{ $o->guest_name ?? $o->customer_name ?? 'Sin cliente' }}
+                    {{ optional($o->client)->name ?? 'Sin cliente' }}
                   </div>
                   @if(!empty($o->note))
                     <div class="text-xs text-neutral-500 dark:text-neutral-400 truncate">
@@ -252,7 +222,7 @@
                 </div>
               </td>
               <td class="px-3 py-3 text-neutral-700 dark:text-neutral-200 whitespace-nowrap">{{ $o->created_at?->format('d/m/Y H:i') }}</td>
-              <td class="px-3 py-3 text-neutral-700 dark:text-neutral-200">{{ $itemsQty }}</td>
+              <td class="px-3 py-3 text-neutral-700 dark:text-neutral-200">{{ (int)($o->items_qty ?? 0) }}</td>
               <td class="px-3 py-3 font-semibold text-neutral-900 dark:text-neutral-100">{{ $fmt($o->total) }}</td>
               <td class="px-3 py-3">
                 <span class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-[11px] font-medium {{ $badge['cls'] }}">
@@ -302,17 +272,17 @@
 </div>
 
 {{-- Modal de Descarga --}}
-<div id="downloadModal" class="fixed inset-0 bg-black/50 hidden items-center justify-center z-50">
-  <div class="bg-white dark:bg-neutral-900 rounded-xl p-6 max-w-md w-full mx-4 border border-neutral-100 dark:border-neutral-800">
+<div id="downloadModal" class="fixed inset-0 bg-black/50 hidden items-center justify-center z-50" role="dialog" aria-modal="true" aria-labelledby="downloadTitle">
+  <div class="bg-white dark:bg-neutral-900 rounded-xl p-6 max-w-md w-full mx-4 border border-neutral-100 dark:border-neutral-800" role="document">
     <div class="flex items-center justify-between mb-4">
-      <h3 class="text-lg font-semibold text-neutral-900 dark:text-neutral-100 flex items-center">
+      <h3 id="downloadTitle" class="text-lg font-semibold text-neutral-900 dark:text-neutral-100 flex items-center">
         <i class="fas fa-download text-emerald-600 mr-2"></i> Descargar Reporte
       </h3>
-      <button id="closeModal" class="text-neutral-400 hover:text-neutral-600 dark:hover:text-neutral-300">
+      <button id="closeModal" type="button" class="text-neutral-400 hover:text-neutral-600 dark:hover:text-neutral-300" aria-label="Cerrar">
         <i class="fas fa-times"></i>
       </button>
     </div>
-    <p class="text-neutral-600 dark:text-neutral-300 mb-4">Selecciona el formato del reporte:</p>
+    <p class="text-neutral-600 dark:text-neutral-300 mb-4">Seleccioná el formato del reporte:</p>
     <div class="space-y-3">
       <a href="{{ route('orders.download-report', array_merge(request()->query(), ['format'=>'csv'])) }}"
          class="w-full flex items-center justify-between p-3 border border-neutral-300 dark:border-neutral-700 rounded-lg hover:bg-neutral-50 dark:hover:bg-neutral-800 transition-colors">
@@ -322,7 +292,7 @@
           </div>
           <div>
             <div class="font-medium text-neutral-900 dark:text-neutral-100">CSV (Excel)</div>
-            <div class="text-sm text-neutral-500 dark:text-neutral-400">Formato separado por comas</div>
+            <div class="text-sm text-neutral-500 dark:text-neutral-400">UTF-8 con separador ;</div>
           </div>
         </div>
         <i class="fas fa-download text-neutral-400"></i>
@@ -335,7 +305,7 @@
           </div>
           <div>
             <div class="font-medium text-neutral-900 dark:text-neutral-100">Excel (XLS)</div>
-            <div class="text-sm text-neutral-500 dark:text-neutral-400">Con formato y totales</div>
+            <div class="text-sm text-neutral-500 dark:text-neutral-400">Tabla HTML compatible</div>
           </div>
         </div>
         <i class="fas fa-download text-neutral-400"></i>
@@ -355,30 +325,73 @@
 </style>
 
 <script>
-document.addEventListener('DOMContentLoaded', () => {
-  const toggleButton = document.getElementById('toggleFilters');
-  const filtersPanel = document.getElementById('filtersPanel');
-  const chevron = document.getElementById('filterChevron');
-  const filterText = document.querySelector('.filter-text');
+(function (){
+  const ready = (fn) => {
+    if (document.readyState === 'loading') {
+      document.addEventListener('DOMContentLoaded', fn, { once:true });
+    } else {
+      fn();
+    }
+  };
 
-  const downloadBtn = document.getElementById('downloadReportBtn');
-  const downloadBtn2 = document.getElementById('downloadReportBtn2');
-  const downloadModal = document.getElementById('downloadModal');
-  const closeModal = document.getElementById('closeModal');
+  ready(() => {
+    const filtersPanel = document.getElementById('filtersPanel');
+    const toggleFiltersBtn = document.getElementById('toggleFilters');
+    const chevron = document.getElementById('filterChevron');
+    const filterText = document.querySelector('.filter-text');
 
-  const hasActive = {{ request()->anyFilled(['status','from','to']) ? 'true' : 'false' }};
-  if (hasActive) showFilters();
+    const modalId = 'downloadModal';
+    const modal = document.getElementById(modalId);
+    const closeBtn = document.getElementById('closeModal');
 
-  toggleButton.addEventListener('click', () => filtersPanel.classList.contains('hidden') ? showFilters() : hideFilters());
-  downloadBtn.addEventListener('click', showDownloadModal);
-  downloadBtn2?.addEventListener('click', showDownloadModal);
-  closeModal.addEventListener('click', hideDownloadModal);
-  downloadModal.addEventListener('click', (e)=>{ if(e.target===downloadModal) hideDownloadModal(); });
+    // Filtros: null-safe
+    if (toggleFiltersBtn && filtersPanel && chevron && filterText) {
+      const hasActive = {{ request()->anyFilled(['status','from','to','client','client_id']) ? 'true' : 'false' }};
+      const showFilters = () => {
+        filtersPanel.classList.remove('hidden');
+        requestAnimationFrame(() => filtersPanel.classList.add('show'));
+        chevron.style.transform = 'rotate(180deg)';
+        filterText.textContent = 'Ocultar Filtros';
+        filtersPanel.setAttribute('aria-hidden', 'false');
+      };
+      const hideFilters = () => {
+        filtersPanel.classList.remove('show');
+        setTimeout(() => filtersPanel.classList.add('hidden'), 300);
+        chevron.style.transform = 'rotate(0deg)';
+        filterText.textContent = 'Mostrar Filtros';
+        filtersPanel.setAttribute('aria-hidden', 'true');
+      };
+      toggleFiltersBtn.addEventListener('click', () =>
+        filtersPanel.classList.contains('hidden') ? showFilters() : hideFilters()
+      );
+      if (hasActive) showFilters();
+    }
 
-  function showFilters(){ filtersPanel.classList.remove('hidden'); setTimeout(()=>filtersPanel.classList.add('show'),10); chevron.style.transform='rotate(180deg)'; filterText.textContent='Ocultar Filtros'; }
-  function hideFilters(){ filtersPanel.classList.remove('show'); setTimeout(()=>filtersPanel.classList.add('hidden'),300); chevron.style.transform='rotate(0deg)'; filterText.textContent='Mostrar Filtros'; }
-  function showDownloadModal(){ downloadModal.classList.remove('hidden'); downloadModal.classList.add('flex'); }
-  function hideDownloadModal(){ downloadModal.classList.add('hidden'); downloadModal.classList.remove('flex'); }
-});
+    // Modal: null-safe
+    if (!modal) return;
+
+    const openers = document.querySelectorAll(`[data-modal-open="${modalId}"]`);
+    const open = () => {
+      modal.classList.remove('hidden');
+      modal.classList.add('flex');
+      closeBtn?.focus?.();
+      const onEsc = (e) => {
+        if (e.key === 'Escape') {
+          close();
+          document.removeEventListener('keydown', onEsc);
+        }
+      };
+      document.addEventListener('keydown', onEsc);
+    };
+    const close = () => {
+      modal.classList.add('hidden');
+      modal.classList.remove('flex');
+    };
+
+    openers.forEach(btn => btn.addEventListener('click', open));
+    closeBtn?.addEventListener('click', close);
+    modal.addEventListener('click', (e) => { if (e.target === modal) close(); });
+  });
+})();
 </script>
 @endsection
