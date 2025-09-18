@@ -47,4 +47,9 @@ class Order extends Model
     {
         return $this->client->name ?? 'Sin cliente';
     }
+
+    public function scopeExcludeDrafts($q)
+    {
+        return $q->where('status', '!=', 'draft');
+    }
 }

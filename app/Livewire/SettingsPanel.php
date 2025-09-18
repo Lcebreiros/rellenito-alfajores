@@ -8,6 +8,7 @@ use Livewire\WithFileUploads;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Storage;
 use App\Models\Setting; // <-- usamos Setting como store de claves
+use Illuminate\Validation\Rule;
 
 class SettingsPanel extends Component
 {
@@ -15,6 +16,9 @@ class SettingsPanel extends Component
 
     public $theme = 'light';
     public $site_title = 'Mi App';
+    public ?string $timezone = null;
+
+    public array $timezones = [];
 
     // Logo del comprobante (per-user)
     public $receipt_logo;            // archivo temporal
@@ -27,6 +31,27 @@ class SettingsPanel extends Component
         $this->site_title = Setting::get('site_title', 'Mi App');
 
         $this->refreshReceiptLogoUrl();
+
+              $this->timezones = \DateTimeZone::listIdentifiers(\DateTimeZone::ALL);
+
+        $user = auth()->user();
+        $this->timezone = $user?->timezone ?: config('app.timezone', 'UTC');
+    }
+
+        public function saveTimezone(): void
+    {
+        $this->validate([
+            'timezone' => ['required', 'string', Rule::in($this->timezones)],
+        ], [
+            'timezone.in' => 'Seleccioná una zona horaria válida.',
+        ]);
+
+        $user = auth()->user();
+        $user->timezone = $this->timezone;
+        $user->save();
+
+        session()->flash('ok', 'Zona horaria actualizada.');
+        $this->dispatch('timezone-updated'); // por si querés escuchar en front
     }
 
     /**

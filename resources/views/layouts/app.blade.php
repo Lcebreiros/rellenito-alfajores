@@ -88,6 +88,10 @@
   {{-- <x-mobile-drawer /> --}}
 
   @stack('modals')
+  @push('modals')
+  <livewire:order-quick-modal />
+@endpush
+
   @livewireScripts
 
   {{-- Tema instantáneo si Livewire emite `theme-updated` --}}

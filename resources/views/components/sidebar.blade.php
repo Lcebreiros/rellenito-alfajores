@@ -14,22 +14,22 @@
 
 <style>
   :root {
-    --sidebar-bg: #ffffff;
-    --sidebar-border: #e5e5e5;
-    --sidebar-text: #3f3f46;
-    --sidebar-text-secondary: #737373;
-    --sidebar-hover-bg: #fafafa;
-    --sidebar-active-bg: #f5f5f5;
-    --sidebar-button-bg: #fafafa;
-    --sidebar-button-hover: #f5f5f5;
-    --sidebar-ring: #e5e5e5;
-    --sidebar-shadow: 0 1px 3px 0 rgba(0,0,0,.08), 0 1px 2px 0 rgba(0,0,0,.04);
-
-    /* opcional: exponer ancho como var (si querés usarla) */
+    --sidebar-bg: #fafafa;
+    --sidebar-border: #e4e4e7;
+    --sidebar-text: #18181b;
+    --sidebar-text-secondary: #71717a;
+    --sidebar-hover-bg: #ffffff;
+    --sidebar-active-bg: #f4f4f5;
+    --sidebar-button-bg: #ffffff;
+    --sidebar-button-hover: #f4f4f5;
+    --sidebar-ring: #e4e4e7;
+    --sidebar-shadow: 0 1px 2px 0 rgba(0,0,0,.03), 0 1px 3px 0 rgba(0,0,0,.02);
+    --sidebar-shadow-hover: 0 4px 6px -1px rgba(0,0,0,.06), 0 2px 4px -1px rgba(0,0,0,.03);
     --sb-width: 18rem;
   }
+  
   .dark {
-    --sidebar-bg: #0f0f10;
+    --sidebar-bg: #0a0a0b;
     --sidebar-border: #27272a;
     --sidebar-text: #fafafa;
     --sidebar-text-secondary: #a1a1aa;
@@ -38,74 +38,209 @@
     --sidebar-button-bg: #18181b;
     --sidebar-button-hover: #27272a;
     --sidebar-ring: #3f3f46;
-    --sidebar-shadow: 0 6px 16px -4px rgba(0,0,0,.45), 0 3px 6px -2px rgba(0,0,0,.35);
+    --sidebar-shadow: 0 2px 4px 0 rgba(0,0,0,.15), 0 1px 2px 0 rgba(0,0,0,.1);
+    --sidebar-shadow-hover: 0 8px 16px -4px rgba(0,0,0,.3), 0 4px 6px -2px rgba(0,0,0,.2);
   }
 
-  .nav-link{
+  .nav-link {
     transform: translateZ(0);
     transition: all .28s cubic-bezier(.34,1.56,.64,1);
-    will-change: transform;
-    border-radius: 0.5rem;
+    will-change: transform, box-shadow;
+    border-radius: 0.75rem;
     position: relative;
     overflow: hidden;
   }
-  .nav-link:hover{
-    transform: scale(1.02);
+  
+  .nav-link:hover {
+    transform: translateY(-1px);
+    box-shadow: var(--sidebar-shadow-hover);
+  }
+  
+  .nav-link::before {
+    content: '';
+    position: absolute;
+    inset: 0 auto 0 -100%;
+    width: 100%;
+    height: 100%;
+    background: linear-gradient(90deg, transparent, rgba(255,255,255,.06), transparent);
+    transition: left .6s cubic-bezier(.34,1.56,.64,1);
+    z-index: 0;
+  }
+  
+  .nav-link:hover::before {
+    left: 100%;
+  }
+
+  .nav-icon {
+    width: 1.25rem;
+    height: 1.25rem;
+    transition: all .28s cubic-bezier(.34,1.56,.64,1);
+    transform-origin: center center;
+    position: relative;
+    z-index: 1;
+  }
+  
+  .nav-link:hover .nav-icon {
+    transform: scale(1.15);
+  }
+
+  .dark .nav-icon {
+    filter: invert(1) brightness(1.1) contrast(.95);
+  }
+
+  .sidebar-container {
+    background: var(--sidebar-bg);
+    border-color: var(--sidebar-border);
+    box-shadow: var(--sidebar-shadow);
+    transition: all .3s cubic-bezier(.16,1,.3,1);
+    backdrop-filter: blur(8px);
+    -webkit-backdrop-filter: blur(8px);
+  }
+
+  .sidebar-header {
+    background: var(--sidebar-bg);
+    border-color: var(--sidebar-border);
+  }
+
+  .sidebar-footer {
+    background: var(--sidebar-bg);
+    border-color: var(--sidebar-border);
+  }
+
+  .sidebar-nav {
+    background: var(--sidebar-bg);
+  }
+
+  .sidebar-button {
+    background: var(--sidebar-button-bg);
+    border-color: var(--sidebar-border);
+    color: var(--sidebar-text-secondary);
+    transition: all .2s cubic-bezier(.34,1.56,.64,1);
     box-shadow: var(--sidebar-shadow);
   }
-  .nav-link::before{
-    content:'';
-    position:absolute; inset:0 auto 0 -100%;
-    width:100%; height:100%;
-    background: linear-gradient(90deg, transparent, rgba(255,255,255,.08), transparent);
-    transition:left .5s ease; z-index:0;
-  }
-  .nav-link:hover::before{ left:100%; }
-
-  .nav-icon{ width:1.5rem; height:1.5rem; transition:all .28s cubic-bezier(.34,1.56,.64,1); transform-origin:left center; position:relative; z-index:1; }
-  .nav-link:hover .nav-icon{ transform:scale(1.4); }
-  aside[data-collapsed="true"] .nav-icon{ transform-origin:center center; }
-
-  .dark .nav-icon { filter: invert(1) hue-rotate(180deg) brightness(1.05) contrast(.9); }
-  .dark .nav-icon.no-invert { filter: brightness(1.15) contrast(.95); }
-
-  .sidebar-container{ background:var(--sidebar-bg); border-color:var(--sidebar-border); box-shadow:var(--sidebar-shadow); transition: all .3s ease; }
-  .sidebar-header{ background:var(--sidebar-bg); border-color:var(--sidebar-border); }
-  .sidebar-footer{ background:var(--sidebar-bg); border-color:var(--sidebar-border); }
-  .sidebar-nav{ background:var(--sidebar-bg); }
-
-  .sidebar-button{
-    background:var(--sidebar-button-bg);
-    border-color:var(--sidebar-border);
-    color:var(--sidebar-text-secondary);
-    transition: all .2s ease;
-  }
-  .sidebar-button:hover{
-    background:var(--sidebar-button-hover);
-    color:var(--sidebar-text);
+  
+  .sidebar-button:hover {
+    background: var(--sidebar-button-hover);
+    color: var(--sidebar-text);
     transform: translateY(-1px);
+    box-shadow: var(--sidebar-shadow-hover);
   }
 
-  .user-avatar{ box-shadow: 0 0 0 2px var(--sidebar-ring) inset; transition: box-shadow .2s ease; }
-  .user-info{ color:var(--sidebar-text); }
-  .user-email{ color:var(--sidebar-text-secondary); }
-
-  @media (max-width: 768px){
-    .sidebar-container{ transform: translateX(-100%); transition: transform .3s ease; }
-    .sidebar-container.mobile-open{ transform: translateX(0); }
+  .user-avatar {
+    box-shadow: 0 0 0 2px var(--sidebar-ring) inset;
+    transition: all .2s cubic-bezier(.34,1.56,.64,1);
+  }
+  
+  .user-avatar:hover {
+    transform: scale(1.05);
+    box-shadow: 0 0 0 3px var(--sidebar-ring) inset;
+  }
+  
+  .user-info {
+    color: var(--sidebar-text);
+  }
+  
+  .user-email {
+    color: var(--sidebar-text-secondary);
   }
 
-  aside[data-collapsed="true"] .sidebar-header{
+  /* Scrollbar personalizado más sutil */
+  .custom-scrollbar {
+    scrollbar-width: thin;
+    scrollbar-color: transparent transparent;
+  }
+  
+  .custom-scrollbar::-webkit-scrollbar {
+    width: 4px;
+  }
+  
+  .custom-scrollbar::-webkit-scrollbar-track {
+    background: transparent;
+  }
+  
+  .custom-scrollbar::-webkit-scrollbar-thumb {
+    background: rgba(0,0,0,.1);
+    border-radius: 2px;
+  }
+  
+  .dark .custom-scrollbar::-webkit-scrollbar-thumb {
+    background: rgba(255,255,255,.1);
+  }
+  
+  .custom-scrollbar:hover::-webkit-scrollbar-thumb {
+    background: rgba(0,0,0,.2);
+  }
+  
+  .dark .custom-scrollbar:hover::-webkit-scrollbar-thumb {
+    background: rgba(255,255,255,.2);
+  }
+
+  /* Responsive breakpoints mejorados */
+  @media (max-width: 1024px) {
+    :root {
+      --sb-width: 16rem;
+    }
+  }
+  
+  @media (max-width: 768px) {
+    .sidebar-container {
+      transform: translateX(-100%);
+      transition: transform .3s cubic-bezier(.16,1,.3,1);
+    }
+    
+    .sidebar-container.mobile-open {
+      transform: translateX(0);
+    }
+    
+    :root {
+      --sb-width: 16rem;
+    }
+  }
+  
+  @media (max-width: 640px) {
+    :root {
+      --sb-width: 14rem;
+    }
+  }
+
+  /* Mejoras para estados colapsados */
+  aside[data-collapsed="true"] .sidebar-header {
     justify-content: center;
-    padding-left: 0;
-    padding-right: 0;
+    padding-left: 1rem;
+    padding-right: 1rem;
   }
-  aside[data-collapsed="true"] .sidebar-header a{
+  
+  aside[data-collapsed="true"] .sidebar-header a {
     justify-content: center;
     width: 100%;
   }
-  aside[data-collapsed="true"] .sidebar-header a > .user-info{
+  
+  aside[data-collapsed="true"] .sidebar-header a > .user-info {
     display: none !important;
+  }
+  
+  aside[data-collapsed="true"] .nav-link {
+    justify-content: center;
+  }
+  
+  aside[data-collapsed="true"] .nav-icon {
+    transform-origin: center center;
+  }
+
+  /* Animaciones de entrada más suaves */
+  .fade-slide-enter {
+    animation: fadeSlideIn .3s cubic-bezier(.34,1.56,.64,1) forwards;
+  }
+  
+  @keyframes fadeSlideIn {
+    from {
+      opacity: 0;
+      transform: translateX(-8px);
+    }
+    to {
+      opacity: 1;
+      transform: translateX(0);
+    }
   }
 </style>
 
@@ -126,6 +261,10 @@
 
         // observar cambios de tema (por si necesitás filtros de iconos)
         this.observeThemeChanges();
+        
+        // Ajustar altura en móviles para evitar scroll
+        this.adjustMobileHeight();
+        window.addEventListener('resize', () => this.adjustMobileHeight());
       },
       toggle() {
         if (this.animating) return;
@@ -154,29 +293,38 @@
         observer.observe(document.documentElement, { attributes:true, attributeFilter:['class'] });
         this.$nextTick(() => this.updateIconFilters());
       },
-      updateIconFilters(){ /* hook si querés reglas especiales por icono */ }
+      updateIconFilters() { /* hook si querés reglas especiales por icono */ },
+      adjustMobileHeight() {
+        if (window.innerWidth <= 768) {
+          const vh = window.innerHeight * 0.01;
+          document.documentElement.style.setProperty('--vh', vh + 'px');
+        }
+      }
   }"
   x-effect="sync()"  {{-- asegura sincronía si Alpine rehidrata --}}
   x-bind:data-collapsed="collapsed ? 'true' : 'false'"
-  :class="collapsed ? 'w-20' : 'w-72'"
-  class="sidebar-container fixed inset-y-0 left-0 z-40 overflow-hidden
-         border-r transition-[width] duration-500 ease-[cubic-bezier(0.16,1,0.3,1)]">
+  :class="collapsed ? 'w-20' : 'w-72 sm:w-72 lg:w-72'"
+  class="sidebar-container fixed inset-y-0 left-0 z-50 overflow-hidden
+         border-r transition-[width] duration-500 ease-[cubic-bezier(0.16,1,0.3,1)]"
+  style="height: 100vh; height: calc(var(--vh, 1vh) * 100);">
 
   <div class="h-full flex flex-col">
     <!-- Header -->
-    <div class="sidebar-header h-16 flex items-center px-4">
+    <div class="sidebar-header flex-shrink-0 h-16 flex items-center px-4 border-b">
       <a href="{{ route('dashboard') }}" wire:navigate data-turbo="false"
-         class="inline-flex items-center gap-3" title="{{ $panelText }}" aria-label="{{ $panelText }}">
-        <x-application-mark x-bind:class="collapsed ? 'h-8 w-auto' : 'h-9 w-auto'" class="transition-all duration-300 filter drop-shadow-sm" />
-        <span x-show="!collapsed" x-transition class="user-info font-bold text-lg truncate max-w-[9rem] sm:max-w-[12rem]">
+         class="inline-flex items-center gap-3 transition-all duration-300 hover:scale-105" 
+         title="{{ $panelText }}" aria-label="{{ $panelText }}">
+        <x-application-mark x-bind:class="collapsed ? 'h-7 w-auto' : 'h-8 w-auto'" 
+                          class="transition-all duration-300 filter drop-shadow-sm" />
+        <span x-show="!collapsed" x-transition:enter="fade-slide-enter" 
+              class="user-info font-bold text-lg truncate max-w-[8rem] sm:max-w-[10rem] lg:max-w-[12rem]">
           {{ $panelText }}
         </span>
       </a>
     </div>
 
     <!-- NAV -->
-    <nav class="sidebar-nav flex-1 min-h-0 overflow-y-auto px-4 pt-4 pb-2 space-y-1
-                scrollbar-thin scrollbar-thumb-neutral-300 dark:scrollbar-thumb-neutral-700"
+    <nav class="sidebar-nav flex-1 min-h-0 overflow-y-auto px-3 pt-4 pb-2 space-y-1 custom-scrollbar"
          :class="animating ? 'pointer-events-none select-none' : ''">
 
       <!-- Dashboard -->
@@ -184,10 +332,11 @@
          class="nav-link {{ request()->routeIs('dashboard') ? $active : $idle }}"
          :class="collapsed ? 'justify-center flex items-center gap-3 p-3' : 'flex items-center gap-3 p-3'"
          :title="collapsed ? 'Dashboard' : null">
-        <span class="shrink-0 flex items-center justify-center w-8 h-8">
+        <span class="shrink-0 flex items-center justify-center w-7 h-7">
           <img src="{{ asset('images/dashboard.png') }}" alt="Dashboard" class="nav-icon">
         </span>
-        <span x-show="!collapsed" x-transition class="text-sm font-semibold truncate relative z-1">Dashboard</span>
+        <span x-show="!collapsed" x-transition:enter="fade-slide-enter" 
+              class="text-sm font-semibold truncate relative z-1">Dashboard</span>
       </a>
 
       <!-- Crear pedido -->
@@ -195,10 +344,11 @@
          class="nav-link {{ request()->routeIs('orders.create') ? $active : $idle }}"
          :class="collapsed ? 'justify-center flex items-center gap-3 p-3' : 'flex items-center gap-3 p-3'"
          :title="collapsed ? 'Crear pedido' : null">
-        <span class="shrink-0 flex items-center justify-center w-8 h-8">
+        <span class="shrink-0 flex items-center justify-center w-7 h-7">
           <img src="{{ asset('images/crear-pedido.png') }}" alt="Crear pedido" class="nav-icon">
         </span>
-        <span x-show="!collapsed" x-transition class="text-sm font-semibold truncate relative z-1">Crear pedido</span>
+        <span x-show="!collapsed" x-transition:enter="fade-slide-enter" 
+              class="text-sm font-semibold truncate relative z-1">Crear pedido</span>
       </a>
 
       <!-- Lista de pedidos -->
@@ -206,10 +356,11 @@
          class="nav-link {{ request()->routeIs('orders.index') ? $active : $idle }}"
          :class="collapsed ? 'justify-center flex items-center gap-3 p-3' : 'flex items-center gap-3 p-3'"
          :title="collapsed ? 'Lista de pedidos' : null">
-        <span class="shrink-0 flex items-center justify-center w-8 h-8">
+        <span class="shrink-0 flex items-center justify-center w-7 h-7">
           <img src="{{ asset('images/pedidos.png') }}" alt="Pedidos" class="nav-icon">
         </span>
-        <span x-show="!collapsed" x-transition class="text-sm font-semibold truncate relative z-1">Lista de pedidos</span>
+        <span x-show="!collapsed" x-transition:enter="fade-slide-enter" 
+              class="text-sm font-semibold truncate relative z-1">Lista de pedidos</span>
       </a>
 
       <!-- Productos -->
@@ -217,10 +368,11 @@
          class="nav-link {{ request()->routeIs('products.*') ? $active : $idle }}"
          :class="collapsed ? 'justify-center flex items-center gap-3 p-3' : 'flex items-center gap-3 p-3'"
          :title="collapsed ? 'Productos' : null">
-        <span class="shrink-0 flex items-center justify-center w-8 h-8">
+        <span class="shrink-0 flex items-center justify-center w-7 h-7">
           <img src="{{ asset('images/productos.png') }}" alt="Productos" class="nav-icon">
         </span>
-        <span x-show="!collapsed" x-transition class="text-sm font-semibold truncate relative z-1">Productos</span>
+        <span x-show="!collapsed" x-transition:enter="fade-slide-enter" 
+              class="text-sm font-semibold truncate relative z-1">Productos</span>
       </a>
 
       <!-- Stock -->
@@ -228,10 +380,11 @@
          class="nav-link {{ request()->fullUrlIs(route('stock.index').'#stock') ? $active : $idle }}"
          :class="collapsed ? 'justify-center flex items-center gap-3 p-3' : 'flex items-center gap-3 p-3'"
          :title="collapsed ? 'Stock' : null">
-        <span class="shrink-0 flex items-center justify-center w-8 h-8">
+        <span class="shrink-0 flex items-center justify-center w-7 h-7">
           <img src="{{ asset('images/stock.png') }}" alt="Stock" class="nav-icon">
         </span>
-        <span x-show="!collapsed" x-transition class="text-sm font-semibold truncate relative z-1">Stock</span>
+        <span x-show="!collapsed" x-transition:enter="fade-slide-enter" 
+              class="text-sm font-semibold truncate relative z-1">Stock</span>
       </a>
 
       <!-- Calcular costos -->
@@ -239,10 +392,11 @@
          class="nav-link {{ request()->routeIs('costs.*') ? $active : $idle }}"
          :class="collapsed ? 'justify-center flex items-center gap-3 p-3' : 'flex items-center gap-3 p-3'"
          :title="collapsed ? 'Calcular costos' : null">
-        <span class="shrink-0 flex items-center justify-center w-8 h-8">
+        <span class="shrink-0 flex items-center justify-center w-7 h-7">
           <img src="{{ asset('images/calcular-costos.png') }}" alt="Calcular costos" class="nav-icon">
         </span>
-        <span x-show="!collapsed" x-transition class="text-sm font-semibold truncate relative z-1">Calcular costos</span>
+        <span x-show="!collapsed" x-transition:enter="fade-slide-enter" 
+              class="text-sm font-semibold truncate relative z-1">Calcular costos</span>
       </a>
 
       <!-- Configuración -->
@@ -250,60 +404,65 @@
          class="nav-link {{ request()->routeIs('settings') ? $active : $idle }}"
          :class="collapsed ? 'justify-center flex items-center gap-3 p-3' : 'flex items-center gap-3 p-3'"
          :title="collapsed ? 'Configuración' : null">
-        <span class="shrink-0 flex items-center justify-center w-8 h-8">
+        <span class="shrink-0 flex items-center justify-center w-7 h-7">
           <img src="{{ asset('images/configuraciones.png') }}" alt="Configuración" class="nav-icon">
         </span>
-        <span x-show="!collapsed" x-transition class="text-sm font-semibold truncate relative z-1">Configuración</span>
+        <span x-show="!collapsed" x-transition:enter="fade-slide-enter" 
+              class="text-sm font-semibold truncate relative z-1">Configuración</span>
       </a>
     </nav>
 
     <!-- Toggle -->
-    <div class="mt-3 pt-3 px-4">
+    <div class="flex-shrink-0 pt-2 pb-3 px-3">
       <button @click="toggle()" :disabled="animating"
-              class="sidebar-button w-full flex items-center justify-center gap-2 text-xs py-2 px-3 rounded-lg border"
+              class="sidebar-button w-full flex items-center justify-center gap-2 text-xs py-2.5 px-3 rounded-xl border"
               :title="collapsed ? 'Expandir sidebar' : 'Contraer sidebar'">
-        <svg x-show="!collapsed" x-transition.opacity class="w-4 h-4" viewBox="0 0 24 24" fill="none">
+        <svg x-show="!collapsed" x-transition:enter="fade-slide-enter" class="w-4 h-4" viewBox="0 0 24 24" fill="none">
           <path d="M11 5l-7 7 7 7M4 12h16" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
         </svg>
-        <svg x-show="collapsed" x-transition.opacity class="w-4 h-4" viewBox="0 0 24 24" fill="none">
+        <svg x-show="collapsed" x-transition:enter="fade-slide-enter" class="w-4 h-4" viewBox="0 0 24 24" fill="none">
           <path d="M13 19l7-7-7-7M4 12h16" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
         </svg>
-        <span x-show="!collapsed" x-transition.opacity class="font-medium">Contraer</span>
+        <span x-show="!collapsed" x-transition:enter="fade-slide-enter" class="font-medium">Contraer</span>
       </button>
     </div>
 
     <!-- Footer -->
-    <div class="sidebar-footer p-4 border-t">
+    <div class="sidebar-footer flex-shrink-0 p-3 border-t">
       <div class="flex items-center gap-3 mb-3" :class="collapsed ? 'justify-center' : ''">
         @if (Laravel\Jetstream\Jetstream::managesProfilePhotos())
-          <img class="user-avatar w-9 h-9 rounded-full object-cover transition-all duration-200 hover:!shadow-[0_0_0_4px_var(--sidebar-ring)_inset]"
-               src="{{ Auth::user()->profile_photo_url }}" alt="{{ Auth::user()->name }}">
+          <img class="user-avatar w-9 h-9 rounded-full object-cover cursor-pointer"
+               src="{{ Auth::user()->profile_photo_url }}" 
+               alt="{{ Auth::user()->name }}"
+               :title="collapsed ? '{{ Auth::user()->name }}' : null">
         @endif
-        <div class="min-w-0" x-show="!collapsed" x-transition>
+        <div class="min-w-0 overflow-hidden" x-show="!collapsed" x-transition:enter="fade-slide-enter">
           <div class="user-info text-sm font-medium truncate">{{ Auth::user()->name }}</div>
           <div class="user-email text-xs truncate">{{ Auth::user()->email }}</div>
         </div>
       </div>
 
-      <div class="grid" :class="collapsed ? 'grid-cols-1 gap-2' : 'grid-cols-2 gap-2'">
+      <div class="grid gap-2" :class="collapsed ? 'grid-cols-1' : 'grid-cols-2'">
         <a href="{{ route('profile.show') }}" wire:navigate data-turbo="false"
            class="sidebar-button flex items-center justify-center gap-2 text-xs py-2 px-3 rounded-lg border"
            :title="collapsed ? 'Ver perfil' : null">
           <svg class="w-4 h-4" viewBox="0 0 24 24" fill="none">
-            <path d="M12 12a5 5 0 1 0-5-5 5 5 0 0 0 5 5Zm7 9a7 7 0 0 0-14 0" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/>
+            <path d="M12 12a5 5 0 1 0-5-5 5 5 0 0 0 5 5Zm7 9a7 7 0 0 0-14 0" 
+                  stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/>
           </svg>
-          <span x-show="!collapsed" x-transition.opacity class="font-medium">Perfil</span>
+          <span x-show="!collapsed" x-transition:enter="fade-slide-enter" class="font-medium">Perfil</span>
         </a>
 
         <form method="POST" action="{{ route('logout') }}" class="m-0">
           @csrf
           <button type="submit"
-                  class="sidebar-button w-full flex items-center justify-center gap-2 text-xs py-2 px-3 rounded-lg border hover:!bg-red-50 dark:hover:!bg-red-900/20 hover:!text-red-600 dark:hover:!text-red-400"
+                  class="sidebar-button w-full flex items-center justify-center gap-2 text-xs py-2 px-3 rounded-lg border hover:!bg-red-50 dark:hover:!bg-red-900/20 hover:!text-red-600 dark:hover:!text-red-400 hover:!border-red-200 dark:hover:!border-red-800"
                   :title="collapsed ? 'Cerrar sesión' : null">
             <svg class="w-4 h-4" viewBox="0 0 24 24" fill="none">
-              <path d="M15 12H3m12 0-4-4m4 4-4 4M21 3v18" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/>
+              <path d="M15 12H3m12 0-4-4m4 4-4 4M21 3v18" 
+                    stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/>
             </svg>
-            <span x-show="!collapsed" x-transition.opacity class="font-medium">Salir</span>
+            <span x-show="!collapsed" x-transition:enter="fade-slide-enter" class="font-medium">Salir</span>
           </button>
         </form>
       </div>
@@ -318,6 +477,6 @@
        x-transition:leave="transition-opacity ease-linear duration-300"
        x-transition:leave-start="opacity-100"
        x-transition:leave-end="opacity-0"
-       class="fixed inset-0 bg-black/40 md:hidden"
+       class="fixed inset-0 bg-black/40 md:hidden z-40"
        @click="collapsed = true"></div>
 </aside>

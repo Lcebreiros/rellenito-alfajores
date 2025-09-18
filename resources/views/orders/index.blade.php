@@ -13,16 +13,14 @@
       <i class="fas fa-chevron-down ml-2 text-xs transition-transform duration-200" id="filterChevron"></i>
     </button>
 
+    {{-- Botón Nuevo Pedido --}}
+    <livewire:order-quick-modal />
+
     {{-- Abre modal de descarga --}}
     <button data-modal-open="downloadModal" id="downloadReportBtn" type="button"
       class="inline-flex items-center gap-2 px-4 py-2 rounded-lg shadow-sm bg-green-600 text-white font-semibold hover:bg-green-700 transition-colors">
       <i class="fa-solid fa-download"></i><span>Descargar</span>
     </button>
-
-    <a href="{{ route('orders.create') }}"
-       class="inline-flex items-center px-4 py-2 bg-indigo-600 border border-transparent rounded-lg font-semibold text-white hover:bg-indigo-700 transition-colors">
-      <i class="fas fa-plus-circle mr-2"></i> Nuevo Pedido
-    </a>
   </div>
 </div>
 @endsection
@@ -395,3 +393,5 @@
 })();
 </script>
 @endsection
+
+

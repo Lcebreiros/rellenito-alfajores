@@ -2,27 +2,28 @@
 
 namespace App\Livewire\Calculator;
 
-use Livewire\Attributes\On;
 use Livewire\Component;
 use Livewire\WithPagination;
-use App\Models\Supply; // ajusta al nombre real de tu modelo
+use App\Models\Supply;
+use App\Models\SupplyPurchase;
 
 class SuppliesManager extends Component
 {
     use WithPagination;
 
-    // Alta rápida
+    // -------- Alta rápida (compra) --------
     public string $name = '';
-    public float $qty = 0;
+    public float  $qty = 0;
     public string $unit = 'g';
-    public float $total_cost = 0;
+    public float  $total_cost = 0;
 
-    // Edición inline (por fila)
-    public ?int $editingId = null;
-    public string $e_name = '';
-    public float $e_stock = 0;
-    public float $e_price = 0;
+    // -------- Edición unificada (Nombre + precio total de última compra) --------
+    public ?int   $editingId = null;           // supply id en edición
+    public string $e_name = '';                // nuevo nombre
+    public ?int   $editingPurchaseId = null;   // id de la última compra (si existe)
+    public float  $ep_total_cost = 0;          // precio total editable
 
+    // -------- Filtro --------
     public string $search = '';
 
     protected $rules = [
@@ -32,85 +33,122 @@ class SuppliesManager extends Component
         'total_cost' => 'required|numeric|min:0',
     ];
 
+    // -------- Helpers de conversión --------
+    protected function toBaseUnit(string $unit): string
+    {
+        return match ($unit) {
+            'kg' => 'g',
+            'l', 'cm3' => 'ml',
+            default => $unit, // g, ml, u
+        };
+    }
+
+    protected function factorToBase(string $unit): float
+    {
+        return match ($unit) {
+            'kg' => 1000, // kg -> g
+            'l'  => 1000, // l -> ml
+            'cm3'=> 1,    // cm3 -> ml
+            'g','ml','u' => 1,
+            default => 1,
+        };
+    }
+
+    // -------- Listeners UI --------
     public function updatedSearch() { $this->resetPage(); }
 
+    // -------- Alta rápida: crea compra y recalcula --------
     public function quickStore()
-{
-    $this->validate();
-
-    // Base del supply según la unidad elegida del pack
-    $baseUnit = match ($this->unit) {
-        'kg' => 'g',
-        'l', 'cm3' => 'ml',
-        default => $this->unit, // g, ml, u
-    };
-
-    // Factor hacia la unidad base del supply
-    $factor = match ($this->unit) {
-        'kg' => 1000, // kg -> g
-        'l'  => 1000, // l -> ml
-        'cm3'=> 1,    // cm3 -> ml
-        'g','ml','u' => 1,
-        default => 1,
-    };
-
-    // 1) buscar/crear insumo por nombre + base_unit
-    $supply = Supply::firstOrCreate(
-        ['name' => $this->name, 'base_unit' => $baseUnit],
-        ['stock_base_qty' => 0, 'avg_cost_per_base' => 0]
-    );
-
-    // 2) registrar la compra con tu schema (qty, unit, unit_to_base, total_cost)
-    \App\Models\SupplyPurchase::create([
-        'supply_id'    => $supply->id,
-        'qty'          => (float)$this->qty,         // ej: 10
-        'unit'         => $this->unit,               // ej: 'kg'
-        'unit_to_base' => $factor,                   // ej: 1000 (kg -> g)
-        'total_cost'   => (float)$this->total_cost,  // ej: 35000
-    ]);
-
-    // 3) recalcular stock y promedio
-    $supply->recomputeFromPurchases();
-
-    // limpiar form
-    $this->reset(['name','qty','unit','total_cost']);
-    $this->dispatch('supply-created', id: $supply->id);
-    session()->flash('ok', 'Compra registrada y stock actualizado.');
-    $this->resetPage();
-}
-
-
-    public function startEdit(int $id)
     {
-        $s = Supply::findOrFail($id);
-        $this->editingId = $id;
-        $this->e_name  = $s->name;
-        $this->e_stock = (float)($s->stock_base_qty ?? 0);
-        $this->e_price = (float)($s->avg_cost_per_base ?? 0);
-    }
+        $this->validate();
 
-    public function cancelEdit()
-    {
-        $this->editingId = null;
-        $this->reset(['e_name','e_stock','e_price']);
-    }
+        $baseUnit = $this->toBaseUnit($this->unit);
+        $factor   = $this->factorToBase($this->unit);
 
-    public function saveEdit()
-    {
-        if (!$this->editingId) return;
-        $s = Supply::findOrFail($this->editingId);
+        // 1) Insumo por nombre + base_unit
+        $supply = Supply::firstOrCreate(
+            ['name' => $this->name, 'base_unit' => $baseUnit],
+            ['stock_base_qty' => 0, 'avg_cost_per_base' => 0]
+        );
 
-        $s->update([
-            'name'              => $this->e_name,
-            'stock_base_qty'    => (float)$this->e_stock,
-            'avg_cost_per_base' => (float)$this->e_price,
+        // 2) Registrar compra
+        SupplyPurchase::create([
+            'supply_id'    => $supply->id,
+            'qty'          => (float)$this->qty,
+            'unit'         => $this->unit,
+            'unit_to_base' => $factor,
+            'total_cost'   => (float)$this->total_cost,
         ]);
 
+        // 3) Recalcular stock y promedio desde compras
+        $supply->recomputeFromPurchases();
+
+        // Limpiar form
+        $this->reset(['name','qty','unit','total_cost']);
+        $this->dispatch('supply-created', id: $supply->id);
+        session()->flash('ok', 'Compra registrada y stock actualizado.');
+        $this->resetPage();
+    }
+
+    // -------- Edición unificada --------
+    public function startEditBoth(int $supplyId): void
+    {
+        // Traer insumo con su última compra (si existe)
+        $s = Supply::with(['purchases' => fn($q) => $q->latest()->limit(1)])->findOrFail($supplyId);
+
+        $this->editingId = $s->id;
+        $this->e_name    = $s->name;
+
+        $last = $s->purchases->first();
+        if ($last) {
+            $this->editingPurchaseId = $last->id;
+            $this->ep_total_cost     = (float)$last->total_cost;
+        } else {
+            $this->editingPurchaseId = null;
+            $this->ep_total_cost     = 0;
+        }
+    }
+
+    public function cancelEditBoth(): void
+    {
+        $this->editingId = null;
+        $this->editingPurchaseId = null;
+        $this->reset(['e_name','ep_total_cost']);
+    }
+
+    public function saveBoth(): void
+    {
+        if (!$this->editingId) return;
+
+        // Validar nombre
+        $this->validate([
+            'e_name' => 'required|string|min:2',
+        ]);
+
+        $s = Supply::findOrFail($this->editingId);
+        $s->update(['name' => $this->e_name]);
+
+        // Si hay última compra editable, validar y actualizar solo el precio total
+        if ($this->editingPurchaseId) {
+            $this->validate([
+                'ep_total_cost' => 'required|numeric|min:0',
+            ]);
+
+            $p = SupplyPurchase::with('supply')->findOrFail($this->editingPurchaseId);
+            $p->total_cost = (float)$this->ep_total_cost;
+            $p->save();
+
+            // Recalcular el insumo desde TODAS las compras
+            $p->supply->recomputeFromPurchases();
+            $this->dispatch('purchase-updated', id: $p->id);
+        }
+
         $this->dispatch('supply-updated', id: $s->id);
-        $this->cancelEdit();
+        $this->cancelEditBoth();
         session()->flash('ok', 'Insumo actualizado.');
     }
 
+    // -------- Borrado INSUMO --------
     public function delete(int $id)
     {
         $s = Supply::findOrFail($id);
@@ -120,6 +158,7 @@ class SuppliesManager extends Component
         $this->resetPage();
     }
 
+    // -------- Computado --------
     public function getCountProperty()
     {
         return Supply::query()
@@ -127,10 +166,12 @@ class SuppliesManager extends Component
             ->count();
     }
 
+    // -------- Render --------
     public function render()
     {
         $supplies = Supply::query()
             ->when($this->search, fn($q)=>$q->where('name','like',"%{$this->search}%"))
+            ->with(['purchases' => fn($q) => $q->latest()->limit(1)]) // última compra por insumo
             ->orderBy('name')
             ->paginate(10);
 

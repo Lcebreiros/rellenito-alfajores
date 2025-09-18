@@ -250,13 +250,12 @@ private function buildOrdersQuery(Request $request): array
 {
     $q        = trim((string) $request->input('q', ''));
     $status   = (string) $request->input('status', '');
-    $from     = $request->date('from'); // Carbon|null
-    $to       = $request->date('to');   // Carbon|null
+    $from     = $request->date('from');
+    $to       = $request->date('to');
     $period   = (string) $request->input('period', '');
     $clientQ  = trim((string) $request->input('client', ''));
     $clientId = $request->input('client_id');
 
-    // Columnas opcionales en orders
     $hasNote       = Schema::hasColumn('orders', 'note');
     $hasCustName   = Schema::hasColumn('orders', 'customer_name');
     $hasCustEmail  = Schema::hasColumn('orders', 'customer_email');
@@ -270,13 +269,10 @@ private function buildOrdersQuery(Request $request): array
 
     [$dateFrom, $dateTo] = $this->resolveDateRange($period, $from, $to);
 
-    // Extraer posible ID de algo tipo "#123" o "Pedido 123"
     $idGuess = null;
     if ($q !== '') {
         $digits = preg_replace('/\D+/', '', $q);
-        if ($digits !== '' && ctype_digit($digits)) {
-            $idGuess = (int) $digits;
-        }
+        if ($digits !== '' && ctype_digit($digits)) $idGuess = (int) $digits;
     }
 
     $query = Order::query()
@@ -286,40 +282,30 @@ private function buildOrdersQuery(Request $request): array
         // 🔎 Búsqueda libre
         ->when($q !== '', function ($query) use ($q, $idGuess, $hasNote, $hasCustName, $hasCustEmail, $hasCustPhone) {
             $query->where(function ($w) use ($q, $idGuess, $hasNote, $hasCustName, $hasCustEmail, $hasCustPhone) {
-                // Por ID exacto si se reconoce
-                if (!is_null($idGuess)) {
-                    $w->orWhere('id', $idGuess);
-                }
-
-                // Por nota (si existe la columna)
-                if ($hasNote) {
-                    $w->orWhere('note', 'like', "%{$q}%");
-                }
-
-                // Por campos capturados en el pedido (si existen)
+                if (!is_null($idGuess)) { $w->orWhere('id', $idGuess); }
+                if ($hasNote) { $w->orWhere('note', 'like', "%{$q}%"); }
                 if ($hasCustName)  { $w->orWhere('customer_name',  'like', "%{$q}%"); }
                 if ($hasCustEmail) { $w->orWhere('customer_email', 'like', "%{$q}%"); }
                 if ($hasCustPhone) { $w->orWhere('customer_phone', 'like', "%{$q}%"); }
-
-                // Por cliente relacionado
-                $w->orWhereHas('client', function ($cq) use ($q) {
-                    $cq->where(function ($cqw) use ($q) {
-                        $cqw->where('name',  'like', "%{$q}%")
-                            ->orWhere('email', 'like', "%{$q}%")
-                            ->orWhere('phone', 'like', "%{$q}%");
-                    });
-                });
+                $w->orWhereHas('client', fn ($cq) =>
+                    $cq->where(fn ($cqw) =>
+                        $cqw->where('name','like',"%{$q}%")
+                            ->orWhere('email','like',"%{$q}%")
+                            ->orWhere('phone','like',"%{$q}%")
+                    )
+                );
             });
         })
 
-        // Filtros explícitos por cliente (texto e ID exacto)
+        // Cliente
         ->when($clientQ !== '', fn ($q2) => $q2->whereHas('client', fn ($c) => $c->where('name', 'like', "%{$clientQ}%")))
         ->when(!empty($clientId), fn ($q2) => $q2->where('client_id', (int) $clientId))
 
-        // Estado
+        // ✅ Estado: por defecto EXCLUIR borradores; si se pide un estado, respetarlo
+        ->when($status === '' , fn ($q2) => $q2->where('status', '!=', Order::STATUS_DRAFT))
         ->when($status !== '' && in_array($status, $validStatuses, true), fn ($q2) => $q2->where('status', $status))
 
-        // Fechas finales
+        // Fechas
         ->when($dateFrom, fn ($q2) => $q2->where('created_at', '>=', $dateFrom))
         ->when($dateTo,   fn ($q2) => $q2->where('created_at', '<=', $dateTo));
 
@@ -330,6 +316,7 @@ private function buildOrdersQuery(Request $request): array
         'has_note'  => $hasNote,
     ]];
 }
+
 
 
     private function resolveDateRange(?string $period, ?Carbon $from, ?Carbon $to): array

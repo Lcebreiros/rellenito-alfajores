@@ -1,9 +1,7 @@
 @php
 use Illuminate\Support\Facades\Route;
 
-/**
- * Helper: primera ruta disponible o fallback
- */
+/** Helper: primera ruta disponible o fallback */
 $safeRoute = function (array $names, string $fallback = '#') {
     foreach ($names as $n) {
         if (Route::has($n)) return route($n);
@@ -21,304 +19,274 @@ $profileUrl  = $safeRoute(['profile.show'], '#');
 
 /** Clases utilitarias */
 $bar = 'fixed bottom-0 inset-x-0 z-50 md:hidden
-        border-t border-neutral-200/50 dark:border-neutral-800/50
-        bg-white/80 dark:bg-neutral-950/80 backdrop-blur-xl
-        supports-[backdrop-filter]:bg-white/70 supports-[backdrop-filter]:dark:bg-neutral-950/70';
+        border-t border-neutral-200/40 dark:border-neutral-800/40
+        bg-white/90 dark:bg-neutral-950/90 backdrop-blur-xl
+        supports-[backdrop-filter]:bg-white/80 supports-[backdrop-filter]:dark:bg-neutral-950/80';
 $wrap = 'mx-auto max-w-3xl px-2 sm:px-3 relative';
 $grid = 'grid grid-cols-6 items-center h-16 gap-1 relative z-10';
-$pillLabel = 'text-[10px] sm:text-[11px] font-semibold leading-tight tracking-tight text-center whitespace-normal break-words min-w-0';
+$pillLabel = 'text-[10px] sm:text-[11px] font-semibold leading-tight tracking-tight text-center whitespace-nowrap min-w-0';
 
-/** Asegurar SIEMPRE $activeIndex */
-if (!isset($activeIndex) || !is_int($activeIndex)) {
-    $activeIndex = 0;
-    if ($isActive('orders.create'))      $activeIndex = 1;
-    elseif ($isActive('orders.index'))   $activeIndex = 2;
-    elseif ($isActive('products.*'))     $activeIndex = 3;
-    elseif ($isActive('stock.index'))    $activeIndex = 4;
-}
+/** Inicializar $activeIndex de forma segura */
+$activeIndex = 0; // valor por defecto
+if ($isActive('orders.create'))         $activeIndex = 1;
+elseif ($isActive('orders.index'))      $activeIndex = 2;
+elseif ($isActive('products.*'))        $activeIndex = 3;
+elseif ($isActive('stock.index'))       $activeIndex = 4;
+elseif ($isActive('costing.calculator') || $isActive('costs.*')) $activeIndex = 5;
 @endphp
+
+
+<style>
+/* ---------- Reset / performance ---------- */
+.nav-icon,
+.nav-tab,
+.nav-underline {
+  backface-visibility: hidden;
+  -webkit-backface-visibility: hidden;
+  will-change: transform, opacity;
+}
+
+/* ---------- Contenedor inferior (mantengo tu paleta) ---------- */
+.nav-bar-bg {
+  border-top: 1px solid rgba(0,0,0,0.06);
+  background: linear-gradient(180deg, rgba(255,255,255,0.95), rgba(255,255,255,0.90));
+  backdrop-filter: blur(6px);
+}
+.dark .nav-bar-bg {
+  border-top-color: rgba(255,255,255,0.04);
+  background: linear-gradient(180deg, rgba(15,15,17,0.92), rgba(10,10,12,0.94));
+}
+
+/* ---------- Each tab ---------- */
+.nav-tab {
+  -webkit-tap-highlight-color: transparent;
+  transition: transform 150ms cubic-bezier(.2,.9,.3,1), opacity 140ms;
+  touch-action: manipulation;
+}
+
+/* reduce hover/scale on small screens */
+@media (hover: hover) and (pointer: fine) {
+  .nav-tab:hover { transform: translateY(-3px) scale(1.03); }
+}
+
+/* Icon look */
+.nav-icon {
+  transition: transform 190ms cubic-bezier(.2,.9,.3,1), filter 180ms, opacity 180ms;
+  display: block;
+}
+
+/* Active text */
+.nav-text {
+  transition: color 160ms;
+  color: var(--nav-text, #6b7280); /* neutral-500 */
+  font-weight: 600;
+}
+.dark .nav-text { color: var(--nav-text-dark, #9ca3af); }
+
+/* cuando está activo */
+.nav-active .nav-icon { transform: scale(1.12); filter: drop-shadow(0 6px 10px rgba(0,0,0,0.08)); opacity: 1; }
+.nav-active .nav-text { color: var(--nav-text-active, #111827); }
+.dark .nav-active .nav-text { color: #e6edf3; }
+
+/* ---------- Underline (simple + sin parpadeo) ---------- */
+/* Es un elemento dentro de cada tab, se escala en X para aparecer/desaparecer */
+.nav-underline {
+  display: block;
+  margin: 6px auto 0;
+  height: 3px;
+  width: 42%;
+  border-radius: 999px;
+  background: linear-gradient(90deg, #06b6d4, #7c3aed); /* cyan -> purple */
+  transform-origin: center;
+  transform: scaleX(0);
+  opacity: 0;
+  transition: transform 320ms cubic-bezier(.22,1,.36,1), opacity 220ms;
+}
+
+/* colors para modo oscuro */
+.dark .nav-underline { background: linear-gradient(90deg, #22d3ee, #a78bfa); }
+
+/* cuando está activo -> scaleX(1) */
+.nav-active .nav-underline {
+  transform: scaleX(1);
+  opacity: 1;
+}
+
+/* Touch / active feedback */
+.nav-tab:active { transform: scale(0.96); }
+
+/* Safe area (iOS) */
+.safe-area-gradient {
+  background: linear-gradient(to top, rgba(250,250,250,0.92), transparent);
+}
+.dark .safe-area-gradient {
+  background: linear-gradient(to top, rgba(10,10,12,0.92), transparent);
+}
+
+/* Small tweak: reduce underline width on very small devices */
+@media (max-width: 380px) {
+  .nav-underline { width: 34%; height: 2.5px; }
+}
+</style>
 
 <nav
   x-data="() => ({
     moreOpen: false,
     activeIndex: {{ $activeIndex }},
-    updateIndicator() {
-      const track = this.$refs.track, ind = this.$refs.indicator, wrap = this.$refs.tabsWrap;
-      if (!track || !ind || !wrap) return;
-      const tabs = wrap.querySelectorAll('[data-tab]');
-      if (!tabs || !tabs.length) return;
-
-      const i = Math.max(0, Math.min(this.activeIndex, tabs.length - 1));
-      const rect = tabs[i].getBoundingClientRect();
-      const parent = track.getBoundingClientRect();
-
-      const left = rect.left - parent.left;
-      const width = rect.width;
-
-      // evitar NaN en hot-reflows
-      if (!Number.isFinite(left) || !Number.isFinite(width)) return;
-
-      ind.style.width = `${width}px`;
-      ind.style.transform = `translateX(${left}px)`;
-    },
     init() {
-      // primer cálculo cuando todo está pintado
-      this.$nextTick(() => this.updateIndicator());
+      // nos apoyamos únicamente en el índice y en clases; no movemos DOM globalmente
+      // Escucha cambios de rutas SPA (Livewire/Turbo)
+      window.addEventListener('livewire:navigated', () => {
+        // recalcula por si activeIndex fue cambiado por servidor
+        setTimeout(() => {
+          // si tu backend actualiza la variable $activeIndex en siguiente render,
+          // Alpine la recibirá en el próximo tick; no forzamos DOM difícilmente.
+        }, 60);
+      });
 
-      // reaccionar a cambios de tab
-      this.$watch('activeIndex', () => this.updateIndicator());
-
-      // recalcular al cambiar viewport/safe-area
+      // Resize: solo necesitamos forzar repaint si hay cambio de ancho (éste es muy ligero)
+      let rt;
+      const onResize = () => {
+        clearTimeout(rt);
+        rt = setTimeout(() => {
+          // Forzamos un pequeño reflow para evitar estados visuales incorrectos en algunos navegadores
+          document.querySelectorAll('.nav-tab').forEach(el => el.getBoundingClientRect());
+        }, 120);
+      };
       try {
-        const ro = new ResizeObserver(() => this.updateIndicator());
-        ro.observe(this.$refs.track);
-      } catch (_) {
-        // fallback sin romper
-        window.addEventListener('resize', this.updateIndicator);
+        const ro = new ResizeObserver(onResize);
+        ro.observe(document.body);
+      } catch (e) {
+        window.addEventListener('resize', onResize);
       }
-
-      // 🔁 cada navegación SPA de Livewire
-      window.addEventListener('livewire:navigated', () => this.updateIndicator());
     },
+    setActive(i) {
+      this.activeIndex = i;
+      // small visual confirmation on click for accesibilidad (no bloquea navegaciones)
+      const el = document.querySelector(`[data-tab-index='${i}']`);
+      if (el) {
+        el.classList.add('nav-clicked');
+        setTimeout(() => el.classList.remove('nav-clicked'), 220);
+      }
+    }
   })"
-  class="{{ $bar }}"
+  class="{{ $bar }} nav-bar-bg"
   aria-label="Navegación inferior"
 >
-
-  {{-- Pastilla animada de fondo --}}
-  <div class="absolute inset-x-0 top-0 h-16 px-2 sm:px-3 pointer-events-none">
-    <div class="mx-auto max-w-3xl h-full relative" x-ref="track">
-      <div x-ref="indicator"
-           class="absolute top-2 h-12 rounded-2xl
-                  bg-gradient-to-br from-white to-neutral-50 
-                  dark:from-neutral-100 dark:to-neutral-200
-                  shadow-lg shadow-neutral-900/10 dark:shadow-black/20
-                  ring-1 ring-black/[0.08] dark:ring-white/[0.1]
-                  transition-[transform,width] duration-300
-                  ease-[cubic-bezier(0.34,1.56,0.64,1)]
-                  will-change-transform">
-        <div class="absolute inset-x-2 top-0.5 h-px bg-white/60 rounded-full"></div>
-      </div>
-    </div>
-  </div>
-
   <div class="{{ $wrap }}">
-    <div class="{{ $grid }}" x-ref="tabsWrap">
+    <div class="{{ $grid }} px-1" role="tablist" aria-orientation="horizontal">
       {{-- Dashboard --}}
       <a href="{{ route('dashboard') }}" wire:navigate data-turbo="false"
-         @click="activeIndex = 0"
-         data-tab
-         class="group flex justify-center touch-manipulation transition-all duration-200 hover:scale-110 active:scale-95"
+         @click.prevent="setActive(0); $nextTick(()=> $el.contains(event.target) ? (window.location = '{{ route('dashboard') }}') : null)"
+         data-tab-index="0"
+         :class="activeIndex === 0 ? 'nav-active' : ''"
+         class="nav-tab group flex justify-center touch-manipulation"
+         role="tab"
          aria-current="{{ $isActive('dashboard') ? 'page' : 'false' }}">
-        <div class="inline-flex flex-col items-center justify-center gap-1.5 px-2 py-2 rounded-2xl min-w-0 min-h-[52px] transition-all duration-300">
-          <div class="relative">
+        <div class="inline-flex flex-col items-center justify-center gap-1.5 px-2 py-2 rounded-2xl min-w-0 min-h-[52px]">
+          <div class="relative w-6 h-6">
             <img src="{{ asset('images/dashboard.png') }}" alt="Dashboard"
-                 class="w-6 h-6 object-contain transition-all duration-300 {{ $isActive('dashboard') ? 'scale-110 drop-shadow-sm' : 'opacity-70 group-hover:opacity-90 group-hover:scale-105' }}">
+                 class="nav-icon w-6 h-6 object-contain {{ $isActive('dashboard') ? '' : 'opacity-70 group-hover:opacity-95' }}">
             @if($isActive('dashboard'))
-              <div class="absolute inset-0 w-6 h-6 bg-blue-400/20 rounded-full blur-sm animate-pulse"></div>
+              <div class="absolute inset-0 rounded-full pointer-events-none"></div>
             @endif
           </div>
-          <span class="{{ $pillLabel }} transition-all duration-300 {{ $isActive('dashboard') ? 'text-neutral-900 dark:text-neutral-900 font-bold' : 'text-neutral-600 dark:text-neutral-400 group-hover:text-neutral-800 dark:group-hover:text-neutral-300' }}">
+          <span class="nav-text text-[10px] sm:text-[11px] font-semibold leading-tight tracking-tight text-center whitespace-nowrap min-w-0">
             Dashboard
           </span>
+          <span class="nav-underline" aria-hidden="true"></span>
         </div>
       </a>
 
       {{-- Crear pedido --}}
       <a href="{{ route('orders.create') }}" wire:navigate data-turbo="false"
-         @click="activeIndex = 1"
-         data-tab
-         class="group flex justify-center touch-manipulation transition-all duration-200 hover:scale-110 active:scale-95"
-         aria-current="{{ $isActive('orders.create') ? 'page' : 'false' }}">
-        <div class="inline-flex flex-col items-center justify-center gap-1.5 px-2 py-2 rounded-2xl min-w-0 min-h-[52px] transition-all duration-300">
-          <div class="relative">
+         @click.prevent="setActive(1); $nextTick(()=> window.location='{{ route('orders.create') }}')"
+         data-tab-index="1"
+         :class="activeIndex === 1 ? 'nav-active' : ''"
+         class="nav-tab group flex justify-center touch-manipulation"
+         role="tab">
+        <div class="inline-flex flex-col items-center justify-center gap-1.5 px-2 py-2 rounded-2xl min-w-0 min-h-[52px]">
+          <div class="relative w-6 h-6">
             <img src="{{ asset('images/crear-pedido.png') }}" alt="Crear pedido"
-                 class="w-6 h-6 object-contain transition-all duration-300 {{ $isActive('orders.create') ? 'scale-110 drop-shadow-sm' : 'opacity-70 group-hover:opacity-90 group-hover:scale-105' }}">
-            @if($isActive('orders.create'))
-              <div class="absolute inset-0 w-6 h-6 bg-green-400/20 rounded-full blur-sm animate-pulse"></div>
-            @endif
+                 class="nav-icon w-6 h-6 object-contain {{ $isActive('orders.create') ? '' : 'opacity-70 group-hover:opacity-95' }}">
           </div>
-          <span class="{{ $pillLabel }} transition-all duration-300 {{ $isActive('orders.create') ? 'text-neutral-900 dark:text-neutral-900 font-bold' : 'text-neutral-600 dark:text-neutral-400 group-hover:text-neutral-800 dark:group-hover:text-neutral-300' }}">
-            Crear
-          </span>
+          <span class="nav-text text-[10px] sm:text-[11px] font-semibold leading-tight tracking-tight text-center whitespace-nowrap min-w-0">Crear</span>
+          <span class="nav-underline" aria-hidden="true"></span>
         </div>
       </a>
 
-      {{-- Lista de pedidos --}}
+      {{-- Pedidos --}}
       <a href="{{ $ordersUrl }}" wire:navigate data-turbo="false"
-         @click="activeIndex = 2"
-         data-tab
-         class="group flex justify-center touch-manipulation transition-all duration-200 hover:scale-110 active:scale-95"
-         aria-current="{{ $isActive('orders.index') ? 'page' : 'false' }}">
-        <div class="inline-flex flex-col items-center justify-center gap-1.5 px-2 py-2 rounded-2xl min-w-0 min-h-[52px] transition-all duration-300">
-          <div class="relative">
+         @click.prevent="setActive(2); $nextTick(()=> window.location='{{ $ordersUrl }}')"
+         data-tab-index="2"
+         :class="activeIndex === 2 ? 'nav-active' : ''"
+         class="nav-tab group flex justify-center touch-manipulation"
+         role="tab">
+        <div class="inline-flex flex-col items-center justify-center gap-1.5 px-2 py-2 rounded-2xl min-w-0 min-h-[52px]">
+          <div class="relative w-6 h-6">
             <img src="{{ asset('images/pedidos.png') }}" alt="Pedidos"
-                 class="w-6 h-6 object-contain transition-all duration-300 {{ $isActive('orders.index') ? 'scale-110 drop-shadow-sm' : 'opacity-70 group-hover:opacity-90 group-hover:scale-105' }}">
-            @if($isActive('orders.index'))
-              <div class="absolute inset-0 w-6 h-6 bg-blue-400/20 rounded-full blur-sm animate-pulse"></div>
-            @endif
+                 class="nav-icon w-6 h-6 object-contain {{ $isActive('orders.index') ? '' : 'opacity-70 group-hover:opacity-95' }}">
           </div>
-          <span class="{{ $pillLabel }} transition-all duration-300 {{ $isActive('orders.index') ? 'text-neutral-900 dark:text-neutral-900 font-bold' : 'text-neutral-600 dark:text-neutral-400 group-hover:text-neutral-800 dark:group-hover:text-neutral-300' }}">
-            Pedidos
-          </span>
+          <span class="nav-text text-[10px] sm:text-[11px] font-semibold leading-tight tracking-tight text-center whitespace-nowrap min-w-0">Pedidos</span>
+          <span class="nav-underline" aria-hidden="true"></span>
         </div>
       </a>
 
       {{-- Productos --}}
       <a href="{{ route('products.index') }}" wire:navigate data-turbo="false"
-         @click="activeIndex = 3"
-         data-tab
-         class="group flex justify-center touch-manipulation transition-all duration-200 hover:scale-110 active:scale-95"
-         aria-current="{{ $isActive('products.*') ? 'page' : 'false' }}">
-        <div class="inline-flex flex-col items-center justify-center gap-1.5 px-2 py-2 rounded-2xl min-w-0 min-h-[52px] transition-all duration-300">
-          <div class="relative">
+         @click.prevent="setActive(3); $nextTick(()=> window.location='{{ route('products.index') }}')"
+         data-tab-index="3"
+         :class="activeIndex === 3 ? 'nav-active' : ''"
+         class="nav-tab group flex justify-center touch-manipulation"
+         role="tab">
+        <div class="inline-flex flex-col items-center justify-center gap-1.5 px-2 py-2 rounded-2xl min-w-0 min-h-[52px]">
+          <div class="relative w-6 h-6">
             <img src="{{ asset('images/productos.png') }}" alt="Productos"
-                 class="w-6 h-6 object-contain transition-all duration-300 {{ $isActive('products.*') ? 'scale-110 drop-shadow-sm' : 'opacity-70 group-hover:opacity-90 group-hover:scale-105' }}">
-            @if($isActive('products.*'))
-              <div class="absolute inset-0 w-6 h-6 bg-purple-400/20 rounded-full blur-sm animate-pulse"></div>
-            @endif
+                 class="nav-icon w-6 h-6 object-contain {{ $isActive('products.*') ? '' : 'opacity-70 group-hover:opacity-95' }}">
           </div>
-          <span class="{{ $pillLabel }} transition-all duration-300 {{ $isActive('products.*') ? 'text-neutral-900 dark:text-neutral-900 font-bold' : 'text-neutral-600 dark:text-neutral-400 group-hover:text-neutral-800 dark:group-hover:text-neutral-300' }}">
-            Productos
-          </span>
+          <span class="nav-text text-[10px] sm:text-[11px] font-semibold leading-tight tracking-tight text-center whitespace-nowrap min-w-0">Productos</span>
+          <span class="nav-underline" aria-hidden="true"></span>
         </div>
       </a>
 
       {{-- Stock --}}
       <a href="{{ route('stock.index') }}#stock" wire:navigate data-turbo="false"
-         @click="activeIndex = 4"
-         data-tab
-         class="group flex justify-center touch-manipulation transition-all duration-200 hover:scale-110 active:scale-95"
-         aria-current="{{ $isActive('stock.index') ? 'page' : 'false' }}">
-        <div class="inline-flex flex-col items-center justify-center gap-1.5 px-2 py-2 rounded-2xl min-w-0 min-h-[52px] transition-all duration-300">
-          <div class="relative">
+         @click.prevent="setActive(4); $nextTick(()=> window.location='{{ route('stock.index') }}#stock')"
+         data-tab-index="4"
+         :class="activeIndex === 4 ? 'nav-active' : ''"
+         class="nav-tab group flex justify-center touch-manipulation"
+         role="tab">
+        <div class="inline-flex flex-col items-center justify-center gap-1.5 px-2 py-2 rounded-2xl min-w-0 min-h-[52px]">
+          <div class="relative w-6 h-6">
             <img src="{{ asset('images/stock.png') }}" alt="Stock"
-                 class="w-6 h-6 object-contain transition-all duration-300 {{ $isActive('stock.index') ? 'scale-110 drop-shadow-sm' : 'opacity-70 group-hover:opacity-90 group-hover:scale-105' }}">
-            @if($isActive('stock.index'))
-              <div class="absolute inset-0 w-6 h-6 bg-orange-400/20 rounded-full blur-sm animate-pulse"></div>
-            @endif
+                 class="nav-icon w-6 h-6 object-contain {{ $isActive('stock.index') ? '' : 'opacity-70 group-hover:opacity-95' }}">
           </div>
-          <span class="{{ $pillLabel }} transition-all duration-300 {{ $isActive('stock.index') ? 'text-neutral-900 dark:text-neutral-900 font-bold' : 'text-neutral-600 dark:text-neutral-400 group-hover:text-neutral-800 dark:group-hover:text-neutral-300' }}">
-            Stock
-          </span>
+          <span class="nav-text text-[10px] sm:text-[11px] font-semibold leading-tight tracking-tight text-center whitespace-nowrap min-w-0">Stock</span>
+          <span class="nav-underline" aria-hidden="true"></span>
         </div>
       </a>
 
-      {{-- Más (perfil / ajustes / logout) --}}
-      <div class="relative flex justify-center">
-        <button type="button"
-                @click.stop="activeIndex = 5; moreOpen = !moreOpen"
-                @keydown.escape.window="moreOpen = false"
-                @click.outside="moreOpen = false"
-                data-tab
-                class="group touch-manipulation transition-all duration-200 hover:scale-110 active:scale-95"
-                aria-haspopup="menu"
-                :aria-expanded="moreOpen">
-          <div class="inline-flex flex-col items-center justify-center gap-1.5 px-2 py-2 rounded-2xl min-w-0 min-h-[52px] transition-all duration-300"
-               :class="moreOpen ? 'scale-110' : ''">
-            <div class="relative">
-              @auth
-                <img class="w-6 h-6 rounded-full object-cover ring-2 transition-all duration-300"
-                     :class="moreOpen ? 'ring-white dark:ring-neutral-200 scale-110 drop-shadow-sm' : 'ring-transparent opacity-70 group-hover:opacity-90 group-hover:scale-105'"
-                     src="{{ Auth::user()->profile_photo_url }}" alt="{{ Auth::user()->name }}">
-              @else
-                <div class="w-6 h-6 rounded-full bg-neutral-200 dark:bg-neutral-700"></div>
-              @endauth
-              <div x-show="moreOpen" class="absolute inset-0 w-6 h-6 bg-indigo-400/20 rounded-full blur-sm animate-pulse"></div>
-            </div>
-            <span class="{{ $pillLabel }} transition-all duration-300"
-                  :class="moreOpen ? 'text-neutral-900 dark:text-neutral-900 font-bold' : 'text-neutral-600 dark:text-neutral-400 group-hover:text-neutral-800 dark:group-hover:text-neutral-300'">
-              Más
-            </span>
+      {{-- Costos --}}
+      <a href="{{ route('costing.calculator') }}" wire:navigate data-turbo="false"
+         @click.prevent="setActive(5); $nextTick(()=> window.location='{{ route('costing.calculator') }}')"
+         data-tab-index="5"
+         :class="activeIndex === 5 ? 'nav-active' : ''"
+         class="nav-tab group flex justify-center touch-manipulation"
+         role="tab">
+        <div class="inline-flex flex-col items-center justify-center gap-1.5 px-2 py-2 rounded-2xl min-w-0 min-h-[52px]">
+          <div class="relative w-6 h-6">
+            <img src="{{ asset('images/calcular-costos.png') }}" alt="Calcular costos"
+                 class="nav-icon w-6 h-6 object-contain {{ ($isActive('costing.calculator')||$isActive('costs.*')) ? '' : 'opacity-70 group-hover:opacity-95' }}">
           </div>
-        </button>
-
-        {{-- Popover --}}
-        <div x-cloak x-show="moreOpen"
-             x-transition:enter="transition ease-out duration-300"
-             x-transition:enter-start="opacity-0 scale-90 translate-y-4"
-             x-transition:enter-end="opacity-100 scale-100 translate-y-0"
-             x-transition:leave="transition ease-in duration-200"
-             x-transition:leave-start="opacity-100 scale-100 translate-y-0"
-             x-transition:leave-end="opacity-0 scale-90 translate-y-4"
-             @click.stop
-             class="absolute bottom-[calc(100%+12px)] right-0 w-56 rounded-3xl
-                    border border-neutral-200/60 dark:border-neutral-700/60
-                    bg-white/95 dark:bg-neutral-900/95 backdrop-blur-2xl
-                    shadow-2xl shadow-neutral-900/20 dark:shadow-black/40
-                    overflow-hidden z-50 ring-1 ring-black/5 dark:ring-white/10">
-          {{-- Header --}}
-          <div class="px-4 py-3 border-b border-neutral-200/50 dark:border-neutral-800/50 bg-neutral-50/50 dark:bg-neutral-800/30">
-            <div class="flex items-center gap-3">
-              @auth
-                <img class="w-8 h-8 rounded-full object-cover ring-2 ring-neutral-300 dark:ring-neutral-600"
-                     src="{{ Auth::user()->profile_photo_url }}" alt="{{ Auth::user()->name }}">
-              @else
-                <div class="w-8 h-8 rounded-full bg-neutral-200 dark:bg-neutral-700"></div>
-              @endauth
-              <div class="flex-1 min-w-0">
-                @auth
-                  <p class="text-sm font-semibold text-neutral-900 dark:text-neutral-100 truncate">{{ Auth::user()->name }}</p>
-                  <p class="text-xs text-neutral-500 dark:text-neutral-400 truncate">{{ Auth::user()->email }}</p>
-                @else
-                  <p class="text-sm font-semibold text-neutral-900 dark:text-neutral-100">Invitado</p>
-                @endauth
-              </div>
-            </div>
-          </div>
-
-          {{-- Items --}}
-          <div class="py-2">
-            <a href="{{ $settingsUrl }}" wire:navigate data-turbo="false"
-               @click="moreOpen = false"
-               class="flex items-center gap-3 px-4 py-3 text-sm group hover:bg-neutral-100/80 dark:hover:bg-neutral-800/50 active:bg-neutral-200/80 dark:active:bg-neutral-700/50 transition-all duration-200 touch-manipulation">
-              <div class="w-8 h-8 rounded-xl bg-neutral-100 dark:bg-neutral-800 flex items-center justify-center group-hover:bg-neutral-200 dark:group-hover:bg-neutral-700 transition-colors">
-                <img src="{{ asset('images/configuraciones.png') }}" alt="Configuración" class="w-4 h-4 opacity-75">
-              </div>
-              <span class="font-medium text-neutral-700 dark:text-neutral-300 group-hover:text-neutral-900 dark:group-hover:text-neutral-100">Configuración</span>
-            </a>
-
-            <a href="{{ $profileUrl }}" wire:navigate data-turbo="false"
-               @click="moreOpen = false"
-               class="flex items-center gap-3 px-4 py-3 text-sm group hover:bg-neutral-100/80 dark:hover:bg-neutral-800/50 active:bg-neutral-200/80 dark:active:bg-neutral-700/50 transition-all duration-200 touch-manipulation">
-              <div class="w-8 h-8 rounded-xl bg-neutral-100 dark:bg-neutral-800 flex items-center justify-center group-hover:bg-neutral-200 dark:group-hover:bg-neutral-700 transition-colors">
-                @auth
-                  <img class="w-5 h-5 rounded-lg object-cover" src="{{ Auth::user()->profile_photo_url }}" alt="{{ Auth::user()->name }}">
-                @else
-                  <img src="{{ asset('images/productos.png') }}" alt="Perfil" class="w-4 h-4 opacity-75">
-                @endauth
-              </div>
-              <span class="font-medium text-neutral-700 dark:text-neutral-300 group-hover:text-neutral-900 dark:group-hover:text-neutral-100">Perfil</span>
-            </a>
-          </div>
-
-          <div class="mx-4 border-t border-neutral-200/60 dark:border-neutral-800/60"></div>
-
-          {{-- Logout --}}
-          <div class="py-2">
-            <form method="POST" action="{{ route('logout') }}">
-              @csrf
-              <button type="submit"
-                      @click="moreOpen = false"
-                      class="w-full flex items-center gap-3 px-4 py-3 text-left text-sm group
-                             hover:bg-red-50/80 dark:hover:bg-red-950/30
-                             active:bg-red-100/80 dark:active:bg-red-900/30 transition-all duration-200 touch-manipulation">
-                <div class="w-8 h-8 rounded-xl bg-red-50 dark:bg-red-950/50 flex items-center justify-center group-hover:bg-red-100 dark:group-hover:bg-red-900/50 transition-colors">
-                  <svg class="w-4 h-4 text-red-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                          d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1" />
-                  </svg>
-                </div>
-                <span class="font-medium text-red-600 dark:text-red-400 group-hover:text-red-700 dark:group-hover:text-red-300">Cerrar sesión</span>
-              </button>
-            </form>
-          </div>
+          <span class="nav-text text-[10px] sm:text-[11px] font-semibold leading-tight tracking-tight text-center whitespace-nowrap min-w-0">Costos</span>
+          <span class="nav-underline" aria-hidden="true"></span>
         </div>
-      </div>
-      {{-- /Más --}}
+      </a>
     </div>
   </div>
 
+  
+
   {{-- Safe area iOS --}}
-  <div class="h-[env(safe-area-inset-bottom)] min-h-[8px] bg-gradient-to-t from-neutral-50/50 to-transparent dark:from-neutral-900/50"></div>
+  <div class="h-[env(safe-area-inset-bottom)] min-h-[8px] safe-area-gradient"></div>
 </nav>
