@@ -4,14 +4,15 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
 use App\Models\Concerns\BelongsToUser;
+use App\Models\StockAdjustment;
 
 class Product extends Model
 {
-    use BelongsToUser; // ← scope global por usuario + autocompleta user_id al crear
+    use BelongsToUser;
 
     protected $fillable = [
-        'user_id', // opcional si confiás en el trait; útil para create() masivo
-        'name','sku','price','stock','is_active',
+        'user_id',
+        'name', 'sku', 'price', 'stock', 'is_active',
     ];
 
     protected $casts = [
@@ -24,8 +25,26 @@ class Product extends Model
     public function orderItems()  { return $this->hasMany(OrderItem::class); }
     public function adjustments() { return $this->hasMany(StockAdjustment::class); }
     public function recipeItems() { return $this->hasMany(ProductRecipe::class); }
-    // (opcional) public function costings() { return $this->hasMany(Costing::class); }
 
     // Scopes
-    public function scopeActive($q){ return $q->where('is_active', true); }
+    public function scopeActive($query) { return $query->where('is_active', true); }
+
+    // 🔹 Booted: opcional, solo log inicial de creación si no afecta transacciones
+    protected static function booted()
+{
+    static::created(function ($product) {
+        if ($product->stock > 0) {
+            StockAdjustment::create([
+                'product_id'      => $product->id,
+                'quantity_change' => $product->stock,
+                'new_stock'       => $product->stock,
+                'reason'          => 'creado',
+                'reference_id'    => null,
+                'reference_type'  => null,
+                'user_id'         => $product->user_id,
+            ]);
+        }
+    });
+}
+
 }

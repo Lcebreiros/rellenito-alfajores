@@ -14,28 +14,33 @@ class StockService
      * @param int $qtyChange positivo suma stock, negativo descuenta
      */
     public function adjust(Product $product, int $qtyChange, string $reason = 'manual', ?Model $reference = null): Product
-    {
-        return DB::transaction(function () use ($product, $qtyChange, $reason, $reference) {
-            $p = Product::whereKey($product->id)->lockForUpdate()->first();
-            $new = $p->stock + $qtyChange;
-            if ($new < 0) {
-                throw new DomainException("Stock insuficiente para {$p->name}.");
-            }
+{
+    return DB::transaction(function () use ($product, $qtyChange, $reason, $reference) {
+        // Bloqueo y recarga
+        $p = Product::whereKey($product->id)->lockForUpdate()->firstOrFail();
 
-            $p->stock = $new;
-            $p->save();
+        $newStock = $p->stock + $qtyChange;
+        if ($newStock < 0) {
+            throw new \DomainException("Stock insuficiente para {$p->name}.");
+        }
 
-            StockAdjustment::create([
-                'product_id' => $p->id,
-                'quantity_change' => $qtyChange,
-                'reason' => $reason,
-                'reference_id' => $reference?->getKey(),
-                'reference_type' => $reference ? $reference::class : null,
-            ]);
+        $p->stock = $newStock;
+        $p->saveQuietly(); // 🔹 Evita disparar eventos (created/updated) y así no se hace un ajuste automático
 
-            return $p;
-        });
-    }
+        StockAdjustment::create([
+            'product_id'      => $p->id,
+            'quantity_change' => $qtyChange,
+            'new_stock'       => $newStock, // 🔹 usar el stock actualizado
+            'reason'          => $reason,
+            'reference_id'    => $reference?->getKey(),
+            'reference_type'  => $reference ? $reference::class : null,
+            'user_id'         => auth()->id(),
+        ]);
+
+        return $p;
+    });
+}
+
 
     public function setAbsolute(Product $product, int $newStock, string $reason = 'manual set'): Product
     {

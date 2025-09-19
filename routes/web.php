@@ -72,6 +72,9 @@ Route::middleware([
         ->name('products.stock.update');
     Route::patch('products/{product}/stock', [ProductController::class, 'updateStock'])
      ->name('products.update-stock');
+Route::get('/stock-adjustments/history', [StockController::class, 'history'])->name('stock.history');
+
+
 
     // ============ PEDIDOS ============
 Route::middleware(['auth'])->group(function () {
@@ -112,6 +115,8 @@ Route::delete('orders/{order}', [OrderController::class, 'destroy'])
     // ============ STOCK ============
     Route::get('/stock', [StockController::class, 'index'])->name('stock.index');
     Route::get('/stock/export/csv', [StockController::class, 'exportCsv'])->name('stock.export.csv');
+    Route::get('/stock/history', [StockController::class, 'history'])->name('stock.history');
+
 
     // ============ CALCULADORA DE COSTOS ============
     Route::get('/calculator', [CalculatorController::class, 'show'])->name('calculator.show');

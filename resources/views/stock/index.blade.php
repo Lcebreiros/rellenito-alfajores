@@ -20,9 +20,17 @@
                    dark:bg-neutral-800 dark:border-neutral-600 dark:text-neutral-200 dark:hover:bg-neutral-700">
       <i class="fas fa-print"></i> <span>Imprimir / PDF</span>
     </button>
+
+    {{-- Botón de Historial --}}
+    <a href="{{ route('stock.history') }}"
+       class="inline-flex items-center gap-2 px-4 py-2 rounded-lg font-medium transition-colors
+              bg-indigo-600 text-white hover:bg-indigo-700">
+       <i class="fas fa-clock"></i> <span>Historial</span>
+    </a>
   </div>
 </div>
 @endsection
+
 
 @section('content')
 <div class="max-w-screen-2xl mx-auto px-3 sm:px-6">

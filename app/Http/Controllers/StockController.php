@@ -3,6 +3,8 @@
 namespace App\Http\Controllers;
 
 use App\Models\Product;
+use App\Models\StockAdjustment;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Http\Request;
 use Symfony\Component\HttpFoundation\StreamedResponse;
 
@@ -181,4 +183,81 @@ $products = Product::query()
             'price_max'   => $priceMax,
         ]];
     }
+public function history(Request $request)
+{
+
+    [$query, $meta] = $this->buildHistoryQuery($request);
+
+    // Parámetros de orden
+    $orderBy = (string) $request->input('order_by', 'created_at');
+    $dir = strtolower((string) $request->input('dir', 'desc')) === 'asc' ? 'asc' : 'desc';
+
+    // Si piden ordenar por producto, agregamos el join justo antes de paginar
+    if ($orderBy === 'product_name') {
+        $query = $query->leftJoin('products', 'products.id', '=', 'stock_adjustments.product_id')
+                       ->select('stock_adjustments.*') // muy importante
+                       ->orderBy('products.name', $dir);
+    } else {
+        $map = [
+            'quantity_change' => 'stock_adjustments.quantity_change',
+            'created_at' => 'stock_adjustments.created_at',
+        ];
+        $col = $map[$orderBy] ?? 'stock_adjustments.created_at';
+        $query = $query->orderBy($col, $dir);
+    }
+
+    // DEBUG opcional (descomentar solo para depurar)
+    // \Log::info('History SQL', ['sql' => $query->toSql(), 'bindings' => $query->getBindings()]);
+    // dd($query->toSql(), $query->getBindings());
+
+    $stockHistory = $query->paginate(20)->withQueryString();
+
+    // Aseguramos eager load para la colección que paginamos (por si usamos join)
+    $stockHistory->getCollection()->load('product');
+
+    return view('stock.history', [
+        'stockHistory' => $stockHistory,
+        'q' => $meta['q'],
+        'type' => $meta['type'],
+        'orderBy' => $orderBy,
+        'dir' => $dir,
+    ]);
+}
+
+/**
+ * Construye la query del historial con filtros (usa whereHas para busqueda por producto)
+ */
+private function buildHistoryQuery(Request $request): array
+{
+    $q = trim((string) $request->input('q', ''));
+    $type = (string) $request->input('type', '');
+
+    $adjustments = StockAdjustment::query()
+        ->where('stock_adjustments.quantity_change', '!=', 0);
+
+    if ($q !== '') {
+        $term = "%{$q}%";
+        $adjustments->where(function ($w) use ($term) {
+            $w->whereHas('product', function ($pq) use ($term) {
+                $pq->where('name', 'like', $term)
+                   ->orWhere('sku', 'like', $term);
+            })
+            ->orWhere('reason', 'like', $term);
+        });
+    }
+
+    if ($type !== '') {
+        if ($type === 'increase') {
+            $adjustments->where('quantity_change', '>', 0);
+        } elseif ($type === 'decrease') {
+            $adjustments->where('quantity_change', '<', 0);
+        }
+    }
+
+    return [$adjustments, [
+        'q' => $q,
+        'type' => $type,
+    ]];
+}
+
 }
