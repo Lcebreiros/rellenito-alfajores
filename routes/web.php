@@ -78,6 +78,10 @@ Route::middleware(['auth'])->group(function () {
     // 1) Descarga (colócala antes de orders/{order})
     Route::get('orders/download-report', [OrderController::class, 'downloadReport'])
         ->name('orders.download-report');
+        // Eliminar múltiples pedidos
+Route::post('orders/bulk-delete', [OrderController::class, 'bulkDelete'])
+    ->name('orders.bulk-delete');
+
 
     // 2) Resto
     Route::get('orders/create', [OrderController::class, 'create'])->name('orders.create');
@@ -87,6 +91,20 @@ Route::middleware(['auth'])->group(function () {
     Route::post('orders/{order}/cancel', [OrderController::class, 'cancel'])->name('orders.cancel');
     Route::get('orders', [OrderController::class, 'index'])->name('orders.index');
     Route::get('orders/{order}', [OrderController::class, 'show'])->whereNumber('order')->name('orders.show');
+
+    Route::get('orders/{order}/edit', [OrderController::class, 'edit'])
+     ->whereNumber('order')
+     ->name('orders.edit');
+
+// Actualizar
+Route::match(['put','patch'],'orders/{order}', [OrderController::class, 'update'])
+     ->whereNumber('order')
+     ->name('orders.update');
+
+// Eliminar
+Route::delete('orders/{order}', [OrderController::class, 'destroy'])
+     ->whereNumber('order')
+     ->name('orders.destroy');
 });
 
     // ============ STOCK ============

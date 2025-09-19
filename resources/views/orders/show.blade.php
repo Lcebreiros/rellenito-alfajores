@@ -2,28 +2,38 @@
 @extends('layouts.app')
 
 @section('header')
-  @php
-    $statusMap = [
-      'draft'     => ['label'=>'Borrador',  'bg'=>'bg-neutral-100 dark:bg-neutral-800/60',  'text'=>'text-neutral-700 dark:text-neutral-200'],
-      'pending'   => ['label'=>'Pendiente', 'bg'=>'bg-amber-100 dark:bg-amber-500/20', 'text'=>'text-amber-800 dark:text-amber-300'],
-      'paid'      => ['label'=>'Pagado',    'bg'=>'bg-emerald-100 dark:bg-emerald-500/20', 'text'=>'text-emerald-700 dark:text-emerald-300'],
-      'canceled'  => ['label'=>'Cancelado', 'bg'=>'bg-rose-100 dark:bg-rose-500/20', 'text'=>'text-rose-700 dark:text-rose-300'],
-      'fulfilled' => ['label'=>'Entregado', 'bg'=>'bg-indigo-100 dark:bg-indigo-500/20', 'text'=>'text-indigo-700 dark:text-indigo-300'],
-    ];
-    $s = $statusMap[$order->status] ?? ['label'=>ucfirst($order->status ?? '—'), 'bg'=>'bg-neutral-100 dark:bg-neutral-800/60', 'text'=>'text-neutral-700 dark:text-neutral-200'];
-  @endphp
+@php
+$statusMap = [
+    'draft'     => ['label'=>'Borrador',   'bg'=>'bg-amber-100 dark:bg-amber-900/40',   'text'=>'text-amber-700 dark:text-amber-300'],
+    'pending'   => ['label'=>'Pendiente',  'bg'=>'bg-amber-100 dark:bg-amber-900/40',   'text'=>'text-amber-700 dark:text-amber-300'],
+    'paid'      => ['label'=>'Pagado',     'bg'=>'bg-emerald-100 dark:bg-emerald-900/40','text'=>'text-emerald-700 dark:text-emerald-300'],
+    'completed' => ['label'=>'Completado', 'bg'=>'bg-emerald-100 dark:bg-emerald-900/40','text'=>'text-emerald-700 dark:text-emerald-300'],
+    'canceled'  => ['label'=>'Cancelado',  'bg'=>'bg-rose-100 dark:bg-rose-900/40',      'text'=>'text-rose-700 dark:text-rose-300'],
+    'fulfilled' => ['label'=>'Entregado',  'bg'=>'bg-indigo-100 dark:bg-indigo-900/40',  'text'=>'text-indigo-700 dark:text-indigo-300'],
+];
 
-  <div class="flex flex-col sm:flex-row sm:items-end sm:justify-between gap-2">
+// Obtener la configuración del status actual
+$s = $statusMap[$order->status] ?? [
+    'label' => ucfirst($order->status ?? '—'),
+    'bg'    => 'bg-neutral-100 dark:bg-neutral-800/60',
+    'text'  => 'text-neutral-700 dark:text-neutral-200'
+];
+@endphp
+
+<div class="flex flex-col sm:flex-row sm:items-end sm:justify-between gap-2">
     <div>
-      <h1 class="text-xl font-semibold text-neutral-800 dark:text-neutral-100">Pedido #{{ $order->id }}</h1>
-      <p class="text-xs sm:text-sm text-neutral-500 dark:text-neutral-400">{{ $order->created_at?->format('d/m/Y H:i') }}</p>
+        <h1 class="text-xl font-semibold text-neutral-800 dark:text-neutral-100">Pedido #{{ $order->id }}</h1>
+        <p class="text-xs sm:text-sm text-neutral-500 dark:text-neutral-400">{{ $order->created_at?->format('d/m/Y H:i') }}</p>
     </div>
     <span class="inline-flex items-center gap-2 px-3 py-1.5 rounded-full text-sm font-medium {{ $s['bg'] }} {{ $s['text'] }}">
-      <svg class="w-2.5 h-2.5" viewBox="0 0 10 10" fill="currentColor" aria-hidden="true"><circle cx="5" cy="5" r="5"/></svg>
-      {{ $s['label'] }}
+        <svg class="w-2.5 h-2.5" viewBox="0 0 10 10" fill="currentColor" aria-hidden="true">
+            <circle cx="5" cy="5" r="5"/>
+        </svg>
+        {{ $s['label'] }}
     </span>
-  </div>
+</div>
 @endsection
+
 
 @section('content')
 @php
@@ -65,48 +75,60 @@
 @endphp
 
 <div class="space-y-6 lg:space-y-8">
-  {{-- Barra de acciones --}}
-  <div class="flex flex-col sm:flex-row sm:items-center gap-2">
+{{-- Barra de acciones --}}
+<div class="flex flex-wrap items-center justify-between gap-2 mb-6">
+    {{-- Volver (izquierda) --}}
     <a href="{{ route('orders.index') }}"
-       class="inline-flex items-center justify-center gap-2 px-3 py-2 rounded-lg border border-neutral-200 dark:border-neutral-600
+       class="inline-flex items-center gap-2 px-3 py-2 rounded-lg border border-neutral-200 dark:border-neutral-600
               text-neutral-700 dark:text-neutral-200 bg-white dark:bg-neutral-900 hover:bg-neutral-50 dark:hover:bg-neutral-800 transition-colors text-sm">
-      <svg class="w-4 h-4" viewBox="0 0 24 24" fill="none"><path d="M15 6l-6 6 6 6" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>
-      Volver
+        <svg class="w-4 h-4" viewBox="0 0 24 24" fill="none">
+            <path d="M15 6l-6 6 6 6" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+        </svg>
+        Volver
     </a>
 
-    <div class="flex-1"></div>
+    {{-- Botones de acciones (derecha) --}}
+    <div class="flex flex-wrap gap-2 mt-2 sm:mt-0">
+        @php
+            $ticketUrl = Route::has('orders.ticket') ? route('orders.ticket', $order) : null;
+        @endphp
 
-    <div class="flex flex-wrap gap-2">
-      @if($voucherUrl)
-        <a href="{{ $voucherUrl }}"
-           class="inline-flex items-center justify-center gap-2 px-3 py-2 rounded-lg border border-indigo-200 dark:border-indigo-500/40
-                  text-indigo-700 dark:text-indigo-300 bg-indigo-50 dark:bg-indigo-500/10 hover:bg-indigo-100 dark:hover:bg-indigo-500/20 transition-colors text-sm">
-          <svg class="w-4 h-4" viewBox="0 0 24 24" fill="none"><path d="M4 7h16M4 12h10M4 17h16" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>
-          Ver comprobante
-        </a>
-      @endif
+    {{-- Ver comprobante --}}
+    @if($ticketUrl)
+    <a href="{{ $ticketUrl }}"
+       class="inline-flex items-center gap-2 px-3 py-2 rounded-lg border border-indigo-200 dark:border-indigo-500/40
+              text-indigo-700 dark:text-indigo-300 bg-indigo-50 dark:bg-indigo-500/10 hover:bg-indigo-100 dark:hover:bg-indigo-500/20 transition-colors text-sm">
+        <img src="{{ asset('images/ticket.png') }}" alt="Ticket" class="w-4 h-4"/>
+        Ver comprobante
+    </a>
+    @endif
 
-      @can('update', $order)
-        @if(\Illuminate\Support\Facades\Route::has('orders.edit'))
-          <a href="{{ route('orders.edit', $order) }}"
-             class="inline-flex items-center justify-center gap-2 px-3 py-2 rounded-lg bg-indigo-600 text-white hover:bg-indigo-700 transition-colors text-sm">
-            <svg class="w-4 h-4" viewBox="0 0 24 24" fill="none"><path d="M16.5 3.5a2.121 2.121 0 1 1 3 3L8 18l-4 1 1-4 11.5-11.5Z" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>
-            Editar
-          </a>
-        @endif
-      @endcan
 
-      <button onclick="window.print()"
-              class="inline-flex items-center justify-center gap-2 px-3 py-2 rounded-lg border border-neutral-200 dark:border-neutral-600
-                     text-neutral-700 dark:text-neutral-200 bg-white dark:bg-neutral-900 hover:bg-neutral-50 dark:hover:bg-neutral-800 transition-colors text-sm">
+    {{-- Editar --}}
+    @if(Route::has('orders.edit'))
+    <a href="{{ route('orders.edit', $order) }}"
+       class="inline-flex items-center gap-2 px-3 py-2 rounded-lg bg-indigo-600 text-white hover:bg-indigo-700 transition-colors text-sm">
         <svg class="w-4 h-4" viewBox="0 0 24 24" fill="none">
-          <polyline points="6,9 6,2 18,2 18,9" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
-          <rect x="6" y="14" width="12" height="8" rx="1" stroke="currentColor" stroke-width="2"/>
+            <path d="M16.5 3.5a2.121 2.121 0 1 1 3 3L8 18l-4 1 1-4 11.5-11.5Z" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+        </svg>
+        Editar
+    </a>
+    @endif
+
+
+    <button onclick="window.print()"
+            class="inline-flex items-center gap-2 px-3 py-2 rounded-lg border border-indigo-200 dark:border-indigo-500/40
+                   text-indigo-700 dark:text-indigo-300 bg-indigo-50 dark:bg-indigo-500/10 hover:bg-indigo-100 dark:hover:bg-indigo-500/20 transition-colors text-sm">
+        <svg class="w-4 h-4" viewBox="0 0 24 24" fill="none">
+            <polyline points="6,9 6,2 18,2 18,9" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+            <rect x="6" y="14" width="12" height="8" rx="1" stroke="currentColor" stroke-width="2"/>
         </svg>
         Imprimir
-      </button>
+    </button>
     </div>
-  </div>
+</div>
+
+
 
   {{-- Grid principal --}}
   <div class="grid grid-cols-1 lg:grid-cols-12 gap-6">

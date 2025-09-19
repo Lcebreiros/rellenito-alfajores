@@ -156,25 +156,33 @@
     </form>
   </div>
 
-  {{-- Resumen + orden --}}
-  @if($orders->total() > 0)
-    <div class="mb-4 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 text-sm">
-      <div class="text-neutral-600 dark:text-neutral-300 bg-blue-50 dark:bg-neutral-800/40 rounded-lg px-3 py-1.5 flex items-center">
-        <i class="fas fa-info-circle text-blue-500 dark:text-blue-300 mr-2 text-xs"></i>
-        {{ $orders->firstItem() }}–{{ $orders->lastItem() }} de {{ $orders->total() }}
-      </div>
-        <div class="flex items-center gap-2">
-          <span class="text-neutral-500 dark:text-neutral-400 text-xs">Ordenar:</span>
-          <select onchange="window.location.href=this.value" class="text-xs border-neutral-300 dark:border-neutral-700 bg-white dark:bg-neutral-900 text-neutral-900 dark:text-neutral-100 rounded px-2 py-1">
-            <option value="{{ request()->fullUrlWithQuery(['sort'=>'newest']) }}" {{ request('sort','newest')==='newest'?'selected':'' }}>Más recientes</option>
-            <option value="{{ request()->fullUrlWithQuery(['sort'=>'oldest']) }}" {{ request('sort')==='oldest'?'selected':'' }}>Más antiguos</option>
-            <option value="{{ request()->fullUrlWithQuery(['sort'=>'total_desc']) }}" {{ request('sort')==='total_desc'?'selected':'' }}>Mayor valor</option>
-            <option value="{{ request()->fullUrlWithQuery(['sort'=>'total_asc']) }}" {{ request('sort')==='total_asc'?'selected':'' }}>Menor valor</option>
-          </select>
-        </div>
-      </div>
+{{-- Resumen + orden --}}
+@if($orders->total() > 0)
+<div class="mb-4 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 text-sm">
+  
+  {{-- Información de items --}}
+  <div class="flex items-center gap-2 bg-blue-50 dark:bg-neutral-800/40 text-blue-600 dark:text-blue-300 rounded-lg px-3 py-1.5">
+    <i class="fas fa-info-circle text-xs"></i>
+    <span>{{ $orders->firstItem() }}–{{ $orders->lastItem() }} de {{ $orders->total() }}</span>
+  </div>
+
+  {{-- Selector de orden --}}
+  <div class="flex items-center gap-2">
+    <span class="text-neutral-500 dark:text-neutral-400 text-xs">Ordenar:</span>
+    <div class="relative">
+      <select onchange="window.location.href=this.value"
+              class="appearance-none text-xs border border-neutral-300 dark:border-neutral-700 bg-white dark:bg-neutral-900 text-neutral-900 dark:text-neutral-100 rounded-md pl-2 pr-6 py-1.5 focus:outline-none focus:ring-1 focus:ring-indigo-500 focus:border-indigo-500">
+        <option value="{{ request()->fullUrlWithQuery(['sort'=>'newest']) }}" {{ request('sort','newest')==='newest'?'selected':'' }}>Más recientes</option>
+        <option value="{{ request()->fullUrlWithQuery(['sort'=>'oldest']) }}" {{ request('sort')==='oldest'?'selected':'' }}>Más antiguos</option>
+        <option value="{{ request()->fullUrlWithQuery(['sort'=>'total_desc']) }}" {{ request('sort')==='total_desc'?'selected':'' }}>Mayor valor</option>
+        <option value="{{ request()->fullUrlWithQuery(['sort'=>'total_asc']) }}" {{ request('sort')==='total_asc'?'selected':'' }}>Menor valor</option>
+      </select>
     </div>
-  @endif
+  </div>
+
+</div>
+@endif
+
 
   {{-- Tabla --}}
   @php
@@ -188,80 +196,141 @@
     $fmt = fn($n)=> '$'.number_format((float)$n,2,',','.');
   @endphp
 
-  <div class="bg-white dark:bg-neutral-900 rounded-xl shadow-sm border border-neutral-100 dark:border-neutral-800 overflow-hidden">
+{{-- Botón para eliminar múltiples (más profesional y pequeño) --}}
+<div class="mb-3 flex justify-end">
+    <button id="deleteSelected"
+            class="inline-flex items-center gap-1.5 px-3 py-1.5 text-xs font-medium text-white bg-rose-600 rounded-md hover:bg-rose-700 transition-colors shadow-sm disabled:opacity-50 disabled:cursor-not-allowed"
+            disabled>
+        <i class="fas fa-trash-alt text-sm"></i> Eliminar
+    </button>
+</div>
+
+
+{{-- Tabla de órdenes --}}
+<div class="bg-white dark:bg-neutral-900 rounded-xl shadow-sm border border-neutral-100 dark:border-neutral-800 overflow-hidden">
     <div class="overflow-x-auto">
-      <table class="w-full min-w-[980px] text-sm">
-        <thead class="sticky top-0 z-10">
-          <tr class="bg-neutral-100/80 dark:bg-neutral-800/60 backdrop-blur">
-            <th class="text-left px-6 py-3 font-medium text-neutral-600 dark:text-neutral-300">Pedido</th>
-            <th class="text-left px-3 py-3 font-medium text-neutral-600 dark:text-neutral-300">Cliente</th>
-            <th class="text-left px-3 py-3 font-medium text-neutral-600 dark:text-neutral-300">Fecha</th>
-            <th class="text-left px-3 py-3 font-medium text-neutral-600 dark:text-neutral-300">Items</th>
-            <th class="text-left px-3 py-3 font-medium text-neutral-600 dark:text-neutral-300">Total</th>
-            <th class="text-left px-3 py-3 font-medium text-neutral-600 dark:text-neutral-300">Estado</th>
-            <th class="text-right px-6 py-3 font-medium text-neutral-600 dark:text-neutral-300">Acción</th>
-          </tr>
-        </thead>
-        <tbody class="divide-y divide-neutral-100 dark:divide-neutral-800">
-          @forelse($orders as $o)
-            @php $badge = $statusBadge($o->status); @endphp
-            <tr class="hover:bg-neutral-50 dark:hover:bg-neutral-800/50 transition-colors">
-              <td class="px-6 py-3 font-semibold text-neutral-900 dark:text-neutral-100">#{{ $o->id }}</td>
-              <td class="px-3 py-3">
-                <div class="max-w-xs">
-                  <div class="font-medium text-neutral-800 dark:text-neutral-100 truncate">
-                    {{ optional($o->client)->name ?? 'Sin cliente' }}
-                  </div>
-                  @if(!empty($o->note))
-                    <div class="text-xs text-neutral-500 dark:text-neutral-400 truncate">
-                      <i class="far fa-comment mr-1"></i>{{ $o->note }}
-                    </div>
-                  @endif
-                </div>
-              </td>
-              <td class="px-3 py-3 text-neutral-700 dark:text-neutral-200 whitespace-nowrap">{{ $o->created_at?->format('d/m/Y H:i') }}</td>
-              <td class="px-3 py-3 text-neutral-700 dark:text-neutral-200">{{ (int)($o->items_qty ?? 0) }}</td>
-              <td class="px-3 py-3 font-semibold text-neutral-900 dark:text-neutral-100">{{ $fmt($o->total) }}</td>
-              <td class="px-3 py-3">
-                <span class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-[11px] font-medium {{ $badge['cls'] }}">
-                  <span class="w-1.5 h-1.5 rounded-full bg-current"></span>{{ $badge['text'] }}
-                </span>
-              </td>
-              <td class="px-6 py-3">
-                <div class="flex items-center justify-end gap-2">
-                  <a href="{{ route('orders.show',$o) }}"
-                     class="inline-flex items-center gap-2 px-3 py-1.5 rounded-lg text-xs font-medium bg-indigo-50 text-indigo-700 hover:bg-indigo-100 dark:bg-indigo-900/30 dark:text-indigo-300 dark:hover:bg-indigo-900/50">
-                    <i class="far fa-eye"></i> Ver
-                  </a>
-                  <a href="{{ $receiptRoute ? route('orders.ticket',$o) : '#' }}"
-                     @if(!$receiptRoute) aria-disabled="true" @endif
-                     class="inline-flex items-center gap-2 px-3 py-1.5 rounded-lg text-xs font-medium bg-emerald-50 text-emerald-700 hover:bg-emerald-100 dark:bg-emerald-900/30 dark:text-emerald-300 dark:hover:bg-emerald-900/50 {{ $receiptRoute ? '' : 'opacity-50 cursor-not-allowed' }}">
-                    <i class="far fa-file-alt"></i> Comprobante
-                  </a>
-                </div>
-              </td>
-            </tr>
-          @empty
-            <tr>
-              <td colspan="7" class="px-6 py-16 text-center text-neutral-500 dark:text-neutral-400">
-                <i class="fas fa-search text-neutral-300 dark:text-neutral-600 text-5xl mb-3"></i>
-                <div class="text-lg font-medium">No se encontraron pedidos</div>
-                <p class="text-neutral-500 dark:text-neutral-400">Ajustá los filtros para ver resultados.</p>
-                <div class="mt-4 flex justify-center gap-2">
-                  <a href="{{ route('orders.index') }}" class="inline-flex items-center px-3 py-2 text-sm text-neutral-700 dark:text-neutral-200 bg-neutral-100 dark:bg-neutral-800 rounded-lg hover:bg-neutral-200 dark:hover:bg-neutral-700">
-                    <i class="fas fa-broom mr-2"></i> Limpiar filtros
-                  </a>
-                  <a href="{{ route('orders.create') }}" class="inline-flex items-center px-3 py-2 text-sm text-white bg-indigo-600 rounded-lg hover:bg-indigo-700">
-                    <i class="fas fa-plus-circle mr-2"></i> Crear pedido
-                  </a>
-                </div>
-              </td>
-            </tr>
-          @endforelse
-        </tbody>
-      </table>
+        <table class="w-full min-w-[980px] text-sm">
+            <thead class="sticky top-0 z-10">
+                <tr class="bg-neutral-100/80 dark:bg-neutral-800/60 backdrop-blur">
+                    <th class="px-3 py-3 text-center">
+                        <input type="checkbox" id="selectAll" class="rounded border-neutral-300 dark:border-neutral-700">
+                    </th>
+                    <th class="text-left px-6 py-3 font-medium text-neutral-600 dark:text-neutral-300">Pedido</th>
+                    <th class="text-left px-3 py-3 font-medium text-neutral-600 dark:text-neutral-300">Cliente</th>
+                    <th class="text-left px-3 py-3 font-medium text-neutral-600 dark:text-neutral-300">Fecha</th>
+                    <th class="text-left px-3 py-3 font-medium text-neutral-600 dark:text-neutral-300">Items</th>
+                    <th class="text-left px-3 py-3 font-medium text-neutral-600 dark:text-neutral-300">Total</th>
+                    <th class="text-left px-3 py-3 font-medium text-neutral-600 dark:text-neutral-300">Estado</th>
+                    <th class="text-right px-6 py-3 font-medium text-neutral-600 dark:text-neutral-300">Acción</th>
+                </tr>
+            </thead>
+            <tbody class="divide-y divide-neutral-100 dark:divide-neutral-800">
+                @forelse($orders as $o)
+                    @php $badge = $statusBadge($o->status); @endphp
+                    <tr class="hover:bg-neutral-50 dark:hover:bg-neutral-800/50 transition-colors">
+                        <td class="px-3 py-3 text-center">
+                            <input type="checkbox" class="selectOrder" value="{{ $o->id }}">
+                        </td>
+                        <td class="px-6 py-3 font-semibold text-neutral-900 dark:text-neutral-100">#{{ $o->id }}</td>
+                        <td class="px-3 py-3">
+                            <div class="max-w-xs">
+                                <div class="font-medium text-neutral-800 dark:text-neutral-100 truncate">
+                                    {{ optional($o->client)->name ?? 'Sin cliente' }}
+                                </div>
+                                @if(!empty($o->note))
+                                    <div class="text-xs text-neutral-500 dark:text-neutral-400 truncate">
+                                        <i class="far fa-comment mr-1"></i>{{ $o->note }}
+                                    </div>
+                                @endif
+                            </div>
+                        </td>
+                        <td class="px-3 py-3 text-neutral-700 dark:text-neutral-200 whitespace-nowrap">{{ $o->created_at?->format('d/m/Y H:i') }}</td>
+                        <td class="px-3 py-3 text-neutral-700 dark:text-neutral-200">{{ (int)($o->items_qty ?? 0) }}</td>
+                        <td class="px-3 py-3 font-semibold text-neutral-900 dark:text-neutral-100">{{ $fmt($o->total) }}</td>
+                        <td class="px-3 py-3">
+                            <span class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-[11px] font-medium {{ $badge['cls'] }}">
+                                <span class="w-1.5 h-1.5 rounded-full bg-current"></span>{{ $badge['text'] }}
+                            </span>
+                        </td>
+                        <td class="px-6 py-3">
+                            <div class="flex items-center justify-end gap-2">
+                                <a href="{{ route('orders.show',$o) }}"
+                                   class="inline-flex items-center gap-2 px-3 py-1.5 rounded-lg text-xs font-medium bg-indigo-50 text-indigo-700 hover:bg-indigo-100 dark:bg-indigo-900/30 dark:text-indigo-300 dark:hover:bg-indigo-900/50">
+                                    <i class="far fa-eye"></i> Ver
+                                </a>
+                                <a href="{{ $receiptRoute ? route('orders.ticket',$o) : '#' }}"
+                                   @if(!$receiptRoute) aria-disabled="true" @endif
+                                   class="inline-flex items-center gap-2 px-3 py-1.5 rounded-lg text-xs font-medium bg-emerald-50 text-emerald-700 hover:bg-emerald-100 dark:bg-emerald-900/30 dark:text-emerald-300 dark:hover:bg-emerald-900/50 {{ $receiptRoute ? '' : 'opacity-50 cursor-not-allowed' }}">
+                                    <i class="far fa-file-alt"></i> Comprobante
+                                </a>
+                            </div>
+                        </td>
+                    </tr>
+                @empty
+                    <tr>
+                        <td colspan="8" class="px-6 py-16 text-center text-neutral-500 dark:text-neutral-400">
+                            <i class="fas fa-search text-neutral-300 dark:text-neutral-600 text-5xl mb-3"></i>
+                            <div class="text-lg font-medium">No se encontraron pedidos</div>
+                            <p class="text-neutral-500 dark:text-neutral-400">Ajustá los filtros para ver resultados.</p>
+                            <div class="mt-4 flex justify-center gap-2">
+                                <a href="{{ route('orders.index') }}" class="inline-flex items-center px-3 py-2 text-sm text-neutral-700 dark:text-neutral-200 bg-neutral-100 dark:bg-neutral-800 rounded-lg hover:bg-neutral-200 dark:hover:bg-neutral-700">
+                                    <i class="fas fa-broom mr-2"></i> Limpiar filtros
+                                </a>
+                                <a href="{{ route('orders.create') }}" class="inline-flex items-center px-3 py-2 text-sm text-white bg-indigo-600 rounded-lg hover:bg-indigo-700">
+                                    <i class="fas fa-plus-circle mr-2"></i> Crear pedido
+                                </a>
+                            </div>
+                        </td>
+                    </tr>
+                @endforelse
+            </tbody>
+        </table>
     </div>
-  </div>
+</div>
+
+{{-- Script de selección y eliminación --}}
+<script>
+document.addEventListener('DOMContentLoaded', () => {
+    const selectAll = document.getElementById('selectAll');
+    const orderCheckboxes = document.querySelectorAll('.selectOrder');
+    const deleteBtn = document.getElementById('deleteSelected');
+
+    // Seleccionar/Deseleccionar todo
+    selectAll?.addEventListener('change', () => {
+        orderCheckboxes.forEach(cb => cb.checked = selectAll.checked);
+        deleteBtn.disabled = ![...orderCheckboxes].some(cb => cb.checked);
+    });
+
+    // Checkbox individual
+    orderCheckboxes.forEach(cb => {
+        cb.addEventListener('change', () => {
+            selectAll.checked = [...orderCheckboxes].every(c => c.checked);
+            deleteBtn.disabled = ![...orderCheckboxes].some(c => c.checked);
+        });
+    });
+
+    // Botón eliminar
+    deleteBtn?.addEventListener('click', () => {
+        const ids = [...orderCheckboxes].filter(c => c.checked).map(c => c.value);
+        if (!ids.length) return;
+        if (!confirm(`¿Eliminar ${ids.length} pedidos? Esta acción no se puede deshacer.`)) return;
+
+        fetch('{{ route("orders.bulk-delete") }}', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'X-CSRF-TOKEN': '{{ csrf_token() }}'
+            },
+            body: JSON.stringify({ ids })
+        })
+        .then(res => res.json())
+        .then(data => {
+            if (data.success) location.reload();
+            else alert('Error al eliminar los pedidos');
+        });
+    });
+});
+</script>
 
   {{-- Paginación --}}
   @if($orders->hasPages())

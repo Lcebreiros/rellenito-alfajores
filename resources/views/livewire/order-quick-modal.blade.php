@@ -1,16 +1,12 @@
 <div>
-  {{-- Botón abrir (minimal) --}}
-  <div class="mb-4">
-    <button type="button"
-            wire:click="showModal"
-            class="inline-flex items-center gap-2 px-4 py-2 rounded-md bg-indigo-600 text-white font-medium shadow-sm
-                   hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-indigo-500/30">
-      <svg class="w-5 h-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" aria-hidden="true">
-        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v12m6-6H6"/>
-      </svg>
-      <span class="text-sm">Nuevo pedido</span>
-    </button>
-  </div>
+  {{-- Botón abrir (minimal) - sin contenedor que afecte layout --}}
+<button type="button"
+        wire:click="showModal"
+        class="inline-flex items-center px-4 py-2 bg-indigo-600 border border-transparent rounded-lg font-semibold text-white hover:bg-indigo-700 transition-colors">
+  <i class="fas fa-plus-circle mr-2"></i>
+  Nuevo Pedido
+</button>
+
 
 
   {{-- Modal --}}
@@ -55,12 +51,22 @@
 
           <div class="flex items-center gap-3">
             {{-- Fecha en desktop --}}
-            <div class="hidden md:block">
+            <div class="hidden md:flex items-center gap-2">
               <input type="datetime-local"
                      wire:model.live="orderDate"
+                     id="orderDateDesktop"
                      class="px-3 py-2 text-sm border border-gray-200 dark:border-gray-700 rounded
                             bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100
                             focus:outline-none focus:ring-2 focus:ring-gray-500" />
+              <!-- Botón personalizado de calendario fuera del input -->
+              <button type="button" 
+                      onclick="document.getElementById('orderDateDesktop').showPicker()"
+                      class="flex-shrink-0 w-8 h-8 border border-gray-200 dark:border-gray-700 rounded
+                             bg-white dark:bg-gray-800 hover:bg-gray-50 dark:hover:bg-gray-700
+                             flex items-center justify-center transition-all duration-200 
+                             hover:scale-110 focus:outline-none focus:ring-2 focus:ring-gray-500">
+                <img src="{{ asset('images/calendario.png') }}" alt="Calendario" class="w-4 h-4 dark-calendar-icon">
+              </button>
             </div>
 
             <button type="button"
@@ -79,11 +85,23 @@
           <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
             Fecha y hora del pedido
           </label>
-          <input type="datetime-local"
-                 wire:model.live="orderDate"
-                 class="w-full px-3 py-2 text-sm border border-gray-200 dark:border-gray-700 rounded
-                        bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100
-                        focus:outline-none focus:ring-2 focus:ring-gray-500" />
+          <div class="flex items-center gap-2">
+            <input type="datetime-local"
+                   wire:model.live="orderDate"
+                   id="orderDateMobile"
+                   class="flex-1 px-3 py-2 text-sm border border-gray-200 dark:border-gray-700 rounded
+                          bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100
+                          focus:outline-none focus:ring-2 focus:ring-gray-500" />
+            <!-- Botón personalizado de calendario móvil fuera del input -->
+            <button type="button" 
+                    onclick="document.getElementById('orderDateMobile').showPicker()"
+                    class="flex-shrink-0 w-8 h-8 border border-gray-200 dark:border-gray-700 rounded
+                           bg-white dark:bg-gray-800 hover:bg-gray-50 dark:hover:bg-gray-700
+                           flex items-center justify-center transition-all duration-200 
+                           hover:scale-110 focus:outline-none focus:ring-2 focus:ring-gray-500">
+              <img src="{{ asset('images/calendario.png') }}" alt="Calendario" class="w-4 h-4 dark-calendar-icon">
+            </button>
+          </div>
           @error('orderDate')
             <p class="text-sm text-red-600 dark:text-red-400 mt-1">{{ $message }}</p>
           @enderror
@@ -155,8 +173,8 @@
                               wire:click="addProduct({{ $p->id }})"
                               wire:loading.attr="disabled"
                               wire:target="addProduct({{ $p->id }})"
-                              class="w-full px-3 py-2 text-sm font-medium bg-gray-900 dark:bg-gray-700 text-white rounded
-                                     hover:bg-gray-800 dark:hover:bg-gray-600 disabled:opacity-50 transition-colors">
+                              class="w-full px-3 py-2 text-sm font-medium bg-gradient-to-r from-indigo-600 to-purple-600 text-white rounded
+                                     hover:from-indigo-700 hover:to-purple-700 disabled:opacity-50 transition-colors">
                         <span wire:loading.remove wire:target="addProduct({{ $p->id }})">Agregar</span>
                         <span wire:loading wire:target="addProduct({{ $p->id }})">Agregando...</span>
                       </button>
@@ -372,8 +390,8 @@
                     wire:loading.attr="disabled"
                     wire:target="save"
                     @disabled(!count($items))
-                    class="px-4 py-2 text-sm font-medium bg-gray-900 dark:bg-gray-700 text-white rounded
-                           hover:bg-gray-800 dark:hover:bg-gray-600 disabled:opacity-50">
+                    class="px-4 py-2 text-sm font-medium bg-gradient-to-r from-indigo-600 to-purple-600 text-white rounded
+                           hover:from-indigo-700 hover:to-purple-700 disabled:opacity-50">
               <span wire:loading.remove wire:target="save">Guardar Pedido</span>
               <span wire:loading wire:target="save">Guardando...</span>
             </button>
@@ -391,6 +409,27 @@
     
     .dark input[type="datetime-local"] {
       color-scheme: dark;
+    }
+    
+    /* Ocultar el icono nativo del calendario completamente */
+    input[type="datetime-local"]::-webkit-calendar-picker-indicator {
+      display: none;
+      -webkit-appearance: none;
+      appearance: none;
+    }
+    
+    /* Estilo para el icono de calendario personalizado en modo oscuro */
+    .dark .dark-calendar-icon {
+      filter: invert(1) brightness(1.2);
+    }
+    
+    /* Asegurar que el botón sea visible con z-index */
+    button img.dark-calendar-icon {
+      display: block !important;
+      visibility: visible !important;
+      opacity: 1 !important;
+      position: relative;
+      z-index: 10;
     }
     
     /* Ensure text is visible in all inputs */

@@ -8,6 +8,7 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Schema;
+use Illuminate\Support\Facades\DB;
 
 class OrderController extends Controller
 {
@@ -373,4 +374,101 @@ private function buildOrdersQuery(Request $request): array
         $order->load(['items.product','client']);
         return view('orders.show', compact('order'));
     }
+public function edit(Order $order)
+{
+    // Solo el propietario puede editar
+    if ($order->user_id !== auth()->id()) {
+        abort(403);
+    }
+
+    $order->load('items.product');
+
+    $products = Product::all(); // o filtrados según tu lógica
+
+    $order->load('client', 'items.product');
+
+    // Pasamos también la lista de clientes para el select
+    $clients = \App\Models\Client::all();
+
+    return view('orders.edit', compact('order', 'clients', 'products'));
+}
+
+public function update(Request $request, Order $order)
+{
+    // Solo el propietario puede actualizar
+    if ($order->user_id !== auth()->id()) {
+        abort(403);
+    }
+
+    // Validación
+$data = $request->validate([
+    'name'            => 'required|string|max:255',
+    'email'           => 'nullable|email|max:255',
+    'phone'           => 'nullable|string|max:50',
+    'address'         => 'nullable|string|max:255',
+    'items_json'      => 'required|string',
+]);
+
+DB::transaction(function() use ($order, $data) {
+    // Actualizamos la orden
+    $order->update([
+        'customer_name'    => $data['name'],      // mapeo al campo de la tabla orders
+        'customer_email'   => $data['email'],
+        'customer_phone'   => $data['phone'],
+        'shipping_address' => $data['address'],
+    ]);
+
+    // Decodificamos y reemplazamos los items
+    $items = json_decode($data['items_json'], true);
+    $order->items()->delete();
+
+    foreach ($items as $i) {
+        $order->items()->create([
+            'product_id' => $i['id'],
+            'name'       => $i['name'],
+            'quantity'   => $i['quantity'],
+            'unit_price' => $i['unit_price'],
+            'subtotal'   => $i['quantity'] * $i['unit_price'],
+            'user_id'    => auth()->id(),
+        ]);
+    }
+
+    $order->recalcTotal();
+    $order->save();
+});
+
+
+    return redirect()->route('orders.index')->with('ok', 'Pedido actualizado correctamente.');
+}
+
+
+    public function destroy(Order $order)
+    {
+        if ($order->user_id !== auth()->id()) {
+            abort(403);
+        }
+
+        DB::transaction(function() use ($order) {
+            // eliminar items primero si corresponde
+            $order->items()->delete();
+            $order->delete();
+        });
+
+        return redirect()->route('orders.index')->with('ok','Pedido eliminado correctamente.');
+    }
+    public function bulkDelete(Request $request)
+{
+    $request->validate([
+        'ids' => 'required|array',
+        'ids.*' => 'integer|exists:orders,id',
+    ]);
+
+    // Solo eliminar pedidos del usuario logueado (ajustar según tu regla)
+    Order::whereIn('id', $request->ids)
+         ->where('user_id', auth()->id())
+         ->delete();
+
+    return response()->json(['success' => true]);
+}
+
 }
