@@ -1,5 +1,5 @@
 {{-- MOBILE: barra superior --}}
-<div class="md:hidden w-full bg-white dark:bg-neutral-900 border-b border-neutral-200 dark:border-neutral-800"
+<div class="md:hidden w-full bg-white dark:bg-neutral-900 border-b border-neutral-200 dark:border-neutral-800 no-print"
      x-data="{ moreOpen: false }">
     <div class="h-14 flex items-center justify-between px-4">
         {{-- Logo y título --}}

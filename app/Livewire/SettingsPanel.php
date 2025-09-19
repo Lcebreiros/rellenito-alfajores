@@ -7,7 +7,7 @@ use Livewire\Component;
 use Livewire\WithFileUploads;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Storage;
-use App\Models\Setting; // <-- usamos Setting como store de claves
+use App\Models\Setting;
 use Illuminate\Validation\Rule;
 
 class SettingsPanel extends Component
@@ -21,24 +21,23 @@ class SettingsPanel extends Component
     public array $timezones = [];
 
     // Logo del comprobante (per-user)
-    public $receipt_logo;            // archivo temporal
+    public $receipt_logo;            // archivo temporal (Livewire)
     public $receipt_logo_url = null; // URL actual para preview
 
     public function mount()
     {
-        // LEER desde Setting (con fallback)
         $this->theme      = Setting::get('theme', 'light');
         $this->site_title = Setting::get('site_title', 'Mi App');
 
-        $this->refreshReceiptLogoUrl();
-
-              $this->timezones = \DateTimeZone::listIdentifiers(\DateTimeZone::ALL);
+        $this->timezones = \DateTimeZone::listIdentifiers(\DateTimeZone::ALL);
 
         $user = auth()->user();
         $this->timezone = $user?->timezone ?: config('app.timezone', 'UTC');
+
+        $this->refreshReceiptLogoUrl();
     }
 
-        public function saveTimezone(): void
+    public function saveTimezone(): void
     {
         $this->validate([
             'timezone' => ['required', 'string', Rule::in($this->timezones)],
@@ -51,17 +50,13 @@ class SettingsPanel extends Component
         $user->save();
 
         session()->flash('ok', 'Zona horaria actualizada.');
-        $this->dispatch('timezone-updated'); // por si querés escuchar en front
+        $this->dispatch('timezone-updated');
     }
 
-    /**
-     * Cuando cambia el theme en el input (x-model / entangle),
-     * persistimos en Setting y avisamos al navegador para aplicar sin recargar.
-     */
     public function updatedTheme($value)
     {
-        Setting::set('theme', $value); // <-- persistir clave
-        $this->dispatch('theme-updated', theme: $value); // <-- browser event (Livewire v3)
+        Setting::set('theme', $value);
+        $this->dispatch('theme-updated', theme: $value);
     }
 
     public function setTheme($value)
@@ -70,9 +65,6 @@ class SettingsPanel extends Component
         $this->updatedTheme($value);
     }
 
-    /**
-     * Guardar otros campos (site_title) en Setting.
-     */
     public function save()
     {
         Setting::set('site_title', $this->site_title);
@@ -84,19 +76,33 @@ class SettingsPanel extends Component
     public function saveReceiptLogo()
     {
         $this->validate([
-            'receipt_logo' => 'required|mimes:png,jpg,jpeg,webp|max:2048',
+            'receipt_logo' => 'required|image|mimes:png,jpg,jpeg,webp|max:2048',
         ]);
 
         $user = Auth::user();
         if (!$user) return;
 
         $dir = "branding/{$user->id}";
+
+        // Nombre único por usuario (evita confusiones / colisiones)
+        $filename = "receipt-logo-{$user->id}.png";
+
+        // Crear directorio si hace falta (disk public)
         Storage::disk('public')->makeDirectory($dir);
 
-        // guardamos con nombre fijo para el ticket
-        $path = $this->receipt_logo->storeAs($dir, 'receipt-logo.png', 'public');
+        // Guardar con visibilidad pública
+        $path = $this->receipt_logo->storeAs($dir, $filename, 'public');
 
-        // persistimos en el usuario (campo users.receipt_logo_path)
+        // Forzar visibilidad pública (en caso de driver que lo soporte)
+        if (Storage::disk('public')->exists($path)) {
+            try {
+                Storage::disk('public')->setVisibility($path, 'public');
+            } catch (\Throwable $e) {
+                // algunos drivers no implementan setVisibility, no bloqueamos
+            }
+        }
+
+        // Persistimos en el usuario
         $user->forceFill(['receipt_logo_path' => $path])->save();
 
         $this->reset('receipt_logo');
@@ -136,8 +142,6 @@ class SettingsPanel extends Component
             return;
         }
 
-        // Fallback opcional:
-        // $this->receipt_logo_url = asset('images/logo.png');
         $this->receipt_logo_url = null;
     }
 

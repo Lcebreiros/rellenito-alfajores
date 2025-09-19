@@ -398,74 +398,121 @@ document.addEventListener('DOMContentLoaded', () => {
 </style>
 
 <script>
-(function (){
-  const ready = (fn) => {
-    if (document.readyState === 'loading') {
-      document.addEventListener('DOMContentLoaded', fn, { once:true });
-    } else {
-      fn();
-    }
-  };
+document.addEventListener('DOMContentLoaded', () => {
+    const selectAll = document.getElementById('selectAll');
+    const orderCheckboxes = document.querySelectorAll('.selectOrder');
+    const deleteBtn = document.getElementById('deleteSelected');
 
-  ready(() => {
-    const filtersPanel = document.getElementById('filtersPanel');
-    const toggleFiltersBtn = document.getElementById('toggleFilters');
-    const chevron = document.getElementById('filterChevron');
-    const filterText = document.querySelector('.filter-text');
+    // Función para actualizar el estado del botón eliminar
+    const updateDeleteButton = () => {
+        if (!deleteBtn) return;
+        const checkedBoxes = [...orderCheckboxes].filter(cb => cb.checked);
+        deleteBtn.disabled = checkedBoxes.length === 0;
+    };
 
-    const modalId = 'downloadModal';
-    const modal = document.getElementById(modalId);
-    const closeBtn = document.getElementById('closeModal');
-
-    // Filtros: null-safe
-    if (toggleFiltersBtn && filtersPanel && chevron && filterText) {
-      const hasActive = {{ request()->anyFilled(['status','from','to','client','client_id']) ? 'true' : 'false' }};
-      const showFilters = () => {
-        filtersPanel.classList.remove('hidden');
-        requestAnimationFrame(() => filtersPanel.classList.add('show'));
-        chevron.style.transform = 'rotate(180deg)';
-        filterText.textContent = 'Ocultar Filtros';
-        filtersPanel.setAttribute('aria-hidden', 'false');
-      };
-      const hideFilters = () => {
-        filtersPanel.classList.remove('show');
-        setTimeout(() => filtersPanel.classList.add('hidden'), 300);
-        chevron.style.transform = 'rotate(0deg)';
-        filterText.textContent = 'Mostrar Filtros';
-        filtersPanel.setAttribute('aria-hidden', 'true');
-      };
-      toggleFiltersBtn.addEventListener('click', () =>
-        filtersPanel.classList.contains('hidden') ? showFilters() : hideFilters()
-      );
-      if (hasActive) showFilters();
-    }
-
-    // Modal: null-safe
-    if (!modal) return;
-
-    const openers = document.querySelectorAll(`[data-modal-open="${modalId}"]`);
-    const open = () => {
-      modal.classList.remove('hidden');
-      modal.classList.add('flex');
-      closeBtn?.focus?.();
-      const onEsc = (e) => {
-        if (e.key === 'Escape') {
-          close();
-          document.removeEventListener('keydown', onEsc);
+    // Función para actualizar el estado del checkbox "Seleccionar todo"
+    const updateSelectAll = () => {
+        if (!selectAll || orderCheckboxes.length === 0) return;
+        
+        const checkedCount = [...orderCheckboxes].filter(cb => cb.checked).length;
+        
+        if (checkedCount === 0) {
+            selectAll.checked = false;
+            selectAll.indeterminate = false;
+        } else if (checkedCount === orderCheckboxes.length) {
+            selectAll.checked = true;
+            selectAll.indeterminate = false;
+        } else {
+            selectAll.checked = false;
+            selectAll.indeterminate = true;
         }
-      };
-      document.addEventListener('keydown', onEsc);
-    };
-    const close = () => {
-      modal.classList.add('hidden');
-      modal.classList.remove('flex');
     };
 
-    openers.forEach(btn => btn.addEventListener('click', open));
-    closeBtn?.addEventListener('click', close);
-    modal.addEventListener('click', (e) => { if (e.target === modal) close(); });
-  });
-})();
+    // Inicializar estados
+    updateDeleteButton();
+    updateSelectAll();
+
+    // Seleccionar/Deseleccionar todo
+    if (selectAll) {
+        selectAll.addEventListener('change', (e) => {
+            const isChecked = e.target.checked;
+            orderCheckboxes.forEach(cb => {
+                cb.checked = isChecked;
+            });
+            updateDeleteButton();
+        });
+    }
+
+    // Checkbox individual
+    orderCheckboxes.forEach(cb => {
+        cb.addEventListener('change', () => {
+            updateSelectAll();
+            updateDeleteButton();
+        });
+    });
+
+    // Botón eliminar
+    if (deleteBtn) {
+        deleteBtn.addEventListener('click', async () => {
+            const selectedIds = [...orderCheckboxes]
+                .filter(cb => cb.checked)
+                .map(cb => cb.value);
+            
+            if (selectedIds.length === 0) {
+                alert('No hay pedidos seleccionados');
+                return;
+            }
+
+            const confirmMessage = selectedIds.length === 1 
+                ? '¿Eliminar este pedido? Esta acción no se puede deshacer.'
+                : `¿Eliminar ${selectedIds.length} pedidos? Esta acción no se puede deshacer.`;
+            
+            if (!confirm(confirmMessage)) return;
+
+            // Deshabilitar botón durante la operación
+            deleteBtn.disabled = true;
+            const originalText = deleteBtn.innerHTML;
+            deleteBtn.innerHTML = '<i class="fas fa-spinner fa-spin text-sm"></i> Eliminando...';
+
+            try {
+                const response = await fetch('{{ route("orders.bulk-delete") }}', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]')?.getAttribute('content') || '{{ csrf_token() }}',
+                        'Accept': 'application/json',
+                    },
+                    body: JSON.stringify({ ids: selectedIds })
+                });
+
+                const data = await response.json();
+
+                if (response.ok && data.success) {
+                    window.location.reload();
+                } else {
+                    alert(data.message || 'Error al eliminar los pedidos');
+                    deleteBtn.disabled = false;
+                    deleteBtn.innerHTML = originalText;
+                }
+            } catch (error) {
+                console.error('Error:', error);
+                alert('Error de conexión al eliminar los pedidos');
+                deleteBtn.disabled = false;
+                deleteBtn.innerHTML = originalText;
+            }
+        });
+    }
+
+    // Limpiar selección si se navega de vuelta a la página
+    window.addEventListener('pageshow', () => {
+        if (selectAll) {
+            selectAll.checked = false;
+            selectAll.indeterminate = false;
+        }
+        orderCheckboxes.forEach(cb => cb.checked = false);
+        updateDeleteButton();
+    });
+});
 </script>
 @endsection
 

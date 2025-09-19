@@ -206,10 +206,6 @@ public function history(Request $request)
         $query = $query->orderBy($col, $dir);
     }
 
-    // DEBUG opcional (descomentar solo para depurar)
-    // \Log::info('History SQL', ['sql' => $query->toSql(), 'bindings' => $query->getBindings()]);
-    // dd($query->toSql(), $query->getBindings());
-
     $stockHistory = $query->paginate(20)->withQueryString();
 
     // Aseguramos eager load para la colección que paginamos (por si usamos join)

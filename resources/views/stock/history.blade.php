@@ -7,33 +7,40 @@
     <i class="fas fa-clock-rotate-left text-indigo-600 dark:text-indigo-400 mr-3"></i> Historial de Stock
   </h1>
 
-  <div class="flex gap-2 mt-3 sm:mt-0">
-    <button onclick="window.print()"
-            class="inline-flex items-center gap-2 px-4 py-2 rounded-lg font-medium transition-colors
-                   bg-white border border-gray-300 text-gray-700 hover:bg-gray-50
-                   dark:bg-neutral-800 dark:border-neutral-600 dark:text-neutral-200 dark:hover:bg-neutral-700">
-      <i class="fas fa-print"></i> <span>Imprimir</span>
-    </button>
+<div class="flex gap-2 mt-3 sm:mt-0 no-print">
+  <button type="button" onclick="print()"
+          class="inline-flex items-center gap-2 px-4 py-2 rounded-lg font-medium transition-colors
+                 bg-white border border-gray-300 text-gray-700 hover:bg-gray-50
+                 dark:bg-neutral-800 dark:border-neutral-600 dark:text-neutral-200 dark:hover:bg-neutral-700">
+    <i class="fas fa-print"></i> <span>Imprimir</span>
+  </button>
 
     {{-- Botón de Volver al Reporte --}}
-<a href="{{ url()->previous() }}"
-   class="inline-flex items-center gap-2 px-4 py-2 rounded-lg font-medium transition-colors
-          bg-gray-100 hover:bg-gray-200 dark:bg-neutral-800 dark:hover:bg-neutral-700
-          text-gray-800 dark:text-neutral-100">
+  <a href="{{ route('stock.index') }}" class="inline-flex items-center gap-2 px-4 py-2 rounded-lg font-medium transition-colors
+            bg-gray-100 hover:bg-gray-200 dark:bg-neutral-800 dark:hover:bg-neutral-700 text-gray-800 dark:text-neutral-100">
     <!-- Icono de flecha izquierda -->
     <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2"
          viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
         <path stroke-linecap="round" stroke-linejoin="round" d="M15 19l-7-7 7-7"></path>
     </svg>
     <span>Volver</span>
-</a>
-
+  </a>
   </div>
 </div>
 @endsection
 
 @section('content')
-<div class="max-w-screen-2xl mx-auto px-3 sm:px-6">
+<div class="max-w-screen-2xl mx-auto px-3 sm:px-6 print-container">
+
+  {{-- Header para impresión con logo --}}
+  <div class="print-only print-header" style="display: none;">
+    <div class="text-center border-b border-gray-400 pb-1">
+      {{-- Aquí puedes agregar tu logo --}}
+      <img src="{{ asset('images/Gestior.png') }}" alt="Logo" class="mx-auto mb-1" style="max-height: 40px;">
+      <h1 class="text-lg font-bold text-gray-900 mb-0">Historial de Stock</h1>
+      <p class="text-gray-600 text-xs mb-0">Generado el {{ now()->format('d/m/Y H:i') }}</p>
+    </div>
+  </div>
 
   {{-- Estadísticas del historial --}}
   @if(!$stockHistory->isEmpty())
@@ -45,7 +52,7 @@
       $totalDecrease = abs($stockHistory->getCollection()->where('quantity_change', '<', 0)->sum('quantity_change'));
     @endphp
     
-    <div class="grid grid-cols-2 md:grid-cols-4 gap-3 mb-6">
+    <div class="grid grid-cols-2 md:grid-cols-4 gap-3 mb-6 no-print">
       <div class="bg-white dark:bg-neutral-900 rounded-xl p-4 border border-gray-100 dark:border-neutral-700 dark:ring-1 dark:ring-indigo-500/10 shadow-sm">
         <div class="flex items-center justify-between">
           <div>
@@ -100,7 +107,7 @@
   @endif
 
   {{-- Filtros y búsqueda --}}
-  <div class="bg-white dark:bg-neutral-900 rounded-xl shadow-sm p-4 mb-6 border border-gray-100 dark:border-neutral-700 dark:ring-1 dark:ring-indigo-500/10">
+  <div class="bg-white dark:bg-neutral-900 rounded-xl shadow-sm p-4 mb-6 border border-gray-100 dark:border-neutral-700 dark:ring-1 dark:ring-indigo-500/10 no-print">
     <div class="flex flex-wrap items-center gap-2 mb-3">
       <span class="text-sm font-medium text-gray-700 dark:text-neutral-300 flex items-center py-2">
         <i class="fas fa-filter text-gray-500 dark:text-neutral-400 mr-2"></i> Tipo:
@@ -182,7 +189,7 @@
   </div>
 
   {{-- Lista de movimientos --}}
-  <div class="bg-white dark:bg-neutral-900 rounded-xl shadow-sm border border-gray-100 dark:border-neutral-700 dark:ring-1 dark:ring-indigo-500/10 p-4">
+  <div class="bg-white dark:bg-neutral-900 rounded-xl shadow-sm border border-gray-100 dark:border-neutral-700 dark:ring-1 dark:ring-indigo-500/10 p-4 print-content">
     @if($stockHistory->count() === 0)
       <div class="py-16 text-center">
         <i class="fas fa-clock text-gray-300 dark:text-neutral-600 text-5xl mb-3"></i>
@@ -267,7 +274,7 @@
 
   {{-- Paginación --}}
   @if($stockHistory->hasPages())
-    <div class="mt-6 print:hidden">
+    <div class="mt-6 no-print">
       {{ $stockHistory->withQueryString()->links() }}
     </div>
   @endif
@@ -279,10 +286,116 @@
 {{-- Print styles --}}
 <style>
 @media print {
-  header, nav, .print\:hidden, form { display: none !important; }
-  body { background: #fff !important; color: #000 !important; }
-  a { color: #000 !important; text-decoration: none !important; }
-  .dark * { color: #000 !important; background: #fff !important; }
+  /* Resetear completamente márgenes y padding */
+  * {
+    margin: 0 !important;
+    padding: 0 !important;
+  }
+  
+  /* Ocultar elementos que no queremos imprimir */
+  header, nav, .no-print, form { display: none !important; }
+  
+  /* Mostrar solo elementos para impresión */
+  .print-only { display: block !important; }
+  
+  /* Eliminar márgenes y padding del body y contenedor principal */
+  body { 
+    background: #fff !important; 
+    color: #000 !important; 
+    font-size: 12px !important;
+    margin: 0 !important;
+    padding: 5px !important;
+  }
+  
+  .print-container {
+    max-width: none !important;
+    margin: 0 !important;
+    padding: 0 !important;
+  }
+  
+  /* Eliminar colores y sombras */
+  * { 
+    background: #fff !important; 
+    color: #000 !important; 
+    box-shadow: none !important;
+  }
+  
+  /* Header de impresión pegado al contenido */
+  .print-header {
+    margin: 0 !important;
+    padding: 0 !important;
+    page-break-after: avoid;
+  }
+  
+  .print-header div {
+    margin: 0 !important;
+    padding: 0 0 3px 0 !important;
+    margin-bottom: 3px !important;
+  }
+  
+  .print-header img {
+    max-height: 35px !important;
+    margin: 0 auto 2px auto !important;
+    display: block;
+  }
+  
+  .print-header h1 {
+    margin: 0 !important;
+    padding: 0 !important;
+    line-height: 1.2 !important;
+    font-size: 16px !important;
+  }
+  
+  .print-header p {
+    margin: 0 !important;
+    padding: 0 !important;
+    font-size: 10px !important;
+    line-height: 1 !important;
+  }
+  
+  /* Contenido inmediatamente después del header */
+  .print-content {
+    padding: 0 !important;
+    margin: 0 !important;
+    border: none !important;
+    border-radius: 0 !important;
+    page-break-before: avoid;
+  }
+  
+  /* Mantener bordes simples en los elementos internos */
+  .print-content .rounded-xl {
+    border-color: #ccc !important;
+    page-break-inside: avoid;
+    margin: 0 0 6px 0 !important;
+    padding: 6px !important;
+    border-radius: 0 !important;
+    border: 1px solid #ccc !important;
+  }
+  
+  /* Ajustar tamaño de iconos */
+  .fas, .fa {
+    font-size: 10px !important;
+  }
+  
+  /* Links sin decoración */
+  a { 
+    color: #000 !important; 
+    text-decoration: none !important; 
+  }
+  
+  /* Optimizar espaciado de elementos de historial */
+  .space-y-3 {
+    margin: 0 !important;
+    padding: 0 !important;
+  }
+  
+  .space-y-3 > * {
+    margin: 0 !important;
+  }
+  
+  .space-y-3 > * + * {
+    margin-top: 4px !important;
+  }
 }
 </style>
 @endsection

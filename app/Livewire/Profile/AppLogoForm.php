@@ -2,6 +2,7 @@
 
 namespace App\Livewire\Profile;
 
+use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Storage;
 use Livewire\Component;
 use Livewire\WithFileUploads;
@@ -10,11 +11,10 @@ class AppLogoForm extends Component
 {
     use WithFileUploads;
 
-    public $logo; // archivo temporal
+    public $logo; // archivo temporal (UploadedFile)
     public $currentLogoUrl;
 
     protected $rules = [
-        // Permitimos PNG/JPG/JPEG/WEBP (SVG opcional, ver nota abajo)
         'logo' => 'required|mimes:png,jpg,jpeg,webp|max:2048',
     ];
 
@@ -27,34 +27,64 @@ class AppLogoForm extends Component
     {
         $this->validate();
 
-        // Carpeta donde guardaremos el logo
-        $dir = 'branding';
+        $user = Auth::user();
+        if (!$user) {
+            $this->dispatch('notify', ['type' => 'error', 'message' => 'Usuario no autenticado.']);
+            return;
+        }
+
+        $dir = "branding/{$user->id}";
         Storage::disk('public')->makeDirectory($dir);
 
-        // Guardamos con nombre fijo para que el layout lo encuentre
-        $path = $this->logo->storeAs($dir, 'app-logo.png', 'public');
+        $filename = "app-logo-{$user->id}.png";
+        $path = $this->logo->storeAs($dir, $filename, 'public');
 
-        $this->dispatch('notify', body: 'Logo actualizado correctamente.');
-        $this->reset('logo');
+        try {
+            Storage::disk('public')->setVisibility($path, 'public');
+        } catch (\Throwable $e) {
+            // noop
+        }
+
         $this->refreshLogo();
+        $this->reset('logo');
+
+        $this->dispatch('notify', ['type' => 'success', 'message' => 'Logo actualizado correctamente.']);
     }
 
     public function remove()
     {
-        $file = 'branding/app-logo.png';
+        $user = Auth::user();
+        if (!$user) {
+            $this->dispatch('notify', ['type' => 'error', 'message' => 'Usuario no autenticado.']);
+            return;
+        }
+
+        $file = "branding/{$user->id}/app-logo-{$user->id}.png";
         if (Storage::disk('public')->exists($file)) {
             Storage::disk('public')->delete($file);
         }
-        $this->dispatch('notify', body: 'Logo eliminado.');
+
         $this->refreshLogo();
+
+        $this->dispatch('notify', ['type' => 'success', 'message' => 'Logo eliminado.']);
     }
 
     protected function refreshLogo()
     {
-        $file = 'branding/app-logo.png';
-        $this->currentLogoUrl = Storage::disk('public')->exists($file)
-            ? Storage::url($file) . '?v=' . time() // cache-bust simple
-            : null;
+        $user = Auth::user();
+        if (!$user) {
+            $this->currentLogoUrl = null;
+            return;
+        }
+
+        $file = "branding/{$user->id}/app-logo-{$user->id}.png";
+        if (Storage::disk('public')->exists($file)) {
+            $url = Storage::disk('public')->url($file);
+            $v   = Storage::disk('public')->lastModified($file) ?: time();
+            $this->currentLogoUrl = "{$url}?v={$v}";
+        } else {
+            $this->currentLogoUrl = null;
+        }
     }
 
     public function render()
