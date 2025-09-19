@@ -77,58 +77,77 @@ $s = $statusMap[$order->status] ?? [
 <div class="space-y-6 lg:space-y-8">
 {{-- Barra de acciones --}}
 <div class="flex flex-wrap items-center justify-between gap-2 mb-6">
+
     {{-- Volver (izquierda) --}}
     <a href="{{ route('orders.index') }}"
        class="inline-flex items-center gap-2 px-3 py-2 rounded-lg border border-neutral-200 dark:border-neutral-600
-              text-neutral-700 dark:text-neutral-200 bg-white dark:bg-neutral-900 hover:bg-neutral-50 dark:hover:bg-neutral-800 transition-colors text-sm">
+              text-neutral-700 dark:text-neutral-200 bg-white dark:bg-neutral-900 
+              hover:bg-neutral-50 dark:hover:bg-neutral-800 transition text-sm">
         <svg class="w-4 h-4" viewBox="0 0 24 24" fill="none">
             <path d="M15 6l-6 6 6 6" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
         </svg>
         Volver
     </a>
 
-    {{-- Botones de acciones (derecha) --}}
+    {{-- Cancelar pedido (centrado) --}}
+    <form action="{{ route('orders.cancel', $order) }}" method="POST" class="mx-auto">
+        @csrf
+        <button type="submit"
+                class="flex items-center gap-2 px-5 py-2 rounded-lg 
+                       bg-red-600 text-white font-semibold tracking-wide
+                       hover:bg-red-700 transition-colors duration-200 
+                       focus:outline-none focus:ring-2 focus:ring-red-400 focus:ring-offset-1">
+            <svg class="w-4 h-4" viewBox="0 0 24 24" fill="none">
+                <path d="M6 18L18 6M6 6l12 12" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+            </svg>
+            Cancelar pedido
+        </button>
+    </form>
+
+    {{-- Acciones secundarias (derecha) --}}
     <div class="flex flex-wrap gap-2 mt-2 sm:mt-0">
+
         @php
             $ticketUrl = Route::has('orders.ticket') ? route('orders.ticket', $order) : null;
         @endphp
 
-    {{-- Ver comprobante --}}
-    @if($ticketUrl)
-    <a href="{{ $ticketUrl }}"
-       class="inline-flex items-center gap-2 px-3 py-2 rounded-lg border border-indigo-200 dark:border-indigo-500/40
-              text-indigo-700 dark:text-indigo-300 bg-indigo-50 dark:bg-indigo-500/10 hover:bg-indigo-100 dark:hover:bg-indigo-500/20 transition-colors text-sm">
-        <img src="{{ asset('images/ticket.png') }}" alt="Ticket" class="w-4 h-4"/>
-        Ver comprobante
-    </a>
-    @endif
+        {{-- Ver comprobante --}}
+        @if($ticketUrl)
+        <a href="{{ $ticketUrl }}"
+           class="inline-flex items-center gap-2 px-3 py-2 rounded-lg border border-indigo-200 dark:border-indigo-500/40
+                  text-indigo-700 dark:text-indigo-300 bg-indigo-50 dark:bg-indigo-500/10 
+                  hover:bg-indigo-100 dark:hover:bg-indigo-500/20 transition text-sm">
+            <img src="{{ asset('images/ticket.png') }}" alt="Ticket" class="w-4 h-4 dark:invert"/>
+            Comprobante
+        </a>
+        @endif
 
+        {{-- Editar --}}
+        @if(Route::has('orders.edit'))
+        <a href="{{ route('orders.edit', $order) }}"
+           class="inline-flex items-center gap-2 px-3 py-2 rounded-lg border border-indigo-200 dark:border-indigo-500/40
+                  text-indigo-700 dark:text-indigo-300 bg-indigo-50 dark:bg-indigo-500/10 
+                  hover:bg-indigo-100 dark:hover:bg-indigo-500/20 transition text-sm">
+            <svg class="w-4 h-4" viewBox="0 0 24 24" fill="none">
+                <path d="M16.5 3.5a2.121 2.121 0 1 1 3 3L8 18l-4 1 1-4 11.5-11.5Z" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+            </svg>
+            Editar
+        </a>
+        @endif
 
-    {{-- Editar --}}
-    @if(Route::has('orders.edit'))
-    <a href="{{ route('orders.edit', $order) }}"
-       class="inline-flex items-center gap-2 px-3 py-2 rounded-lg bg-indigo-600 text-white hover:bg-indigo-700 transition-colors text-sm">
-        <svg class="w-4 h-4" viewBox="0 0 24 24" fill="none">
-            <path d="M16.5 3.5a2.121 2.121 0 1 1 3 3L8 18l-4 1 1-4 11.5-11.5Z" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
-        </svg>
-        Editar
-    </a>
-    @endif
-
-
-    <button onclick="window.print()"
-            class="inline-flex items-center gap-2 px-3 py-2 rounded-lg border border-indigo-200 dark:border-indigo-500/40
-                   text-indigo-700 dark:text-indigo-300 bg-indigo-50 dark:bg-indigo-500/10 hover:bg-indigo-100 dark:hover:bg-indigo-500/20 transition-colors text-sm">
-        <svg class="w-4 h-4" viewBox="0 0 24 24" fill="none">
-            <polyline points="6,9 6,2 18,2 18,9" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
-            <rect x="6" y="14" width="12" height="8" rx="1" stroke="currentColor" stroke-width="2"/>
-        </svg>
-        Imprimir
-    </button>
+        {{-- Imprimir --}}
+        <button onclick="window.print()"
+                class="inline-flex items-center gap-2 px-3 py-2 rounded-lg border border-indigo-200 dark:border-indigo-500/40
+                       text-indigo-700 dark:text-indigo-300 bg-indigo-50 dark:bg-indigo-500/10 
+                       hover:bg-indigo-100 dark:hover:bg-indigo-500/20 transition text-sm">
+            <svg class="w-4 h-4" viewBox="0 0 24 24" fill="none">
+                <polyline points="6,9 6,2 18,2 18,9" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+                <rect x="6" y="14" width="12" height="8" rx="1" stroke="currentColor" stroke-width="2"/>
+            </svg>
+            Imprimir
+        </button>
     </div>
 </div>
-
-
 
   {{-- Grid principal --}}
   <div class="grid grid-cols-1 lg:grid-cols-12 gap-6">

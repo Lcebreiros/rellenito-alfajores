@@ -2,9 +2,11 @@
 
 namespace App\Http\Controllers;
 
+use App\Services\StockService;
 use App\Models\Order;
 use App\Models\Product;
 use Illuminate\Http\Request;
+use Illuminate\Http\RedirectResponse;
 use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Schema;
@@ -470,5 +472,61 @@ DB::transaction(function() use ($order, $data) {
 
     return response()->json(['success' => true]);
 }
+public function cancelManual(int $orderId): void
+{
+    DB::transaction(function () use ($orderId) {
+        $order = Order::with('items.product')->lockForUpdate()->findOrFail($orderId);
+
+        if ($order->status !== Order::STATUS_COMPLETED) {
+            throw new DomainException('Solo se pueden cancelar pedidos completados.');
+        }
+
+        $stock = app(StockService::class);
+
+        foreach ($order->items as $item) {
+            // Devolver el stock
+            $stock->adjust($item->product, $item->quantity, 'manual-cancel', $order);
+        }
+
+        $order->status = Order::STATUS_CANCELED;
+        $order->save();
+    });
+
+    $this->dispatch('notify', type:'success', message:"Pedido #$orderId cancelado y stock devuelto.");
+}
+public function cancelManualHttp(int $orderId): RedirectResponse
+{
+    try {
+        DB::transaction(function () use ($orderId) {
+            $order = \App\Models\Order::with('items.product')->lockForUpdate()->findOrFail($orderId);
+
+            if ($order->status !== \App\Models\Order::STATUS_COMPLETED) {
+                throw new DomainException('Solo se pueden cancelar pedidos completados.');
+            }
+
+            $stock = app(StockService::class);
+
+            foreach ($order->items as $item) {
+                // Devolver el stock
+                $stock->adjust($item->product, $item->quantity, 'manual-cancel', $order);
+            }
+
+            $order->status = \App\Models\Order::STATUS_CANCELED;
+            $order->save();
+        });
+
+        return redirect()->route('orders.index')
+            ->with('ok', "Pedido #$orderId cancelado y stock devuelto.");
+
+    } catch (DomainException $e) {
+        return redirect()->route('orders.index')
+            ->with('error', $e->getMessage());
+    } catch (\Throwable $e) {
+        \Log::error('Error cancelando pedido', ['msg' => $e->getMessage(), 'order_id' => $orderId]);
+        return redirect()->route('orders.index')
+            ->with('error', "Ocurrió un error al cancelar el pedido #$orderId.");
+    }
+}
+
 
 }

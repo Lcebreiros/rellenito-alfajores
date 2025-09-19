@@ -95,6 +95,8 @@ Route::post('orders/bulk-delete', [OrderController::class, 'bulkDelete'])
     Route::get('orders/{order}/edit', [OrderController::class, 'edit'])
      ->whereNumber('order')
      ->name('orders.edit');
+     Route::post('/orders/{order}/cancel', [OrderController::class, 'cancelManualHttp'])
+     ->name('orders.cancel');
 
 // Actualizar
 Route::match(['put','patch'],'orders/{order}', [OrderController::class, 'update'])

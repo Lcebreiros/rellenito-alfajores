@@ -213,7 +213,12 @@
             <thead class="sticky top-0 z-10">
                 <tr class="bg-neutral-100/80 dark:bg-neutral-800/60 backdrop-blur">
                     <th class="px-3 py-3 text-center">
-                        <input type="checkbox" id="selectAll" class="rounded border-neutral-300 dark:border-neutral-700">
+<input type="checkbox" id="selectAll"
+       class="w-4 h-4 rounded border border-neutral-300 text-indigo-600
+              dark:border-neutral-700 dark:bg-neutral-700 dark:checked:bg-indigo-500
+              hover:none focus:none">
+
+
                     </th>
                     <th class="text-left px-6 py-3 font-medium text-neutral-600 dark:text-neutral-300">Pedido</th>
                     <th class="text-left px-3 py-3 font-medium text-neutral-600 dark:text-neutral-300">Cliente</th>
@@ -229,7 +234,8 @@
                     @php $badge = $statusBadge($o->status); @endphp
                     <tr class="hover:bg-neutral-50 dark:hover:bg-neutral-800/50 transition-colors">
                         <td class="px-3 py-3 text-center">
-                            <input type="checkbox" class="selectOrder" value="{{ $o->id }}">
+<input type="checkbox" value="{{ $o->id }}" class="selectOrder
+       w-4 h-4 text-indigo-600 bg-white border border-neutral-300 rounded focus:ring-2 focus:ring-indigo-500 dark:bg-neutral-700 dark:border-neutral-600 dark:checked:bg-indigo-500 dark:focus:ring-indigo-400">
                         </td>
                         <td class="px-6 py-3 font-semibold text-neutral-900 dark:text-neutral-100">#{{ $o->id }}</td>
                         <td class="px-3 py-3">

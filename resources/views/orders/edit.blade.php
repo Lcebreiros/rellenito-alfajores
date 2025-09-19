@@ -76,33 +76,46 @@
             <h2 class="text-lg font-semibold text-neutral-900 dark:text-neutral-100">Productos</h2>
           </div>
 
-          {{-- Lista de items --}}
-          <div class="px-5 sm:px-6 py-4 lg:max-h-[48vh] lg:overflow-y-auto custom-scroll space-y-2">
-            <template x-for="(item, index) in items" :key="item.id">
-              <div class="grid grid-cols-1 sm:grid-cols-12 items-center gap-3 py-2 border-b border-neutral-100 dark:border-neutral-800/60">
-                <div class="sm:col-span-7 flex items-center gap-3 min-w-0">
-                  <div class="min-w-0">
-                    <div class="font-medium text-neutral-800 dark:text-neutral-100 truncate" x-text="item.name"></div>
-                    <div class="text-xs text-neutral-500 dark:text-neutral-400" x-text="'$' + (item.unit_price ?? 0).toFixed(2) + ' · Unidad'"></div>
-                  </div>
-                </div>
-                <div class="sm:col-span-2 text-sm">
-                  <input type="number" min="1" class="w-16 text-center border rounded" x-model.number="item.quantity">
-                </div>
-                <div class="sm:col-span-2 text-right font-semibold text-neutral-900 dark:text-neutral-100" 
-                     x-text="'$' + (item.quantity * item.unit_price).toFixed(2)"></div>
-                <div class="sm:col-span-1 text-right">
-                  <button type="button" @click="items.splice(index,1)"
-                          class="px-2 py-1 text-white bg-rose-600 rounded">Eliminar</button>
-                </div>
-              </div>
-            </template>
-            <template x-if="items.length === 0">
-              <div class="py-14 text-center text-neutral-500 dark:text-neutral-400">
-                No hay productos en este pedido
-              </div>
-            </template>
-          </div>
+{{-- Lista de items --}}
+<div class="px-5 sm:px-6 py-4 lg:max-h-[48vh] lg:overflow-y-auto custom-scroll space-y-3">
+  <template x-for="(item, index) in items" :key="item.id">
+    <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3 p-3 rounded-xl bg-neutral-50 dark:bg-neutral-800 shadow-sm hover:shadow-md transition-shadow">
+      
+      {{-- Nombre y precio unitario --}}
+      <div class="flex-1 min-w-0">
+        <div class="font-medium text-neutral-800 dark:text-neutral-100 truncate" x-text="item.name"></div>
+        <div class="text-xs text-neutral-500 dark:text-neutral-400 mt-0.5" x-text="'$' + (item.unit_price ?? 0).toFixed(2) + ' · Unidad'"></div>
+      </div>
+
+      {{-- Cantidad --}}
+      <div class="flex-shrink-0">
+        <input type="number" min="1" x-model.number="item.quantity"
+               class="w-20 text-center border border-neutral-300 dark:border-neutral-700 bg-white dark:bg-neutral-700 text-neutral-900 dark:text-neutral-100 rounded-lg px-2 py-1 focus:outline-none focus:ring-2 focus:ring-indigo-500 dark:focus:ring-indigo-400">
+      </div>
+
+      {{-- Subtotal --}}
+      <div class="flex-shrink-0 text-right font-semibold text-neutral-900 dark:text-neutral-100 min-w-[80px]" 
+           x-text="'$' + (item.quantity * item.unit_price).toFixed(2)"></div>
+
+      {{-- Botón eliminar --}}
+      <div class="flex-shrink-0">
+        <button type="button" @click="items.splice(index,1)"
+                class="px-3 py-1 text-white bg-rose-600 rounded-lg hover:bg-rose-700 dark:hover:bg-rose-500 transition-colors shadow-sm hover:shadow-md">
+          Eliminar
+        </button>
+      </div>
+
+    </div>
+  </template>
+
+  {{-- Mensaje cuando no hay productos --}}
+  <template x-if="items.length === 0">
+    <div class="py-14 text-center text-neutral-500 dark:text-neutral-400">
+      No hay productos en este pedido
+    </div>
+  </template>
+</div>
+
 
           {{-- Agregar productos disponibles --}}
           <div class="px-5 sm:px-6 py-4 border-t border-neutral-100 dark:border-neutral-800/60">
@@ -144,32 +157,39 @@
 
       <div>
         <label class="text-xs text-neutral-500 dark:text-neutral-400 mb-1 block">Nombre</label>
-        <input type="text" name="name" value="{{ $customerName }}" class="w-full border rounded px-2 py-1">
+        <input type="text" name="name" value="{{ $customerName }}" 
+               class="w-full border border-neutral-300 dark:border-neutral-700 bg-white dark:bg-neutral-800 text-neutral-900 dark:text-neutral-100 rounded px-2 py-1 focus:outline-none focus:ring-2 focus:ring-indigo-500 dark:focus:ring-indigo-400">
       </div>
 
       <div>
         <label class="text-xs text-neutral-500 dark:text-neutral-400 mb-1 block">Email</label>
-        <input type="email" name="email" value="{{ $customerEmail }}" class="w-full border rounded px-2 py-1">
+        <input type="email" name="email" value="{{ $customerEmail }}" 
+               class="w-full border border-neutral-300 dark:border-neutral-700 bg-white dark:bg-neutral-800 text-neutral-900 dark:text-neutral-100 rounded px-2 py-1 focus:outline-none focus:ring-2 focus:ring-indigo-500 dark:focus:ring-indigo-400">
       </div>
 
       <div>
         <label class="text-xs text-neutral-500 dark:text-neutral-400 mb-1 block">Teléfono</label>
-        <input type="text" name="phone" value="{{ $customerPhone }}" class="w-full border rounded px-2 py-1">
+        <input type="text" name="phone" value="{{ $customerPhone }}" 
+               class="w-full border border-neutral-300 dark:border-neutral-700 bg-white dark:bg-neutral-800 text-neutral-900 dark:text-neutral-100 rounded px-2 py-1 focus:outline-none focus:ring-2 focus:ring-indigo-500 dark:focus:ring-indigo-400">
       </div>
 
       <div>
         <label class="text-xs text-neutral-500 dark:text-neutral-400 mb-1 block">Dirección</label>
-        <input type="text" name="address" value="{{ $shippingAddr }}" class="w-full border rounded px-2 py-1">
+        <input type="text" name="address" value="{{ $shippingAddr }}" 
+               class="w-full border border-neutral-300 dark:border-neutral-700 bg-white dark:bg-neutral-800 text-neutral-900 dark:text-neutral-100 rounded px-2 py-1 focus:outline-none focus:ring-2 focus:ring-indigo-500 dark:focus:ring-indigo-400">
       </div>
 
       {{-- Botón guardar --}}
       <div class="pt-2">
-        <button type="submit" class="w-full bg-indigo-600 text-white py-2 rounded hover:bg-indigo-700">Guardar cambios</button>
+        <button type="submit" class="w-full bg-indigo-600 text-white py-2 rounded hover:bg-indigo-700 dark:hover:bg-indigo-500 transition-colors">
+          Guardar cambios
+        </button>
       </div>
 
     </div>
   </div>
 </div>
+
 
     </div>
 
