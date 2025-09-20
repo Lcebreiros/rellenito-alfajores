@@ -19,7 +19,7 @@
 
     {{-- Info --}}
     <p class="text-sm text-neutral-600 dark:text-neutral-400">
-      Versión {{ config('app.version', '1.0.0') }}
+      Versión {{ config('app.version', '1.0.1') }}
     </p>
     <p class="text-xs text-neutral-500 dark:text-neutral-500 mt-2">
       Herramienta de gestión y control económico
