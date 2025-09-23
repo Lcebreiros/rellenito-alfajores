@@ -1,52 +1,75 @@
 <div class="space-y-6">
   {{-- Alta rápida (crea una compra y recalcula el insumo) --}}
-  <div class="bg-white dark:bg-neutral-900 rounded-xl shadow-sm border border-gray-200 dark:border-neutral-700 dark:ring-1 dark:ring-indigo-500/10 overflow-hidden transition-colors">
-    <div class="bg-gradient-to-r from-blue-500 to-blue-600 dark:from-blue-600 dark:to-blue-700 px-4 sm:px-6 py-4 rounded-t-xl">
-      <h2 class="text-lg font-semibold text-white">
+  <div class="bg-white dark:bg-neutral-950 rounded-3xl shadow-xl shadow-slate-200/20 dark:shadow-black/40 ring-1 ring-slate-200/50 dark:ring-neutral-800/60 overflow-hidden backdrop-blur-sm transition-all duration-200">
+    <div class="px-6 py-4 bg-gradient-to-r from-blue-50 to-indigo-50/50 dark:from-blue-900/80 dark:to-indigo-900/40 border-b border-slate-200/60 dark:border-neutral-800/60">
+      <h2 class="text-lg font-semibold text-slate-900 dark:text-neutral-50 flex items-center gap-3">
+        <div class="flex-shrink-0 w-2 h-2 bg-gradient-to-r from-blue-500 to-indigo-600 rounded-full animate-pulse"></div>
         Agregar Insumo (Compra)
-        <span class="ml-2 text-sm opacity-90">(Total: {{ $this->count }})</span>
+        <span class="ml-auto text-sm font-medium bg-gradient-to-r from-slate-600 to-slate-700 dark:from-neutral-300 dark:to-neutral-400 bg-clip-text text-transparent">
+          Total: {{ number_format($this->count ?? 0, 0, ',', '.') }}
+        </span>
       </h2>
     </div>
 
-    <form wire:submit.prevent="quickStore" class="p-4 sm:p-6 space-y-4">
+    <form wire:submit.prevent="quickStore" class="p-6 space-y-6">
       @if (session('ok'))
-        <div class="rounded-lg border border-green-200 bg-green-50 text-green-800 px-3 py-2 text-sm
-                    dark:border-emerald-700/60 dark:bg-emerald-900/25 dark:text-emerald-200 dark:ring-1 dark:ring-emerald-500/10">
-          {{ session('ok') }}
+        <div class="p-4 rounded-2xl bg-gradient-to-r from-emerald-50 to-green-50/80 dark:from-emerald-900/40 dark:to-green-900/20 
+                    border border-emerald-200/60 dark:border-emerald-800/40 shadow-sm">
+          <div class="flex items-center gap-3">
+            <div class="flex-shrink-0 w-1.5 h-1.5 bg-gradient-to-r from-emerald-500 to-green-600 rounded-full"></div>
+            <span class="text-sm text-emerald-800 dark:text-emerald-200">{{ session('ok') }}</span>
+          </div>
         </div>
       @endif
 
       <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
-        <div>
-          <label class="block text-sm font-medium text-gray-700 dark:text-neutral-200 mb-1">Nombre</label>
+        <div class="space-y-2">
+          <label class="block text-xs font-medium text-slate-600 dark:text-neutral-300 mb-2">Nombre</label>
           <input wire:model.defer="name" required
-                 class="w-full rounded-lg px-3 py-2 border border-gray-300 dark:border-neutral-700
-                        bg-white dark:bg-neutral-900 text-gray-900 dark:text-neutral-100
-                        placeholder-gray-400 dark:placeholder-neutral-400
-                        focus:outline-none focus:ring-2 focus:ring-indigo-500 dark:focus:ring-indigo-400/80
-                        transition-colors">
-          @error('name') <div class="text-red-600 dark:text-rose-300 text-xs mt-1">{{ $message }}</div> @enderror
+                 class="w-full rounded-xl border border-slate-300/70 dark:border-neutral-700 bg-white dark:bg-neutral-900
+                        px-4 py-3 text-sm text-slate-900 dark:text-neutral-100
+                        placeholder:text-slate-400 dark:placeholder:text-neutral-400
+                        focus:outline-none focus:ring-2 focus:ring-indigo-500/70 focus:border-indigo-500/70
+                        transition-all duration-200 hover:border-slate-400 dark:hover:border-neutral-600">
+          @error('name') 
+            <div class="text-rose-600 dark:text-rose-300 text-xs mt-1 flex items-center gap-1">
+              <svg class="w-3 h-3" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <circle cx="12" cy="12" r="10"/>
+                <line x1="15" y1="9" x2="9" y2="15"/>
+                <line x1="9" y1="9" x2="15" y2="15"/>
+              </svg>
+              {{ $message }}
+            </div> 
+          @enderror
         </div>
 
-        <div>
-          <label class="block text-sm font-medium text-gray-700 dark:text-neutral-200 mb-1">Cantidad comprada</label>
+        <div class="space-y-2">
+          <label class="block text-xs font-medium text-slate-600 dark:text-neutral-300 mb-2">Cantidad comprada</label>
           <input type="number" step="0.001" min="0" wire:model.defer="qty" required
-                 class="w-full rounded-lg px-3 py-2 border border-gray-300 dark:border-neutral-700
-                        bg-white dark:bg-neutral-900 text-gray-900 dark:text-neutral-100
-                        placeholder-gray-400 dark:placeholder-neutral-400
-                        focus:outline-none focus:ring-2 focus:ring-indigo-500 dark:focus:ring-indigo-400/80
-                        transition-colors">
-          @error('qty') <div class="text-red-600 dark:text-rose-300 text-xs mt-1">{{ $message }}</div> @enderror
+                 class="w-full rounded-xl border border-slate-300/70 dark:border-neutral-700 bg-white dark:bg-neutral-900
+                        px-4 py-3 text-sm text-slate-900 dark:text-neutral-100
+                        placeholder:text-slate-400 dark:placeholder:text-neutral-400
+                        focus:outline-none focus:ring-2 focus:ring-indigo-500/70 focus:border-indigo-500/70
+                        transition-all duration-200 hover:border-slate-400 dark:hover:border-neutral-600">
+          @error('qty') 
+            <div class="text-rose-600 dark:text-rose-300 text-xs mt-1 flex items-center gap-1">
+              <svg class="w-3 h-3" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <circle cx="12" cy="12" r="10"/>
+                <line x1="15" y1="9" x2="9" y2="15"/>
+                <line x1="9" y1="9" x2="15" y2="15"/>
+              </svg>
+              {{ $message }}
+            </div> 
+          @enderror
         </div>
 
-        <div>
-          <label class="block text-sm font-medium text-gray-700 dark:text-neutral-200 mb-1">Unidad</label>
+        <div class="space-y-2">
+          <label class="block text-xs font-medium text-slate-600 dark:text-neutral-300 mb-2">Unidad</label>
           <select wire:model.defer="unit" required
-                  class="w-full rounded-lg px-3 py-2 border border-gray-300 dark:border-neutral-700
-                         bg-white dark:bg-neutral-900 text-gray-900 dark:text-neutral-100
-                         placeholder-gray-400 dark:placeholder-neutral-400
-                         focus:outline-none focus:ring-2 focus:ring-indigo-500 dark:focus:ring-indigo-400/80
-                         transition-colors [color-scheme:light] dark:[color-scheme:dark]">
+                  class="w-full rounded-xl border border-slate-300/70 dark:border-neutral-700 bg-white dark:bg-neutral-900
+                         px-4 py-3 text-sm text-slate-900 dark:text-neutral-100
+                         focus:outline-none focus:ring-2 focus:ring-indigo-500/70 focus:border-indigo-500/70
+                         transition-all duration-200 hover:border-slate-400 dark:hover:border-neutral-600">
             <optgroup label="Masa">
               <option value="g">g</option>
               <option value="kg">kg</option>
@@ -62,153 +85,253 @@
           </select>
         </div>
 
-        <div>
-          <label class="block text-sm font-medium text-gray-700 dark:text-neutral-200 mb-1">Precio total ($)</label>
+        <div class="space-y-2">
+          <label class="block text-xs font-medium text-slate-600 dark:text-neutral-300 mb-2">Precio total ($)</label>
           <input type="number" step="0.01" min="0" wire:model.defer="total_cost" required
-                 class="w-full rounded-lg px-3 py-2 border border-gray-300 dark:border-neutral-700
-                        bg-white dark:bg-neutral-900 text-gray-900 dark:text-neutral-100
-                        placeholder-gray-400 dark:placeholder-neutral-400
-                        focus:outline-none focus:ring-2 focus:ring-indigo-500 dark:focus:ring-indigo-400/80
-                        transition-colors">
-          @error('total_cost') <div class="text-red-600 dark:text-rose-300 text-xs mt-1">{{ $message }}</div> @enderror
+                 class="w-full rounded-xl border border-slate-300/70 dark:border-neutral-700 bg-white dark:bg-neutral-900
+                        px-4 py-3 text-sm text-slate-900 dark:text-neutral-100
+                        placeholder:text-slate-400 dark:placeholder:text-neutral-400
+                        focus:outline-none focus:ring-2 focus:ring-indigo-500/70 focus:border-indigo-500/70
+                        transition-all duration-200 hover:border-slate-400 dark:hover:border-neutral-600">
+          @error('total_cost') 
+            <div class="text-rose-600 dark:text-rose-300 text-xs mt-1 flex items-center gap-1">
+              <svg class="w-3 h-3" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <circle cx="12" cy="12" r="10"/>
+                <line x1="15" y1="9" x2="9" y2="15"/>
+                <line x1="9" y1="9" x2="15" y2="15"/>
+              </svg>
+              {{ $message }}
+            </div> 
+          @enderror
         </div>
       </div>
 
-      <div class="flex justify-end">
-        <button class="button-primary" wire:loading.attr="disabled">
-          <span wire:loading.remove>Registrar compra</span>
-          <span wire:loading>Guardando…</span>
+      <div class="flex flex-col sm:flex-row sm:justify-between sm:items-end gap-4 pt-4 border-t border-slate-200/60 dark:border-neutral-800/60">
+        <p class="text-[11px] text-slate-500 dark:text-neutral-400">
+          Tip: el stock y el costo promedio se recalculan automáticamente a partir de todas las compras registradas.
+        </p>
+        
+        <button class="group relative rounded-xl px-6 py-3 text-sm font-semibold transition-all duration-300
+                       bg-gradient-to-r from-indigo-600 to-purple-600 text-white hover:from-indigo-700 hover:to-purple-700 
+                       hover:shadow-lg hover:shadow-indigo-500/25 dark:hover:shadow-indigo-400/20 hover:-translate-y-0.5 active:scale-95
+                       focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-indigo-500 focus-visible:ring-offset-2
+                       disabled:opacity-60 disabled:cursor-not-allowed disabled:transform-none disabled:shadow-none" 
+                wire:loading.attr="disabled">
+          <span wire:loading.remove class="flex items-center gap-2">
+            <svg class="w-4 h-4 group-hover:scale-110 transition-transform" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <path stroke-linecap="round" stroke-linejoin="round" d="M12 6v12M6 12h12"/>
+            </svg>
+            Registrar compra
+          </span>
+          <span wire:loading class="flex items-center gap-2">
+            <svg class="h-4 w-4 animate-spin" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none">
+              <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"/>
+              <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 0 1 8-8v3a5 5 0 0 0-5 5H4z"/>
+            </svg>
+            Guardando…
+          </span>
         </button>
       </div>
-
-      <p class="text-xs text-gray-500 dark:text-neutral-400">
-        Tip: el stock y el costo promedio se recalculan automáticamente a partir de todas las compras registradas.
-      </p>
     </form>
   </div>
 
-{{-- Filtro y listado de insumos --}}
-<div class="bg-white dark:bg-neutral-900 rounded-xl shadow-sm border border-gray-200 dark:border-neutral-700 dark:ring-1 dark:ring-indigo-500/10 overflow-hidden transition-colors">
-  <div class="px-4 sm:px-6 py-4 border-b border-gray-200 dark:border-neutral-700 flex flex-col gap-3 sm:flex-row sm:items-center sm:gap-3">
-    <h3 class="text-lg font-semibold text-gray-900 dark:text-neutral-100 flex-1">Insumos</h3>
-    <input wire:model.debounce.400ms="search" placeholder="Buscar…"
-           class="w-full sm:w-72 rounded-lg px-3 py-2 text-sm
-                  border border-gray-300 dark:border-neutral-700
-                  bg-white dark:bg-neutral-900 text-gray-900 dark:text-neutral-100
-                  placeholder-gray-400 dark:placeholder-neutral-400
-                  focus:outline-none focus:ring-2 focus:ring-indigo-500 dark:focus:ring-indigo-400/80
-                  transition-colors">
-  </div>
+  {{-- Filtro y listado de insumos --}}
+  <div class="bg-white dark:bg-neutral-950 rounded-3xl shadow-xl shadow-slate-200/20 dark:shadow-black/40 ring-1 ring-slate-200/50 dark:ring-neutral-800/60 overflow-hidden backdrop-blur-sm transition-all duration-200">
+    <div class="px-6 py-4 bg-gradient-to-r from-slate-50 to-slate-100/50 dark:from-neutral-900 dark:to-neutral-900/80 border-b border-slate-200/60 dark:border-neutral-800/60">
+      <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+        <h3 class="text-lg font-semibold text-slate-900 dark:text-neutral-50 flex items-center gap-3">
+          <div class="flex-shrink-0 w-2 h-2 bg-gradient-to-r from-slate-500 to-slate-600 rounded-full animate-pulse"></div>
+          Insumos
+        </h3>
+        <input wire:model.debounce.400ms="search" placeholder="Buscar insumos…"
+               class="w-full sm:w-72 rounded-xl border border-slate-300/70 dark:border-neutral-700 bg-white dark:bg-neutral-900
+                      px-4 py-2 text-sm text-slate-900 dark:text-neutral-100
+                      placeholder:text-slate-400 dark:placeholder:text-neutral-400
+                      focus:outline-none focus:ring-2 focus:ring-indigo-500/70 focus:border-indigo-500/70
+                      transition-all duration-200 hover:border-slate-400 dark:hover:border-neutral-600">
+      </div>
+    </div>
 
-  <div class="p-4 sm:p-6">
-    <div class="grid gap-4">
-      @forelse($supplies as $s)
-        @php
-          // Si en el componente hiciste ->with(['purchases' => fn($q)=>$q->latest()->limit(1)])
-          $last = $s->purchases->first();
-        @endphp
+    <div class="p-6">
+      <div class="space-y-4">
+        @forelse($supplies as $s)
+          @php
+            // Si en el componente hiciste ->with(['purchases' => fn($q)=>$q->latest()->limit(1)])
+            $last = $s->purchases->first();
+          @endphp
 
-        <div class="border border-gray-200 dark:border-neutral-700 rounded-lg p-4 bg-white dark:bg-neutral-900 dark:hover:bg-neutral-800/70 dark:ring-1 dark:ring-indigo-500/10 transition-colors"
-             wire:key="supply-{{ $s->id }}">
+          <div class="group p-4 rounded-2xl bg-white dark:bg-neutral-800/50 border border-slate-200/60 dark:border-neutral-800/60 
+                      hover:shadow-md hover:shadow-slate-200/20 dark:hover:shadow-black/20 transition-all duration-200"
+               wire:key="supply-{{ $s->id }}">
 
-          {{-- Encabezado insumo + acciones (un solo botón Editar) --}}
-          <div class="flex flex-col md:flex-row md:items-center justify-between gap-3">
-            <div class="min-w-0">
-              <h4 class="font-medium text-gray-900 dark:text-neutral-100 truncate">{{ $s->name }}</h4>
-              <p class="text-sm text-gray-600 dark:text-neutral-300">
-                Stock: {{ number_format((float)($s->stock_base_qty ?? 0), 2, ',', '.') }} {{ $s->base_unit }}
-                • $/base: {{ number_format((float)($s->avg_cost_per_base ?? 0), 6, ',', '.') }}
-              </p>
-              @if($last)
-                <p class="text-xs text-gray-500 dark:text-neutral-400">
-                  Última compra: {{ rtrim(rtrim(number_format((float)$last->qty, 6, ',', '.'), '0'), ',') }} {{ $last->unit }}
-                  — Total: $ {{ number_format((float)$last->total_cost, 2, ',', '.') }}
-                </p>
-              @else
-                <p class="text-xs text-gray-500 dark:text-neutral-400">Aún sin compras registradas.</p>
-              @endif
-            </div>
-
-            <div class="flex gap-2 shrink-0">
-              <button wire:click="startEditBoth({{ $s->id }})" class="button-primary-sm">
-                Editar
-              </button>
-              <button wire:click="delete({{ $s->id }})"
-                      class="px-3 py-2 rounded-lg text-sm font-medium bg-red-600 hover:bg-red-700 text-white">
-                Eliminar
-              </button>
-            </div>
-          </div>
-
-          {{-- Editor único (Nombre + precio total de la última compra si existe) --}}
-          @if($editingId === $s->id)
-            <div class="mt-3 grid grid-cols-1 sm:grid-cols-5 gap-3 items-start">
-              {{-- Nombre --}}
-              <div class="sm:col-span-3">
-                <label class="text-xs text-gray-600 dark:text-neutral-300">Nombre</label>
-                <input wire:model.defer="e_name"
-                       class="w-full rounded-lg px-3 py-2 text-sm border border-gray-300 dark:border-neutral-700
-                              bg-white dark:bg-neutral-900 text-gray-900 dark:text-neutral-100
-                              focus:outline-none focus:ring-2 focus:ring-indigo-500 dark:focus:ring-indigo-400/80">
-                @error('e_name') <p class="text-xs mt-1 text-red-600 dark:text-rose-300">{{ $message }}</p> @enderror
-              </div>
-
-              {{-- Precio total de la última compra (solo si existe una compra) --}}
-              @if($editingPurchaseId)
-                <div class="sm:col-span-2">
-                  <label class="text-xs text-gray-600 dark:text-neutral-300">Precio total última compra ($)</label>
-                  <input type="number" step="0.01" min="0" wire:model.defer="ep_total_cost"
-                         class="w-full rounded-lg px-3 py-2 text-sm border border-gray-300 dark:border-neutral-700
-                                bg-white dark:bg-neutral-900 text-gray-900 dark:text-neutral-100
-                                focus:outline-none focus:ring-2 focus:ring-indigo-500 dark:focus:ring-indigo-400/80">
-                  @error('ep_total_cost') <p class="text-xs mt-1 text-red-600 dark:text-rose-300">{{ $message }}</p> @enderror
+            {{-- Encabezado insumo + acciones --}}
+            <div class="flex flex-col md:flex-row md:items-start justify-between gap-4">
+              <div class="min-w-0 flex-1">
+                <h4 class="font-medium text-slate-900 dark:text-neutral-100 text-base mb-2">{{ $s->name }}</h4>
+                
+                <div class="space-y-1">
+                  <div class="flex items-center gap-4 text-sm">
+                    <div class="flex items-center gap-2">
+                      <div class="w-1 h-1 bg-blue-500 rounded-full"></div>
+                      <span class="text-slate-600 dark:text-neutral-400">Stock:</span>
+                      <span class="font-medium text-slate-900 dark:text-neutral-100">
+                        {{ number_format((float)($s->stock_base_qty ?? 0), 2, ',', '.') }} {{ $s->base_unit }}
+                      </span>
+                    </div>
+                    <div class="flex items-center gap-2">
+                      <div class="w-1 h-1 bg-green-500 rounded-full"></div>
+                      <span class="text-slate-600 dark:text-neutral-400">$/base:</span>
+                      <span class="font-medium text-slate-900 dark:text-neutral-100">
+                        ${{ number_format((float)($s->avg_cost_per_base ?? 0), 6, ',', '.') }}
+                      </span>
+                    </div>
+                  </div>
+                  
+                  @if($last)
+                    <div class="px-3 py-1 rounded-lg bg-slate-50 dark:bg-neutral-800/50 border border-slate-200/60 dark:border-neutral-800/60">
+                      <p class="text-xs text-slate-500 dark:text-neutral-400">
+                        <span class="font-medium">Última compra:</span> 
+                        {{ rtrim(rtrim(number_format((float)$last->qty, 6, ',', '.'), '0'), ',') }} {{ $last->unit }}
+                        — Total: <span class="font-medium">${{ number_format((float)$last->total_cost, 2, ',', '.') }}</span>
+                      </p>
+                    </div>
+                  @else
+                    <div class="px-3 py-1 rounded-lg bg-amber-50 dark:bg-amber-900/20 border border-amber-200/60 dark:border-amber-800/40">
+                      <p class="text-xs text-amber-600 dark:text-amber-400">Aún sin compras registradas.</p>
+                    </div>
+                  @endif
                 </div>
-              @endif
+              </div>
 
-              <div class="sm:col-span-5 flex gap-2 items-end">
-                <button wire:click="saveBoth" wire:loading.attr="disabled" class="button-primary-sm">
-                  <span wire:loading.remove wire:target="saveBoth">Guardar</span>
-                  <span wire:loading wire:target="saveBoth">Guardando…</span>
+              <div class="flex gap-2 shrink-0">
+                <button wire:click="startEditBoth({{ $s->id }})" 
+                        class="group relative rounded-xl px-4 py-2 text-sm font-semibold transition-all duration-300
+                               bg-gradient-to-r from-indigo-600 to-purple-600 text-white hover:from-indigo-700 hover:to-purple-700 
+                               hover:shadow-lg hover:shadow-indigo-500/25 dark:hover:shadow-indigo-400/20 hover:-translate-y-0.5 active:scale-95
+                               focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-indigo-500 focus-visible:ring-offset-2">
+                  <span class="flex items-center gap-2">
+                    <svg class="w-3 h-3 group-hover:scale-110 transition-transform" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                      <path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/>
+                      <path d="m18.5 2.5 3 3L12 15l-4 1 1-4Z"/>
+                    </svg>
+                    Editar
+                  </span>
                 </button>
-                <button type="button" wire:click="cancelEditBoth"
-                        class="px-4 py-2 rounded-lg text-sm font-medium
-                               bg-gray-200 hover:bg-gray-300 dark:bg-neutral-800 dark:hover:bg-neutral-700
-                               text-gray-800 dark:text-neutral-200">
-                  Cancelar
+                <button wire:click="delete({{ $s->id }})"
+                        class="group relative rounded-xl px-4 py-2 text-sm font-semibold transition-all duration-300
+                               bg-gradient-to-r from-rose-600 to-red-600 text-white hover:from-rose-700 hover:to-red-700 
+                               hover:shadow-lg hover:shadow-rose-500/25 dark:hover:shadow-rose-400/20 hover:-translate-y-0.5 active:scale-95
+                               focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-rose-500 focus-visible:ring-offset-2">
+                  <span class="flex items-center gap-2">
+                    <svg class="w-3 h-3 group-hover:scale-110 transition-transform" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                      <path d="M3 6h18"/>
+                      <path d="M19 6v14c0 1-1 2-2 2H7c-1 0-2-1-2-2V6"/>
+                      <path d="M8 6V4c0-1 1-2 2-2h4c0 1 1 2 2 2v2"/>
+                    </svg>
+                    Eliminar
+                  </span>
                 </button>
               </div>
             </div>
-          @endif
-        </div>
-      @empty
-        <div class="text-center py-10 text-gray-500 dark:text-neutral-400">No hay insumos cargados.</div>
-      @endforelse
+
+            {{-- Editor único (Nombre + precio total de la última compra si existe) --}}
+            @if($editingId === $s->id)
+              <div class="mt-4 p-4 rounded-2xl bg-slate-50 dark:bg-neutral-900/50 border border-slate-200/60 dark:border-neutral-800/60">
+                <div class="grid grid-cols-1 sm:grid-cols-5 gap-4">
+                  {{-- Nombre --}}
+                  <div class="sm:col-span-3 space-y-2">
+                    <label class="block text-xs font-medium text-slate-600 dark:text-neutral-300">Nombre</label>
+                    <input wire:model.defer="e_name"
+                           class="w-full rounded-xl border border-slate-300/70 dark:border-neutral-700 bg-white dark:bg-neutral-900
+                                  px-3 py-2 text-sm text-slate-900 dark:text-neutral-100
+                                  focus:outline-none focus:ring-2 focus:ring-indigo-500/70 focus:border-indigo-500/70
+                                  transition-all duration-200 hover:border-slate-400 dark:hover:border-neutral-600">
+                    @error('e_name') 
+                      <div class="text-rose-600 dark:text-rose-300 text-xs mt-1 flex items-center gap-1">
+                        <svg class="w-3 h-3" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                          <circle cx="12" cy="12" r="10"/>
+                          <line x1="15" y1="9" x2="9" y2="15"/>
+                          <line x1="9" y1="9" x2="15" y2="15"/>
+                        </svg>
+                        {{ $message }}
+                      </div> 
+                    @enderror
+                  </div>
+
+                  {{-- Precio total de la última compra (solo si existe una compra) --}}
+                  @if($editingPurchaseId)
+                    <div class="sm:col-span-2 space-y-2">
+                      <label class="block text-xs font-medium text-slate-600 dark:text-neutral-300">Precio total última compra ($)</label>
+                      <input type="number" step="0.01" min="0" wire:model.defer="ep_total_cost"
+                             class="w-full rounded-xl border border-slate-300/70 dark:border-neutral-700 bg-white dark:bg-neutral-900
+                                    px-3 py-2 text-sm text-slate-900 dark:text-neutral-100
+                                    focus:outline-none focus:ring-2 focus:ring-indigo-500/70 focus:border-indigo-500/70
+                                    transition-all duration-200 hover:border-slate-400 dark:hover:border-neutral-600">
+                      @error('ep_total_cost') 
+                        <div class="text-rose-600 dark:text-rose-300 text-xs mt-1 flex items-center gap-1">
+                          <svg class="w-3 h-3" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <circle cx="12" cy="12" r="10"/>
+                            <line x1="15" y1="9" x2="9" y2="15"/>
+                            <line x1="9" y1="9" x2="15" y2="15"/>
+                          </svg>
+                          {{ $message }}
+                        </div> 
+                      @enderror
+                    </div>
+                  @endif
+                </div>
+
+                <div class="flex gap-3 mt-4">
+                  <button wire:click="saveBoth" wire:loading.attr="disabled" 
+                          class="group relative rounded-xl px-4 py-2 text-sm font-semibold transition-all duration-300
+                                 bg-gradient-to-r from-emerald-600 to-green-600 text-white hover:from-emerald-700 hover:to-green-700 
+                                 hover:shadow-lg hover:shadow-emerald-500/25 dark:hover:shadow-emerald-400/20 hover:-translate-y-0.5 active:scale-95
+                                 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-emerald-500 focus-visible:ring-offset-2
+                                 disabled:opacity-60 disabled:cursor-not-allowed disabled:transform-none disabled:shadow-none">
+                    <span wire:loading.remove wire:target="saveBoth" class="flex items-center gap-2">
+                      <svg class="w-3 h-3 group-hover:scale-110 transition-transform" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7"/>
+                      </svg>
+                      Guardar
+                    </span>
+                    <span wire:loading wire:target="saveBoth" class="flex items-center gap-2">
+                      <svg class="h-3 w-3 animate-spin" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none">
+                        <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"/>
+                        <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 0 1 8-8v3a5 5 0 0 0-5 5H4z"/>
+                      </svg>
+                      Guardando…
+                    </span>
+                  </button>
+                  <button type="button" wire:click="cancelEditBoth"
+                          class="rounded-xl px-4 py-2 text-sm font-semibold
+                                 bg-white text-slate-700 hover:bg-slate-50 hover:shadow-md hover:shadow-slate-200/30 
+                                 dark:bg-neutral-800 dark:text-neutral-200 dark:hover:bg-neutral-700 dark:hover:shadow-black/20
+                                 border border-slate-200 dark:border-neutral-700 transition-all duration-200 hover:-translate-y-0.5 active:scale-95">
+                    Cancelar
+                  </button>
+                </div>
+              </div>
+            @endif
+          </div>
+        @empty
+          <div class="py-12 text-center">
+            <div class="mx-auto mb-4 flex h-16 w-16 items-center justify-center rounded-2xl bg-gradient-to-br from-slate-100 to-slate-200 text-slate-400
+                        dark:from-neutral-800 dark:to-neutral-700 dark:text-neutral-300 shadow-inner">
+              <svg class="h-8 w-8" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+                <path stroke-linecap="round" stroke-linejoin="round" d="M20.25 7.5l-.625 10.632a2.25 2.25 0 01-2.247 2.118H6.622a2.25 2.25 0 01-2.247-2.118L3.75 7.5M10 11.25h4M3.375 7.5h17.25c.621 0 1.125-.504 1.125-1.125v-1.5c0-.621-.504-1.125-1.125-1.125H3.375c-.621 0-1.125.504-1.125 1.125v1.5c0 .621.504 1.125 1.125 1.125z"/>
+              </svg>
+            </div>
+            <h3 class="text-sm font-medium text-slate-900 dark:text-neutral-100 mb-1">No hay insumos cargados</h3>
+            <p class="text-xs text-slate-500 dark:text-neutral-400">Agrega tu primer insumo usando el formulario superior</p>
+          </div>
+        @endforelse
+      </div>
     </div>
+
+    @if($supplies->hasPages())
+      <div class="px-6 py-4 border-t border-slate-200/60 dark:border-neutral-800/60">
+        {{ $supplies->links() }}
+      </div>
+    @endif
   </div>
 </div>
-
-
-    <div class="mt-6">
-      {{ $supplies->links() }}
-    </div>
-  </div>
-</div>
-
-@push('styles')
-<style>
-  .button-primary{
-    @apply inline-flex items-center justify-center px-5 py-2.5 rounded-lg font-medium text-white
-           bg-indigo-600 hover:bg-indigo-700 active:bg-indigo-800
-           dark:bg-indigo-600 dark:hover:bg-indigo-500 dark:active:bg-indigo-700
-           dark:ring-1 dark:ring-indigo-400/30
-           transition-colors disabled:opacity-60 disabled:cursor-not-allowed;
-  }
-  .button-primary-sm{
-    @apply inline-flex items-center justify-center px-4 py-2 rounded-lg text-sm font-medium text-white
-           bg-indigo-600 hover:bg-indigo-700 active:bg-indigo-800
-           dark:bg-indigo-600 dark:hover:bg-indigo-500 dark:active:bg-indigo-700
-           dark:ring-1 dark:ring-indigo-400/30
-           transition-colors disabled:opacity-60 disabled:cursor-not-allowed;
-  }
-</style>
-@endpush
