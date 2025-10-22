@@ -65,13 +65,23 @@ class Dashboard extends Component
 
         $user  = Auth::user();
         $saved = DashboardLayout::firstOrCreate(['user_id' => $user->id]);
-        $this->layout = $saved->layout ?: [];
+        // Persistimos en la columna correcta (layout_data)
+        $this->layout = (array) ($saved->layout_data ?? []);
 
-        // Layout inicial por defecto (usa keys detectadas)
+        // Layout inicial por defecto con widgets clave
         if (empty($this->layout) && !empty($this->available)) {
-            $keys = array_keys($this->available);
-            foreach (array_slice($keys, 0, 3) as $k) {
-                $this->layout[] = ['id' => uniqid('w_'), 'key' => $k];
+            $wanted = ['recent-orders', 'stock-widget', 'revenue-widget', 'top-products'];
+            foreach ($wanted as $k) {
+                if (isset($this->available[$k])) {
+                    $this->layout[] = ['id' => uniqid('w_'), 'key' => $k];
+                }
+            }
+            // Si por algún motivo faltan, completa hasta 3 con los disponibles
+            if (count($this->layout) === 0) {
+                $keys = array_keys($this->available);
+                foreach (array_slice($keys, 0, 3) as $k) {
+                    $this->layout[] = ['id' => uniqid('w_'), 'key' => $k];
+                }
             }
             $this->persist();
         }
@@ -111,7 +121,7 @@ class Dashboard extends Component
     {
         DashboardLayout::updateOrCreate(
             ['user_id' => Auth::id()],
-            ['layout'  => $this->layout]
+            ['layout_data'  => $this->layout]
         );
     }
 

@@ -1,17 +1,17 @@
 {{-- resources/views/livewire/dashboard.blade.php --}}
 <div
-  x-data="dashboardState(@entangle('editMode').live)"  {{-- ✅ pasa el entangle a Alpine, sin usar $wire --}}
+  x-data="{ addOpen:false, editMode: @entangle('editMode').live }"
   x-cloak
   class="min-h-[70vh]"
 >
   {{-- Barra de acciones --}}
   <div class="flex items-center justify-end gap-2 mb-3">
-    <div class="relative" x-data="{ addOpen:false }" @close-add.window="addOpen=false">
+    <div class="relative">
       <button
         type="button"
-        x-show="editMode"
-        @click="addOpen = !addOpen"
+        @click="if (!editMode) { $wire.toggleEdit(); editMode = true } ; addOpen = !addOpen"
         class="px-3 py-2 rounded-lg bg-neutral-100 hover:bg-neutral-200 dark:bg-neutral-800 dark:hover:bg-neutral-700 text-sm font-semibold"
+        title="Añadir un widget al tablero"
       >
         + Añadir widget
       </button>
@@ -25,8 +25,8 @@
         @forelse($available as $key => $meta)
           <button
             type="button"
-            x-on:click="addOpen=false"             {{-- ✅ cerrar con Alpine, no mezclar en wire:click --}}
-            wire:click="addWidget('{{ $key }}')"    {{-- ✅ solo instrucción Livewire --}}
+            @click="addOpen=false"
+            wire:click="addWidget('{{ $key }}')"
             class="w-full text-left px-3 py-2 rounded-lg hover:bg-neutral-100 dark:hover:bg-neutral-800 text-sm"
           >
             {{ $meta['label'] ?? $key }}
@@ -54,9 +54,13 @@
          isolate"
 >
   @foreach($layout as $slot)
-    @php $meta = $available[$slot['key']] ?? null; @endphp
+    @php 
+      $meta    = $available[$slot['key']] ?? null; 
+      $rowSpan = $slot['key'] === 'revenue-widget' ? 'row-span-2' : '';
+      $colSpan = $slot['key'] === 'revenue-widget' ? 'col-span-2' : '';
+    @endphp
 
-    <div class="relative min-w-0" wire:key="cell-{{ $slot['id'] }}">
+    <div class="relative min-w-0 {{ $rowSpan }} {{ $colSpan }}" wire:key="cell-{{ $slot['id'] }}">
       @if ($editMode)
         <button
           type="button"
@@ -89,20 +93,4 @@
 
 </div>
 
-@push('scripts')
-<script>
-  // Registramos el factory de Alpine para el estado del dashboard.
-  // Recibe el entangle de Livewire ya preparado (two-way) como primer parámetro.
-  document.addEventListener('alpine:init', () => {
-    Alpine.data('dashboardState', (boundEditMode) => ({
-      addOpen: false,
-      editMode: boundEditMode, // ✅ ya es el proxy de @entangle('editMode').live
-
-      init() {
-        // Si se sale de edición desde servidor, cerramos el menú
-        this.$watch('editMode', (val) => { if (!val) this.addOpen = false })
-      },
-    }))
-  });
-</script>
-@endpush
+{{-- No se requiere script Alpine adicional: usamos objeto inline con @entangle --}}

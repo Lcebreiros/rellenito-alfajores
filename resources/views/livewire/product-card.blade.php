@@ -61,22 +61,8 @@
                       ? 'hover:-translate-y-0.5 hover:shadow-md focus:outline-none focus-visible:ring-2 focus-visible:ring-indigo-500'
                       : 'opacity-60 cursor-not-allowed' }}">
 
-      <div class="flex items-start gap-2 sm:gap-3 md:gap-4 h-full">
-        {{-- Thumb - Responsive sizes --}}
-        <div class="h-10 w-10 xs:h-12 xs:w-12 sm:h-14 sm:w-14 md:h-16 md:w-16 
-                    rounded-lg md:rounded-xl overflow-hidden ring-1 ring-slate-200/70 dark:ring-neutral-700 
-                    bg-slate-50 dark:bg-neutral-800 grid place-items-center flex-none">
-          @if($thumb)
-            <img src="{{ $thumb }}" alt="Imagen {{ $name }}" class="h-full w-full object-cover">
-          @else
-            <svg class="w-4 h-4 sm:w-5 sm:h-5 text-slate-400 dark:text-neutral-300" viewBox="0 0 24 24" fill="none" aria-hidden="true">
-              <rect x="4" y="6" width="16" height="12" rx="2" stroke="currentColor" stroke-width="1.5"/>
-              <path d="M8 12l2.8 2.8L15 10l5 5" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
-            </svg>
-          @endif
-        </div>
-
-        {{-- Contenido - TODO en UNA COLUMNA: título, SKU, stock, precio (precio debajo del stock) --}}
+      <div class="flex items-start h-full">
+        {{-- Contenido: título, SKU, stock, precio --}}
         <div class="min-w-0 flex-1 flex flex-col justify-between h-full py-0.5">
           {{-- Sección superior: Título y SKU --}}
           <div class="min-w-0">
