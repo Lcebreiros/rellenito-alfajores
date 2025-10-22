@@ -114,16 +114,37 @@
               <p class="text-sm text-slate-500 mt-1">Usá tu correo y contraseña</p>
             </header>
 
-            {{-- Errores --}}
-            @if ($errors->any())
-              <div class="mb-4 p-3 bg-red-50 text-red-700 text-sm rounded-lg border border-red-100">
-                <ul class="list-disc ml-4">
-                  @foreach ($errors->all() as $e)
-                    <li>{{ $e }}</li>
-                  @endforeach
-                </ul>
-              </div>
-            @endif
+{{-- Errores --}}
+@php
+  $emailError = $errors->has('email') ? $errors->first('email') : null;
+@endphp
+
+@if($emailError && \Illuminate\Support\Str::contains($emailError, 'Cuenta suspendida'))
+  {{-- Mensaje específico para cuenta suspendida (amarillo) --}}
+  <div class="mb-4 p-3 bg-yellow-50 text-yellow-800 text-sm rounded-lg border border-yellow-100">
+    {{ $emailError }}
+  </div>
+@endif
+
+@if ($errors->any())
+  {{-- Mostrar otros errores (rojo), excluyendo el mensaje de suspensión ya mostrado --}}
+  @php
+    $other = collect($errors->all())->reject(function($e) use ($emailError){
+        return $e === $emailError;
+    })->all();
+  @endphp
+
+  @if(!empty($other))
+    <div class="mb-4 p-3 bg-red-50 text-red-700 text-sm rounded-lg border border-red-100">
+      <ul class="list-disc ml-4">
+        @foreach ($other as $e)
+          <li>{{ $e }}</li>
+        @endforeach
+      </ul>
+    </div>
+  @endif
+@endif
+
 
             <form method="POST" action="{{ route('login') }}" class="space-y-6" autocomplete="on">
               @csrf

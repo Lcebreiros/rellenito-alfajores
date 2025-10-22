@@ -115,7 +115,7 @@
           Foto (opcional)
         </label>
 
-        <label for="photo"
+        <label for="image"
                class="block cursor-pointer rounded-lg border-2 border-dashed border-neutral-300 p-5
                       text-center hover:border-indigo-400 transition-colors
                       dark:border-neutral-700 dark:hover:border-indigo-500">
@@ -130,17 +130,17 @@
             </div>
             <p class="text-xs text-neutral-500 dark:text-neutral-400">PNG, JPG o GIF (hasta 2MB)</p>
           </div>
-          <input id="photo" name="photo" type="file" accept="image/*" class="sr-only">
+          <input id="image" name="image" type="file" accept="image/*" class="sr-only">
         </label>
 
-        <div id="photoPreviewWrap" class="mt-3 hidden">
+        <div id="imagePreviewWrap" class="mt-3 hidden">
           <div class="rounded-lg border border-neutral-200 p-2 bg-neutral-50
                       dark:border-neutral-800 dark:bg-neutral-950/40">
-            <img id="photoPreview" class="max-h-48 mx-auto rounded-md object-contain" alt="Previsualización">
+            <img id="imagePreview" class="max-h-48 mx-auto rounded-md object-contain" alt="Previsualización">
           </div>
         </div>
 
-        @error('photo')
+        @error('image')
           <p class="mt-1 text-sm text-rose-600 dark:text-rose-400">{{ $message }}</p>
         @enderror
       </div>
@@ -203,9 +203,9 @@
     if (skuInput  && skuCount ) skuInput .addEventListener('input', () => updateCounter(skuInput , skuCount ));
 
     // Preview imagen
-    const fileInput = document.getElementById('photo');
-    const wrap = document.getElementById('photoPreviewWrap');
-    const img  = document.getElementById('photoPreview');
+    const fileInput = document.getElementById('image');
+    const wrap = document.getElementById('imagePreviewWrap');
+    const img  = document.getElementById('imagePreview');
 
     if (fileInput) {
       fileInput.addEventListener('change', () => {

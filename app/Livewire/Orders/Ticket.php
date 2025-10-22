@@ -20,29 +20,19 @@ class Ticket extends Component
     {
         $this->order = $order->loadMissing(['items.product']);
 
-        // 1) Logo del comprobante configurado en SettingsPanel
-        $receiptPath = Setting::get('receipt_logo_path', 'branding/receipt-logo.png');
-        if ($receiptPath && Storage::disk('public')->exists($receiptPath)) {
-            $v = Storage::disk('public')->lastModified($receiptPath);
-            $this->logoUrl = route('branding.receipt-logo', ['v' => $v]); // ✅ ruta que streamea
+        // 1) Logo del comprobante PER-USUARIO (no compartido)
+        $user = Auth::user();
+        $userPath = $user?->receipt_logo_path; // e.g. branding/{user_id}/receipt-logo-{user_id}.png
+        if ($userPath && Storage::disk('public')->exists($userPath)) {
+            $v = Storage::disk('public')->lastModified($userPath);
+            $this->logoUrl = route('user.receipt-logo', ['v' => $v]); // streamea solo el del usuario autenticado
         }
-        // 2) App logo como fallback
-        elseif (Storage::disk('public')->exists(self::APP_LOGO_PATH)) {
-            $v = Storage::disk('public')->lastModified(self::APP_LOGO_PATH);
-            $this->logoUrl = route('branding.app-logo', ['v' => $v]); // ✅ ruta que streamea
-        }
-        // 3) Foto de perfil persistida (si quisieras streamearla también, podemos crear otra ruta)
+        // 2) Fallback: Gestior.png de raíz (no usar logo de otro usuario)
         else {
-            $user = Auth::user();
-            $path = $user?->profile_photo_path; // e.g. profile-photos/xxxx.jpg
-            if ($path && Storage::disk('public')->exists($path)) {
-                // Si querés máxima robustez, podés crear una ruta que streamee $path del usuario.
-                $this->logoUrl = Storage::disk('public')->url($path) . '?v=' . Storage::disk('public')->lastModified($path);
-            } else {
-                // Último recurso (puede ser ui-avatars, por eso no lo consideramos "persistente")
-                $this->logoUrl = $user?->profile_photo_url;
-            }
+            $this->logoUrl = route('branding.default-receipt');
         }
+        // 3) Foto de perfil (opcional) — desactivado para evitar confusiones con logos de otros usuarios
+        // (Mantener simple: solo per-user o fallback global)
 
         $this->appName = Setting::get('site_title', config('app.name', 'Rellenito'));
     }

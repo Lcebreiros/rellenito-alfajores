@@ -157,6 +157,14 @@
             <form method="POST" action="{{ route('register') }}" class="space-y-6" autocomplete="on">
               @csrf
 
+{{-- Key --}}
+<div>
+  <label for="invitation_key" class="block text-sm font-medium text-slate-700 mb-1.5">Clave de acceso</label>
+  <input id="invitation_key" name="invitation_key" type="text" value="{{ old('invitation_key') }}" required
+         class="txt focus-ring w-full px-3 py-2.5 border border-slate-200 rounded-md bg-white placeholder-slate-400"
+         placeholder="Ingrese su clave">
+</div>
+
               {{-- Nombre --}}
               <div>
                 <label for="name" class="block text-sm font-medium text-slate-700 mb-1.5">Nombre</label>

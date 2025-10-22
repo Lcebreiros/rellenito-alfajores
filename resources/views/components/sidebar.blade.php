@@ -316,10 +316,49 @@
          title="{{ $panelText }}" aria-label="{{ $panelText }}">
         <x-application-mark x-bind:class="collapsed ? 'h-7 w-auto' : 'h-8 w-auto'" 
                           class="transition-all duration-300 filter drop-shadow-sm" />
-        <span x-show="!collapsed" x-transition:enter="fade-slide-enter" 
-              class="user-info font-bold text-lg truncate max-w-[8rem] sm:max-w-[10rem] lg:max-w-[12rem]">
-          {{ $panelText }}
-        </span>
+@php
+    // Determinar etiqueta legible para el nivel/rol
+    $levelLabel = null;
+
+    if (Auth::check()) {
+        $roles = Auth::user()->getRoleNames()->toArray();
+        $firstRole = $roles[0] ?? null;
+
+        if ($firstRole) {
+            $levelLabel = Str::title(str_replace(['-', '_'], ' ', $firstRole));
+        } else {
+            switch (Auth::user()->hierarchy_level) {
+                case \App\Models\User::HIERARCHY_MASTER:
+                    $levelLabel = 'Master';
+                    break;
+                case \App\Models\User::HIERARCHY_COMPANY:
+                    $levelLabel = 'Empresa';
+                    break;
+                case \App\Models\User::HIERARCHY_ADMIN:
+                    $levelLabel = 'Sucursal';
+                    break;
+                case \App\Models\User::HIERARCHY_USER:
+                    $levelLabel = 'Usuario';
+                    break;
+                default:
+                    $levelLabel = null;
+            }
+        }
+    }
+@endphp
+
+<span x-show="!collapsed" x-transition:enter="fade-slide-enter" 
+      class="user-info font-bold text-lg truncate max-w-[8rem] sm:max-w-[10rem] lg:max-w-[12rem] flex items-baseline gap-1">
+  <span class="truncate">{{ $panelText }}</span>
+
+  @if($levelLabel)
+    <span class="text-lg text-neutral-500 dark:text-neutral-400 font-bold truncate"
+          style="margin-left: 0.25rem;">
+      {{ $levelLabel }}
+    </span>
+  @endif
+</span>
+
       </a>
     </div>
 
@@ -398,6 +437,71 @@
         <span x-show="!collapsed" x-transition:enter="fade-slide-enter" 
               class="text-sm font-semibold truncate relative z-1">Calcular costos</span>
       </a>
+
+@auth
+    @if(auth()->user()->isMaster() || auth()->user()->isCompany())
+        <a href="{{ route('company.branches.index') }}" wire:navigate data-turbo="false"
+           class="nav-link {{ request()->routeIs('company.branches.*') ? $active : $idle }}"
+           :class="collapsed ? 'justify-center flex items-center gap-3 p-3' : 'flex items-center gap-3 p-3'"
+           :title="collapsed ? 'Sucursales' : null">
+          <span class="shrink-0 flex items-center justify-center w-7 h-7">
+            <img src="{{ asset('images/sucursales.png') }}" alt="Sucursales" class="nav-icon">
+          </span>
+          <span x-show="!collapsed" x-transition:enter="fade-slide-enter" 
+                class="text-sm font-semibold truncate relative z-1">Sucursales</span>
+        </a>
+    @endif
+@endauth
+
+@auth
+    @if(auth()->user()->isMaster() || auth()->user()->isCompany())
+        <a href="{{ route('company.employees.index') }}" wire:navigate data-turbo="false"
+           class="nav-link {{ request()->routeIs('company.branches.*') ? $active : $idle }}"
+           :class="collapsed ? 'justify-center flex items-center gap-3 p-3' : 'flex items-center gap-3 p-3'"
+           :title="collapsed ? 'Personal' : null">
+          <span class="shrink-0 flex items-center justify-center w-7 h-7">
+            <img src="{{ asset('images/empleados.png') }}" alt="Personal" class="nav-icon">
+          </span>
+          <span x-show="!collapsed" x-transition:enter="fade-slide-enter" 
+                class="text-sm font-semibold truncate relative z-1">Personal</span>
+        </a>
+    @endif
+@endauth
+
+
+
+@auth
+    @if(auth()->user()->isMaster())
+        <!-- Master - Agregar Usuarios -->
+        <a href="{{ route('master.invitations.index') }}" wire:navigate data-turbo="false"
+           class="nav-link {{ request()->routeIs('master.invitations.*') ? $active : $idle }}"
+           :class="collapsed ? 'justify-center flex items-center gap-3 p-3' : 'flex items-center gap-3 p-3'"
+           :title="collapsed ? 'Gestionar usuarios' : null">
+          <span class="shrink-0 flex items-center justify-center w-7 h-7">
+            <img src="{{ asset('images/agregar-user.png') }}" alt="Generar usuarios" class="nav-icon">
+          </span>
+          <span x-show="!collapsed" x-transition:enter="fade-slide-enter" 
+                class="text-sm font-semibold truncate relative z-1">Generar usuarios</span>
+        </a>
+    @endif
+@endauth
+
+@auth
+    @if(auth()->user()->isMaster())
+    <!-- Master - Gestionar usuarios -->
+    <a href="{{ route('master.users.index') }}" wire:navigate data-turbo="false"
+       class="nav-link {{ request()->routeIs('master.users.*') ? $active : $idle }}"
+       :class="collapsed ? 'justify-center flex items-center gap-3 p-3' : 'flex items-center gap-3 p-3'"
+       :title="collapsed ? 'Gestionar usuarios' : null">
+      <span class="shrink-0 flex items-center justify-center w-7 h-7">
+        <img src="{{ asset('images/gestionar-user.png') }}" alt="Gestionar usuarios" class="nav-icon">
+      </span>
+      <span x-show="!collapsed" x-transition:enter="fade-slide-enter" 
+            class="text-sm font-semibold truncate relative z-1">Gestionar usuarios</span>
+    </a>
+@endif
+@endauth
+
 
       <!-- Configuración -->
       <a href="{{ route('settings') }}" wire:navigate data-turbo="false"

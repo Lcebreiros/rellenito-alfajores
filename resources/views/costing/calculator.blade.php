@@ -1,13 +1,19 @@
 @extends('layouts.app')
 
 @section('header')
-  <h1 class="text-2xl font-bold text-gray-900 dark:text-neutral-100 leading-tight transition-colors">
-    Calculadora de Costos
-  </h1>
-  <p class="text-gray-600 dark:text-neutral-300 transition-colors">
-    Gestiona tus insumos, crea recetas y analiza costos de producción
-  </p>
+<div class="flex flex-col sm:flex-row sm:items-center sm:justify-between">
+  <div>
+    <h1 class="text-2xl font-bold text-neutral-900 dark:text-neutral-100 flex items-center">
+      <i class="fas fa-calculator text-indigo-600 mr-3"></i>
+      Calculadora de Costos
+    </h1>
+    <p class="mt-1 text-gray-600 dark:text-neutral-300 transition-colors">
+      Gestiona tus insumos, crea recetas y analiza costos de producción
+    </p>
+  </div>
+</div>
 @endsection
+
 
 @section('content')
 <div class="bg-gray-50 dark:bg-neutral-900 min-h-screen transition-colors">

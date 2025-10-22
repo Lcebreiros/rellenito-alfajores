@@ -20,7 +20,7 @@ class OrderService
         $orderId = $request->session()->get('draft_order_id');
         $order   = $orderId ? Order::find($orderId) : null;
 
-        if (!$order || $order->status !== Order::STATUS_DRAFT) {
+        if (!$order || $order->status !== \App\Enums\OrderStatus::DRAFT) {
             $order = Order::create(); // por defecto status = draft
             $request->session()->put('draft_order_id', $order->id);
         }
@@ -37,7 +37,7 @@ class OrderService
         if (!$draftId || $draftId !== (int)$order->id) {
             throw new UnauthorizedException('Pedido no pertenece a tu sesión.');
         }
-        if ($order->status !== Order::STATUS_DRAFT) {
+        if ($order->status !== \App\Enums\OrderStatus::DRAFT) {
             throw new DomainException('Pedido no editable.');
         }
     }

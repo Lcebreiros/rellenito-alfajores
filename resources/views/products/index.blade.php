@@ -64,13 +64,14 @@
     <div class="grid gap-4 sm:gap-6 grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
       @foreach($products as $product)
         @php
-          $photo = isset($product->photo_path) && $product->photo_path
-            ? \Illuminate\Support\Facades\Storage::url($product->photo_path)
+          $image = isset($product->image) && $product->image
+            ? \Illuminate\Support\Facades\Storage::url($product->image)
             : null;
           $priceLabel = '$ ' . number_format((float) $product->price, 2, ',', '.');
           $isActive = (bool)($product->is_active ?? true);
           $stock = (int)($product->stock ?? 0);
         @endphp
+
 
         <div class="group overflow-hidden rounded-2xl border border-neutral-200 bg-white shadow-sm
                     hover:shadow-md hover:border-indigo-200 transition
@@ -78,8 +79,8 @@
 
           {{-- Imagen --}}
           <div class="relative aspect-[4/3] bg-neutral-100 dark:bg-neutral-800">
-            @if($photo)
-              <img src="{{ $photo }}" alt="Foto de {{ $product->name }}"
+            @if($image)
+              <img src="{{ $image }}" alt="Foto de {{ $product->name }}"
                    class="h-full w-full object-cover">
             @else
               <div class="absolute inset-0 grid place-items-center">
@@ -118,25 +119,36 @@
               </span>
             </div>
 
-            <div class="mt-3 flex items-center justify-between">
-              <span class="text-lg font-semibold text-neutral-900 dark:text-neutral-100 tabular-nums">
-                {{ $priceLabel }}
-              </span>
+<div class="mt-3 flex flex-wrap items-center justify-between gap-2">
+    <span class="text-lg font-semibold text-neutral-900 dark:text-neutral-100 tabular-nums">
+        {{ $priceLabel }}
+    </span>
 
-              <div class="flex items-center gap-2">
-                <a href="{{ route('products.edit', $product) }}"
-                   class="inline-flex items-center gap-2 rounded-lg border border-neutral-300 px-3 py-1.5 text-sm font-medium text-neutral-700 hover:bg-neutral-50
-                          dark:border-neutral-700 dark:text-neutral-200 dark:hover:bg-neutral-800">
-                  <svg class="h-4 w-4" viewBox="0 0 24 24" fill="none">
-                    <path d="M16.5 3.5a2.121 2.121 0 1 1 3 3L8 18l-4 1 1-4 11.5-11.5Z"
-                          stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
-                  </svg>
-                  Editar
-                </a>
-                {{-- Ej: botón extra futuro (ver / stock) --}}
-                {{-- <a href="#" class="inline-flex items-center ...">Ver</a> --}}
-              </div>
-            </div>
+    <div class="flex flex-wrap items-center gap-2 mt-2 sm:mt-0">
+        {{-- Botón Editar --}}
+        <a href="{{ route('products.edit', $product) }}"
+           class="inline-flex items-center gap-2 rounded-lg border border-neutral-300 px-3 py-1.5 text-sm font-medium text-neutral-700 hover:bg-neutral-50
+                  dark:border-neutral-700 dark:text-neutral-200 dark:hover:bg-neutral-800 whitespace-nowrap">
+          <svg class="h-4 w-4" viewBox="0 0 24 24" fill="none">
+            <path d="M16.5 3.5a2.121 2.121 0 1 1 3 3L8 18l-4 1 1-4 11.5-11.5Z"
+                  stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+          </svg>
+          Editar
+        </a>
+
+        {{-- Botón Detalles --}}
+        <a href="{{ route('products.show', $product) }}"
+           class="inline-flex items-center gap-2 rounded-lg border border-neutral-300 px-3 py-1.5 text-sm font-medium text-neutral-700 hover:bg-neutral-50
+                  dark:border-neutral-700 dark:text-neutral-200 dark:hover:bg-neutral-800 whitespace-nowrap">
+          <svg class="h-4 w-4" viewBox="0 0 24 24" fill="none">
+            <circle cx="12" cy="12" r="10" stroke="currentColor" stroke-width="2"/>
+            <path d="M12 8v4l3 3" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+          </svg>
+          Detalles
+        </a>
+    </div>
+</div>
+
           </div>
         </div>
       @endforeach

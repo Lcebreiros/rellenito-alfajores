@@ -8,6 +8,7 @@ use App\Models\Product;
 use App\Models\Order;
 use App\Models\OrderItem;
 use App\Models\Client;
+use App\Enums\OrderStatus;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Schema;
@@ -193,7 +194,7 @@ class OrderQuickModal extends Component
             }
 
             //  Estado según toggle
-            $status = $this->completeOnSave ? Order::STATUS_COMPLETED : Order::STATUS_DRAFT;
+            $status = $this->completeOnSave ? OrderStatus::COMPLETED : OrderStatus::DRAFT;
 
             // Crear pedido con created_at/updated_at forzados
             $order = new Order([
@@ -246,7 +247,7 @@ class OrderQuickModal extends Component
             // Actualizar total y reforzar estado (manteniendo timestamps elegidos)
             $order->total = $total;
             if ($this->completeOnSave) {
-                $order->status = Order::STATUS_COMPLETED; // 🔒 refuerzo
+                $order->status = OrderStatus::COMPLETED; // 🔒 refuerzo
             }
             $order->updated_at = $createdAt; // coherencia temporal
             $order->save();

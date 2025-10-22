@@ -186,11 +186,14 @@
 
   {{-- Tabla --}}
   @php
-    $statusBadge = fn($s) => match($s){
-      'completed' => ['text'=>'Completado','cls'=>'bg-emerald-100 text-emerald-700 dark:bg-emerald-900/40 dark:text-emerald-300'],
-      'canceled'  => ['text'=>'Cancelado','cls'=>'bg-rose-100 text-rose-700 dark:bg-rose-900/40 dark:text-rose-300'],
-      'draft'     => ['text'=>'Borrador','cls'=>'bg-amber-100 text-amber-700 dark:bg-amber-900/40 dark:text-amber-300'],
-      default     => ['text'=>ucfirst($s??'—'),'cls'=>'bg-neutral-100 text-neutral-700 dark:bg-neutral-800 dark:text-neutral-100'],
+    $statusBadge = function($s){
+      $key = ($s instanceof \BackedEnum) ? $s->value : (($s instanceof \UnitEnum) ? $s->name : (is_string($s) ? $s : (string) ($s ?? '')));
+      return match($key){
+        'completed' => ['text'=>'Completado','cls'=>'bg-emerald-100 text-emerald-700 dark:bg-emerald-900/40 dark:text-emerald-300'],
+        'canceled'  => ['text'=>'Cancelado','cls'=>'bg-rose-100 text-rose-700 dark:bg-rose-900/40 dark:text-rose-300'],
+        'draft'     => ['text'=>'Borrador','cls'=>'bg-amber-100 text-amber-700 dark:bg-amber-900/40 dark:text-amber-300'],
+        default     => ['text'=>ucfirst($key ?: '—'),'cls'=>'bg-neutral-100 text-neutral-700 dark:bg-neutral-800 dark:text-neutral-100'],
+      };
     };
     $receiptRoute = \Illuminate\Support\Facades\Route::has('orders.ticket');
     $fmt = fn($n)=> '$'.number_format((float)$n,2,',','.');
@@ -213,16 +216,17 @@
             <thead class="sticky top-0 z-10">
                 <tr class="bg-neutral-100/80 dark:bg-neutral-800/60 backdrop-blur">
                     <th class="px-3 py-3 text-center">
-<input type="checkbox" id="selectAll"
-       class="w-4 h-4 rounded border border-neutral-300 text-indigo-600
-              dark:border-neutral-700 dark:bg-neutral-700 dark:checked:bg-indigo-500
-              hover:none focus:none">
-
-
+                        <input type="checkbox" id="selectAll"
+                               class="w-4 h-4 rounded border border-neutral-300 text-indigo-600
+                                      dark:border-neutral-700 dark:bg-neutral-700 dark:checked:bg-indigo-500
+                                      hover:none focus:none">
                     </th>
                     <th class="text-left px-6 py-3 font-medium text-neutral-600 dark:text-neutral-300">Pedido</th>
                     <th class="text-left px-3 py-3 font-medium text-neutral-600 dark:text-neutral-300">Cliente</th>
                     <th class="text-left px-3 py-3 font-medium text-neutral-600 dark:text-neutral-300">Fecha</th>
+                    @if(!empty($isCompany))
+                        <th class="text-left px-3 py-3 font-medium text-neutral-600 dark:text-neutral-300">Sucursal</th>
+                    @endif
                     <th class="text-left px-3 py-3 font-medium text-neutral-600 dark:text-neutral-300">Items</th>
                     <th class="text-left px-3 py-3 font-medium text-neutral-600 dark:text-neutral-300">Total</th>
                     <th class="text-left px-3 py-3 font-medium text-neutral-600 dark:text-neutral-300">Estado</th>
@@ -234,10 +238,9 @@
                     @php $badge = $statusBadge($o->status); @endphp
                     <tr class="hover:bg-neutral-50 dark:hover:bg-neutral-800/50 transition-colors">
                         <td class="px-3 py-3 text-center">
-<input type="checkbox" value="{{ $o->id }}" class="selectOrder
-       w-4 h-4 text-indigo-600 bg-white border border-neutral-300 rounded focus:ring-2 focus:ring-indigo-500 dark:bg-neutral-700 dark:border-neutral-600 dark:checked:bg-indigo-500 dark:focus:ring-indigo-400">
+                            <input type="checkbox" value="{{ $o->id }}" class="selectOrder w-4 h-4 text-indigo-600 bg-white border border-neutral-300 rounded focus:ring-2 focus:ring-indigo-500 dark:bg-neutral-700 dark:border-neutral-600 dark:checked:bg-indigo-500 dark:focus:ring-indigo-400">
                         </td>
-                        <td class="px-6 py-3 font-semibold text-neutral-900 dark:text-neutral-100">#{{ $o->id }}</td>
+                        <td class="px-6 py-3 font-semibold text-neutral-900 dark:text-neutral-100">#{{ $o->order_number ?? $o->id }}</td>
                         <td class="px-3 py-3">
                             <div class="max-w-xs">
                                 <div class="font-medium text-neutral-800 dark:text-neutral-100 truncate">
@@ -251,6 +254,9 @@
                             </div>
                         </td>
                         <td class="px-3 py-3 text-neutral-700 dark:text-neutral-200 whitespace-nowrap">{{ $o->created_at?->format('d/m/Y H:i') }}</td>
+                        @if(!empty($isCompany))
+                            <td class="px-3 py-3 text-neutral-700 dark:text-neutral-200">{{ optional($o->branch)->name ?? 'Sin sucursal' }}</td>
+                        @endif
                         <td class="px-3 py-3 text-neutral-700 dark:text-neutral-200">{{ (int)($o->items_qty ?? 0) }}</td>
                         <td class="px-3 py-3 font-semibold text-neutral-900 dark:text-neutral-100">{{ $fmt($o->total) }}</td>
                         <td class="px-3 py-3">
@@ -260,12 +266,10 @@
                         </td>
                         <td class="px-6 py-3">
                             <div class="flex items-center justify-end gap-2">
-                                <a href="{{ route('orders.show',$o) }}"
-                                   class="inline-flex items-center gap-2 px-3 py-1.5 rounded-lg text-xs font-medium bg-indigo-50 text-indigo-700 hover:bg-indigo-100 dark:bg-indigo-900/30 dark:text-indigo-300 dark:hover:bg-indigo-900/50">
+                                <a href="{{ route('orders.show',$o) }}" class="inline-flex items-center gap-2 px-3 py-1.5 rounded-lg text-xs font-medium bg-indigo-50 text-indigo-700 hover:bg-indigo-100 dark:bg-indigo-900/30 dark:text-indigo-300 dark:hover:bg-indigo-900/50">
                                     <i class="far fa-eye"></i> Ver
                                 </a>
-                                <a href="{{ $receiptRoute ? route('orders.ticket',$o) : '#' }}"
-                                   @if(!$receiptRoute) aria-disabled="true" @endif
+                                <a href="{{ $receiptRoute ? route('orders.ticket',$o) : '#' }}" @if(!$receiptRoute) aria-disabled="true" @endif
                                    class="inline-flex items-center gap-2 px-3 py-1.5 rounded-lg text-xs font-medium bg-emerald-50 text-emerald-700 hover:bg-emerald-100 dark:bg-emerald-900/30 dark:text-emerald-300 dark:hover:bg-emerald-900/50 {{ $receiptRoute ? '' : 'opacity-50 cursor-not-allowed' }}">
                                     <i class="far fa-file-alt"></i> Comprobante
                                 </a>
@@ -274,7 +278,7 @@
                     </tr>
                 @empty
                     <tr>
-                        <td colspan="8" class="px-6 py-16 text-center text-neutral-500 dark:text-neutral-400">
+                        <td colspan="{{ !empty($isCompany) ? 9 : 8 }}" class="px-6 py-16 text-center text-neutral-500 dark:text-neutral-400">
                             <i class="fas fa-search text-neutral-300 dark:text-neutral-600 text-5xl mb-3"></i>
                             <div class="text-lg font-medium">No se encontraron pedidos</div>
                             <p class="text-neutral-500 dark:text-neutral-400">Ajustá los filtros para ver resultados.</p>
@@ -515,5 +519,3 @@ document.addEventListener('DOMContentLoaded', () => {
 });
 </script>
 @endsection
-
-

@@ -5,34 +5,45 @@ namespace App\Http\Controllers;
 use App\Services\StockService;
 use App\Models\Order;
 use App\Models\Product;
+use App\Models\User; // AGREGADO: Import del modelo User
+use App\Enums\OrderStatus;
 use Illuminate\Http\Request;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Schema;
 use Illuminate\Support\Facades\DB;
+use DomainException; // AGREGADO: Import de DomainException
 
 class OrderController extends Controller
 {
     /**
      * Historial de pedidos con filtros y paginación.
      */
-    public function index(Request $request)
-    {
-        [$query] = $this->buildOrdersQuery($request);
+public function index(Request $request)
+{
+    $user = $request->user();
 
-        $sort = (string) $request->input('sort', 'newest');
+    [$query] = $this->buildOrdersQuery($request);
 
-        $orders = $query
-            ->when($sort === 'oldest', fn ($q) => $q->orderBy('created_at'))
-            ->when($sort === 'total_desc', fn ($q) => $q->orderByDesc('total'))
-            ->when($sort === 'total_asc', fn ($q) => $q->orderBy('total'))
-            ->when($sort === 'newest' || !in_array($sort, ['oldest','total_desc','total_asc'], true), fn ($q) => $q->orderByDesc('created_at'))
-            ->paginate(20)
-            ->withQueryString();
+    // Usar scope centralizado que respeta jerarquía real (master/company/admin/user)
+    $query->availableFor($user);
 
-        return view('orders.index', compact('orders'));
-    }
+    $sort = (string) $request->input('sort', 'newest');
+
+    $orders = $query
+        ->when($sort === 'oldest', fn ($q) => $q->orderBy('created_at'))
+        ->when($sort === 'total_desc', fn ($q) => $q->orderByDesc('total'))
+        ->when($sort === 'total_asc', fn ($q) => $q->orderBy('total'))
+        ->when($sort === 'newest' || !in_array($sort, ['oldest','total_desc','total_asc'], true), fn ($q) => $q->orderByDesc('created_at'))
+        ->with('client','branch') // cargar relaciones
+        ->paginate(20)
+        ->withQueryString();
+
+    $isCompany = method_exists($user, 'isCompany') ? $user->isCompany() : false;
+    return view('orders.index', compact('orders', 'user', 'isCompany'));
+}
+
 
     /**
      * Exportación CSV/Excel con filtros actuales.
@@ -62,6 +73,18 @@ class OrderController extends Controller
         }
 
         return $this->excelToTempFileAndDownload($baseQuery->clone(), $filenameBase . '.xls', $meta['has_note']);
+    }
+
+    private function statusValue($status): string
+    {
+        // Normaliza enum App\Enums\OrderStatus a su representación string
+        if ($status instanceof \BackedEnum) {
+            return (string) $status->value;
+        }
+        if ($status instanceof \UnitEnum) {
+            return (string) $status->name;
+        }
+        return is_scalar($status) ? (string) $status : (string) ($status ?? '');
     }
 
     /* ---------------------------------------------------------------------
@@ -97,11 +120,11 @@ class OrderController extends Controller
                       ->chunkById(1000, function ($orders) use ($out, $hasNote) {
                           foreach ($orders as $o) {
                               $note = $hasNote ? (string)($o->note ?? '') : '';
-                              fputcsv($out, [
+                fputcsv($out, [
                                   (int) $o->id,
                                   $o->created_at ? $o->created_at->format('d/m/Y H:i') : '',
                                   optional($o->client)->name ?? 'Sin cliente',
-                                  ucfirst((string) $o->status),
+                                  ucfirst($this->statusValue($o->status)),
                                   (int) ($o->items_qty ?? 0),
                                   number_format((float) $o->total, 2, ',', '.'),
                                   $note,
@@ -162,7 +185,7 @@ class OrderController extends Controller
                                       . '<td class="center">'.(int)$o->id.'</td>'
                                       . '<td>'.($o->created_at ? $o->created_at->format('d/m/Y H:i') : '').'</td>'
                                       . '<td>'.e(optional($o->client)->name ?? 'Sin cliente').'</td>'
-                                      . '<td class="center">'.e(ucfirst((string)$o->status)).'</td>'
+                                      . '<td class="center">'.e(ucfirst($this->statusValue($o->status))).'</td>'
                                       . '<td class="num">'.(int)($o->items_qty ?? 0).'</td>'
                                       . '<td class="num">$'.number_format((float)$o->total, 2, ',', '.').'</td>'
                                       . '<td>'.e($note).'</td>'
@@ -249,78 +272,77 @@ class OrderController extends Controller
      |  Construcción de query (reutilizable entre index y export)
      * -------------------------------------------------------------------*/
 
-private function buildOrdersQuery(Request $request): array
-{
-    $q        = trim((string) $request->input('q', ''));
-    $status   = (string) $request->input('status', '');
-    $from     = $request->date('from');
-    $to       = $request->date('to');
-    $period   = (string) $request->input('period', '');
-    $clientQ  = trim((string) $request->input('client', ''));
-    $clientId = $request->input('client_id');
+    private function buildOrdersQuery(Request $request): array
+    {
+        $q        = trim((string) $request->input('q', ''));
+        $status   = (string) $request->input('status', '');
+        $from     = $request->date('from');
+        $to       = $request->date('to');
+        $period   = (string) $request->input('period', '');
+        $clientQ  = trim((string) $request->input('client', ''));
+        $clientId = $request->input('client_id');
 
-    $hasNote       = Schema::hasColumn('orders', 'note');
-    $hasCustName   = Schema::hasColumn('orders', 'customer_name');
-    $hasCustEmail  = Schema::hasColumn('orders', 'customer_email');
-    $hasCustPhone  = Schema::hasColumn('orders', 'customer_phone');
+        $hasNote       = Schema::hasColumn('orders', 'note');
+        $hasCustName   = Schema::hasColumn('orders', 'customer_name');
+        $hasCustEmail  = Schema::hasColumn('orders', 'customer_email');
+        $hasCustPhone  = Schema::hasColumn('orders', 'customer_phone');
 
-    $validStatuses = [
-        Order::STATUS_DRAFT,
-        Order::STATUS_COMPLETED,
-        Order::STATUS_CANCELED,
-    ];
+        // CORREGIDO: Usar enums en lugar de constantes
+        $validStatuses = [
+            OrderStatus::DRAFT->value,
+            OrderStatus::COMPLETED->value,
+            OrderStatus::CANCELED->value,
+        ];
 
-    [$dateFrom, $dateTo] = $this->resolveDateRange($period, $from, $to);
+        [$dateFrom, $dateTo] = $this->resolveDateRange($period, $from, $to);
 
-    $idGuess = null;
-    if ($q !== '') {
-        $digits = preg_replace('/\D+/', '', $q);
-        if ($digits !== '' && ctype_digit($digits)) $idGuess = (int) $digits;
+        $idGuess = null;
+        if ($q !== '') {
+            $digits = preg_replace('/\D+/', '', $q);
+            if ($digits !== '' && ctype_digit($digits)) $idGuess = (int) $digits;
+        }
+
+        $query = Order::query()
+            ->with(['client:id,name,email,phone'])
+            ->withSum('items as items_qty', 'quantity')
+
+            // Búsqueda libre
+            ->when($q !== '', function ($query) use ($q, $idGuess, $hasNote, $hasCustName, $hasCustEmail, $hasCustPhone) {
+                $query->where(function ($w) use ($q, $idGuess, $hasNote, $hasCustName, $hasCustEmail, $hasCustPhone) {
+                    if (!is_null($idGuess)) { $w->orWhere('id', $idGuess); }
+                    if ($hasNote) { $w->orWhere('note', 'like', "%{$q}%"); }
+                    if ($hasCustName)  { $w->orWhere('customer_name',  'like', "%{$q}%"); }
+                    if ($hasCustEmail) { $w->orWhere('customer_email', 'like', "%{$q}%"); }
+                    if ($hasCustPhone) { $w->orWhere('customer_phone', 'like', "%{$q}%"); }
+                    $w->orWhereHas('client', fn ($cq) =>
+                        $cq->where(fn ($cqw) =>
+                            $cqw->where('name','like',"%{$q}%")
+                                ->orWhere('email','like',"%{$q}%")
+                                ->orWhere('phone','like',"%{$q}%")
+                        )
+                    );
+                });
+            })
+
+            // Cliente
+            ->when($clientQ !== '', fn ($q2) => $q2->whereHas('client', fn ($c) => $c->where('name', 'like', "%{$clientQ}%")))
+            ->when(!empty($clientId), fn ($q2) => $q2->where('client_id', (int) $clientId))
+
+            // CORREGIDO: Estado usando enum value
+            ->when($status === '' , fn ($q2) => $q2->where('status', '!=', OrderStatus::DRAFT->value))
+            ->when($status !== '' && in_array($status, $validStatuses, true), fn ($q2) => $q2->where('status', $status))
+
+            // Fechas
+            ->when($dateFrom, fn ($q2) => $q2->where('created_at', '>=', $dateFrom))
+            ->when($dateTo,   fn ($q2) => $q2->where('created_at', '<=', $dateTo));
+
+        return [$query, [
+            'from'      => $dateFrom,
+            'to'        => $dateTo,
+            'period'    => $period,
+            'has_note'  => $hasNote,
+        ]];
     }
-
-    $query = Order::query()
-        ->with(['client:id,name,email,phone'])
-        ->withSum('items as items_qty', 'quantity')
-
-        // 🔎 Búsqueda libre
-        ->when($q !== '', function ($query) use ($q, $idGuess, $hasNote, $hasCustName, $hasCustEmail, $hasCustPhone) {
-            $query->where(function ($w) use ($q, $idGuess, $hasNote, $hasCustName, $hasCustEmail, $hasCustPhone) {
-                if (!is_null($idGuess)) { $w->orWhere('id', $idGuess); }
-                if ($hasNote) { $w->orWhere('note', 'like', "%{$q}%"); }
-                if ($hasCustName)  { $w->orWhere('customer_name',  'like', "%{$q}%"); }
-                if ($hasCustEmail) { $w->orWhere('customer_email', 'like', "%{$q}%"); }
-                if ($hasCustPhone) { $w->orWhere('customer_phone', 'like', "%{$q}%"); }
-                $w->orWhereHas('client', fn ($cq) =>
-                    $cq->where(fn ($cqw) =>
-                        $cqw->where('name','like',"%{$q}%")
-                            ->orWhere('email','like',"%{$q}%")
-                            ->orWhere('phone','like',"%{$q}%")
-                    )
-                );
-            });
-        })
-
-        // Cliente
-        ->when($clientQ !== '', fn ($q2) => $q2->whereHas('client', fn ($c) => $c->where('name', 'like', "%{$clientQ}%")))
-        ->when(!empty($clientId), fn ($q2) => $q2->where('client_id', (int) $clientId))
-
-        // ✅ Estado: por defecto EXCLUIR borradores; si se pide un estado, respetarlo
-        ->when($status === '' , fn ($q2) => $q2->where('status', '!=', Order::STATUS_DRAFT))
-        ->when($status !== '' && in_array($status, $validStatuses, true), fn ($q2) => $q2->where('status', $status))
-
-        // Fechas
-        ->when($dateFrom, fn ($q2) => $q2->where('created_at', '>=', $dateFrom))
-        ->when($dateTo,   fn ($q2) => $q2->where('created_at', '<=', $dateTo));
-
-    return [$query, [
-        'from'      => $dateFrom,
-        'to'        => $dateTo,
-        'period'    => $period,
-        'has_note'  => $hasNote,
-    ]];
-}
-
-
 
     private function resolveDateRange(?string $period, ?Carbon $from, ?Carbon $to): array
     {
@@ -355,7 +377,8 @@ private function buildOrdersQuery(Request $request): array
         $orderId = $request->session()->get('draft_order_id');
         $order   = $orderId ? Order::with('client')->find($orderId) : null;
 
-        if (!$order || $order->status !== Order::STATUS_DRAFT) {
+        // Usar enum striktamente en comparación (modelo castea a enum)
+        if (!$order || $order->status !== OrderStatus::DRAFT) {
             $order = Order::create(); // STATUS_DRAFT por defecto
             $request->session()->put('draft_order_id', $order->id);
         }
@@ -376,73 +399,72 @@ private function buildOrdersQuery(Request $request): array
         $order->load(['items.product','client']);
         return view('orders.show', compact('order'));
     }
-public function edit(Order $order)
-{
-    // Solo el propietario puede editar
-    if ($order->user_id !== auth()->id()) {
-        abort(403);
+
+    public function edit(Order $order)
+    {
+        // Solo el propietario puede editar
+        if ($order->user_id !== auth()->id()) {
+            abort(403);
+        }
+
+        $order->load('items.product');
+
+        $products = Product::all(); // o filtrados según tu lógica
+
+        $order->load('client', 'items.product');
+
+        // Pasamos también la lista de clientes para el select
+        $clients = \App\Models\Client::all();
+
+        return view('orders.edit', compact('order', 'clients', 'products'));
     }
 
-    $order->load('items.product');
+    public function update(Request $request, Order $order)
+    {
+        // Solo el propietario puede actualizar
+        if ($order->user_id !== auth()->id()) {
+            abort(403);
+        }
 
-    $products = Product::all(); // o filtrados según tu lógica
-
-    $order->load('client', 'items.product');
-
-    // Pasamos también la lista de clientes para el select
-    $clients = \App\Models\Client::all();
-
-    return view('orders.edit', compact('order', 'clients', 'products'));
-}
-
-public function update(Request $request, Order $order)
-{
-    // Solo el propietario puede actualizar
-    if ($order->user_id !== auth()->id()) {
-        abort(403);
-    }
-
-    // Validación
-$data = $request->validate([
-    'name'            => 'required|string|max:255',
-    'email'           => 'nullable|email|max:255',
-    'phone'           => 'nullable|string|max:50',
-    'address'         => 'nullable|string|max:255',
-    'items_json'      => 'required|string',
-]);
-
-DB::transaction(function() use ($order, $data) {
-    // Actualizamos la orden
-    $order->update([
-        'customer_name'    => $data['name'],      // mapeo al campo de la tabla orders
-        'customer_email'   => $data['email'],
-        'customer_phone'   => $data['phone'],
-        'shipping_address' => $data['address'],
-    ]);
-
-    // Decodificamos y reemplazamos los items
-    $items = json_decode($data['items_json'], true);
-    $order->items()->delete();
-
-    foreach ($items as $i) {
-        $order->items()->create([
-            'product_id' => $i['id'],
-            'name'       => $i['name'],
-            'quantity'   => $i['quantity'],
-            'unit_price' => $i['unit_price'],
-            'subtotal'   => $i['quantity'] * $i['unit_price'],
-            'user_id'    => auth()->id(),
+        // Validación
+        $data = $request->validate([
+            'name'            => 'required|string|max:255',
+            'email'           => 'nullable|email|max:255',
+            'phone'           => 'nullable|string|max:50',
+            'address'         => 'nullable|string|max:255',
+            'items_json'      => 'required|string',
         ]);
+
+        DB::transaction(function() use ($order, $data) {
+            // Actualizamos la orden
+            $order->update([
+                'customer_name'    => $data['name'],      // mapeo al campo de la tabla orders
+                'customer_email'   => $data['email'],
+                'customer_phone'   => $data['phone'],
+                'shipping_address' => $data['address'],
+            ]);
+
+            // Decodificamos y reemplazamos los items
+            $items = json_decode($data['items_json'], true);
+            $order->items()->delete();
+
+            foreach ($items as $i) {
+                $order->items()->create([
+                    'product_id' => $i['id'],
+                    'name'       => $i['name'],
+                    'quantity'   => $i['quantity'],
+                    'unit_price' => $i['unit_price'],
+                    'subtotal'   => $i['quantity'] * $i['unit_price'],
+                    'user_id'    => auth()->id(),
+                ]);
+            }
+
+            $order->recalcTotal();
+            $order->save();
+        });
+
+        return redirect()->route('orders.index')->with('ok', 'Pedido actualizado correctamente.');
     }
-
-    $order->recalcTotal();
-    $order->save();
-});
-
-
-    return redirect()->route('orders.index')->with('ok', 'Pedido actualizado correctamente.');
-}
-
 
     public function destroy(Order $order)
     {
@@ -458,49 +480,29 @@ DB::transaction(function() use ($order, $data) {
 
         return redirect()->route('orders.index')->with('ok','Pedido eliminado correctamente.');
     }
+
     public function bulkDelete(Request $request)
-{
-    $request->validate([
-        'ids' => 'required|array',
-        'ids.*' => 'integer|exists:orders,id',
-    ]);
+    {
+        $request->validate([
+            'ids' => 'required|array',
+            'ids.*' => 'integer|exists:orders,id',
+        ]);
 
-    // Solo eliminar pedidos del usuario logueado (ajustar según tu regla)
-    Order::whereIn('id', $request->ids)
-         ->where('user_id', auth()->id())
-         ->delete();
+        // Solo eliminar pedidos del usuario logueado (ajustar según tu regla)
+        Order::whereIn('id', $request->ids)
+             ->where('user_id', auth()->id())
+             ->delete();
 
-    return response()->json(['success' => true]);
-}
-public function cancelManual(int $orderId): void
-{
-    DB::transaction(function () use ($orderId) {
-        $order = Order::with('items.product')->lockForUpdate()->findOrFail($orderId);
+        return response()->json(['success' => true]);
+    }
 
-        if ($order->status !== Order::STATUS_COMPLETED) {
-            throw new DomainException('Solo se pueden cancelar pedidos completados.');
-        }
-
-        $stock = app(StockService::class);
-
-        foreach ($order->items as $item) {
-            // Devolver el stock
-            $stock->adjust($item->product, $item->quantity, 'manual-cancel', $order);
-        }
-
-        $order->status = Order::STATUS_CANCELED;
-        $order->save();
-    });
-
-    $this->dispatch('notify', type:'success', message:"Pedido #$orderId cancelado y stock devuelto.");
-}
-public function cancelManualHttp(int $orderId): RedirectResponse
-{
-    try {
+    public function cancelManual(int $orderId): void
+    {
         DB::transaction(function () use ($orderId) {
-            $order = \App\Models\Order::with('items.product')->lockForUpdate()->findOrFail($orderId);
+            $order = Order::with('items.product')->lockForUpdate()->findOrFail($orderId);
 
-            if ($order->status !== \App\Models\Order::STATUS_COMPLETED) {
+            // Comparar con enum directamente
+            if ($order->status !== OrderStatus::COMPLETED) {
                 throw new DomainException('Solo se pueden cancelar pedidos completados.');
             }
 
@@ -511,22 +513,47 @@ public function cancelManualHttp(int $orderId): RedirectResponse
                 $stock->adjust($item->product, $item->quantity, 'manual-cancel', $order);
             }
 
-            $order->status = \App\Models\Order::STATUS_CANCELED;
+            // Asignar enum directamente
+            $order->status = OrderStatus::CANCELED;
             $order->save();
         });
 
-        return redirect()->route('orders.index')
-            ->with('ok', "Pedido #$orderId cancelado y stock devuelto.");
-
-    } catch (DomainException $e) {
-        return redirect()->route('orders.index')
-            ->with('error', $e->getMessage());
-    } catch (\Throwable $e) {
-        \Log::error('Error cancelando pedido', ['msg' => $e->getMessage(), 'order_id' => $orderId]);
-        return redirect()->route('orders.index')
-            ->with('error', "Ocurrió un error al cancelar el pedido #$orderId.");
+        $this->dispatch('notify', type:'success', message:"Pedido #$orderId cancelado y stock devuelto.");
     }
-}
 
+    public function cancelManualHttp(int $orderId): RedirectResponse
+    {
+        try {
+            DB::transaction(function () use ($orderId) {
+                $order = \App\Models\Order::with('items.product')->lockForUpdate()->findOrFail($orderId);
 
+                // Comparar con enum directamente
+                if ($order->status !== OrderStatus::COMPLETED) {
+                    throw new DomainException('Solo se pueden cancelar pedidos completados.');
+                }
+
+                $stock = app(StockService::class);
+
+                foreach ($order->items as $item) {
+                    // Devolver el stock
+                    $stock->adjust($item->product, $item->quantity, 'manual-cancel', $order);
+                }
+
+                // Asignar enum directamente
+                $order->status = OrderStatus::CANCELED;
+                $order->save();
+            });
+
+            return redirect()->route('orders.index')
+                ->with('ok', "Pedido #$orderId cancelado y stock devuelto.");
+
+        } catch (DomainException $e) {
+            return redirect()->route('orders.index')
+                ->with('error', $e->getMessage());
+        } catch (\Throwable $e) {
+            \Log::error('Error cancelando pedido', ['msg' => $e->getMessage(), 'order_id' => $orderId]);
+            return redirect()->route('orders.index')
+                ->with('error', "Ocurrió un error al cancelar el pedido #$orderId.");
+        }
+    }
 }

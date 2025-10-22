@@ -136,9 +136,9 @@ class SettingsPanel extends Component
         }
 
         if ($user->receipt_logo_path && Storage::disk('public')->exists($user->receipt_logo_path)) {
-            $url = Storage::disk('public')->url($user->receipt_logo_path);
             $v   = Storage::disk('public')->lastModified($user->receipt_logo_path) ?: time();
-            $this->receipt_logo_url = "{$url}?v={$v}";
+            // Servir SIEMPRE vía ruta autenticada para evitar filtrado entre usuarios
+            $this->receipt_logo_url = route('user.receipt-logo', ['v' => $v]);
             return;
         }
 

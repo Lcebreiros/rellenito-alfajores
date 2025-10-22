@@ -57,7 +57,7 @@
           <h2 class="text-base font-semibold text-neutral-900 dark:text-neutral-100">Datos del producto</h2>
         </div>
 
-        <form action="{{ route('products.update', $product) }}" method="POST" class="px-5 py-5 space-y-5">
+        <form action="{{ route('products.update', $product) }}" method="POST" enctype="multipart/form-data" class="px-5 py-5 space-y-5">
           @csrf
           @method('PUT')
 
@@ -96,6 +96,39 @@
                        dark:border-neutral-700 dark:bg-neutral-900 dark:text-neutral-100 dark:placeholder-neutral-500"
               >
             </div>
+          </div>
+
+          {{-- Imagen (opcional) --}}
+          <div>
+            <label class="block text-sm font-medium text-neutral-700 dark:text-neutral-200 mb-1">
+              Foto (opcional)
+            </label>
+
+            <label for="image"
+                   class="block cursor-pointer rounded-lg border-2 border-dashed border-neutral-300 p-5 text-center hover:border-indigo-400 transition-colors dark:border-neutral-700 dark:hover:border-indigo-500">
+              <div class="flex flex-col items-center gap-2">
+                <svg class="w-7 h-7 text-neutral-400 dark:text-neutral-300" viewBox="0 0 24 24" fill="none">
+                  <path d="M4 7a2 2 0 0 1 2-2h2l1-1h6l1 1h2a2 2 0 0 1 2 2v10a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V7Z" stroke="currentColor" stroke-width="1.6"/>
+                  <path d="M12 9a3.5 3.5 0 1 0 0 7a3.5 3.5 0 0 0 0-7Z" stroke="currentColor" stroke-width="1.6"/>
+                </svg>
+                <div class="text-sm">
+                  <span class="font-medium text-indigo-600 dark:text-indigo-400">Haz clic para subir</span>
+                  <span class="text-neutral-500 dark:text-neutral-400"> o arrastra y suelta</span>
+                </div>
+                <p class="text-xs text-neutral-500 dark:text-neutral-400">PNG, JPG o GIF (hasta 5MB)</p>
+              </div>
+              <input id="image" name="image" type="file" accept="image/*" class="sr-only">
+            </label>
+
+            <div id="editImagePreviewWrap" class="mt-3 hidden">
+              <div class="rounded-lg border border-neutral-200 p-2 bg-neutral-50 dark:border-neutral-800 dark:bg-neutral-950/40">
+                <img id="editImagePreview" class="max-h-48 mx-auto rounded-md object-contain" alt="Previsualización">
+              </div>
+            </div>
+
+            @error('image')
+              <p class="mt-1 text-sm text-rose-600 dark:text-rose-400">{{ $message }}</p>
+            @enderror
           </div>
 
           {{-- Activo --}}
@@ -164,7 +197,7 @@
           <h2 class="text-base font-semibold text-neutral-900 dark:text-neutral-100">Stock</h2>
         </div>
 
-        <form action="{{ route('products.update-stock', $product) }}" method="POST" class="px-5 py-5 space-y-4">
+        <form action="{{ route('products.stock.update', $product) }}" method="POST" class="px-5 py-5 space-y-4">
           @csrf
           @method('PATCH')
 
@@ -189,10 +222,10 @@
         </form>
       </div>
 
-      {{-- Mini vista previa (opcional si usas photo_path) --}}
+      {{-- Vista previa actual (misma lógica que index) --}}
       @php
-        $photo = isset($product->photo_path) && $product->photo_path
-          ? \Illuminate\Support\Facades\Storage::url($product->photo_path)
+        $photo = isset($product->image) && $product->image
+          ? \Illuminate\Support\Facades\Storage::url($product->image)
           : null;
       @endphp
       <div class="rounded-2xl bg-white dark:bg-neutral-900 ring-1 ring-neutral-200/70 dark:ring-neutral-800 shadow-sm overflow-hidden">
@@ -201,7 +234,7 @@
         </div>
         <div class="aspect-[4/3] bg-neutral-100 dark:bg-neutral-800">
           @if($photo)
-            <img src="{{ $photo }}" alt="Foto de {{ $product->name }}" class="h-full w-full object-cover">
+            <img id="currentImage" src="{{ $photo }}" alt="Foto de {{ $product->name }}" class="h-full w-full object-cover">
           @else
             <div class="h-full w-full grid place-items-center">
               <svg class="h-12 w-12 text-neutral-400 dark:text-neutral-300" viewBox="0 0 24 24" fill="none" aria-hidden="true">
@@ -279,5 +312,24 @@
       }
     }
   }
+  // Preview imagen (edit)
+  document.addEventListener('DOMContentLoaded', () => {
+    const fileInput = document.getElementById('image');
+    const wrap = document.getElementById('editImagePreviewWrap');
+    const img  = document.getElementById('editImagePreview');
+    const current = document.getElementById('currentImage');
+    if (!fileInput) return;
+    fileInput.addEventListener('change', () => {
+      const file = fileInput.files?.[0];
+      if (!file) { if (wrap) wrap.classList.add('hidden'); return; }
+      const reader = new FileReader();
+      reader.onload = e => {
+        if (img) img.src = e.target.result;
+        if (wrap) wrap.classList.remove('hidden');
+        if (current) current.src = e.target.result; // reflejar sobre preview lateral
+      };
+      reader.readAsDataURL(file);
+    });
+  });
 </script>
 @endpush

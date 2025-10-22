@@ -7,24 +7,42 @@
     $priceNum = (float) ($product->price ?? 0);
     $priceLbl = '$ ' . number_format($priceNum, 2, ',', '.');
 
-    $thumb    = isset($product->photo_path) && $product->photo_path
-                  ? \Illuminate\Support\Facades\Storage::url($product->photo_path)
-                  : null;
+    // Imagen del producto (acepta varios campos: image, image_url, photo_path, photo_url)
+    $thumb = null;
+    try {
+      $storage = \Illuminate\Support\Facades\Storage::disk('public');
+      $resolve = function ($path) use ($storage) {
+        if (!$path) return null;
+        $p = (string) $path;
+        if (str_starts_with($p, 'http')) return $p;
+        $p = ltrim($p, '/');
+        $p = preg_replace('#^(public/|storage/)#', '', $p);
+        if ($storage->exists($p)) return $storage->url($p);
+        return asset('storage/' . $p);
+      };
+
+      if (!$thumb && !empty($product->image_url)) $thumb = $resolve($product->image_url);
+      if (!$thumb && !empty($product->image))     $thumb = $resolve($product->image);
+      if (!$thumb && !empty($product->photo_path))$thumb = $resolve($product->photo_path);
+      if (!$thumb && !empty($product->photo_url)) $thumb = $resolve($product->photo_url);
+    } catch (\Throwable $e) {
+      $thumb = null;
+    }
 
     if(!$isActive){
       $badgeText = 'Inactivo';
       $badgeDot  = 'bg-slate-400';
-      $badgeRing = 'ring-slate-200/80 dark:ring-slate-600';
+      $badgeRing = 'border-slate-200/80 dark:border-slate-600';
       $badgeTxt  = 'text-slate-600 dark:text-slate-300';
     } elseif(($currentStock ?? 0) > 0){
       $badgeText = 'Stock: '.(int)$currentStock;
       $badgeDot  = 'bg-emerald-500';
-      $badgeRing = 'ring-emerald-200/60 dark:ring-emerald-800';
+      $badgeRing = 'border-emerald-200/60 dark:border-emerald-800';
       $badgeTxt  = 'text-emerald-700 dark:text-emerald-300';
     } else {
       $badgeText = 'Sin stock';
       $badgeDot  = 'bg-rose-500';
-      $badgeRing = 'ring-rose-200/60 dark:ring-rose-800';
+      $badgeRing = 'border-rose-200/60 dark:border-rose-800';
       $badgeTxt  = 'text-rose-700 dark:text-rose-300';
     }
   @endphp
@@ -80,8 +98,8 @@
           <div class="mt-2 flex flex-col items-start gap-1 min-w-0">
             {{-- Badge responsive (stock/inactivo/sin stock) --}}
             <span class="inline-flex items-center gap-1 sm:gap-1.5 rounded-full 
-                         px-1.5 sm:px-2 py-0.5 text-[10px] sm:text-[11px] ring-1 
-                         {{ $badgeRing }} {{ $badgeTxt }}">
+                         px-2 sm:px-2.5 py-[2px] text-[10px] sm:text-[11px] leading-[1.2] border 
+                         {{ $badgeRing }} {{ $badgeTxt }} whitespace-nowrap">
               <span class="h-1 w-1 sm:h-1.5 sm:w-1.5 rounded-full {{ $badgeDot }}"></span>
               <span class="truncate max-w-[120px]">{{ $badgeText }}</span>
             </span>

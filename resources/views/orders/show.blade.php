@@ -12,9 +12,16 @@ $statusMap = [
     'fulfilled' => ['label'=>'Entregado',  'bg'=>'bg-indigo-100 dark:bg-indigo-900/40',  'text'=>'text-indigo-700 dark:text-indigo-300'],
 ];
 
-// Obtener la configuración del status actual
-$s = $statusMap[$order->status] ?? [
-    'label' => ucfirst($order->status ?? '—'),
+// Obtener la configuración del status actual (normalizando enum -> string)
+if ($order->status instanceof \BackedEnum) {
+    $statusKey = (string) $order->status->value;
+} elseif ($order->status instanceof \UnitEnum) {
+    $statusKey = (string) $order->status->name;
+} else {
+    $statusKey = is_string($order->status) ? $order->status : (string) ($order->status ?? '');
+}
+$s = $statusMap[$statusKey] ?? [
+    'label' => ucfirst($statusKey ?: '—'),
     'bg'    => 'bg-neutral-100 dark:bg-neutral-800/60',
     'text'  => 'text-neutral-700 dark:text-neutral-200'
 ];
@@ -22,7 +29,7 @@ $s = $statusMap[$order->status] ?? [
 
 <div class="flex flex-col sm:flex-row sm:items-end sm:justify-between gap-2">
     <div>
-        <h1 class="text-xl font-semibold text-neutral-800 dark:text-neutral-100">Pedido #{{ $order->id }}</h1>
+        <h1 class="text-xl font-semibold text-neutral-800 dark:text-neutral-100">Pedido #{{ $order->order_number ?? $order->id }}</h1>
         <p class="text-xs sm:text-sm text-neutral-500 dark:text-neutral-400">{{ $order->created_at?->format('d/m/Y H:i') }}</p>
     </div>
     <span class="inline-flex items-center gap-2 px-3 py-1.5 rounded-full text-sm font-medium {{ $s['bg'] }} {{ $s['text'] }}">
