@@ -12,9 +12,8 @@ class CreateBranchesTable extends Migration
         if (!Schema::hasTable('branches')) {
             Schema::create('branches', function (Blueprint $table) {
                 $table->id();
-                
-                // Ajuste: usar unsignedInteger para que coincida con users.id (INT)
-                $table->unsignedInteger('company_id');
+                // company_id debe coincidir exactamente con el tipo de users.id (normalmente unsigned BIGINT)
+                $table->unsignedBigInteger('company_id');
                 $table->foreign('company_id')
                       ->references('id')
                       ->on('users')
