@@ -13,6 +13,7 @@ use Illuminate\Support\Facades\Log;
 use Illuminate\Validation\ValidationException;
 use RuntimeException;
 use Laravel\Fortify\Contracts\CreatesNewUsers;
+use Spatie\Permission\Models\Role;
 
 class CreateUserWithInvitation implements CreatesNewUsers
 {
@@ -44,6 +45,9 @@ class CreateUserWithInvitation implements CreatesNewUsers
             try {
                 // Crear usuario base
                 $user = $this->createNewUser->create($input);
+
+                // Asegurar que existan los roles base (por si no se corrió el seeder en prod)
+                $this->ensureBaseRoles();
 
                 // Asignar datos específicos de la invitación
                 $this->applyInvitationToUser($user, $invitation);
@@ -91,6 +95,17 @@ class CreateUserWithInvitation implements CreatesNewUsers
             Invitation::TYPE_USER => $this->setupRegularUser($user, $invitation),
             default => throw new RuntimeException("Tipo de invitación desconocido: {$invitation->invitation_type}")
         };
+    }
+
+    /**
+     * Crea de forma idempotente los roles base si no existen (guard web)
+     */
+    private function ensureBaseRoles(): void
+    {
+        $guard = config('auth.defaults.guard', 'web');
+        foreach (['master', 'company', 'admin', 'user'] as $name) {
+            Role::findOrCreate($name, $guard);
+        }
     }
 
     private function setupCompanyUser($user, Invitation $invitation): void

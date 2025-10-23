@@ -325,7 +325,13 @@
         $firstRole = $roles[0] ?? null;
 
         if ($firstRole) {
-            $levelLabel = Str::title(str_replace(['-', '_'], ' ', $firstRole));
+            $roleMap = [
+                'company' => 'Empresas',
+                'admin'   => 'Sucursal',
+                'user'    => 'Usuario',
+                'master'  => 'Master',
+            ];
+            $levelLabel = $roleMap[$firstRole] ?? Str::title(str_replace(['-', '_'], ' ', $firstRole));
         } else {
             switch (Auth::user()->hierarchy_level) {
                 case \App\Models\User::HIERARCHY_MASTER:
