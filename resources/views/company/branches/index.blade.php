@@ -1,6 +1,8 @@
 @extends('layouts.app')
 
-@section('title', 'Sucursales')
+@section('header')
+  <h1 class="text-2xl font-semibold text-neutral-900 dark:text-neutral-100">Sucursales</h1>
+@endsection
 
 @section('content')
 <div class="max-w-6xl mx-auto p-6 text-neutral-900 dark:text-neutral-100">

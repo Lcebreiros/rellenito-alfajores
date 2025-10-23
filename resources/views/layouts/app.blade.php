@@ -33,6 +33,11 @@
     .sb-collapsed .app-main{ margin-left: 5rem; } /* w-20 */
     @media (max-width: 767px) { .app-main{ margin-left: 0; } }
   </style>
+  @if (trim($__env->yieldContent('no_sidebar')))
+  <style>
+    .app-main { margin-left: 0 !important; }
+  </style>
+  @endif
 
   @livewireStyles
 </head>
@@ -48,7 +53,11 @@
   <x-banner />
 
   {{-- Sidebar fijo (solo desktop) --}}
-  <x-sidebar />
+  @if (trim($__env->yieldContent('no_sidebar')))
+    {{-- sin sidebar en esta vista --}}
+  @else
+    <x-sidebar />
+  @endif
 
   {{-- Contenido principal --}}
   <div class="app-main min-h-screen flex flex-col">
@@ -57,15 +66,83 @@
     {{-- HEADER: slot Jetstream o sección Blade --}}
     @if (isset($header))
       <header class="bg-white border-b border-neutral-200 dark:bg-neutral-900 dark:border-neutral-800">
-        <div class="max-w-7xl mx-auto py-6 px-4 sm:px-6 lg:px-8">
-          {{ $header }}
+        <div class="w-full py-4 px-4 sm:px-6 lg:px-8">
+          <div class="flex items-center justify-between gap-4">
+            <div class="min-w-0">{{ $header }}</div>
+            <div class="flex items-center gap-2" @if(!request()->routeIs('inicio')) x-data @endif>
+              @hasSection('header_actions')
+                @yield('header_actions')
+              @endif
+              @if (request()->routeIs('inicio'))
+              <div x-data="{ open:false }" class="relative">
+                <button type="button" @click="open=true"
+                        class="inline-flex items-center gap-2 px-3 py-2 text-sm rounded-lg border border-neutral-300 dark:border-neutral-700 text-neutral-700 dark:text-neutral-200 hover:bg-neutral-50 dark:hover:bg-neutral-800">
+                  <svg class="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true">
+                    <path stroke-linecap="round" stroke-linejoin="round" d="M15 12H3m12 0-4-4m4 4-4 4M21 3v18" />
+                  </svg>
+                  Salir
+                </button>
+                <!-- Modal de confirmación logout -->
+                <div x-cloak x-show="open" class="fixed inset-0 z-50 flex items-center justify-center">
+                  <div class="absolute inset-0 bg-black/50" @click="open=false"></div>
+                  <div class="relative w-full max-w-md mx-4 rounded-xl border border-neutral-200 dark:border-neutral-800 bg-white dark:bg-neutral-900 shadow-lg p-5">
+                    <h3 class="text-lg font-semibold text-neutral-900 dark:text-neutral-100 mb-2">Confirmar salida</h3>
+                    <p class="text-sm text-neutral-600 dark:text-neutral-300 mb-4">¿Está seguro que desea cerrar sesión?</p>
+                    <div class="flex items-center justify-end gap-2">
+                      <button type="button" @click="open=false" class="px-3 py-2 rounded-lg border border-neutral-300 dark:border-neutral-700 text-sm text-neutral-700 dark:text-neutral-200 hover:bg-neutral-50 dark:hover:bg-neutral-800">Cancelar</button>
+                      <form method="POST" action="{{ route('logout') }}">
+                        @csrf
+                        <button type="submit" class="px-4 py-2 rounded-lg bg-rose-600 text-white text-sm hover:bg-rose-700">Cerrar sesión</button>
+                      </form>
+                    </div>
+                  </div>
+                </div>
+              </div>
+              @endif
+              <x-notifications-bell />
+            </div>
+          </div>
         </div>
       </header>
     @else
       @hasSection('header')
         <header class="bg-white border-b border-neutral-200 dark:bg-neutral-900 dark:border-neutral-800">
-          <div class="max-w-7xl mx-auto py-6 px-4 sm:px-6 lg:px-8">
-            @yield('header')
+          <div class="w-full py-4 px-4 sm:px-6 lg:px-8">
+            <div class="flex items-center justify-between gap-4">
+              <div class="min-w-0">@yield('header')</div>
+              <div class="flex items-center gap-2">
+                @hasSection('header_actions')
+                  @yield('header_actions')
+                @endif
+                @if (request()->routeIs('inicio'))
+                <div x-data="{ open:false }" class="relative">
+                  <button type="button" @click="open=true"
+                          class="inline-flex items-center gap-2 px-3 py-2 text-sm rounded-lg border border-neutral-300 dark:border-neutral-700 text-neutral-700 dark:text-neutral-200 hover:bg-neutral-50 dark:hover:bg-neutral-800">
+                    <svg class="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true">
+                      <path stroke-linecap="round" stroke-linejoin="round" d="M15 12H3m12 0-4-4m4 4-4 4M21 3v18" />
+                    </svg>
+                    Salir
+                  </button>
+                  <!-- Modal de confirmación logout -->
+                  <div x-cloak x-show="open" class="fixed inset-0 z-50 flex items-center justify-center">
+                    <div class="absolute inset-0 bg-black/50" @click="open=false"></div>
+                    <div class="relative w-full max-w-md mx-4 rounded-xl border border-neutral-200 dark:border-neutral-800 bg-white dark:bg-neutral-900 shadow-lg p-5">
+                      <h3 class="text-lg font-semibold text-neutral-900 dark:text-neutral-100 mb-2">Confirmar salida</h3>
+                      <p class="text-sm text-neutral-600 dark:text-neutral-300 mb-4">¿Está seguro que desea cerrar sesión?</p>
+                      <div class="flex items-center justify-end gap-2">
+                        <button type="button" @click="open=false" class="px-3 py-2 rounded-lg border border-neutral-300 dark:border-neutral-700 text-sm text-neutral-700 dark:text-neutral-200 hover:bg-neutral-50 dark:hover:bg-neutral-800">Cancelar</button>
+                        <form method="POST" action="{{ route('logout') }}">
+                          @csrf
+                          <button type="submit" class="px-4 py-2 rounded-lg bg-rose-600 text-white text-sm hover:bg-rose-700">Cerrar sesión</button>
+                        </form>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+                @endif
+                <x-notifications-bell />
+              </div>
+            </div>
           </div>
         </header>
       @endif

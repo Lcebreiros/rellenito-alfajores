@@ -31,6 +31,8 @@ class Employee extends Model
         'benefits',
         'medical_coverage',
         'has_computer',
+        'salary',
+        'notes',
     ];
 
     protected $casts = [
@@ -40,8 +42,10 @@ class Employee extends Model
         'tasks'        => 'array',
         'schedules'    => 'array',
         'benefits'     => 'array',
+        'notes'        => 'array',
         'has_computer' => 'boolean',
         'start_date'   => 'date',
+        'salary'       => 'decimal:2',
     ];
 
     // =======================

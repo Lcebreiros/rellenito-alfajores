@@ -311,7 +311,7 @@
   <div class="h-full flex flex-col">
     <!-- Header -->
     <div class="sidebar-header flex-shrink-0 h-16 flex items-center px-4 border-b">
-      <a href="{{ route('dashboard') }}" wire:navigate data-turbo="false"
+      <a href="{{ route('inicio') }}" wire:navigate data-turbo="false"
          class="inline-flex items-center gap-3 transition-all duration-300 hover:scale-105" 
          title="{{ $panelText }}" aria-label="{{ $panelText }}">
         <x-application-mark x-bind:class="collapsed ? 'h-7 w-auto' : 'h-8 w-auto'" 
@@ -420,6 +420,18 @@
               class="text-sm font-semibold truncate relative z-1">Productos</span>
       </a>
 
+      <!-- Clientes -->
+      <a href="{{ route('clients.index') }}" wire:navigate data-turbo="false"
+         class="nav-link {{ request()->routeIs('clients.*') ? $active : $idle }}"
+         :class="collapsed ? 'justify-center flex items-center gap-3 p-3' : 'flex items-center gap-3 p-3'"
+         :title="collapsed ? 'Clientes' : null">
+        <span class="shrink-0 flex items-center justify-center w-7 h-7">
+          <img src="{{ asset('images/clientes.png') }}" alt="Clientes" class="nav-icon">
+        </span>
+        <span x-show="!collapsed" x-transition:enter="fade-slide-enter" 
+              class="text-sm font-semibold truncate relative z-1">Clientes</span>
+      </a>
+
       <!-- Stock -->
       <a href="{{ route('stock.index') }}#stock" wire:navigate data-turbo="false"
          class="nav-link {{ request()->fullUrlIs(route('stock.index').'#stock') ? $active : $idle }}"
@@ -519,6 +531,18 @@
         </span>
         <span x-show="!collapsed" x-transition:enter="fade-slide-enter" 
               class="text-sm font-semibold truncate relative z-1">Configuración</span>
+      </a>
+
+      <!-- Soporte -->
+      <a href="{{ route('support.index') }}" wire:navigate data-turbo="false"
+         class="nav-link {{ request()->routeIs('support.*') ? $active : $idle }}"
+         :class="collapsed ? 'justify-center flex items-center gap-3 p-3' : 'flex items-center gap-3 p-3'"
+         :title="collapsed ? 'Soporte' : null">
+        <span class="shrink-0 flex items-center justify-center w-7 h-7">
+          <img src="{{ asset('images/soporte.png') }}" alt="Soporte" class="nav-icon">
+        </span>
+        <span x-show="!collapsed" x-transition:enter="fade-slide-enter" 
+              class="text-sm font-semibold truncate relative z-1">Soporte</span>
       </a>
     </nav>
 

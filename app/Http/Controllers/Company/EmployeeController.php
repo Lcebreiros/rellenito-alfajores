@@ -24,7 +24,7 @@ class EmployeeController extends Controller
      */
     public function index(Request $request): View
     {
-        $companyId = auth()->user()->company_id;
+        $companyId = auth()->user()->rootCompany()?->id ?? auth()->id();
 
         $query = Employee::with('branch')
             ->where('company_id', $companyId)
@@ -48,8 +48,12 @@ class EmployeeController extends Controller
             });
         }
 
-        // cursorPaginate es eficiente para grandes volúmenes
-        $employees = $query->cursorPaginate(50);
+        if ($request->filled('has_computer')) {
+            $query->where('has_computer', (bool) $request->input('has_computer'));
+        }
+
+        // Usamos paginate para disponer de total() en la vista
+        $employees = $query->paginate(50);
 
         return view('company.employees.index', compact('employees'));
     }
@@ -69,7 +73,25 @@ class EmployeeController extends Controller
      */
     public function store(Request $request): RedirectResponse
     {
-        $companyId = auth()->user()->company_id;
+        $this->authorize('create', Employee::class);
+
+        $companyId = auth()->user()->rootCompany()?->id ?? auth()->id();
+
+        // Normalizar JSON opcional (textareas *_json)
+        foreach ([
+            'family_group_json' => 'family_group',
+            'objectives_json'   => 'objectives',
+            'tasks_json'        => 'tasks',
+            'schedules_json'    => 'schedules',
+            'benefits_json'     => 'benefits',
+        ] as $jsonField => $target) {
+            if ($request->filled($jsonField)) {
+                $decoded = json_decode($request->input($jsonField), true);
+                if (json_last_error() === JSON_ERROR_NONE && is_array($decoded)) {
+                    $request->merge([$target => $decoded]);
+                }
+            }
+        }
 
         $data = $this->validateEmployee($request);
 
@@ -107,6 +129,42 @@ class EmployeeController extends Controller
         return view('company.employees.show', compact('employee'));
     }
 
+    public function addEvaluation(Request $request, Employee $employee): RedirectResponse
+    {
+        $this->authorize('update', $employee);
+        $data = $request->validate([
+            'evaluation' => ['required','string','max:2000'],
+        ]);
+
+        $evaluations = $employee->evaluations ?: [];
+        $evaluations[] = [
+            'text' => $data['evaluation'],
+            'by'   => auth()->id(),
+            'at'   => now()->toIso8601String(),
+        ];
+        $employee->update(['evaluations' => $evaluations]);
+
+        return back()->with('success', 'Evaluación agregada.');
+    }
+
+    public function addNote(Request $request, Employee $employee): RedirectResponse
+    {
+        $this->authorize('update', $employee);
+        $data = $request->validate([
+            'note' => ['required','string','max:2000'],
+        ]);
+
+        $notes = $employee->notes ?: [];
+        $notes[] = [
+            'text' => $data['note'],
+            'by'   => auth()->id(),
+            'at'   => now()->toIso8601String(),
+        ];
+        $employee->update(['notes' => $notes]);
+
+        return back()->with('success', 'Nota agregada.');
+    }
+
     /**
      * Formulario de edición.
      */
@@ -123,6 +181,25 @@ class EmployeeController extends Controller
     public function update(Request $request, Employee $employee): RedirectResponse
     {
         $this->authorize('update', $employee);
+
+        // Normalizar JSON opcional (textareas *_json)
+        foreach ([
+            'family_group_json' => 'family_group',
+            'objectives_json'   => 'objectives',
+            'tasks_json'        => 'tasks',
+            'schedules_json'    => 'schedules',
+            'benefits_json'     => 'benefits',
+        ] as $jsonField => $target) {
+            if ($request->filled($jsonField)) {
+                $decoded = json_decode($request->input($jsonField), true);
+                if (json_last_error() === JSON_ERROR_NONE && is_array($decoded)) {
+                    $request->merge([$target => $decoded]);
+                }
+            } else if ($request->has($jsonField) && $request->input($jsonField) === '') {
+                // si se envía vacío explícitamente, borra el campo
+                $request->merge([$target => null]);
+            }
+        }
 
         $data = $this->validateEmployee($request, $employee->id);
 
@@ -201,8 +278,10 @@ class EmployeeController extends Controller
      */
     protected function validateEmployee(Request $request, int $employeeId = null): array
     {
+        $companyId = auth()->user()->rootCompany()?->id ?? auth()->id();
+
         $rules = [
-            'branch_id' => ['nullable','exists:branches,id'],
+            'branch_id' => ['nullable', Rule::exists('branches','id')->where('company_id', $companyId)],
             'first_name' => ['required','string','max:120'],
             'last_name'  => ['required','string','max:120'],
             'email'      => ['nullable','email','max:255'],
@@ -219,7 +298,7 @@ class EmployeeController extends Controller
             'tasks'        => ['nullable','array'],
             'schedules'    => ['nullable','array'],
             'benefits'     => ['nullable','array'],
-            'salary'       => ['nullable','array'],
+            'salary'       => ['nullable','numeric','min:0'],
             'medical_coverage' => ['nullable','string','max:255'],
             'has_computer' => ['nullable','boolean'],
         ];

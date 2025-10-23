@@ -16,6 +16,14 @@ class Client extends Model
         'city',
         'province',
         'country',
+        'tags',
+        'notes',
+        'balance',
+    ];
+
+    protected $casts = [
+        'tags'    => 'array',
+        'balance' => 'decimal:2',
     ];
 
     public function orders()

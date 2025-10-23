@@ -8,6 +8,9 @@
       @can('update', $employee)
       <a href="{{ route('company.employees.edit', $employee) }}" class="inline-flex items-center gap-2 rounded-lg bg-indigo-600 px-4 py-2 text-sm font-medium text-white hover:bg-indigo-700">Editar</a>
       @endcan
+      <button id="openEmployeeCardBtn" type="button" class="inline-flex items-center gap-2 rounded-lg bg-emerald-600 px-4 py-2 text-sm font-medium text-white hover:bg-emerald-700">
+        Descargar ficha
+      </button>
     </div>
   </div>
 @endsection
@@ -19,8 +22,12 @@
   $companyName = $employee->company->name ?? ($employee->company->business_name ?? '—');
   $branchName  = $employee->branch->name ?? '—';
 @endphp
-
-<div class="max-w-5xl mx-auto px-3 sm:px-6">
+<div x-data="{ openEval:false, openNote:false }" class="max-w-5xl mx-auto px-3 sm:px-6">
+  @if(session('success'))
+    <div class="mb-4 rounded-lg border border-emerald-200 bg-emerald-50 text-emerald-800 px-3 py-2 text-sm dark:border-emerald-800 dark:bg-emerald-900/20 dark:text-emerald-300">
+      {{ session('success') }}
+    </div>
+  @endif
   <div class="bg-white dark:bg-neutral-900 rounded-2xl shadow ring-1 ring-neutral-200/70 dark:ring-neutral-800 overflow-hidden">
     <div class="p-6 border-b border-neutral-200 dark:border-neutral-800 flex items-start gap-4">
       <div class="w-20 h-20 rounded-xl overflow-hidden bg-neutral-100 dark:bg-neutral-800 border border-neutral-200 dark:border-neutral-700 flex items-center justify-center">
@@ -71,7 +78,6 @@
         @php
           $sections = [
             'family_group' => 'Grupo familiar',
-            'evaluations'  => 'Evaluaciones',
             'objectives'   => 'Objetivos',
             'tasks'        => 'Tareas',
             'schedules'    => 'Horarios',
@@ -79,6 +85,57 @@
           ];
         @endphp
 
+        {{-- Evaluaciones con botón para modal --}}
+        <div class="rounded-xl border border-neutral-200 dark:border-neutral-800 p-4">
+          <div class="flex items-center justify-between mb-2">
+            <h3 class="text-sm font-semibold text-neutral-800 dark:text-neutral-200">Evaluaciones</h3>
+            @can('update', $employee)
+            <button type="button" @click="openEval=true" class="inline-flex items-center gap-2 rounded-lg bg-indigo-600 px-3 py-1.5 text-white text-xs hover:bg-indigo-700">Agregar evaluación</button>
+            @endcan
+          </div>
+          @php $evals = $employee->evaluations; @endphp
+          @if(is_array($evals) && count($evals))
+            <ul class="list-disc list-inside text-sm text-neutral-700 dark:text-neutral-300 space-y-1 mb-3">
+              @foreach($evals as $ev)
+                <li>
+                  {{ is_array($ev) ? ($ev['text'] ?? json_encode($ev, JSON_UNESCAPED_UNICODE)) : $ev }}
+                  @if(is_array($ev) && (!empty($ev['at']) || !empty($ev['by'])))
+                    <span class="text-xs text-neutral-500">— {{ $ev['at'] ?? '' }}</span>
+                  @endif
+                </li>
+              @endforeach
+            </ul>
+          @else
+            <p class="text-sm text-neutral-500 dark:text-neutral-400 mb-3">Sin evaluaciones</p>
+          @endif
+        </div>
+
+        {{-- Notas con botón para modal --}}
+        <div class="rounded-xl border border-neutral-200 dark:border-neutral-800 p-4">
+          <div class="flex items-center justify-between mb-2">
+            <h3 class="text-sm font-semibold text-neutral-800 dark:text-neutral-200">Notas</h3>
+            @can('update', $employee)
+            <button type="button" @click="openNote=true" class="inline-flex items-center gap-2 rounded-lg bg-indigo-600 px-3 py-1.5 text-white text-xs hover:bg-indigo-700">Agregar nota</button>
+            @endcan
+          </div>
+          @php $notes = $employee->notes; @endphp
+          @if(is_array($notes) && count($notes))
+            <ul class="list-disc list-inside text-sm text-neutral-700 dark:text-neutral-300 space-y-1 mb-3">
+              @foreach($notes as $n)
+                <li>
+                  {{ is_array($n) ? ($n['text'] ?? json_encode($n, JSON_UNESCAPED_UNICODE)) : $n }}
+                  @if(is_array($n) && (!empty($n['at']) || !empty($n['by'])))
+                    <span class="text-xs text-neutral-500">— {{ $n['at'] ?? '' }}</span>
+                  @endif
+                </li>
+              @endforeach
+            </ul>
+          @else
+            <p class="text-sm text-neutral-500 dark:text-neutral-400 mb-3">Sin notas</p>
+          @endif
+        </div>
+
+        {{-- Resto de secciones informativas --}}
         @foreach($sections as $field => $label)
           @php $val = $employee->$field; @endphp
           <div class="rounded-xl border border-neutral-200 dark:border-neutral-800 p-4">
@@ -109,6 +166,168 @@
     </div>
     @endcan
   </div>
+
+  {{-- Modal: Agregar evaluación --}}
+  @can('update', $employee)
+  <div x-cloak x-show="openEval" class="fixed inset-0 z-50 flex items-center justify-center">
+    <div class="absolute inset-0 bg-black/50" @click="openEval=false"></div>
+    <div class="relative w-full max-w-lg mx-auto bg-white dark:bg-neutral-900 rounded-xl shadow-lg border border-neutral-200 dark:border-neutral-800 p-5">
+      <div class="flex items-center justify-between mb-3">
+        <h3 class="text-base font-semibold text-neutral-900 dark:text-neutral-100">Agregar evaluación</h3>
+        <button class="text-neutral-500 hover:text-neutral-700 dark:text-neutral-400" @click="openEval=false">✕</button>
+      </div>
+      <form method="POST" action="{{ route('company.employees.evaluations.add', $employee) }}" class="space-y-3">
+        @csrf
+        <textarea name="evaluation" rows="5" required placeholder="Escribe una evaluación"
+                  class="w-full rounded-lg border-neutral-300 bg-white px-3 py-2 text-sm text-neutral-900 placeholder:text-neutral-400 focus:border-indigo-500 focus:ring-indigo-500 dark:border-neutral-700 dark:bg-neutral-900 dark:text-neutral-100"></textarea>
+        <div class="flex justify-end gap-2">
+          <button type="button" @click="openEval=false" class="inline-flex items-center gap-2 rounded-lg border border-neutral-300 px-3 py-2 text-sm text-neutral-700 hover:bg-neutral-50 dark:border-neutral-700 dark:text-neutral-200 dark:hover:bg-neutral-800">Cancelar</button>
+          <button type="submit" class="inline-flex items-center gap-2 rounded-lg bg-indigo-600 px-4 py-2 text-sm font-medium text-white hover:bg-indigo-700">Guardar</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  {{-- Modal: Agregar nota --}}
+  <div x-cloak x-show="openNote" class="fixed inset-0 z-50 flex items-center justify-center">
+    <div class="absolute inset-0 bg-black/50" @click="openNote=false"></div>
+    <div class="relative w-full max-w-lg mx-auto bg-white dark:bg-neutral-900 rounded-xl shadow-lg border border-neutral-200 dark:border-neutral-800 p-5">
+      <div class="flex items-center justify-between mb-3">
+        <h3 class="text-base font-semibold text-neutral-900 dark:text-neutral-100">Agregar nota</h3>
+        <button class="text-neutral-500 hover:text-neutral-700 dark:text-neutral-400" @click="openNote=false">✕</button>
+      </div>
+      <form method="POST" action="{{ route('company.employees.notes.add', $employee) }}" class="space-y-3">
+        @csrf
+        <textarea name="note" rows="5" required placeholder="Escribe una nota"
+                  class="w-full rounded-lg border-neutral-300 bg-white px-3 py-2 text-sm text-neutral-900 placeholder:text-neutral-400 focus:border-indigo-500 focus:ring-indigo-500 dark:border-neutral-700 dark:bg-neutral-900 dark:text-neutral-100"></textarea>
+        <div class="flex justify-end gap-2">
+          <button type="button" @click="openNote=false" class="inline-flex items-center gap-2 rounded-lg border border-neutral-300 px-3 py-2 text-sm text-neutral-700 hover:bg-neutral-50 dark:border-neutral-700 dark:text-neutral-200 dark:hover:bg-neutral-800">Cancelar</button>
+          <button type="submit" class="inline-flex items-center gap-2 rounded-lg bg-indigo-600 px-4 py-2 text-sm font-medium text-white hover:bg-indigo-700">Guardar</button>
+        </div>
+      </form>
+    </div>
+  </div>
+  @endcan
 </div>
 @endsection
 
+@push('modals')
+{{-- Modal de Ficha del Empleado --}}
+<div id="employeeCardModal" class="fixed inset-0 bg-black/50 hidden items-center justify-center z-50">
+  <div class="bg-white dark:bg-neutral-900 rounded-xl p-6 max-w-2xl w-full mx-4 border border-gray-100 dark:border-neutral-700 dark:ring-1 dark:ring-indigo-500/10">
+    <div class="flex items-center justify-between mb-4">
+      <h3 class="text-lg font-semibold text-gray-900 dark:text-neutral-100">Ficha del empleado</h3>
+      <button id="closeEmployeeCard" class="text-gray-400 hover:text-gray-600 dark:text-neutral-500 dark:hover:text-neutral-300">
+        <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/></svg>
+      </button>
+    </div>
+
+    <div class="space-y-4" id="employeeCardPrintable">
+      <div class="flex items-start gap-4">
+        <div class="w-16 h-16 rounded-lg overflow-hidden bg-neutral-100 dark:bg-neutral-800 border border-neutral-200 dark:border-neutral-700 flex items-center justify-center">
+          @if($photo)
+            <img src="{{ $photo }}" alt="Foto" class="w-full h-full object-cover">
+          @else
+            <svg class="w-7 h-7 text-neutral-400" viewBox="0 0 24 24" fill="none"><circle cx="12" cy="8" r="4" stroke="currentColor" stroke-width="1.5"/><path d="M4 20c0-3.314 3.582-6 8-6s8 2.686 8 6" stroke="currentColor" stroke-width="1.5"/></svg>
+          @endif
+        </div>
+        <div class="flex-1 min-w-0">
+          <div class="text-xl font-semibold text-neutral-900 dark:text-neutral-100">{{ $fullName }}</div>
+          <div class="text-sm text-neutral-600 dark:text-neutral-300">{{ $employee->role ?: '—' }}</div>
+        </div>
+      </div>
+
+      <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+        <div class="rounded-lg border border-neutral-200 dark:border-neutral-800 p-3">
+          <div class="text-xs text-neutral-500">Empresa</div>
+          <div class="font-medium text-neutral-800 dark:text-neutral-200">{{ $companyName }}</div>
+        </div>
+        <div class="rounded-lg border border-neutral-200 dark:border-neutral-800 p-3">
+          <div class="text-xs text-neutral-500">Sucursal</div>
+          <div class="font-medium text-neutral-800 dark:text-neutral-200">{{ $branchName }}</div>
+        </div>
+        <div class="rounded-lg border border-neutral-200 dark:border-neutral-800 p-3">
+          <div class="text-xs text-neutral-500">DNI</div>
+          <div class="font-medium text-neutral-800 dark:text-neutral-200">{{ $employee->dni ?: '—' }}</div>
+        </div>
+        <div class="rounded-lg border border-neutral-200 dark:border-neutral-800 p-3">
+          <div class="text-xs text-neutral-500">Email</div>
+          <div class="font-medium text-neutral-800 dark:text-neutral-200">{{ $employee->email ?: '—' }}</div>
+        </div>
+        <div class="rounded-lg border border-neutral-200 dark:border-neutral-800 p-3">
+          <div class="text-xs text-neutral-500">Inicio</div>
+          <div class="font-medium text-neutral-800 dark:text-neutral-200">{{ optional($employee->start_date)->format('d/m/Y') ?: '—' }}</div>
+        </div>
+        <div class="rounded-lg border border-neutral-200 dark:border-neutral-800 p-3">
+          <div class="text-xs text-neutral-500">Contrato</div>
+          <div class="font-medium text-neutral-800 dark:text-neutral-200">{{ $employee->contract_type ?: '—' }}</div>
+        </div>
+        <div class="rounded-lg border border-neutral-200 dark:border-neutral-800 p-3">
+          <div class="text-xs text-neutral-500">Cobertura médica</div>
+          <div class="font-medium text-neutral-800 dark:text-neutral-200">{{ $employee->medical_coverage ?: '—' }}</div>
+        </div>
+        <div class="rounded-lg border border-neutral-200 dark:border-neutral-800 p-3">
+          <div class="text-xs text-neutral-500">Salario</div>
+          <div class="font-medium text-neutral-800 dark:text-neutral-200">{{ $employee->salary ? ('$ '.number_format($employee->salary, 2, ',', '.')) : '—' }}</div>
+        </div>
+      </div>
+
+      @php
+        $summarySections = [
+          'objectives' => 'Objetivos',
+          'tasks'      => 'Tareas',
+          'benefits'   => 'Beneficios',
+        ];
+      @endphp
+      @foreach($summarySections as $field => $label)
+        @php $val = $employee->$field; @endphp
+        <div class="rounded-lg border border-neutral-200 dark:border-neutral-800 p-3">
+          <div class="text-sm font-semibold text-neutral-800 dark:text-neutral-200 mb-1">{{ $label }}</div>
+          @if(is_array($val) && count($val))
+            <ul class="list-disc list-inside text-sm text-neutral-700 dark:text-neutral-300 space-y-0.5">
+              @foreach($val as $item)
+                <li>{{ is_string($item) ? $item : json_encode($item, JSON_UNESCAPED_UNICODE) }}</li>
+              @endforeach
+            </ul>
+          @else
+            <div class="text-sm text-neutral-500">Sin datos</div>
+          @endif
+        </div>
+      @endforeach
+    </div>
+
+    <div class="mt-4 flex items-center justify-end gap-2 print:hidden">
+      <button id="printEmployeeCard" class="inline-flex items-center gap-2 rounded-lg bg-indigo-600 px-4 py-2 text-sm font-medium text-white hover:bg-indigo-700">Guardar como PDF</button>
+    </div>
+  </div>
+</div>
+
+{{-- Print styles para ficha --}}
+<style>
+@media print {
+  header, nav, .print\:hidden, #employeeCardModal .print\:hidden, #openEmployeeCardBtn, #closeEmployeeCard, #printEmployeeCard, [x-data] > *:not(#employeeCardModal) { display: none !important; }
+  body { background: #fff !important; color: #000 !important; }
+  .dark * { color: #000 !important; background: #fff !important; }
+  #employeeCardModal { position: static !important; inset: auto !important; background: transparent !important; }
+  #employeeCardPrintable { box-shadow: none !important; border: none !important; }
+}
+</style>
+
+<script>
+document.addEventListener('DOMContentLoaded', () => {
+  const openBtn = document.getElementById('openEmployeeCardBtn');
+  const modal = document.getElementById('employeeCardModal');
+  const closeBtn = document.getElementById('closeEmployeeCard');
+  const printBtn = document.getElementById('printEmployeeCard');
+
+  const show = () => { modal.classList.remove('hidden'); modal.classList.add('flex'); }
+  const hide = () => { modal.classList.add('hidden'); modal.classList.remove('flex'); }
+
+  openBtn?.addEventListener('click', show);
+  closeBtn?.addEventListener('click', hide);
+  modal?.addEventListener('click', (e) => { if(e.target === modal) hide(); });
+  document.addEventListener('keydown', (e) => { if (e.key === 'Escape' && !modal.classList.contains('hidden')) hide(); });
+  printBtn?.addEventListener('click', () => { window.print(); hide(); });
+});
+</script>
+@endpush

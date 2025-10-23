@@ -7,7 +7,9 @@ use Illuminate\Support\Facades\Storage;
 // Controllers
 use App\Http\Controllers\ProductController;
 use App\Http\Controllers\OrderController;
+use App\Http\Controllers\ClientController;
 use App\Http\Controllers\StockController;
+use App\Http\Controllers\SupportController;
 use App\Http\Controllers\SupplyController;
 use App\Http\Controllers\ProductCostController;
 use App\Http\Controllers\CalculatorController;
@@ -221,6 +223,16 @@ Route::get('/products/{product}', [ProductController::class, 'show'])->name('pro
     Route::get('/orders/{order}/ticket', OrderTicket::class)
         ->whereNumber('order')
         ->name('orders.ticket');
+
+    // ============ CLIENTES ============
+    Route::resource('clients', ClientController::class);
+
+    // ============ SOPORTE ============
+    Route::get('/support', [SupportController::class, 'index'])->name('support.index');
+    Route::post('/support', [SupportController::class, 'store'])->name('support.store');
+    Route::get('/support/{ticket}', [SupportController::class, 'show'])->name('support.show');
+    Route::post('/support/{ticket}/reply', [SupportController::class, 'reply'])->name('support.reply');
+    Route::put('/support/{ticket}/status', [SupportController::class, 'updateStatus'])->name('support.status');
 });
 
 // ------------------------ MASTER: Invitations (UI) ------------------------
@@ -327,9 +339,25 @@ Route::middleware(['auth'])
         Route::post('employees/{employee}/toggle-computer', [EmployeeController::class, 'toggleComputer'])
             ->name('employees.toggle-computer');
 
+        // Notas y Evaluaciones
+        Route::post('employees/{employee}/evaluations', [EmployeeController::class, 'addEvaluation'])
+            ->name('employees.evaluations.add');
+        Route::post('employees/{employee}/notes', [EmployeeController::class, 'addNote'])
+            ->name('employees.notes.add');
+
         // Si preferís controlar permisos por ruta en vez de policies dentro del controlador:
         // Route::resource('employees', EmployeeController::class)
         //     ->middleware(['can:manage-employees']); // ejemplo de Gate
+});
+
+// Inicio (landing con accesos rápidos)
+Route::get('/inicio', function () {
+    return view('inicio');
+})->middleware(['auth'])->name('inicio');
+
+// Clientes (CRM básico)
+Route::middleware(['auth'])->group(function () {
+    Route::resource('clients', ClientController::class);
 });
 
 /*

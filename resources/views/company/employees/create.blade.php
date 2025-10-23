@@ -75,7 +75,8 @@
             <label class="block text-sm font-medium text-neutral-700 dark:text-neutral-200 mb-1">Sucursal</label>
             <select name="branch_id" class="w-full rounded-lg border-neutral-300 bg-white px-4 py-2.5 text-neutral-900 focus:border-indigo-500 focus:ring-indigo-500 dark:border-neutral-700 dark:bg-neutral-900/50 dark:text-neutral-100">
               <option value="">Sin sucursal</option>
-              @foreach(\App\Models\Branch::where('company_id', auth()->user()->company_id)->get() as $branch)
+              @php($companyId = auth()->user()->rootCompany()?->id ?? auth()->id())
+              @foreach(\App\Models\Branch::where('company_id', $companyId)->get() as $branch)
                 <option value="{{ $branch->id }}" @selected(old('branch_id')==$branch->id)>{{ $branch->name }}</option>
               @endforeach
             </select>
@@ -131,6 +132,49 @@
           </label>
         </div>
 
+        <div class="grid grid-cols-1 sm:grid-cols-2 gap-5">
+          <div>
+            <label class="block text-sm font-medium text-neutral-700 dark:text-neutral-200 mb-1">Salario</label>
+            <input name="salary" type="number" step="0.01" min="0" value="{{ old('salary') }}"
+                   class="w-full rounded-lg border-neutral-300 bg-white px-4 py-2.5 text-neutral-900 placeholder:text-neutral-400 focus:border-indigo-500 focus:ring-indigo-500 dark:border-neutral-700 dark:bg-neutral-900/50 dark:text-neutral-100">
+          </div>
+        </div>
+
+        <div class="space-y-4">
+          <h3 class="text-sm font-semibold text-neutral-800 dark:text-neutral-100">Datos opcionales (JSON)</h3>
+          <p class="text-xs text-neutral-500 dark:text-neutral-400">Podés dejar estos campos vacíos o pegar JSON válido.</p>
+
+          <div>
+            <label class="block text-sm font-medium text-neutral-700 dark:text-neutral-200 mb-1">Grupo familiar (JSON)</label>
+            <textarea name="family_group_json" rows="3" placeholder='[{"nombre":"Juan","parentesco":"Hijo"}]'
+                      class="w-full rounded-lg border-neutral-300 bg-white px-4 py-2.5 text-neutral-900 placeholder:text-neutral-400 focus:border-indigo-500 focus:ring-indigo-500 dark:border-neutral-700 dark:bg-neutral-900/50 dark:text-neutral-100">{{ old('family_group_json') }}</textarea>
+          </div>
+
+          <div>
+            <label class="block text-sm font-medium text-neutral-700 dark:text-neutral-200 mb-1">Objetivos (JSON)</label>
+            <textarea name="objectives_json" rows="3" placeholder='[{"titulo":"Capacitación","estado":"pendiente"}]'
+                      class="w-full rounded-lg border-neutral-300 bg-white px-4 py-2.5 text-neutral-900 placeholder:text-neutral-400 focus:border-indigo-500 focus:ring-indigo-500 dark:border-neutral-700 dark:bg-neutral-900/50 dark:text-neutral-100">{{ old('objectives_json') }}</textarea>
+          </div>
+
+          <div>
+            <label class="block text-sm font-medium text-neutral-700 dark:text-neutral-200 mb-1">Tareas (JSON)</label>
+            <textarea name="tasks_json" rows="3" placeholder='[{"tarea":"Ordenar depósito","prioridad":"media"}]'
+                      class="w-full rounded-lg border-neutral-300 bg-white px-4 py-2.5 text-neutral-900 placeholder:text-neutral-400 focus:border-indigo-500 focus:ring-indigo-500 dark:border-neutral-700 dark:bg-neutral-900/50 dark:text-neutral-100">{{ old('tasks_json') }}</textarea>
+          </div>
+
+          <div>
+            <label class="block text-sm font-medium text-neutral-700 dark:text-neutral-200 mb-1">Horarios (JSON)</label>
+            <textarea name="schedules_json" rows="3" placeholder='{"lun":{"entrada":"09:00","salida":"18:00"}}'
+                      class="w-full rounded-lg border-neutral-300 bg-white px-4 py-2.5 text-neutral-900 placeholder:text-neutral-400 focus:border-indigo-500 focus:ring-indigo-500 dark:border-neutral-700 dark:bg-neutral-900/50 dark:text-neutral-100">{{ old('schedules_json') }}</textarea>
+          </div>
+
+          <div>
+            <label class="block text-sm font-medium text-neutral-700 dark:text-neutral-200 mb-1">Beneficios (JSON)</label>
+            <textarea name="benefits_json" rows="3" placeholder='[{"tipo":"Comedor","detalle":"Almuerzo incluido"}]'
+                      class="w-full rounded-lg border-neutral-300 bg-white px-4 py-2.5 text-neutral-900 placeholder:text-neutral-400 focus:border-indigo-500 focus:ring-indigo-500 dark:border-neutral-700 dark:bg-neutral-900/50 dark:text-neutral-100">{{ old('benefits_json') }}</textarea>
+          </div>
+        </div>
+
         <div>
           <label class="block text-sm font-medium text-neutral-700 dark:text-neutral-200 mb-1">Archivo de contrato</label>
           <input type="file" name="contract_file" accept=".pdf,.doc,.docx"
@@ -149,4 +193,3 @@
   </form>
 </div>
 @endsection
-
