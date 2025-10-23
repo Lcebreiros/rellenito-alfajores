@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Models\Product;
+use App\Models\Branch;
 use App\Models\StockAdjustment;
 use App\Models\User;
 use Illuminate\Support\Facades\DB;
@@ -113,9 +114,42 @@ class StockController extends Controller
      */
     private function buildProductsQueryWithStock($baseQuery, ?int $branchId)
     {
-        return $baseQuery->select('products.*')
-            ->selectRaw('(SELECT COALESCE(SUM(pl.stock), 0) FROM product_locations pl WHERE pl.product_id = products.id) as total_stock')
-            ->selectRaw('(SELECT COALESCE(SUM(pl.stock), 0) FROM product_locations pl WHERE pl.product_id = products.id AND pl.branch_id = ?) as stock_in_branch', [$branchId]);
+        $query = $baseQuery->select('products.*');
+
+        if ($branchId) {
+            // total en todas las ubicaciones, con fallback al stock del producto si no hay ubicaciones
+            $query->selectRaw(
+                'COALESCE((SELECT SUM(pl_t.stock) FROM product_locations pl_t WHERE pl_t.product_id = products.id), products.stock) as total_stock'
+            );
+
+            // stock en la sucursal específica
+            $query->selectRaw(
+                '(SELECT COALESCE(SUM(pl_b.stock), 0) FROM product_locations pl_b WHERE pl_b.product_id = products.id AND pl_b.branch_id = ?) as stock_in_branch',
+                [$branchId]
+            );
+
+            // display_stock: si no hay ubicaciones para el producto, usar products.stock; si hay, usar stock de la sucursal
+            $query->selectRaw(
+                'CASE WHEN (
+                    SELECT COUNT(*) FROM product_locations pl_c WHERE pl_c.product_id = products.id
+                ) = 0
+                  THEN products.stock
+                  ELSE (SELECT COALESCE(SUM(pl_d.stock), 0) FROM product_locations pl_d WHERE pl_d.product_id = products.id AND pl_d.branch_id = ?)
+                END as display_stock',
+                [$branchId]
+            );
+        } else {
+            // Consolidado: display_stock = total_stock con fallback
+            $query->selectRaw(
+                'COALESCE((SELECT SUM(pl.stock) FROM product_locations pl WHERE pl.product_id = products.id), products.stock) as total_stock'
+            );
+            $query->selectRaw('NULL as stock_in_branch');
+            $query->selectRaw(
+                'COALESCE((SELECT SUM(plx.stock) FROM product_locations plx WHERE plx.product_id = products.id), products.stock) as display_stock'
+            );
+        }
+
+        return $query;
     }
 
     /**
@@ -124,8 +158,8 @@ class StockController extends Controller
     private function applyOrdering($query, string $orderBy, string $dir, ?int $branchId)
     {
         return match ($orderBy) {
-            'stock' => $query->orderByRaw(($branchId ? 'stock_in_branch' : 'total_stock') . ' ' . $dir),
-            'value' => $query->orderByRaw('(COALESCE(price, 0) * COALESCE(' . ($branchId ? 'stock_in_branch' : 'total_stock') . ', 0)) ' . $dir),
+            'stock' => $query->orderByRaw('COALESCE(display_stock, 0) ' . $dir),
+            'value' => $query->orderByRaw('(COALESCE(price, 0) * COALESCE(display_stock, 0)) ' . $dir),
             default => $query->orderBy('name', $dir),
         };
     }
@@ -137,7 +171,7 @@ class StockController extends Controller
     {
         return $products->reduce(function ($acc, $p) use ($branchId) {
             $price = (float) ($p->price ?? 0);
-            $stock = (float) ($branchId ? ($p->stock_in_branch ?? 0) : ($p->total_stock ?? 0));
+            $stock = (float) ($p->display_stock ?? ($branchId ? ($p->stock_in_branch ?? 0) : ($p->total_stock ?? 0)));
             
             $acc['items'] += 1;
             $acc['units'] += $stock;

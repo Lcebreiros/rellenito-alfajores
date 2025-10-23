@@ -312,7 +312,7 @@
           @php
             $totalStock = (int) ($p->total_stock ?? 0);
             $branchStock = (int) ($p->stock_in_branch ?? 0);
-            $displayStock = $branchId ? $branchStock : $totalStock;
+            $displayStock = (int) ($p->display_stock ?? ($branchId ? $branchStock : $totalStock));
             $min = (int) ($p->min_stock ?? 0);
             $price = (float) ($p->price ?? 0);
             $value = $price * $displayStock;
