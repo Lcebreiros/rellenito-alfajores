@@ -165,6 +165,8 @@ Route::get('/products/{product}', [ProductController::class, 'show'])->name('pro
 
     Route::post('orders/bulk-delete', [OrderController::class, 'bulkDelete'])
         ->name('orders.bulk-delete');
+    Route::post('orders/import-csv', [OrderController::class, 'importCsv'])
+        ->name('orders.import-csv');
 
     // 2) CRUD y acciones por pedido
     Route::get('orders/create', [OrderController::class, 'create'])->name('orders.create');

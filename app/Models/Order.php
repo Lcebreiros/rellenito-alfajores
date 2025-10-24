@@ -6,7 +6,7 @@ use App\Models\User;
 use App\Enums\OrderStatus;
 use App\Enums\PaymentMethod;
 use App\Enums\PaymentStatus;
-use App\Services\InventoryService;
+use App\Services\StockService;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
@@ -145,7 +145,7 @@ class Order extends Model
             $this->status = OrderStatus::COMPLETED;
             $this->save();
 
-            // delegar la lógica de stock a InventoryService (debe lanzar excepcion si falla)
+            // delegar la lógica de stock a StockService (debe lanzar excepcion si falla)
             $this->reduceProductStock();
         }, 5);
     }
@@ -168,8 +168,8 @@ class Order extends Model
      */
     protected function reduceProductStock(): void
     {
-        /** @var InventoryService $inventory */
-        $inventory = app(InventoryService::class);
+        /** @var StockService $stock */
+        $stock = app(StockService::class);
 
         foreach ($this->items as $item) {
             $product = $item->product;
@@ -177,8 +177,8 @@ class Order extends Model
                 throw new DomainException("Producto no encontrado para item {$item->id}");
             }
 
-            // el InventoryService se encarga de validaciones (lotes, stock negativo, etc.)
-            $inventory->adjust($product, - (int) $item->quantity, 'venta', $this->user, $this);
+            // El StockService valida stock negativo, etc.
+            $stock->adjust($product, - (int) $item->quantity, 'venta', $this);
         }
     }
 

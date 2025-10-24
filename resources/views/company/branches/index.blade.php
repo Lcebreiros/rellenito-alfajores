@@ -7,7 +7,7 @@
 @section('content')
 <div class="max-w-6xl mx-auto p-6 text-neutral-900 dark:text-neutral-100">
     <div class="flex items-center justify-between mb-6">
-        <h1 class="text-2xl font-semibold text-neutral-900 dark:text-neutral-100">Gestión de Sucursales</h1>
+        <h1 class="text-2xl font-semibold text-neutral-900 dark:text-neutral-100">Administrar sucursales y usuarios</h1>
 
         <div class="flex items-center gap-3">
             {{-- Filtro por empresa (solo para master) --}}
@@ -49,6 +49,15 @@
                     Límite alcanzado
                 </span>
             @endif
+
+            {{-- Botón crear usuario --}}
+            <a href="{{ route('branch.users.create') }}"
+               class="inline-flex items-center px-3 py-2 bg-emerald-600 text-white rounded hover:bg-emerald-700 transition-colors">
+                <svg class="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v4m0 0V4m0 4h4m-4 0H8M5 20a7 7 0 1114 0H5z" />
+                </svg>
+                Crear usuario
+            </a>
         </div>
     </div>
 
@@ -204,7 +213,12 @@
                                 #{{ $branch->id }}
                             </td>
                             <td class="px-4 py-3">
-                                <div class="text-sm font-medium text-gray-900 dark:text-neutral-100">{{ $branch->name }}</div>
+                                <div class="text-sm font-medium text-gray-900 dark:text-neutral-100 flex items-center gap-2">
+                                    <span>{{ $branch->name }}</span>
+                                    @if(isset($centralBranchId) && $centralBranchId === $branch->id)
+                                        <span class="px-2 py-0.5 text-[10px] rounded bg-amber-100 text-amber-800">Central</span>
+                                    @endif
+                                </div>
                                 @if($branch->address)
                                     <div class="text-xs text-gray-500 dark:text-neutral-400">{{ Str::limit($branch->address, 50) }}</div>
                                 @endif
@@ -269,10 +283,66 @@
        class="inline-flex items-center px-2 py-1 text-xs font-medium text-gray-700 bg-gray-100 rounded hover:bg-gray-200 transition-colors">
         Usuarios
     </a>
+    <a href="{{ route('branch.users.create', ['branch_id' => $branch->id]) }}" 
+       class="inline-flex items-center px-2 py-1 text-xs font-medium text-emerald-700 bg-emerald-100 rounded hover:bg-emerald-200 transition-colors">
+        Crear usuario
+    </a>
 @endif
 
                                 </div>
                             </td>
+                        </tr>
+                        <tr class="bg-white dark:bg-neutral-900">
+                          <td colspan="9" class="px-4 pb-4">
+                            <details>
+                              <summary class="cursor-pointer text-sm text-neutral-700 dark:text-neutral-300">Ver usuarios de esta sucursal</summary>
+                              @php 
+                                  $branchUser = $branch->user; 
+                                  $usersList = $branchUser ? $branchUser->children()->where('hierarchy_level', \App\Models\User::HIERARCHY_USER)->get() : collect();
+                              @endphp
+                              @if($usersList->count() > 0)
+                              <div class="mt-3 overflow-x-auto border border-gray-200 dark:border-neutral-800 rounded">
+                                <table class="min-w-full">
+                                  <thead class="bg-gray-50 dark:bg-neutral-800/60">
+                                    <tr class="text-xs uppercase text-gray-600 dark:text-neutral-300">
+                                      <th class="px-3 py-2 text-left">ID</th>
+                                      <th class="px-3 py-2 text-left">Nombre</th>
+                                      <th class="px-3 py-2 text-left">Email</th>
+                                      <th class="px-3 py-2 text-left">Estado</th>
+                                      <th class="px-3 py-2 text-left">Acciones</th>
+                                    </tr>
+                                  </thead>
+                                  <tbody class="divide-y divide-gray-200 dark:divide-neutral-800">
+                                    @foreach($usersList as $u)
+                                    <tr>
+                                      <td class="px-3 py-2 text-sm">#{{ $u->id }}</td>
+                                      <td class="px-3 py-2 text-sm">{{ $u->name }}</td>
+                                      <td class="px-3 py-2 text-sm">{{ $u->email }}</td>
+                                      <td class="px-3 py-2 text-sm">
+                                        @if($u->is_active)
+                                          <span class="px-2 py-1 text-xs bg-green-100 text-green-800 rounded">Activo</span>
+                                        @else
+                                          <span class="px-2 py-1 text-xs bg-yellow-100 text-yellow-800 rounded">Suspendido</span>
+                                        @endif
+                                      </td>
+                                      <td class="px-3 py-2 text-sm">
+                                        <a href="{{ route('branch.users.edit', $u) }}" class="px-2 py-1 text-indigo-700 bg-indigo-100 rounded">Editar</a>
+                                        <form action="{{ route('branch.users.destroy', $u) }}" method="POST" class="inline-block" onsubmit="return confirm('¿Eliminar usuario?')">
+                                          @csrf
+                                          @method('DELETE')
+                                          <button type="submit" class="px-2 py-1 text-red-700 bg-red-100 rounded">Eliminar</button>
+                                        </form>
+                                      </td>
+                                    </tr>
+                                    @endforeach
+                                  </tbody>
+                                </table>
+                              </div>
+                              @else
+                                <p class="mt-2 text-sm text-neutral-500">No hay usuarios en esta sucursal.</p>
+                              @endif
+                            </details>
+                          </td>
                         </tr>
                     @endforeach
                 </tbody>

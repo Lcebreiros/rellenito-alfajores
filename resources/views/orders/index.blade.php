@@ -1,25 +1,42 @@
 @extends('layouts.app')
 
 @section('header')
-<div class="flex flex-col sm:flex-row sm:items-center sm:justify-between">
-  <h1 class="text-2xl font-bold text-neutral-900 dark:text-neutral-100 flex items-center">
-    <i class="fas fa-history text-indigo-600 mr-3"></i> Historial de Pedidos
-  </h1>
-  <div class="flex gap-2 mt-3 sm:mt-0">
-    <button id="toggleFilters" type="button"
-            class="inline-flex items-center px-3 py-2 bg-white dark:bg-neutral-900 border border-neutral-300 dark:border-neutral-700 rounded-lg font-medium text-neutral-700 dark:text-neutral-200 hover:bg-neutral-50 dark:hover:bg-neutral-800 transition-colors">
-      <i class="fas fa-filter mr-2 text-sm"></i>
-      <span class="filter-text">Mostrar Filtros</span>
-      <i class="fas fa-chevron-down ml-2 text-xs transition-transform duration-200" id="filterChevron"></i>
+<div class="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+  <div class="flex items-center gap-3">
+    <h1 class="text-2xl font-bold text-neutral-900 dark:text-neutral-100 flex items-center">
+      <i class="fas fa-history text-indigo-600 mr-3"></i> Historial de Pedidos
+    </h1>
+  </div>
+
+  <div class="flex flex-wrap items-center gap-2">
+    {{-- Nuevo Pedido --}}
+    <div class="inline-flex">
+      <livewire:order-quick-modal />
+    </div>
+
+    {{-- Importar CSV --}}
+    <form method="POST" action="{{ route('orders.import-csv') }}" enctype="multipart/form-data" class="inline-flex">
+      @csrf
+      <label class="inline-flex items-center gap-2 px-3 py-2 rounded-lg border border-neutral-300 dark:border-neutral-700 bg-white dark:bg-neutral-900 text-neutral-700 dark:text-neutral-200 hover:bg-neutral-50 dark:hover:bg-neutral-800 cursor-pointer">
+        <i class="fa-solid fa-file-csv"></i>
+        <span class="hidden sm:inline">Importar CSV</span>
+        <input type="file" name="csv" accept=".csv,text/csv" class="hidden" onchange="this.form.submit()" />
+      </label>
+    </form>
+
+    {{-- Descargar Reporte --}}
+    <button data-modal-open="downloadModal" id="downloadReportBtn" type="button"
+      class="inline-flex items-center gap-2 px-3 py-2 rounded-lg shadow-sm bg-green-600 text-white font-semibold hover:bg-green-700 transition-colors">
+      <i class="fa-solid fa-download"></i>
+      <span class="hidden sm:inline">Descargar</span>
     </button>
 
-    {{-- Botón Nuevo Pedido --}}
-    <livewire:order-quick-modal />
-
-    {{-- Abre modal de descarga --}}
-    <button data-modal-open="downloadModal" id="downloadReportBtn" type="button"
-      class="inline-flex items-center gap-2 px-4 py-2 rounded-lg shadow-sm bg-green-600 text-white font-semibold hover:bg-green-700 transition-colors">
-      <i class="fa-solid fa-download"></i><span>Descargar</span>
+    {{-- Mostrar/Ocultar Filtros --}}
+    <button id="toggleFilters" type="button"
+            class="inline-flex items-center gap-2 px-3 py-2 rounded-lg border border-neutral-300 dark:border-neutral-700 bg-white dark:bg-neutral-900 text-neutral-700 dark:text-neutral-200 hover:bg-neutral-50 dark:hover:bg-neutral-800">
+      <i class="fas fa-filter text-sm"></i>
+      <span class="hidden sm:inline filter-text">Mostrar Filtros</span>
+      <i class="fas fa-chevron-down text-xs transition-transform duration-200" id="filterChevron"></i>
     </button>
   </div>
 </div>
@@ -43,6 +60,16 @@
         <i class="fas fa-exclamation-circle mr-3"></i>
         <div>@foreach($errors->all() as $e) <div>{{ $e }}</div> @endforeach</div>
       </div>
+    </div>
+  @endif
+  @if(session('import_errors'))
+    <div class="mb-6 rounded-xl bg-amber-50 text-amber-800 px-4 py-3 border border-amber-200 dark:bg-amber-900/30 dark:text-amber-200 dark:border-amber-800">
+      <div class="font-semibold mb-1">Errores de importación</div>
+      <ul class="list-disc ml-5 text-sm">
+        @foreach(session('import_errors') as $e)
+          <li>{{ $e }}</li>
+        @endforeach
+      </ul>
     </div>
   @endif
 

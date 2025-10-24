@@ -14,6 +14,7 @@ use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Schema;
 use Illuminate\Support\Facades\DB;
 use DomainException; // AGREGADO: Import de DomainException
+use Illuminate\Support\Str;
 
 class OrderController extends Controller
 {
@@ -259,6 +260,194 @@ public function index(Request $request)
             'Cache-Control'       => 'no-store, no-cache, must-revalidate',
         ]);
     }
+
+    /**
+     * Importar pedidos desde CSV (fecha, producto, cantidad)
+     */
+    public function importCsv(Request $request): RedirectResponse
+    {
+        $actor = $request->user();
+        // Resolver owner (branch o empresa)
+        if (method_exists($actor, 'isCompany') && $actor->isCompany()) {
+            $owner = $actor; // empresa sin sucursal
+        } elseif (method_exists($actor, 'isAdmin') && $actor->isAdmin()) {
+            $owner = $actor;
+        } else {
+            $owner = $actor->parent ?: $actor;
+        }
+
+        $companyId = Order::findRootCompanyId($actor) ?? $actor->id;
+        $path = null;
+        if ($request->hasFile('csv')) {
+            $request->validate(['csv' => 'file|mimes:csv,txt']);
+            $path = $request->file('csv')->getRealPath();
+        } elseif ($request->filled('stored_path')) {
+            $stored = $request->string('stored_path');
+            $full = storage_path('app/' . ltrim($stored, '/'));
+            if (is_file($full)) { $path = $full; }
+        }
+        if (!$path) {
+            return back()->withErrors(['csv' => 'No se recibió archivo ni ruta válida'])->withInput();
+        }
+
+        if (!is_readable($path)) {
+            return back()->withErrors(['csv' => 'No se pudo leer el archivo'])->withInput();
+        }
+
+        $fh = fopen($path, 'r');
+        if (!$fh) {
+            return back()->withErrors(['csv' => 'No se pudo abrir el archivo'])->withInput();
+        }
+
+        $ok = 0; $fail = 0; $errors = [];
+        $line = 0;
+
+        $expected = ['dulce de leche','trufa','frutos','coco','coñac','ganache','marroc','pistacho'];
+        $delim = ','; $headersNorm = [];
+        $colIndex = [];
+
+        // Leer primer línea no vacía para detectar encabezado
+        while (($raw = fgets($fh)) !== false) {
+            $line++;
+            if (trim($raw) === '') continue;
+            $delim = Str::contains($raw, ';') ? ';' : ',';
+            $cols = str_getcsv($raw, $delim);
+            if (!isset($cols[0])) { continue; }
+            $cols[0] = preg_replace('/^\xEF\xBB\xBF/', '', $cols[0]);
+            $headersNorm = array_map(fn($v)=>mb_strtolower(trim((string)$v), 'UTF-8'), $cols);
+            // Si primer columna dice 'fecha', tomamos como encabezado
+            if (!empty($headersNorm) && Str::contains($headersNorm[0], 'fecha')) {
+                // mapear columnas esperadas
+                foreach ($expected as $name) {
+                    $idx = array_search($name, $headersNorm, true);
+                    if ($idx !== false) { $colIndex[$name] = $idx; }
+                }
+                break; // siguiente líneas son datos
+            } else {
+                // No hay encabezado; asumir orden fijo: fecha + expected
+                $colIndex = collect($expected)->mapWithKeys(fn($n, $i)=>[$n => $i+1])->all();
+                // procesar esta línea como primera de datos
+                rewind($fh);
+                $line = 0; // reset contador
+                break;
+            }
+        }
+
+        // Cache de productos encontrados por nombre normalizado
+        $productCache = [];
+
+        while (($raw = fgets($fh)) !== false) {
+            $line++;
+            $trim = trim($raw);
+            if ($trim === '') continue;
+            $cols = str_getcsv($raw, $delim);
+            if (count($cols) === 0) continue;
+
+            $dateStr = trim((string)($cols[0] ?? ''));
+            if (!preg_match('/^\d{4}-\d{2}-\d{2}$/', $dateStr)) {
+                $fail++; $errors[] = "Línea {$line}: fecha inválida (YYYY-MM-DD)"; continue;
+            }
+
+            $items = [];
+            $rowErrors = [];
+
+            foreach ($expected as $name) {
+                $idx = $colIndex[$name] ?? null;
+                if ($idx === null || !isset($cols[$idx])) continue;
+                $qty = (int) trim((string)$cols[$idx]);
+                if ($qty <= 0) continue;
+
+                $norm = mb_strtolower($name, 'UTF-8');
+                if (!isset($productCache[$norm])) {
+                    // Buscar producto por nombre o SKU en el ámbito
+                    $isCompanyOwner = method_exists($owner, 'isCompany') && $owner->isCompany();
+                    $base = Product::query();
+                    if ($isCompanyOwner) { $base->where('company_id', $owner->id); }
+                    else { $base->where('branch_id', $owner->id); }
+
+                    $found = (clone $base)->whereRaw('LOWER(name) = ?', [$norm])->first();
+                    if (!$found) {
+                        $found = (clone $base)->whereRaw('LOWER(sku) = ?', [$norm])->first();
+                    }
+                    if (!$found && !$isCompanyOwner) {
+                        $rootCompanyId = Order::findRootCompanyId($owner) ?? $companyId;
+                        if ($rootCompanyId) {
+                            $companyScope = Product::where('company_id', $rootCompanyId);
+                            $found = (clone $companyScope)->whereRaw('LOWER(name) = ?', [$norm])->first();
+                            if (!$found) {
+                                $found = (clone $companyScope)->whereRaw('LOWER(sku) = ?', [$norm])->first();
+                            }
+                        }
+                    }
+                    $productCache[$norm] = $found ?: false;
+                }
+
+                if (!$productCache[$norm]) {
+                    $rowErrors[] = "producto '{$name}' no encontrado";
+                    continue;
+                }
+
+                /** @var Product $prod */
+                $prod = $productCache[$norm];
+                $items[] = [
+                    'product' => $prod,
+                    'qty' => $qty,
+                ];
+            }
+
+            if (empty($items)) {
+                $fail++;
+                $errors[] = "Línea {$line}: sin items válidos";
+                continue;
+            }
+
+            try {
+                DB::transaction(function () use ($actor, $owner, $companyId, $items, $dateStr) {
+                    $order = Order::create([
+                        'user_id' => $actor->id,
+                        'branch_id' => $owner->id,
+                        'company_id' => $companyId,
+                        'status' => OrderStatus::DRAFT,
+                        'sold_at' => $dateStr . ' 12:00:00',
+                    ]);
+
+                    foreach ($items as $it) {
+                        $prod = $it['product'];
+                        $qty  = $it['qty'];
+                        $order->items()->create([
+                            'user_id' => $actor->id,
+                            'product_id' => $prod->id,
+                            'quantity' => $qty,
+                            'unit_price' => $prod->price,
+                            'subtotal' => bcmul((string)$prod->price, (string)$qty, 2),
+                        ]);
+                    }
+
+                    // Marcar como completado SIN afectar stock
+                    $order->sold_at = \Carbon\Carbon::parse($dateStr);
+                    $order->status = OrderStatus::COMPLETED;
+                    $order->recalcTotal(true);
+                    $order->save();
+                }, 3);
+                $ok++;
+                if (!empty($rowErrors)) {
+                    $errors[] = "Línea {$line}: " . implode('; ', $rowErrors);
+                }
+            } catch (\Throwable $e) {
+                Log::error('CSV import order error', ['line' => $line, 'err' => $e->getMessage()]);
+                $fail++; $errors[] = "Línea {$line}: " . $e->getMessage();
+            }
+        }
+
+        fclose($fh);
+
+        $msg = "Importación: {$ok} ok, {$fail} con error";
+        if ($fail > 0) {
+            return back()->with('error', $msg)->with('import_errors', $errors);
+        }
+        return back()->with('ok', $msg);
+    }
+
 
     /** Columnas a seleccionar en exports (depende de si existe orders.note). */
     private function orderExportColumns(bool $hasNote): array
