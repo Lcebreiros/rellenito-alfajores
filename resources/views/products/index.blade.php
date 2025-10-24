@@ -70,9 +70,12 @@
     <div class="grid gap-4 sm:gap-6 grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
       @foreach($products as $product)
         @php
-          $image = isset($product->image) && $product->image
-            ? \Illuminate\Support\Facades\Storage::url($product->image)
-            : null;
+          $image = null;
+          if (!empty($product->image)) {
+            if (\Illuminate\Support\Facades\Storage::disk('public')->exists($product->image)) {
+              $image = \Illuminate\Support\Facades\Storage::url($product->image);
+            }
+          }
           $priceLabel = '$ ' . number_format((float) $product->price, 2, ',', '.');
           $isActive = (bool)($product->is_active ?? true);
           $stock = (int)($product->stock ?? 0);

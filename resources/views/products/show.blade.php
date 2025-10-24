@@ -13,8 +13,14 @@
         <div class="md:flex">
             {{-- Imagen --}}
             <div class="md:w-1/3 bg-neutral-100 dark:bg-neutral-800 p-4 flex items-center justify-center">
-                @if($product->image)
-                    <img src="{{ Storage::url($product->image) }}" alt="{{ $product->name }}" class="h-48 w-full object-cover rounded-lg">
+                @php
+                    $imgUrl = null;
+                    if (!empty($product->image) && \Illuminate\Support\Facades\Storage::disk('public')->exists($product->image)) {
+                        $imgUrl = \Illuminate\Support\Facades\Storage::url($product->image);
+                    }
+                @endphp
+                @if($imgUrl)
+                    <img src="{{ $imgUrl }}" alt="{{ $product->name }}" class="h-48 w-full object-cover rounded-lg">
                 @else
                     <div class="h-48 w-full flex items-center justify-center bg-neutral-200 dark:bg-neutral-700 rounded-lg">
                         <svg class="h-12 w-12 text-neutral-400 dark:text-neutral-300" viewBox="0 0 24 24" fill="none">
