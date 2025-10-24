@@ -36,7 +36,8 @@ class Branch extends Model
         'phone',
         'contact_email',
         'logo_path',
-        'is_active', // <-- AGREGAR ESTE CAMPO
+        'is_active',
+        'use_company_inventory',
     ];
 
     /**

@@ -28,7 +28,7 @@
                         </label>
                         <input type="text" 
                                wire:model.defer="name" 
-                               class="w-full px-3 py-2 border border-gray-300 dark:border-neutral-800 bg-white dark:bg-neutral-900 text-neutral-900 dark:text-neutral-100 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 @error('name') border-red-500 @enderror"
+                               class="w-full px-3 py-2 border border-gray-300 dark:border-neutral-700 bg-white dark:bg-neutral-800 text-neutral-900 dark:text-neutral-100 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 @error('name') border-red-500 @enderror"
                                placeholder="Ej: Sucursal Centro">
                         @error('name') 
                             <p class="text-red-500 text-sm mt-1">{{ $message }}</p> 
@@ -39,7 +39,7 @@
                         <label class="block text-sm font-medium text-gray-700 dark:text-neutral-300 mb-2">Dirección</label>
                         <textarea wire:model.defer="address" 
                                   rows="3"
-                                  class="w-full px-3 py-2 border border-gray-300 dark:border-neutral-800 bg-white dark:bg-neutral-900 text-neutral-900 dark:text-neutral-100 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 @error('address') border-red-500 @enderror"
+                                  class="w-full px-3 py-2 border border-gray-300 dark:border-neutral-700 bg-white dark:bg-neutral-800 text-neutral-900 dark:text-neutral-100 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 @error('address') border-red-500 @enderror"
                                   placeholder="Dirección completa de la sucursal"></textarea>
                         @error('address') 
                             <p class="text-red-500 text-sm mt-1">{{ $message }}</p> 
@@ -51,7 +51,7 @@
                             <label class="block text-sm font-medium text-gray-700 dark:text-neutral-300 mb-2">Teléfono</label>
                             <input type="tel" 
                                    wire:model.defer="phone" 
-                                   class="w-full px-3 py-2 border border-gray-300 dark:border-neutral-800 bg-white dark:bg-neutral-900 text-neutral-900 dark:text-neutral-100 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 @error('phone') border-red-500 @enderror"
+                                   class="w-full px-3 py-2 border border-gray-300 dark:border-neutral-700 bg-white dark:bg-neutral-800 text-neutral-900 dark:text-neutral-100 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 @error('phone') border-red-500 @enderror"
                                    placeholder="+54 11 1234-5678">
                             @error('phone') 
                                 <p class="text-red-500 text-sm mt-1">{{ $message }}</p> 
@@ -62,7 +62,7 @@
                             <label class="block text-sm font-medium text-gray-700 dark:text-neutral-300 mb-2">Email de Contacto</label>
                             <input type="email" 
                                    wire:model.defer="contact_email" 
-                                   class="w-full px-3 py-2 border border-gray-300 dark:border-neutral-800 bg-white dark:bg-neutral-900 text-neutral-900 dark:text-neutral-100 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 @error('contact_email') border-red-500 @enderror"
+                                   class="w-full px-3 py-2 border border-gray-300 dark:border-neutral-700 bg-white dark:bg-neutral-800 text-neutral-900 dark:text-neutral-100 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 @error('contact_email') border-red-500 @enderror"
                                    placeholder="info@sucursal.com">
                             @error('contact_email') 
                                 <p class="text-red-500 text-sm mt-1">{{ $message }}</p> 
@@ -84,7 +84,7 @@
                         </label>
                         <input type="email" 
                                wire:model.defer="email" 
-                               class="w-full px-3 py-2 border border-gray-300 dark:border-neutral-800 bg-white dark:bg-neutral-900 text-neutral-900 dark:text-neutral-100 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 @error('email') border-red-500 @enderror"
+                               class="w-full px-3 py-2 border border-gray-300 dark:border-neutral-700 bg-white dark:bg-neutral-800 text-neutral-900 dark:text-neutral-100 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 @error('email') border-red-500 @enderror"
                                placeholder="admin@sucursal.com">
                         @error('email') 
                             <p class="text-red-500 text-sm mt-1">{{ $message }}</p> 
@@ -98,13 +98,32 @@
                         </label>
                         <input type="password" 
                                wire:model.defer="password" 
-                               class="w-full px-3 py-2 border border-gray-300 dark:border-neutral-800 bg-white dark:bg-neutral-900 text-neutral-900 dark:text-neutral-100 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 @error('password') border-red-500 @enderror"
+                               class="w-full px-3 py-2 border border-gray-300 dark:border-neutral-700 bg-white dark:bg-neutral-800 text-neutral-900 dark:text-neutral-100 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 @error('password') border-red-500 @enderror"
                                placeholder="Mínimo 8 caracteres">
                         @error('password') 
                             <p class="text-red-500 text-sm mt-1">{{ $message }}</p> 
                         @enderror
                     </div>
                 </div>
+            </div>
+
+            {{-- Inventario / Productos --}}
+            <div class="mb-6 border-t border-gray-200 dark:border-neutral-800 pt-6">
+                <h3 class="text-lg font-medium text-gray-900 dark:text-neutral-100 mb-4">Inventario</h3>
+                <div class="flex items-center justify-between p-4 rounded-lg border border-gray-200 dark:border-neutral-700 bg-gray-50 dark:bg-neutral-800/70">
+                    <div class="mr-4">
+                        <div class="text-sm font-medium text-gray-900 dark:text-neutral-100">Usar inventario de la empresa</div>
+                        <div class="text-xs text-gray-600 dark:text-neutral-400">Comparte catálogo y stock con la empresa. Las ventas se diferencian por sucursal.</div>
+                    </div>
+                    <label class="relative inline-flex items-center cursor-pointer">
+                        <input type="checkbox" wire:model.defer="use_company_inventory" class="sr-only peer">
+                        <div class="w-11 h-6 bg-gray-200 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-blue-300 rounded-full peer dark:bg-neutral-700 peer-checked:bg-blue-600 transition-all"></div>
+                        <div class="absolute top-0.5 left-0.5 w-5 h-5 bg-white rounded-full shadow transform peer-checked:translate-x-5 transition-transform"></div>
+                    </label>
+                </div>
+                @error('use_company_inventory')
+                    <p class="text-red-500 text-sm mt-1">{{ $message }}</p>
+                @enderror
             </div>
 
             {{-- Configuración --}}
@@ -128,7 +147,7 @@
                     <div>
                         <label class="block text-sm font-medium text-gray-700 dark:text-neutral-300 mb-2">Estado Inicial</label>
                         <select wire:model.defer="is_active" 
-                                class="w-full px-3 py-2 border border-gray-300 dark:border-neutral-800 bg-white dark:bg-neutral-900 text-neutral-900 dark:text-neutral-100 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500">
+                                class="w-full px-3 py-2 border border-gray-300 dark:border-neutral-700 bg-white dark:bg-neutral-800 text-neutral-900 dark:text-neutral-100 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500">
                             <option value="1">Activa</option>
                             <option value="0">Suspendida</option>
                         </select>

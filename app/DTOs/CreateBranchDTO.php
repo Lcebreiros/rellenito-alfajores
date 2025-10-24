@@ -13,6 +13,7 @@ class CreateBranchDTO
         public readonly ?string $contact_email = null,
         public readonly ?int $user_limit = null,
         public readonly bool $is_active = true,
+        public readonly bool $use_company_inventory = false,
     ) {}
 
     public static function fromArray(array $data): self
@@ -26,6 +27,7 @@ class CreateBranchDTO
             contact_email: $data['contact_email'] ?? null,
             user_limit: $data['user_limit'] ?? null,
             is_active: $data['is_active'] ?? true,
+            use_company_inventory: (bool)($data['use_company_inventory'] ?? false),
         );
     }
 
@@ -40,6 +42,7 @@ class CreateBranchDTO
             'contact_email' => $this->contact_email,
             'user_limit' => $this->user_limit,
             'is_active' => $this->is_active,
+            'use_company_inventory' => $this->use_company_inventory,
         ];
     }
 }

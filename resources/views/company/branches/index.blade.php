@@ -111,9 +111,9 @@
                 </div>
 
                 <div>
-                    <label class="block text-sm font-medium text-gray-700 mb-1">Email de acceso *</label>
+                    <label class="block text-sm font-medium text-gray-700 dark:text-neutral-300 mb-1">Email de acceso *</label>
                     <input name="email" type="email" value="{{ old('email') }}" required 
-                           class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500"
+                           class="w-full px-3 py-2 border border-gray-300 dark:border-neutral-800 bg-white dark:bg-neutral-900 text-neutral-900 dark:text-neutral-100 rounded-md focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500"
                            placeholder="admin@sucursal.com" />
                     @error('email')
                         <p class="text-xs text-red-600 mt-1">{{ $message }}</p>
@@ -121,24 +121,24 @@
                 </div>
 
                 <div>
-                    <label class="block text-sm font-medium text-gray-700 mb-1">Contraseña *</label>
+                    <label class="block text-sm font-medium text-gray-700 dark:text-neutral-300 mb-1">Contraseña *</label>
                     <input name="password" type="password" required 
-                           class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500" />
+                           class="w-full px-3 py-2 border border-gray-300 dark:border-neutral-800 bg-white dark:bg-neutral-900 text-neutral-900 dark:text-neutral-100 rounded-md focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500" />
                     @error('password')
                         <p class="text-xs text-red-600 mt-1">{{ $message }}</p>
                     @enderror
                 </div>
 
                 <div>
-                    <label class="block text-sm font-medium text-gray-700 mb-1">Confirmar contraseña *</label>
+                    <label class="block text-sm font-medium text-gray-700 dark:text-neutral-300 mb-1">Confirmar contraseña *</label>
                     <input name="password_confirmation" type="password" required 
-                           class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500" />
+                           class="w-full px-3 py-2 border border-gray-300 dark:border-neutral-800 bg-white dark:bg-neutral-900 text-neutral-900 dark:text-neutral-100 rounded-md focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500" />
                 </div>
 
                 <div>
-                    <label class="block text-sm font-medium text-gray-700 mb-1">Límite de usuarios</label>
+                    <label class="block text-sm font-medium text-gray-700 dark:text-neutral-300 mb-1">Límite de usuarios</label>
                     <input name="user_limit" type="number" min="0" value="{{ old('user_limit') }}" 
-                           class="w-40 px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500"
+                           class="w-40 px-3 py-2 border border-gray-300 dark:border-neutral-800 bg-white dark:bg-neutral-900 text-neutral-900 dark:text-neutral-100 rounded-md focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500"
                            placeholder="Ilimitado" />
                     @error('user_limit')
                         <p class="text-xs text-red-600 mt-1">{{ $message }}</p>
@@ -146,9 +146,9 @@
                 </div>
 
                 <div class="md:col-span-2">
-                    <label class="block text-sm font-medium text-gray-700 mb-1">Dirección</label>
+                    <label class="block text-sm font-medium text-gray-700 dark:text-neutral-300 mb-1">Dirección</label>
                     <textarea name="address" rows="2" 
-                              class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500"
+                              class="w-full px-3 py-2 border border-gray-300 dark:border-neutral-800 bg-white dark:bg-neutral-900 text-neutral-900 dark:text-neutral-100 rounded-md focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500"
                               placeholder="Dirección completa de la sucursal">{{ old('address') }}</textarea>
                     @error('address')
                         <p class="text-xs text-red-600 mt-1">{{ $message }}</p>
@@ -171,6 +171,25 @@
                            class="w-full px-3 py-2 border border-gray-300 dark:border-neutral-800 bg-white dark:bg-neutral-900 text-neutral-900 dark:text-neutral-100 rounded-md focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500"
                            placeholder="contacto@sucursal.com" />
                     @error('contact_email')
+                        <p class="text-xs text-red-600 mt-1">{{ $message }}</p>
+                    @enderror
+                </div>
+
+                {{-- Inventario compartido --}}
+                <div class="md:col-span-2">
+                    <label class="block text-sm font-medium text-gray-700 dark:text-neutral-300 mb-1">Inventario</label>
+                    <div class="flex items-center justify-between p-3 rounded-md border border-gray-200 dark:border-neutral-800 bg-gray-50 dark:bg-neutral-900/60">
+                        <div class="mr-4">
+                            <div class="text-sm font-medium text-neutral-900 dark:text-neutral-100">Usar inventario de la empresa</div>
+                            <div class="text-xs text-neutral-600 dark:text-neutral-400">Comparte catálogo y stock con la empresa. Las ventas se diferencian por sucursal.</div>
+                        </div>
+                        <label class="relative inline-flex items-center cursor-pointer">
+                            <input type="checkbox" name="use_company_inventory" value="1" {{ old('use_company_inventory') ? 'checked' : '' }} class="sr-only peer">
+                            <div class="w-11 h-6 bg-gray-200 peer-focus:outline-none peer-focus:ring-2 peer-focus:ring-blue-300 rounded-full peer dark:bg-neutral-700 peer-checked:bg-blue-600 transition-all"></div>
+                            <div class="absolute top-0.5 left-0.5 w-5 h-5 bg-white rounded-full shadow transform peer-checked:translate-x-5 transition-transform"></div>
+                        </label>
+                    </div>
+                    @error('use_company_inventory')
                         <p class="text-xs text-red-600 mt-1">{{ $message }}</p>
                     @enderror
                 </div>

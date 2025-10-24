@@ -89,6 +89,12 @@ class Product extends Model
 
         if ($user->isAdmin()) {
             $company = $user->rootCompany();
+            $branch = $user->branch();
+            if ($branch && (bool)($branch->use_company_inventory ?? false)) {
+                // Inventario compartido: usar catálogo completo de la empresa
+                return $query->where('company_id', $company->id);
+            }
+            // Inventario propio: sus productos + compartidos de la empresa
             return $query->where(function ($q) use ($user, $company) {
                 $q->where('user_id', $user->id)
                   ->orWhere(function ($sq) use ($company) {
@@ -103,10 +109,17 @@ class Product extends Model
             $q->where('user_id', $user->id)
               ->orWhere(function ($sq) use ($user) {
                   if ($user->parent_id) {
-                      $sq->where('user_id', $user->parent_id)
-                         ->where('is_shared', true);
+                      // Si el parent es una sucursal que usa inventario de empresa, exponer catálogo de empresa completo
+                      $parent = $user->parent; // relación
+                      $branch = $parent?->branch();
+                      $company = $user->rootCompany();
+                      if ($branch && (bool)($branch->use_company_inventory ?? false)) {
+                          $sq->where('company_id', $company?->id ?? 0);
+                      } else {
+                          $sq->where('user_id', $user->parent_id)
+                             ->where('is_shared', true);
+                      }
                   } else {
-                      // Si no hay parent, no traer shared from parent
                       $sq->whereRaw('1 = 0');
                   }
               });

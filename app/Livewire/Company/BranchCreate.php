@@ -23,6 +23,7 @@ class BranchCreate extends Component
     public $password_confirmation = '';
     public $user_limit = null;
     public $is_active = true;
+    public $use_company_inventory = false;
 
     // Para master users
     public $company_id = '';
@@ -42,6 +43,7 @@ class BranchCreate extends Component
         'password_confirmation' => 'required|string|same:password',
         'user_limit' => 'nullable|integer|min:0',
         'is_active' => 'boolean',
+        'use_company_inventory' => 'boolean',
     ];
 
     protected $messages = [
@@ -101,6 +103,7 @@ class BranchCreate extends Component
                 'contact_email' => $this->contact_email,
                 'user_limit' => $this->user_limit,
                 'is_active' => $this->is_active,
+                'use_company_inventory' => (bool)$this->use_company_inventory,
             ]);
 
             // Usar el service
@@ -133,6 +136,7 @@ class BranchCreate extends Component
             'user_limit', 'company_id'
         ]);
         $this->is_active = true;
+        $this->use_company_inventory = false;
     }
 
     public function render()

@@ -30,6 +30,7 @@ class CreateBranchRequest extends FormRequest
             'password' => 'required|string|min:8|confirmed',
             'user_limit' => 'nullable|integer|min:0',
             'is_active' => 'sometimes|boolean',
+            'use_company_inventory' => 'sometimes|boolean',
         ];
 
         if ($this->user()->isMaster()) {
@@ -70,6 +71,7 @@ class CreateBranchRequest extends FormRequest
             'contact_email' => $this->contact_email,
             'user_limit' => $this->user_limit,
             'is_active' => $this->boolean('is_active', true),
+            'use_company_inventory' => $this->boolean('use_company_inventory', false),
         ]);
     }
 

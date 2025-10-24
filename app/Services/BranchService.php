@@ -34,6 +34,7 @@ class BranchService
                 'phone' => $data->phone,
                 'contact_email' => $data->contact_email,
                 'is_active' => $data->is_active,
+                'use_company_inventory' => $data->use_company_inventory,
             ]);
 
             Log::info('Branch creado', [
