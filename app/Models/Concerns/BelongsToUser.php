@@ -18,6 +18,13 @@ trait BelongsToUser
 
         static::addGlobalScope('byUser', function (Builder $query) {
             if (app()->runningInConsole() || !Auth::check()) return;
+
+            $auth = Auth::user();
+            // No restringir al super usuario (master)
+            if (method_exists($auth, 'isMaster') && $auth->isMaster()) {
+                return; // evita forzar user_id = auth()->id()
+            }
+
             $table = $query->getModel()->getTable();
             $query->where("{$table}.user_id", Auth::id());
         });

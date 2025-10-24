@@ -30,6 +30,11 @@ public function index(Request $request)
     // Usar scope centralizado que respeta jerarquía real (master/company/admin/user)
     $query->availableFor($user);
 
+    // Filtro por usuario (solo master)
+    if (method_exists($user, 'isMaster') && $user->isMaster() && $request->filled('user_id')) {
+        $query->where('user_id', (int) $request->input('user_id'));
+    }
+
     $sort = (string) $request->input('sort', 'newest');
 
     $orders = $query
@@ -37,12 +42,13 @@ public function index(Request $request)
         ->when($sort === 'total_desc', fn ($q) => $q->orderByDesc('total'))
         ->when($sort === 'total_asc', fn ($q) => $q->orderBy('total'))
         ->when($sort === 'newest' || !in_array($sort, ['oldest','total_desc','total_asc'], true), fn ($q) => $q->orderByDesc('created_at'))
-        ->with('client','branch') // cargar relaciones
+        ->with(['client','branch','user:id,name']) // cargar relaciones
         ->paginate(20)
         ->withQueryString();
 
     $isCompany = method_exists($user, 'isCompany') ? $user->isCompany() : false;
-    return view('orders.index', compact('orders', 'user', 'isCompany'));
+    $isMaster = method_exists($user, 'isMaster') ? $user->isMaster() : false;
+    return view('orders.index', compact('orders', 'user', 'isCompany', 'isMaster'));
 }
 
 

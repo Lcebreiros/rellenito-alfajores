@@ -9,10 +9,39 @@ use Illuminate\Support\Facades\Storage;
 
 class ProductController extends Controller
 {
-    public function index()
+    public function index(Request $request)
     {
-        $products = Product::orderBy('name')->paginate(20);
-        return view('products.index', compact('products'));
+        $auth = $request->user() ?? auth()->user();
+
+        // Master ve todo sin restricciones
+        $base = (method_exists($auth,'isMaster') && $auth->isMaster())
+            ? Product::query()
+            : Product::availableFor($auth);
+
+        $query = $base->with([
+                'user:id,name,parent_id,representable_id,representable_type',
+                'user.parent:id,name',
+                'company:id,name'
+            ])
+            ->when($request->filled('q'), function ($q) use ($request) {
+                $term = trim((string)$request->input('q'));
+                $lc = mb_strtolower($term, 'UTF-8');
+                $q->where(function($w) use ($lc) {
+                    $w->whereRaw('LOWER(name) LIKE ?', ["%{$lc}%"]) 
+                      ->orWhereRaw('LOWER(sku) LIKE ?', ["%{$lc}%"]);
+                });
+            });
+
+        if (method_exists($auth, 'isMaster') && $auth->isMaster() && $request->filled('user_id')) {
+            $query->where('user_id', (int) $request->input('user_id'));
+        }
+
+        $products = $query->orderBy('name')->paginate(20)->withQueryString();
+
+        return view('products.index', [
+            'products' => $products,
+            'authUser' => $auth,
+        ]);
     }
 
     public function create()
@@ -71,9 +100,10 @@ public function update(Request $request, Product $product)
     return back()->with('ok', 'Producto actualizado');
 }
 
-public function show(Product $product)
-{
+    public function show(Product $product)
+    {
     // Stock total por sucursal
+    $product->load(['user.parent','user.representable','company']);
     $locations = $product->productLocations()->with('branch')->get();
 
     // Stock total consolidado

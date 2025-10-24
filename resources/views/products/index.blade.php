@@ -45,6 +45,12 @@
                         placeholder:text-neutral-400 focus:border-indigo-500 focus:ring-indigo-500
                         dark:border-neutral-700 dark:bg-neutral-900 dark:text-neutral-200 dark:placeholder:text-neutral-400">
         </div>
+        @if(isset($authUser) && method_exists($authUser,'isMaster') && $authUser->isMaster())
+          <input type="number" name="user_id" value="{{ request('user_id') }}" min="1" placeholder="User ID"
+                 class="w-32 rounded-lg border border-neutral-300 bg-white px-3 py-2 text-sm text-neutral-700
+                        placeholder:text-neutral-400 focus:border-indigo-500 focus:ring-indigo-500
+                        dark:border-neutral-700 dark:bg-neutral-900 dark:text-neutral-200" />
+        @endif
         <button class="rounded-lg bg-indigo-600 px-3 py-2 text-sm font-medium text-white hover:bg-indigo-700">
           Buscar
         </button>
@@ -108,6 +114,29 @@
                   {{ $product->name }}
                 </h2>
                 <div class="mt-0.5 text-[11px] text-neutral-500 dark:text-neutral-400">SKU: {{ $product->sku }}</div>
+                @if(isset($authUser) && method_exists($authUser,'isMaster') && $authUser->isMaster())
+                  @php
+                    $owner = $product->user;
+                    $companyName = $product->company?->name;
+                    $chain = null;
+                    if ($owner && $owner->representable_type === \App\Models\Branch::class) {
+                        // Admin de sucursal: empresa -> sucursal
+                        $branchName = optional($owner->representable)->name;
+                        $chain = trim(($companyName ?: 'Empresa') . ' → ' . ($branchName ?: 'Sucursal'));
+                    } elseif ($owner && method_exists($owner,'isCompany') && $owner->isCompany()) {
+                        $chain = $owner->name;
+                    } else {
+                        // Usuario regular o datos incompletos: mostrar empresa si está
+                        $chain = $companyName ?: ($owner?->name ?? 'N/D');
+                    }
+                  @endphp
+                  <div class="mt-1 text-[11px] text-neutral-500 dark:text-neutral-400">
+                    Usuario: #{{ $product->user_id }} — {{ $product->user?->name ?? 'N/D' }}
+                    @if(!empty($chain))
+                      <span class="ml-1 text-neutral-400">({{ $chain }})</span>
+                    @endif
+                  </div>
+                @endif
               </div>
 
               {{-- Stock --}}

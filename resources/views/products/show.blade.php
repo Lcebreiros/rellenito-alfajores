@@ -30,6 +30,28 @@
                 <h2 class="text-2xl font-bold text-neutral-900 dark:text-neutral-100">{{ $product->name }}</h2>
                 <p class="text-sm text-neutral-500 dark:text-neutral-400">SKU: {{ $product->sku }}</p>
                 <p class="text-lg font-semibold text-neutral-900 dark:text-neutral-100">Precio: ${{ number_format($product->price, 2, ',', '.') }}</p>
+                @php $auth = auth()->user(); @endphp
+                @if($auth && method_exists($auth,'isMaster') && $auth->isMaster())
+                    @php
+                        $owner = $product->user;
+                        $companyName = $product->company?->name;
+                        $chain = null;
+                        if ($owner && $owner->representable_type === \App\Models\Branch::class) {
+                            $branchName = optional($owner->representable)->name;
+                            $chain = trim(($companyName ?: 'Empresa') . ' → ' . ($branchName ?: 'Sucursal'));
+                        } elseif ($owner && method_exists($owner,'isCompany') && $owner->isCompany()) {
+                            $chain = $owner->name;
+                        } else {
+                            $chain = $companyName ?: ($owner?->name ?? 'N/D');
+                        }
+                    @endphp
+                    <p class="text-sm text-neutral-500 dark:text-neutral-400">
+                        Usuario: #{{ $product->user_id }} — {{ $product->user?->name ?? 'N/D' }}
+                        @if(!empty($chain))
+                          <span class="ml-1 text-neutral-400">({{ $chain }})</span>
+                        @endif
+                    </p>
+                @endif
                 <p class="text-sm text-neutral-600 dark:text-neutral-300">{{ $product->description ?? '-' }}</p>
                 <p class="text-sm text-neutral-500 dark:text-neutral-400">Categoría: {{ $product->category ?? '-' }}</p>
                 <p class="text-sm text-neutral-500 dark:text-neutral-400">

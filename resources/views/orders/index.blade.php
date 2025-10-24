@@ -254,6 +254,9 @@
                     @if(!empty($isCompany))
                         <th class="text-left px-3 py-3 font-medium text-neutral-600 dark:text-neutral-300">Sucursal</th>
                     @endif
+                    @if(!empty($isMaster))
+                        <th class="text-left px-3 py-3 font-medium text-neutral-600 dark:text-neutral-300">Usuario</th>
+                    @endif
                     <th class="text-left px-3 py-3 font-medium text-neutral-600 dark:text-neutral-300">Items</th>
                     <th class="text-left px-3 py-3 font-medium text-neutral-600 dark:text-neutral-300">Total</th>
                     <th class="text-left px-3 py-3 font-medium text-neutral-600 dark:text-neutral-300">Estado</th>
@@ -284,6 +287,9 @@
                         @if(!empty($isCompany))
                             <td class="px-3 py-3 text-neutral-700 dark:text-neutral-200">{{ optional($o->branch)->name ?? 'Sin sucursal' }}</td>
                         @endif
+                        @if(!empty($isMaster))
+                            <td class="px-3 py-3 text-neutral-700 dark:text-neutral-200">#{{ $o->user_id }} — {{ $o->user?->name ?? 'N/D' }}</td>
+                        @endif
                         <td class="px-3 py-3 text-neutral-700 dark:text-neutral-200">{{ (int)($o->items_qty ?? 0) }}</td>
                         <td class="px-3 py-3 font-semibold text-neutral-900 dark:text-neutral-100">{{ $fmt($o->total) }}</td>
                         <td class="px-3 py-3">
@@ -305,7 +311,7 @@
                     </tr>
                 @empty
                     <tr>
-                        <td colspan="{{ !empty($isCompany) ? 9 : 8 }}" class="px-6 py-16 text-center text-neutral-500 dark:text-neutral-400">
+                        <td colspan="{{ (!empty($isCompany) ? 9 : 8) + (!empty($isMaster) ? 1 : 0) }}" class="px-6 py-16 text-center text-neutral-500 dark:text-neutral-400">
                             <i class="fas fa-search text-neutral-300 dark:text-neutral-600 text-5xl mb-3"></i>
                             <div class="text-lg font-medium">No se encontraron pedidos</div>
                             <p class="text-neutral-500 dark:text-neutral-400">Ajustá los filtros para ver resultados.</p>
