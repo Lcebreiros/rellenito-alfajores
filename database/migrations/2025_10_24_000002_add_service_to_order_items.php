@@ -8,17 +8,21 @@ use Illuminate\Support\Facades\DB;
 return new class extends Migration {
     public function up(): void
     {
-        // Si existe el unique viejo, dropearlo antes de construir el nuevo esquema
-        if ($this->indexExists('order_items', 'order_items_order_id_product_id_unique')) {
-            DB::statement('ALTER TABLE `order_items` DROP INDEX `order_items_order_id_product_id_unique`');
-        }
+        // 0) Asegurar que existen índices simples para FKs y soltar FKs que usen el índice único
+        //    En algunos hosts MySQL/MariaDB, el FK puede "atar" el índice compuesto; hay que soltarlo antes
+        $this->dropForeignIfExists('order_items', 'order_id');
+        $this->dropForeignIfExists('order_items', 'product_id');
 
-        // Asegurar índices simples si faltaran (evita que MySQL "necesite" el unique anterior)
         if (! $this->indexExists('order_items', 'idx_order_items_order_id')) {
             try { DB::statement('CREATE INDEX `idx_order_items_order_id` ON `order_items` (`order_id`)'); } catch (\Throwable $e) { /* ignore */ }
         }
         if (! $this->indexExists('order_items', 'idx_order_items_product_id')) {
             try { DB::statement('CREATE INDEX `idx_order_items_product_id` ON `order_items` (`product_id`)'); } catch (\Throwable $e) { /* ignore */ }
+        }
+
+        // 1) Dropear unique viejo si existe (ya con índices alternativos presentes)
+        if ($this->indexExists('order_items', 'order_items_order_id_product_id_unique')) {
+            DB::statement('ALTER TABLE `order_items` DROP INDEX `order_items_order_id_product_id_unique`');
         }
 
         Schema::table('order_items', function (Blueprint $table) {
@@ -35,10 +39,24 @@ return new class extends Migration {
             // 4) Crear unique triple
             $table->unique(['order_id','product_id','service_id'], 'uniq_orderitem_order_prod_serv');
         });
+
+        // 5) Recrear FKs con los índices simples
+        Schema::table('order_items', function (Blueprint $table) {
+            try {
+                $table->foreign('order_id')->references('id')->on('orders')->cascadeOnDelete();
+            } catch (\Throwable $e) {}
+            try {
+                $table->foreign('product_id')->references('id')->on('products')->restrictOnDelete();
+            } catch (\Throwable $e) {}
+        });
     }
 
     public function down(): void
     {
+        // Soltar FKs para revertir con seguridad
+        $this->dropForeignIfExists('order_items', 'order_id');
+        $this->dropForeignIfExists('order_items', 'product_id');
+
         Schema::table('order_items', function (Blueprint $table) {
             try { $table->dropUnique('uniq_orderitem_order_prod_serv'); } catch (\Throwable $e) {}
             if (Schema::hasColumn('order_items', 'service_id')) {
@@ -49,14 +67,20 @@ return new class extends Migration {
             }
         });
 
-        // Restaurar unique original si no existe (fuera del blueprint)
+        // Restaurar unique original
         if (! $this->indexExists('order_items', 'order_items_order_id_product_id_unique')) {
             try { DB::statement('ALTER TABLE `order_items` ADD UNIQUE `order_items_order_id_product_id_unique` (`order_id`, `product_id`)'); } catch (\Throwable $e) {}
         }
 
-        // Limpieza de índices auxiliares (best-effort)
-        try { DB::statement('DROP INDEX `idx_order_items_product_id` ON `order_items`'); } catch (\Throwable $e) {}
-        try { DB::statement('DROP INDEX `idx_order_items_order_id` ON `order_items`'); } catch (\Throwable $e) {}
+        // Recrear FKs originales
+        Schema::table('order_items', function (Blueprint $table) {
+            try {
+                $table->foreign('order_id')->references('id')->on('orders')->cascadeOnDelete();
+            } catch (\Throwable $e) {}
+            try {
+                $table->foreign('product_id')->references('id')->on('products')->restrictOnDelete();
+            } catch (\Throwable $e) {}
+        });
     }
 
     private function indexExists(string $table, string $indexName): bool
@@ -67,5 +91,19 @@ return new class extends Migration {
             [$db, $table, $indexName]
         );
         return !empty($rows);
+    }
+
+    private function dropForeignIfExists(string $table, string $column): void
+    {
+        $db = DB::getDatabaseName();
+        $name = DB::table('information_schema.KEY_COLUMN_USAGE')
+            ->where('TABLE_SCHEMA', $db)
+            ->where('TABLE_NAME', $table)
+            ->where('COLUMN_NAME', $column)
+            ->whereNotNull('REFERENCED_TABLE_NAME')
+            ->value('CONSTRAINT_NAME');
+        if ($name) {
+            try { DB::statement("ALTER TABLE `$table` DROP FOREIGN KEY `$name`"); } catch (\Throwable $e) {}
+        }
     }
 };
