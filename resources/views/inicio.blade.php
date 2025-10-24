@@ -108,6 +108,15 @@
       </div>
     </a>
 
+    {{-- Servicios --}}
+    <a href="{{ route('services.index') }}" class="{{ $tile }}">
+      <div class="{{ $box }}">
+        <img src="{{ asset('images/servicios.png') }}" alt="Servicios" class="{{ $imgCls }}">
+        <div class="{{ $titleCls }}">Servicios</div>
+        <div class="{{ $descCls }}">Catálogo y precios</div>
+      </div>
+    </a>
+
     {{-- Clientes --}}
     <a href="{{ route('clients.index') }}" class="{{ $tile }}">
       <div class="{{ $box }}">

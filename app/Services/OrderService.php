@@ -54,7 +54,7 @@ class OrderService
             $product = Product::findOrFail($productId);
 
             // línea existente?
-            $item = $order->items()->where('product_id', $product->id)->first();
+            $item = $order->items()->where('product_id', $product->id)->whereNull('service_id')->first();
 
             if ($item) {
                 $item->quantity   += $qty;
@@ -64,9 +64,46 @@ class OrderService
             } else {
                 $order->items()->create([
                     'product_id' => $product->id,
+                    'service_id' => null,
                     'quantity'   => $qty,
                     'unit_price' => $product->price,
                     'subtotal'   => $qty * $product->price,
+                ]);
+            }
+
+            $order->recalcTotal();
+            $order->save();
+        });
+    }
+
+    /**
+     * Agrega un servicio a un pedido (sin stock), o acumula cantidad si ya existe la línea.
+     */
+    public function addService(int $orderId, int $serviceId, int $qty = 1): void
+    {
+        $qty = max(1, (int)$qty);
+
+        DB::transaction(function () use ($orderId, $serviceId, $qty) {
+            $order   = Order::lockForUpdate()->findOrFail($orderId);
+            $service = \App\Models\Service::findOrFail($serviceId);
+
+            $item = $order->items()
+                ->where('service_id', $service->id)
+                ->whereNull('product_id')
+                ->first();
+
+            if ($item) {
+                $item->quantity   += $qty;
+                $item->unit_price  = $service->price;
+                $item->subtotal    = $item->quantity * $item->unit_price;
+                $item->save();
+            } else {
+                $order->items()->create([
+                    'product_id' => null,
+                    'service_id' => $service->id,
+                    'quantity'   => $qty,
+                    'unit_price' => $service->price,
+                    'subtotal'   => $qty * $service->price,
                 ]);
             }
 
@@ -138,12 +175,13 @@ class OrderService
             }
         }
 
-        $order = Order::with(['items.product'])->findOrFail($orderId);
+        $order = Order::with(['items.product','items.service'])->findOrFail($orderId);
 
         $items = $order->items->map(function (OrderItem $i) {
+            $name = $i->product?->name ?? $i->service?->name ?? 'Item';
             return [
                 'id'       => (int)$i->id,
-                'name'     => $i->product->name ?? 'Producto',
+                'name'     => $name,
                 'qty'      => (int)$i->quantity,
                 'price'    => (float)$i->unit_price,
                 'subtotal' => (float)$i->subtotal,
@@ -162,7 +200,7 @@ class OrderService
      */
     public function validateStockSufficient(int $orderId): void
     {
-        $order = Order::with('items.product')->findOrFail($orderId);
+        $order = Order::with(['items.product','items.service'])->findOrFail($orderId);
 
         foreach ($order->items as $item) {
             if ($item->product && $item->product->stock < $item->quantity) {

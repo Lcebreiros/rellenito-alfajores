@@ -18,7 +18,7 @@ class Ticket extends Component
 
     public function mount(Order $order)
     {
-        $this->order = $order->loadMissing(['items.product']);
+        $this->order = $order->loadMissing(['items.product','items.service']);
 
         // 1) Logo del comprobante PER-USUARIO (no compartido)
         $user = Auth::user();

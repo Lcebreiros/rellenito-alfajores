@@ -200,7 +200,7 @@ public function finalize(): void
         $affectedProductIds = [];
 
         DB::transaction(function () use (&$finishedId, &$affectedProductIds, $stockService, $ordersService) {
-            $order = Order::with(['items.product'])
+            $order = Order::with(['items.product','items.service'])
                 ->lockForUpdate()
                 ->findOrFail($this->orderId);
 
@@ -222,15 +222,17 @@ public function finalize(): void
 
             // Verificar stock
             foreach ($order->items as $item) {
-                if ($item->product->stock < $item->quantity) {
+                if ($item->product && $item->product->stock < $item->quantity) {
                     throw new DomainException("Stock insuficiente: {$item->product->name}");
                 }
             }
 
             // Ajustar stock
             foreach ($order->items as $item) {
-                $stockService->adjust($item->product, -$item->quantity, 'order', $order);
-                $affectedProductIds[] = $item->product->id;
+                if ($item->product) {
+                    $stockService->adjust($item->product, -$item->quantity, 'order', $order);
+                    $affectedProductIds[] = $item->product->id;
+                }
             }
 
             // Recalcular total y finalizar pedido

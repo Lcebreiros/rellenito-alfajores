@@ -11,6 +11,7 @@ use App\Http\Controllers\ClientController;
 use App\Http\Controllers\StockController;
 use App\Http\Controllers\SupportController;
 use App\Http\Controllers\SupplyController;
+use App\Http\Controllers\ServiceController;
 use App\Http\Controllers\ProductCostController;
 use App\Http\Controllers\CalculatorController;
 // Master Controllers
@@ -228,6 +229,9 @@ Route::get('/products/{product}', [ProductController::class, 'show'])->name('pro
 
     // ============ CLIENTES ============
     Route::resource('clients', ClientController::class);
+
+    // ============ SERVICIOS ============
+    Route::resource('services', ServiceController::class);
 
     // ============ SOPORTE ============
     Route::get('/support', [SupportController::class, 'index'])->name('support.index');

@@ -144,29 +144,64 @@
 
     <div class="rule--dotted"></div>
 
-    <div class="items">
-      @forelse($order->items as $it)
-        @php
-          $q = (float)$it->quantity;
-          $n = $it->product->name ?? $it->product_name ?? 'Producto';
-          $u = (float)$it->unit_price;
-          $a = !is_null($it->subtotal) ? (float)$it->subtotal : $q * $u;
-        @endphp
+    @php
+      $productItems = $order->items->filter(fn($i) => !is_null($i->product_id));
+      $serviceItems = $order->items->filter(fn($i) => is_null($i->product_id) && !is_null($i->service_id));
+    @endphp
 
-        <div class="item">
-          <div>
-            <div class="name">{{ $n }}</div>
-            <div class="muted item-details">
-              {{ rtrim(rtrim(number_format($q,2,',','.'),'0'),',') }} ×
-              <span class="unit">${{ number_format($u,2,',','.') }}</span>
+    @if($productItems->count() > 0)
+      <div class="items">
+        <div class="muted" style="margin-bottom:4px;">Productos</div>
+        @foreach($productItems as $it)
+          @php
+            $q = (float)$it->quantity;
+            $n = $it->product->name ?? $it->product_name ?? 'Producto';
+            $u = (float)$it->unit_price;
+            $a = !is_null($it->subtotal) ? (float)$it->subtotal : $q * $u;
+          @endphp
+          <div class="item">
+            <div>
+              <div class="name">{{ $n }}</div>
+              <div class="muted item-details">
+                {{ rtrim(rtrim(number_format($q,2,',','.'),'0'),',') }} ×
+                <span class="unit">${{ number_format($u,2,',','.') }}</span>
+              </div>
             </div>
+            <div class="amt">${{ number_format($a,2,',','.') }}</div>
           </div>
-          <div class="amt">${{ number_format($a,2,',','.') }}</div>
-        </div>
-      @empty
+        @endforeach
+      </div>
+    @endif
+
+    @if($serviceItems->count() > 0)
+      <div class="items">
+        <div class="muted" style="margin:6px 14px 0;">Servicios</div>
+        @foreach($serviceItems as $it)
+          @php
+            $q = (float)$it->quantity;
+            $n = $it->service->name ?? $it->product_name ?? 'Servicio';
+            $u = (float)$it->unit_price;
+            $a = !is_null($it->subtotal) ? (float)$it->subtotal : $q * $u;
+          @endphp
+          <div class="item">
+            <div>
+              <div class="name">{{ $n }}</div>
+              <div class="muted item-details">
+                {{ rtrim(rtrim(number_format($q,2,',','.'),'0'),',') }} ×
+                <span class="unit">${{ number_format($u,2,',','.') }}</span>
+              </div>
+            </div>
+            <div class="amt">${{ number_format($a,2,',','.') }}</div>
+          </div>
+        @endforeach
+      </div>
+    @endif
+
+    @if($productItems->count() === 0 && $serviceItems->count() === 0)
+      <div class="items">
         <div class="muted" style="text-align:center;padding:12px 0;">Sin ítems</div>
-      @endforelse
-    </div>
+      </div>
+    @endif
 
     @if($order->items->count() > 0)
       <div class="rule--dotted"></div>

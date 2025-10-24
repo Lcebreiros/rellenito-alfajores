@@ -420,6 +420,18 @@
               class="text-sm font-semibold truncate relative z-1">Productos</span>
       </a>
 
+      <!-- Servicios -->
+      <a href="{{ route('services.index') }}" wire:navigate data-turbo="false"
+         class="nav-link {{ request()->routeIs('services.*') ? $active : $idle }}"
+         :class="collapsed ? 'justify-center flex items-center gap-3 p-3' : 'flex items-center gap-3 p-3'"
+         :title="collapsed ? 'Servicios' : null">
+        <span class="shrink-0 flex items-center justify-center w-7 h-7">
+          <img src="{{ asset('images/servicios.png') }}" alt="Servicios" class="nav-icon">
+        </span>
+        <span x-show="!collapsed" x-transition:enter="fade-slide-enter" 
+              class="text-sm font-semibold truncate relative z-1">Servicios</span>
+      </a>
+
       <!-- Clientes -->
       <a href="{{ route('clients.index') }}" wire:navigate data-turbo="false"
          class="nav-link {{ request()->routeIs('clients.*') ? $active : $idle }}"

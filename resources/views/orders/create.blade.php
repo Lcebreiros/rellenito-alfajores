@@ -31,28 +31,42 @@
   {{-- Layout responsive: IZQ productos (8/12) + DER pedido (4/12) --}}
   <div class="grid grid-cols-1 lg:grid-cols-12 gap-6 items-start">
 
-    {{-- IZQUIERDA: Productos --}}
+    {{-- IZQUIERDA: Productos y Servicios --}}
     <section class="lg:col-span-8">
       <div class="rounded-xl border border-slate-200 bg-white p-3 dark:border-neutral-700 dark:bg-neutral-900
                   min-h-[calc(100svh-9rem)]">
-        @if($products->isEmpty())
+        @if($products->isEmpty() && ($services->isEmpty() ?? true))
           <div class="h-40 grid place-items-center text-sm text-slate-500 dark:text-neutral-400">
-            Aún no hay productos. Crea uno para empezar.
+            Aún no hay productos ni servicios. Crea uno para empezar.
           </div>
         @else
-          <div class="grid grid-cols-2 sm:grid-cols-3 gap-3">
-            @foreach($products as $p)
-              <livewire:product-card
-                :product-id="$p->id"
-                :key="'product-card-'.$p->id"
-              />
-            @endforeach
-          </div>
+          {{-- Productos --}}
+          @if(!$products->isEmpty())
+            <h2 class="px-1 mb-2 text-sm font-semibold text-neutral-700 dark:text-neutral-300">Productos</h2>
+            <div class="grid grid-cols-2 sm:grid-cols-3 gap-3">
+              @foreach($products as $p)
+                <livewire:product-card
+                  :product-id="$p->id"
+                  :key="'product-card-'.$p->id"
+                />
+              @endforeach
+            </div>
+            <div class="mt-4">{{ $products->links() }}</div>
+          @endif
 
-          {{-- Paginación --}}
-          <div class="mt-4">
-            {{ $products->links() }}
-          </div>
+          {{-- Servicios --}}
+          @if(isset($services) && !$services->isEmpty())
+            <h2 class="px-1 mt-6 mb-2 text-sm font-semibold text-neutral-700 dark:text-neutral-300">Servicios</h2>
+            <div class="grid grid-cols-2 sm:grid-cols-3 gap-3">
+              @foreach($services as $s)
+                <livewire:service-card
+                  :service-id="$s->id"
+                  :key="'service-card-'.$s->id"
+                />
+              @endforeach
+            </div>
+            <div class="mt-4">{{ $services->links() }}</div>
+          @endif
         @endif
       </div>
     </section>

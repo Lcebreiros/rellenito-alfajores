@@ -174,42 +174,74 @@ $s = $statusMap[$statusKey] ?? [
 
         {{-- Lista de productos --}}
         <div class="px-5 sm:px-6 py-4 lg:max-h-[48vh] lg:overflow-y-auto custom-scroll">
-          @forelse ($items as $item)
-            @php
-              $name = $item->product->name ?? $item->name ?? 'Producto';
-              $unit = (float)($item->unit_price ?? 0);
-              $qty  = (int)($item->quantity ?? 0);
-              $itemTotal = $unit * $qty;
-            @endphp
+          @php
+            $productItems = $items->filter(fn($i) => !is_null($i->product_id));
+            $serviceItems = $items->filter(fn($i) => is_null($i->product_id) && !is_null($i->service_id));
+          @endphp
 
-            <div class="grid grid-cols-1 sm:grid-cols-12 items-center gap-3 py-3 border-b border-neutral-100 dark:border-neutral-800/60 last:border-0">
-              <div class="sm:col-span-7 flex items-center gap-3 min-w-0">
-                @if (!empty($item->product?->image_url))
-                  <img class="w-12 h-12 rounded-lg object-cover border border-neutral-200 dark:border-neutral-800" src="{{ $item->product->image_url }}" alt="">
-                @else
+          @if($productItems->count())
+            <div class="text-xs uppercase tracking-wide text-neutral-500 dark:text-neutral-400 mb-2">Productos</div>
+            @foreach ($productItems as $item)
+              @php
+                $name = $item->product->name ?? $item->name ?? 'Producto';
+                $unit = (float)($item->unit_price ?? 0);
+                $qty  = (int)($item->quantity ?? 0);
+                $itemTotal = $unit * $qty;
+              @endphp
+              <div class="grid grid-cols-1 sm:grid-cols-12 items-center gap-3 py-3 border-b border-neutral-100 dark:border-neutral-800/60 last:border-0">
+                <div class="sm:col-span-7 flex items-center gap-3 min-w-0">
+                  @if (!empty($item->product?->image_url))
+                    <img class="w-12 h-12 rounded-lg object-cover border border-neutral-200 dark:border-neutral-800" src="{{ $item->product->image_url }}" alt="">
+                  @else
+                    <div class="w-12 h-12 rounded-lg bg-neutral-100 dark:bg-neutral-800 border border-neutral-200 dark:border-neutral-800 grid place-items-center text-neutral-400">
+                      <svg class="w-5 h-5" viewBox="0 0 24 24" fill="none"><rect x="4" y="4" width="16" height="16" rx="2" stroke="currentColor" stroke-width="1.5"/></svg>
+                    </div>
+                  @endif
+                  <div class="min-w-0">
+                    <div class="font-medium text-neutral-800 dark:text-neutral-100 truncate">{{ $name }}</div>
+                    <div class="text-xs text-neutral-500 dark:text-neutral-400">{{ $fmt($unit) }} · Unidad</div>
+                  </div>
+                </div>
+                <div class="sm:col-span-2 text-neutral-600 dark:text-neutral-300 text-sm">x {{ $qty }}</div>
+                <div class="sm:col-span-3 text-right font-semibold text-neutral-900 dark:text-neutral-100">{{ $fmt($itemTotal) }}</div>
+              </div>
+            @endforeach
+          @endif
+
+          @if($serviceItems->count())
+            <div class="text-xs uppercase tracking-wide text-neutral-500 dark:text-neutral-400 mt-4 mb-2">Servicios</div>
+            @foreach ($serviceItems as $item)
+              @php
+                $name = $item->service->name ?? $item->name ?? 'Servicio';
+                $unit = (float)($item->unit_price ?? 0);
+                $qty  = (int)($item->quantity ?? 0);
+                $itemTotal = $unit * $qty;
+              @endphp
+              <div class="grid grid-cols-1 sm:grid-cols-12 items-center gap-3 py-3 border-b border-neutral-100 dark:border-neutral-800/60 last:border-0">
+                <div class="sm:col-span-7 flex items-center gap-3 min-w-0">
                   <div class="w-12 h-12 rounded-lg bg-neutral-100 dark:bg-neutral-800 border border-neutral-200 dark:border-neutral-800 grid place-items-center text-neutral-400">
                     <svg class="w-5 h-5" viewBox="0 0 24 24" fill="none"><rect x="4" y="4" width="16" height="16" rx="2" stroke="currentColor" stroke-width="1.5"/></svg>
                   </div>
-                @endif
-                <div class="min-w-0">
-                  <div class="font-medium text-neutral-800 dark:text-neutral-100 truncate">{{ $name }}</div>
-                  <div class="text-xs text-neutral-500 dark:text-neutral-400">{{ $fmt($unit) }} · Unidad</div>
+                  <div class="min-w-0">
+                    <div class="font-medium text-neutral-800 dark:text-neutral-100 truncate">{{ $name }}</div>
+                    <div class="text-xs text-neutral-500 dark:text-neutral-400">{{ $fmt($unit) }} · Servicio</div>
+                  </div>
                 </div>
+                <div class="sm:col-span-2 text-neutral-600 dark:text-neutral-300 text-sm">x {{ $qty }}</div>
+                <div class="sm:col-span-3 text-right font-semibold text-neutral-900 dark:text-neutral-100">{{ $fmt($itemTotal) }}</div>
               </div>
+            @endforeach
+          @endif
 
-              <div class="sm:col-span-2 text-neutral-600 dark:text-neutral-300 text-sm">x {{ $qty }}</div>
-
-              <div class="sm:col-span-3 text-right font-semibold text-neutral-900 dark:text-neutral-100">{{ $fmt($itemTotal) }}</div>
-            </div>
-          @empty
+          @if($productItems->count() === 0 && $serviceItems->count() === 0)
             <div class="py-14 text-center">
               <svg class="w-12 h-12 mx-auto mb-3 text-neutral-300 dark:text-neutral-600" viewBox="0 0 24 24" fill="none">
                 <circle cx="12" cy="12" r="10" stroke="currentColor" stroke-width="1.5"/>
                 <path d="M12 8v4m0 4h.01" stroke="currentColor" stroke-width="1.5"/>
               </svg>
-              <p class="text-neutral-500 dark:text-neutral-400">No hay productos en este pedido</p>
+              <p class="text-neutral-500 dark:text-neutral-400">No hay ítems en este pedido</p>
             </div>
-          @endforelse
+          @endif
         </div>
 
         {{-- Totales --}}

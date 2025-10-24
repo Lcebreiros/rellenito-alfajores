@@ -584,14 +584,19 @@ public function index(Request $request)
             ->paginate(24)
             ->withQueryString();
 
-        $order->load(['items.product','client']);
+        $services = \App\Models\Service::query()
+            ->when(method_exists(\App\Models\Service::class, 'scopeActive'), fn ($q) => $q->active(), fn ($q) => $q)
+            ->orderBy('name')
+            ->paginate(24, ['*'], 'services_page')
+            ->withQueryString();
 
-        return view('orders.create', compact('order', 'products'));
+        $order->load(['items.product','items.service','client']);
+        return view('orders.create', compact('order', 'products', 'services'));
     }
 
     public function show(Order $order)
     {
-        $order->load(['items.product','client']);
+        $order->load(['items.product','items.service','client']);
         return view('orders.show', compact('order'));
     }
 
@@ -606,7 +611,7 @@ public function index(Request $request)
 
         $products = Product::all(); // o filtrados según tu lógica
 
-        $order->load('client', 'items.product');
+        $order->load('client', 'items.product', 'items.service');
 
         // Pasamos también la lista de clientes para el select
         $clients = \App\Models\Client::all();
@@ -704,8 +709,10 @@ public function index(Request $request)
             $stock = app(StockService::class);
 
             foreach ($order->items as $item) {
-                // Devolver el stock
-                $stock->adjust($item->product, $item->quantity, 'manual-cancel', $order);
+                if ($item->product) {
+                    // Devolver el stock
+                    $stock->adjust($item->product, $item->quantity, 'manual-cancel', $order);
+                }
             }
 
             // Asignar enum directamente
@@ -730,8 +737,10 @@ public function index(Request $request)
                 $stock = app(StockService::class);
 
                 foreach ($order->items as $item) {
-                    // Devolver el stock
-                    $stock->adjust($item->product, $item->quantity, 'manual-cancel', $order);
+                    if ($item->product) {
+                        // Devolver el stock
+                        $stock->adjust($item->product, $item->quantity, 'manual-cancel', $order);
+                    }
                 }
 
                 // Asignar enum directamente

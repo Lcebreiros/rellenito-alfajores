@@ -174,7 +174,8 @@ class Order extends Model
         foreach ($this->items as $item) {
             $product = $item->product;
             if (!$product) {
-                throw new DomainException("Producto no encontrado para item {$item->id}");
+                // Línea de servicio: no ajustar stock
+                continue;
             }
 
             // El StockService valida stock negativo, etc.
