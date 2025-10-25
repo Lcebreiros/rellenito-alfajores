@@ -192,6 +192,8 @@ Route::get('/products/{product}', [ProductController::class, 'show'])->name('pro
 
     // Historial de stock — una sola ruta canonical
     Route::get('/stock/history', [StockController::class, 'history'])->name('stock.history');
+    // Detalle de stock por producto
+    Route::get('/stock/{product}', [StockController::class, 'show'])->name('stock.show');
 
     // Si querés mantener el viejo path alias (opcional), redirige al canonical:
     Route::get('/stock-adjustments/history', fn() => redirect()->route('stock.history'));
@@ -232,6 +234,8 @@ Route::get('/products/{product}', [ProductController::class, 'show'])->name('pro
 
     // ============ SERVICIOS ============
     Route::resource('services', ServiceController::class);
+
+    // (Revert) Recibir productos: eliminado
 
     // ============ SOPORTE ============
     Route::get('/support', [SupportController::class, 'index'])->name('support.index');

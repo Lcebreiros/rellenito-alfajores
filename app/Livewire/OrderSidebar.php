@@ -46,9 +46,12 @@ class OrderSidebar extends Component
     #[On('item-added-to-order')]
     public function onItemAddedToOrder(int $orderId): void
     {
-        if ($this->orderId === $orderId) {
-            $this->refreshOrder();
+        // Si el evento llega para otro borrador, cambiar el foco a ese borrador y sincronizar sesión
+        if ($this->orderId !== $orderId) {
+            session(['draft_order_id' => $orderId]);
+            $this->orderId = $orderId;
         }
+        $this->refreshOrder();
     }
 
     public function refreshOrder(): void
@@ -185,11 +188,16 @@ public function finalize(): void
     if ($this->finishing) return;
     $this->finishing = true;
 
+    // Alinear el draft de la sesión con el componente en lugar de bloquear
     $draftId = (int) session('draft_order_id');
+    if (!$draftId) {
+        $this->ensureDraftExists();
+        $draftId = (int) session('draft_order_id');
+    }
     if ($draftId !== (int) $this->orderId) {
-        $this->dispatch('notify', type: 'error', message: 'Pedido no pertenece a tu sesión.');
-        $this->finishing = false;
-        return;
+        // sincronizar y seguir
+        $this->orderId = $draftId;
+        $this->refreshOrder();
     }
 
     $stockService = app(StockService::class);

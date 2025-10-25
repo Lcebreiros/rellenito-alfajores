@@ -13,6 +13,16 @@ class OrderItem extends Model
     protected $casts = ['unit_price'=>'decimal:2','subtotal'=>'decimal:2'];
 
     public function order(){ return $this->belongsTo(Order::class); }
-    public function product(){ return $this->belongsTo(Product::class); }
-    public function service(){ return $this->belongsTo(Service::class); }
+    public function product()
+    {
+        // Ver productos aunque pertenezcan a otra sucursal/empresa y aunque estén eliminados lógicamente
+        return $this->belongsTo(Product::class)
+            ->withoutGlobalScope('byUser')
+            ->withTrashed();
+    }
+    public function service()
+    {
+        // Mostrar servicios aunque estén eliminados lógicamente
+        return $this->belongsTo(Service::class)->withTrashed();
+    }
 }

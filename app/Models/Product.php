@@ -29,6 +29,7 @@ class Product extends Model
         'category',
         'unit',
         'cost_price',
+        'created_by_type',
     ];
 
     protected $casts = [
@@ -79,6 +80,9 @@ class Product extends Model
      */
     public function scopeAvailableFor(Builder $query, User $user): Builder
     {
+        // Asegura que un usuario "company" pueda ver también productos de sus sucursales
+        // (de lo contrario, el scope global byUser limitaría a user_id = auth()->id)
+        $query = $query->withoutGlobalScope('byUser');
         if ($user->isMaster()) {
             return $query;
         }
@@ -134,6 +138,77 @@ class Product extends Model
     public function scopeShared(Builder $query): Builder
     {
         return $query->where('is_shared', true);
+    }
+
+    // ---------- Route binding (permite que Company vea productos de sus sucursales) ----------
+    public function resolveRouteBinding($value, $field = null)
+    {
+        $query = static::query()->withoutGlobalScope('byUser');
+        if ($field) {
+            $query->where($field, $value);
+        } else {
+            $query->where($this->getRouteKeyName(), $value);
+        }
+
+        $product = $query->firstOrFail();
+
+        $user = auth()->user();
+        if (!$user) {
+            abort(404);
+        }
+
+        // Master ve todo
+        if (method_exists($user, 'isMaster') && $user->isMaster()) {
+            return $product;
+        }
+
+        // Company: puede ver productos donde company_id = company.id (incluye sucursales)
+        if (method_exists($user, 'isCompany') && $user->isCompany()) {
+            if ((int)($product->company_id) === (int)$user->id) {
+                return $product;
+            }
+            abort(404);
+        }
+
+        // Si la sucursal (o el usuario cuya parent es la sucursal) usa inventario de empresa,
+        // permitir acceso al catálogo completo de la empresa (sin requerir is_shared)
+        try {
+            $company = method_exists($user, 'rootCompany') ? $user->rootCompany() : null;
+            $branch  = method_exists($user, 'branch') ? $user->branch() : null;
+
+            // Caso: usuario admin (branch user)
+            if ($branch && (bool)($branch->use_company_inventory ?? false)) {
+                if ($company && (int)$product->company_id === (int)$company->id) {
+                    return $product;
+                }
+            }
+
+            // Caso: usuario regular cuyo parent es la sucursal
+            if (!$branch && $user->parent_id) {
+                $parent = $user->parent; // User (branch user)
+                $parentBranch = method_exists($parent, 'branch') ? $parent->branch() : null;
+                if ($parentBranch && (bool)($parentBranch->use_company_inventory ?? false)) {
+                    if ($company && (int)$product->company_id === (int)$company->id) {
+                        return $product;
+                    }
+                }
+            }
+        } catch (\Throwable $e) {
+            // Si algo falla en la detección, seguimos con las reglas clásicas de abajo
+        }
+
+        // Admin/usuario: dueños o compartidos del parent
+        if ((int)$product->user_id === (int)$user->id) {
+            return $product;
+        }
+
+        if ($user->parent_id) {
+            if ((int)$product->user_id === (int)$user->parent_id && (bool)$product->is_shared) {
+                return $product;
+            }
+        }
+
+        abort(404);
     }
 
     // ---------- Accesores ----------
@@ -226,30 +301,54 @@ class Product extends Model
     }
 
     // ---------- Boot ----------
-    protected static function booted(): void
-    {
-        static::creating(function (Product $product) {
-            if (!$product->company_id && $product->user) {
-                $product->company_id = $product->user->rootCompany()?->id ?? $product->user_id;
+protected static function booted(): void
+{
+    static::creating(function (Product $product) {
+        $user = auth()->user();
+        
+        // Detectar quién crea: Company (nivel 0) o Branch (nivel 1)
+        if ($user) {
+            if ($user->hierarchy_level === User::HIERARCHY_ADMIN) {
+                // Admin de sucursal
+                $product->created_by_type = 'branch';
+            } else {
+                // Company o Master
+                $product->created_by_type = 'company';
             }
-        });
+        }
+        
+        // Asignar company_id
+        if (!$product->company_id && $product->user) {
+            $product->company_id = $product->user->rootCompany()?->id ?? $product->user_id;
+        }
+    });
 
-        static::created(function (Product $product) {
-            // Registrar ajuste inicial si hay stock > 0
-            if ($product->stock > 0) {
-                StockAdjustment::create([
-                    'product_id' => $product->id,
-                    'quantity_change' => $product->stock,
-                    'old_stock' => 0,
-                    'new_stock' => $product->stock,
-                    'reason' => 'producto_creado',
-                    'reference_id' => null,
-                    'reference_type' => null,
-                    'user_id' => $product->user_id,
-                ]);
+    static::created(function (Product $product) {
+        // Registrar ajuste inicial solo si hay stock > 0
+        if ($product->stock > 0) {
+            StockAdjustment::create([
+                'product_id' => $product->id,
+                'quantity_change' => $product->stock,
+                'old_stock' => 0,
+                'new_stock' => $product->stock,
+                'reason' => 'producto_creado',
+                'reference_id' => null,
+                'reference_type' => null,
+                'user_id' => $product->user_id,
+            ]);
+
+            // Si el creador es una sucursal (usuario admin), crear ubicación con el stock inicial
+            try {
+                $owner = \App\Models\User::find($product->user_id);
+                if ($owner && method_exists($owner, 'isAdmin') && $owner->isAdmin()) {
+                    \App\Models\ProductLocation::updateStock((int)$product->id, (int)$owner->id, (float)$product->stock);
+                }
+            } catch (\Throwable $e) {
+                // No bloquear si falla la creación de ubicación
             }
-        });
-    }
+        }
+    });
+}
     public function branch()
 {
     return $this->belongsTo(User::class, 'branch_id');
@@ -257,6 +356,16 @@ class Product extends Model
 public function productLocations()
 {
     return $this->hasMany(ProductLocation::class);
+}
+
+public function scopeCreatedByCompany(Builder $query): Builder
+{
+    return $query->where('created_by_type', 'company');
+}
+
+public function scopeCreatedByBranch(Builder $query): Builder
+{
+    return $query->where('created_by_type', 'branch');
 }
 
 }

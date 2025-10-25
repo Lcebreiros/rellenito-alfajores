@@ -225,10 +225,10 @@
                   {{-- Producto --}}
                   <div class="min-w-0 flex-1">
                     <div class="font-semibold text-gray-900 dark:text-neutral-100 truncate">
-                      {{ $h->product->name }}
+                      {{ $h->product->name ?? 'Producto' }}
                     </div>
                     <div class="text-sm text-gray-500 dark:text-neutral-400 truncate">
-                      @if($h->product->sku) SKU: {{ $h->product->sku }} @endif
+                      @if(optional($h->product)->sku) SKU: {{ $h->product->sku }} @endif
                     </div>
                   </div>
 
@@ -249,6 +249,23 @@
                     <span class="px-2.5 py-1 rounded-full text-xs font-medium {{ $badgeColor }}">
                       {{ $h->reason }}
                     </span>
+
+                    {{-- Tarjeta de origen: Central (empresa) o Sucursal: {nombre} --}}
+                    @php
+                      $branchUser = $h->branch; // User que representa sucursal o empresa
+                      $isBranch   = $branchUser && method_exists($branchUser, 'isAdmin') && $branchUser->isAdmin();
+                      $isCompany  = $branchUser && method_exists($branchUser, 'isCompany') && $branchUser->isCompany();
+                      $branchName = $branchUser?->branch()?->name ?? $branchUser?->name ?? null;
+                    @endphp
+                    @if($isCompany)
+                      <span class="px-2.5 py-1 rounded-full text-xs font-medium bg-slate-100 text-slate-700 dark:bg-neutral-800 dark:text-neutral-200">
+                        Central
+                      </span>
+                    @elseif($isBranch && $branchName)
+                      <span class="px-2.5 py-1 rounded-full text-xs font-medium bg-blue-100 text-blue-700 dark:bg-blue-900/30 dark:text-blue-300">
+                        Sucursal: {{ $branchName }}
+                      </span>
+                    @endif
 
                     <div class="flex items-center text-gray-500 dark:text-neutral-400 text-xs">
                       <i class="fas fa-calendar-alt mr-1"></i>

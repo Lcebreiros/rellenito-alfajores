@@ -78,7 +78,8 @@ class OrderQuickModal extends Component
 
     public function addProduct($productId): void
     {
-        $product = Product::find($productId);
+        // Evitar scope byUser para soportar inventario compartido por empresa
+        $product = Product::withoutGlobalScope('byUser')->find($productId);
         if (!$product) return;
 
         $existingKey = array_search($productId, array_column($this->items, 'product_id'), true);
@@ -277,7 +278,10 @@ class OrderQuickModal extends Component
 
     public function render()
     {
-        $products = Product::query()
+        $user = auth()->user();
+        $products = (method_exists($user,'isMaster') && $user->isMaster())
+            ? Product::query()
+            : Product::availableFor($user)
             ->when($this->search, function ($query) {
                 $query->where(function ($q) {
                     $q->where('name', 'like', '%' . $this->search . '%')

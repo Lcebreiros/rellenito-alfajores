@@ -46,7 +46,10 @@ class StockAdjustment extends Model
      */
     public function product()
     {
-        return $this->belongsTo(Product::class, 'product_id');
+        // Ver el producto incluso si pertenece a otro usuario (byUser) o está soft-deleted
+        return $this->belongsTo(Product::class, 'product_id')
+            ->withoutGlobalScope('byUser')
+            ->withTrashed();
     }
 
     /**

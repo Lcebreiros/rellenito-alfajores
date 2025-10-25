@@ -578,13 +578,19 @@ public function index(Request $request)
             $request->session()->put('draft_order_id', $order->id);
         }
 
-        $products = Product::query()
+        $auth = $request->user() ?? auth()->user();
+        // Unificar lógica de disponibilidad con scope centralizado
+        $productsQuery = (method_exists($auth,'isMaster') && $auth->isMaster())
+            ? Product::query()
+            : Product::availableFor($auth);
+
+        $products = $productsQuery
             ->when(method_exists(Product::class, 'scopeActive'), fn ($q) => $q->active(), fn ($q) => $q)
             ->orderBy('name')
             ->paginate(24)
             ->withQueryString();
 
-        $services = \App\Models\Service::query()
+        $services = \App\Models\Service::availableFor($auth)
             ->when(method_exists(\App\Models\Service::class, 'scopeActive'), fn ($q) => $q->active(), fn ($q) => $q)
             ->orderBy('name')
             ->paginate(24, ['*'], 'services_page')
@@ -635,26 +641,65 @@ public function index(Request $request)
             'items_json'      => 'required|string',
         ]);
 
-        DB::transaction(function() use ($order, $data) {
-            // Actualizamos la orden
+        DB::transaction(function() use (&$order, $data) {
+            // Bloquear orden e items para evitar condiciones de carrera
+            $order = Order::with('items.product')->lockForUpdate()->findOrFail($order->id);
+
+            // Actualizamos datos del cliente/dirección
             $order->update([
-                'customer_name'    => $data['name'],      // mapeo al campo de la tabla orders
+                'customer_name'    => $data['name'],
                 'customer_email'   => $data['email'],
                 'customer_phone'   => $data['phone'],
                 'shipping_address' => $data['address'],
             ]);
 
-            // Decodificamos y reemplazamos los items
-            $items = json_decode($data['items_json'], true);
-            $order->items()->delete();
+            // Inventario: si la orden está COMPLETED y se editan cantidades, ajustar diferencias al stock
+            $newItemsArr = json_decode($data['items_json'], true) ?: [];
 
-            foreach ($items as $i) {
+            // Mapas producto_id => cantidad
+            $oldMap = [];
+            foreach ($order->items as $it) {
+                if ($it->product_id) {
+                    $oldMap[(int)$it->product_id] = ($oldMap[(int)$it->product_id] ?? 0) + (int)$it->quantity;
+                }
+            }
+            $newMap = [];
+            foreach ($newItemsArr as $i) {
+                $pid = isset($i['id']) ? (int) $i['id'] : null;
+                if ($pid) {
+                    $newMap[$pid] = ($newMap[$pid] ?? 0) + (int) ($i['quantity'] ?? 0);
+                }
+            }
+
+            if ($order->status === \App\Enums\OrderStatus::COMPLETED) {
+                $stock = app(\App\Services\StockService::class);
+                // Para cada producto afectado, calcular delta y ajustar stock
+                $allPids = array_unique(array_merge(array_keys($oldMap), array_keys($newMap)));
+                foreach ($allPids as $pid) {
+                    $oldQty = (int) ($oldMap[$pid] ?? 0);
+                    $newQty = (int) ($newMap[$pid] ?? 0);
+                    $delta  = $newQty - $oldQty;
+                    if ($delta === 0) continue;
+
+                    // Ajuste: si delta < 0 (reducción), devolver stock (+); si delta > 0, descontar más (-)
+                    $product = \App\Models\Product::withoutGlobalScope('byUser')->find($pid);
+                    if ($product) {
+                        $stock->adjust($product, -$delta, 'order_edit', $order);
+                    }
+                }
+            }
+
+            // Reemplazar items por la nueva lista
+            $order->items()->delete();
+            foreach ($newItemsArr as $i) {
+                $qty = (int) ($i['quantity'] ?? 0);
+                $price = (float) ($i['unit_price'] ?? 0);
                 $order->items()->create([
-                    'product_id' => $i['id'],
-                    'name'       => $i['name'],
-                    'quantity'   => $i['quantity'],
-                    'unit_price' => $i['unit_price'],
-                    'subtotal'   => $i['quantity'] * $i['unit_price'],
+                    'product_id' => $i['id'] ?? null,
+                    'name'       => $i['name'] ?? null,
+                    'quantity'   => $qty,
+                    'unit_price' => $price,
+                    'subtotal'   => $qty * $price,
                     'user_id'    => auth()->id(),
                 ]);
             }

@@ -83,7 +83,7 @@
 
             <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
                 {{-- Selector de empresa (solo para master) --}}
-                @if(auth()->user()->isMaster())
+                 @if(auth()->user()->isMaster())
                     <div class="md:col-span-2">
                         <label class="block text-sm font-medium text-gray-700 dark:text-neutral-300 mb-1">Empresa *</label>
                         <select name="company_id" class="w-full px-3 py-2 border border-gray-300 dark:border-neutral-800 bg-white dark:bg-neutral-900 text-neutral-900 dark:text-neutral-100 rounded-md focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500" required>
@@ -176,23 +176,30 @@
                 </div>
 
                 {{-- Inventario compartido --}}
-                <div class="md:col-span-2">
-                    <label class="block text-sm font-medium text-gray-700 dark:text-neutral-300 mb-1">Inventario</label>
-                    <div class="flex items-center justify-between p-3 rounded-md border border-gray-200 dark:border-neutral-800 bg-gray-50 dark:bg-neutral-900/60">
-                        <div class="mr-4">
-                            <div class="text-sm font-medium text-neutral-900 dark:text-neutral-100">Usar inventario de la empresa</div>
-                            <div class="text-xs text-neutral-600 dark:text-neutral-400">Comparte catálogo y stock con la empresa. Las ventas se diferencian por sucursal.</div>
-                        </div>
-                        <label class="relative inline-flex items-center cursor-pointer">
-                            <input type="checkbox" name="use_company_inventory" value="1" {{ old('use_company_inventory') ? 'checked' : '' }} class="sr-only peer">
-                            <div class="w-11 h-6 bg-gray-200 peer-focus:outline-none peer-focus:ring-2 peer-focus:ring-blue-300 rounded-full peer dark:bg-neutral-700 peer-checked:bg-blue-600 transition-all"></div>
-                            <div class="absolute top-0.5 left-0.5 w-5 h-5 bg-white rounded-full shadow transform peer-checked:translate-x-5 transition-transform"></div>
-                        </label>
-                    </div>
-                    @error('use_company_inventory')
-                        <p class="text-xs text-red-600 mt-1">{{ $message }}</p>
-                    @enderror
-                </div>
+<div class="md:col-span-2">
+    <label class="block text-sm font-medium text-gray-700 dark:text-neutral-300 mb-1">Inventario</label>
+    <div class="flex items-center justify-between p-3 rounded-md border border-gray-200 dark:border-neutral-800 bg-gray-50 dark:bg-neutral-900/60">
+        <div class="mr-4">
+            <div class="text-sm font-medium text-neutral-900 dark:text-neutral-100">Usar inventario de la empresa</div>
+            <div class="text-xs text-neutral-600 dark:text-neutral-400">Comparte catálogo y stock con la empresa. Las ventas se diferencian por sucursal.</div>
+        </div>
+        <label class="relative inline-flex items-center cursor-pointer flex-shrink-0">
+            <input type="checkbox" name="use_company_inventory" value="1" {{ old('use_company_inventory') ? 'checked' : '' }} class="sr-only peer">
+            <div class="w-11 h-6 bg-gray-300 dark:bg-neutral-700 rounded-full 
+                        peer-checked:bg-blue-600 dark:peer-checked:bg-blue-500
+                        peer-focus:ring-4 peer-focus:ring-blue-300 dark:peer-focus:ring-blue-800
+                        transition-colors duration-300
+                        after:content-[''] after:absolute after:top-0.5 after:left-0.5 
+                        after:bg-white after:rounded-full after:h-5 after:w-5 after:shadow-md
+                        after:transition-transform after:duration-300
+                        peer-checked:after:translate-x-5">
+            </div>
+        </label>
+    </div>
+    @error('use_company_inventory')
+        <p class="text-xs text-red-600 mt-1">{{ $message }}</p>
+    @enderror
+</div>
             </div>
 
             <div class="mt-6 flex items-center gap-3">

@@ -17,7 +17,11 @@ class StockService
 {
     return DB::transaction(function () use ($product, $qtyChange, $reason, $reference) {
         // Bloqueo y recarga
-        $p = Product::whereKey($product->id)->lockForUpdate()->firstOrFail();
+        // Evitar el scope global 'byUser' para poder ajustar stock de productos del catálogo compartido
+        $p = Product::withoutGlobalScope('byUser')
+            ->whereKey($product->id)
+            ->lockForUpdate()
+            ->firstOrFail();
 
         $newStock = $p->stock + $qtyChange;
         if ($newStock < 0) {

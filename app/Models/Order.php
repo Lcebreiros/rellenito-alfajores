@@ -66,7 +66,12 @@ class Order extends Model
     public function branch() { return $this->belongsTo(User::class, 'branch_id'); }
     public function company() { return $this->belongsTo(User::class, 'company_id'); }
 
-    public function items() { return $this->hasMany(OrderItem::class); }
+    public function items()
+    {
+        // Importante: no aplicar el scope 'byUser' de OrderItem para que
+        // la empresa pueda ver los ítems creados por usuarios de sucursal.
+        return $this->hasMany(OrderItem::class)->withoutGlobalScope('byUser');
+    }
 
     // ---------- SCOPES ----------
     public function scopeAvailableFor(Builder $query, User $user): Builder

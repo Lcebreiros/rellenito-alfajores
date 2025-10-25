@@ -51,7 +51,8 @@ class OrderService
 
         DB::transaction(function () use ($orderId, $productId, $qty) {
             $order   = Order::lockForUpdate()->findOrFail($orderId);
-            $product = Product::findOrFail($productId);
+            // Evitar el scope global 'byUser' para soportar inventario compartido por empresa
+            $product = Product::withoutGlobalScope('byUser')->findOrFail($productId);
 
             // línea existente?
             $item = $order->items()->where('product_id', $product->id)->whereNull('service_id')->first();

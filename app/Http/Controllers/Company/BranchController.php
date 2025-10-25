@@ -189,4 +189,63 @@ class BranchController extends Controller
 
         return view('company.branches.users', compact('branch', 'users'));
     }
+
+    // ===================== RECIBIR PRODUCTOS =====================
+    public function receiveProductsForm(Branch $branch)
+    {
+        $user = auth()->user();
+        $branch->load('user', 'company');
+        abort_unless($branch->user && $user->canManageUser($branch->user), 403);
+
+        // Catálogo de la empresa (sin duplicar por sucursal)
+        $products = \App\Models\Product::query()
+            ->withoutGlobalScope('byUser')
+            ->where('company_id', $branch->company_id)
+            ->active()
+            ->orderBy('name')
+            ->paginate(20)
+            ->withQueryString();
+
+        return view('company.branches.receive-products', compact('branch', 'products'));
+    }
+
+    public function receiveProductsStore(\Illuminate\Http\Request $request, Branch $branch)
+    {
+        $user = auth()->user();
+        $branch->load('user', 'company');
+        abort_unless($branch->user && $user->canManageUser($branch->user), 403);
+
+        $data = $request->validate([
+            'items' => 'required|array|min:1',
+            'items.*.product_id' => 'required|integer|exists:products,id',
+            'items.*.qty' => 'required|numeric|min:0',
+        ]);
+
+        // Validar que todos los productos pertenezcan a la empresa de la sucursal
+        $productIds = collect($data['items'])->pluck('product_id')->unique()->values();
+        $validIds = \App\Models\Product::query()
+            ->withoutGlobalScope('byUser')
+            ->where('company_id', $branch->company_id)
+            ->whereIn('id', $productIds)
+            ->pluck('id')
+            ->all();
+
+        if (count($validIds) !== $productIds->count()) {
+            return back()->withErrors(['items' => 'Hay productos que no pertenecen a la empresa.'])->withInput();
+        }
+
+        // Actualizar stock por sucursal (ProductLocation)
+        foreach ($data['items'] as $row) {
+            $pid = (int) $row['product_id'];
+            $qty = (float) $row['qty'];
+            // Importante: ProductLocation.branch_id referencia al User que representa la sucursal (admin), no al modelo Branch
+            $branchUserId = (int) ($branch->user?->id ?? 0);
+            if ($branchUserId <= 0) {
+                return back()->withErrors(['branch' => 'Sucursal sin usuario representante válido.'])->withInput();
+            }
+            \App\Models\ProductLocation::updateStock($pid, $branchUserId, $qty);
+        }
+
+        return redirect()->route('company.branches.index')->with('success', 'Stock recibido para la sucursal.');
+    }
 }

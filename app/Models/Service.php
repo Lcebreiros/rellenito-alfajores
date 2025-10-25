@@ -69,4 +69,45 @@ class Service extends Model
             }
         });
     }
+
+    // Permitir que company/master y sucursales vean servicios según jerarquía (similar a Product)
+    public function resolveRouteBinding($value, $field = null)
+    {
+        $query = static::query()->withoutGlobalScope('byUser');
+        if ($field) {
+            $query->where($field, $value);
+        } else {
+            $query->where($this->getRouteKeyName(), $value);
+        }
+
+        $service = $query->firstOrFail();
+        $user = auth()->user();
+        if (!$user) abort(404);
+
+        if (method_exists($user,'isMaster') && $user->isMaster()) return $service;
+
+        if (method_exists($user,'isCompany') && $user->isCompany()) {
+            if ((int)$service->company_id === (int)$user->id) return $service;
+            abort(404);
+        }
+
+        // Dueño directo
+        if ((int)$service->user_id === (int)$user->id) return $service;
+
+        // Usuario hijo: puede ver los de su parent
+        if (!empty($user->parent_id)) {
+            if ((int)$service->user_id === (int)$user->parent_id) return $service;
+        }
+
+        // Sucursal con inventario de empresa: permitir ver servicios de company
+        try {
+            $branch = method_exists($user,'branch') ? $user->branch() : null;
+            $company = method_exists($user,'rootCompany') ? $user->rootCompany() : null;
+            if ($branch && (bool)($branch->use_company_inventory ?? false) && $company && (int)$service->company_id === (int)$company->id) {
+                return $service;
+            }
+        } catch (\Throwable $e) {}
+
+        abort(404);
+    }
 }

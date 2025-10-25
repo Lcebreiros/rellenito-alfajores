@@ -70,9 +70,11 @@ class ProductCard extends Component
         }
 
         if (!$this->product || $this->product->id !== $this->productId) {
-            $this->product = Product::find($this->productId);
+            // Importante: evitar el scope global 'byUser' para soportar inventario compartido por empresa
+            $this->product = Product::withoutGlobalScope('byUser')->find($this->productId);
         } else {
-            $this->product->refresh();
+            // Refrescar también sin el scope para mantener consistencia
+            $this->product = Product::withoutGlobalScope('byUser')->find($this->product->id);
         }
 
         if ($this->product) {
@@ -88,11 +90,12 @@ class ProductCard extends Component
 
     private function getCurrentDraftId(): int
     {
-        $draftId = (int) session('draft_order_id', 0);
-        if ($draftId) return $draftId;
-
-        $draft = Order::create(); // STATUS_DRAFT por defecto
-        session(['draft_order_id' => $draft->id]);
+        // Usar servicio central para crear/obtener el draft y asegurar consistencia (branch/company, sesión).
+        /** @var \Illuminate\Http\Request $req */
+        $req = request();
+        /** @var \App\Services\OrderService $orders */
+        $orders = app(\App\Services\OrderService::class);
+        $draft = $orders->currentDraft($req);
         return (int) $draft->id;
     }
 
@@ -135,9 +138,10 @@ class ProductCard extends Component
 
             $this->refreshProduct();
 
-            $this->dispatch('item-added-to-order', orderId:$draftId);
-            $this->dispatch('order-updated');
-            $this->dispatch('stock-updated', productId:$this->productId);
+            // Notificar al OrderSidebar explícitamente para evitar problemas de alcance de eventos
+            $this->dispatch('item-added-to-order', orderId:$draftId)->to(\App\Livewire\OrderSidebar::class);
+            $this->dispatch('order-updated')->to(\App\Livewire\OrderSidebar::class);
+            $this->dispatch('stock-updated', productId:$this->productId)->to(\App\Livewire\OrderSidebar::class);
 
             $msg = $this->qty === 1 ? 'Agregado al pedido' : "Agregados {$this->qty} al pedido";
             $this->dispatch('notify', type:'success', message:$msg);

@@ -56,6 +56,8 @@
         </button>
       </form>
 
+      
+
       <a href="{{ route('products.create') }}"
          class="inline-flex items-center gap-2 rounded-lg bg-indigo-600 px-4 py-2 text-sm font-medium text-white hover:bg-indigo-700">
         <svg class="h-4 w-4" viewBox="0 0 24 24" fill="none">
@@ -78,6 +80,7 @@
           }
           $priceLabel = '$ ' . number_format((float) $product->price, 2, ',', '.');
           $isActive = (bool)($product->is_active ?? true);
+          // Replicar criterio de ProductCard: usar siempre products.stock
           $stock = (int)($product->stock ?? 0);
         @endphp
 

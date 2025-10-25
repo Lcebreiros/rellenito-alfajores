@@ -55,9 +55,10 @@ class ServiceCard extends Component
         }
 
         if (!$this->service || $this->service->id !== $this->serviceId) {
-            $this->service = ServiceModel::find($this->serviceId);
+            $this->service = ServiceModel::withoutGlobalScope('byUser')->find($this->serviceId);
         } else {
-            $this->service->refresh();
+            // refresco sin scope para mantener consistencia cuando company/branch ve servicios ajenos
+            $this->service = ServiceModel::withoutGlobalScope('byUser')->find($this->service->id);
         }
 
         $this->isActive = (bool)($this->service?->is_active ?? false);

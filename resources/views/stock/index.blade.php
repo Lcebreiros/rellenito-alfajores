@@ -13,6 +13,11 @@
         <span class="ml-2 text-sm font-normal text-gray-500 dark:text-neutral-400">
           - {{ $currentBranch['name'] }}
         </span>
+        @if(!empty($branchUsesCompanyInventory))
+          <span class="ml-2 inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[11px] font-medium bg-indigo-50 text-indigo-700 dark:bg-indigo-900/30 dark:text-indigo-300">
+            <i class="fas fa-building"></i> Inventario de empresa
+          </span>
+        @endif
       @endif
     @elseif($isCompanyView)
       <span class="ml-2 text-sm font-normal text-gray-500 dark:text-neutral-400">- Vista Consolidada</span>
@@ -23,14 +28,15 @@
 
   <div class="flex gap-2 mt-3 sm:mt-0">
     {{-- Selector de Sucursal --}}
-    @if(!empty($availableBranches) && (count($availableBranches) > 1 || (!$branchId && !$isCompanyView)))
+    @php $u = auth()->user(); @endphp
+    @if(($u && (method_exists($u,'isCompany') && $u->isCompany()) ) || ($u && method_exists($u,'isMaster') && $u->isMaster()) || (!empty($availableBranches) && count($availableBranches) >= 1))
       <div class="relative">
         <select onchange="window.location.href = this.value" 
                 class="appearance-none bg-white dark:bg-neutral-800 border border-gray-300 dark:border-neutral-600 
                        text-gray-900 dark:text-neutral-100 text-sm rounded-lg focus:ring-indigo-500 
                        focus:border-indigo-500 px-4 py-2 pr-8">
           
-          @if(auth()->user()->isCompany() || auth()->user()->isMaster())
+          @if($u && ((method_exists($u,'isCompany') && $u->isCompany()) || (method_exists($u,'isMaster') && $u->isMaster())))
             <option value="{{ route('stock.index', array_merge(request()->query(), ['branch_id' => null])) }}" 
                     {{ (!$branchId && $isCompanyView) ? 'selected' : '' }}>
               📊 Vista Consolidada{{ auth()->user()->isCompany() ? ' (' . auth()->user()->name . ')' : '' }}
@@ -44,7 +50,7 @@
             </option>
           @endif
           
-          @foreach($availableBranches as $branch)
+          @foreach($availableBranches ?? [] as $branch)
             <option value="{{ route('stock.index', array_merge(request()->query(), ['branch_id' => $branch['id']])) }}" 
                     {{ $branchId == $branch['id'] ? 'selected' : '' }}>
               🏪 {{ $branch['name'] }}
@@ -53,6 +59,9 @@
               @endif
             </option>
           @endforeach
+          @if((empty($availableBranches) || count($availableBranches)===0) && ($u && (method_exists($u,'isCompany') && $u->isCompany())))
+            <option disabled>(Sin sucursales)</option>
+          @endif
         </select>
         <i class="fas fa-chevron-down absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-400 pointer-events-none"></i>
       </div>
@@ -190,14 +199,14 @@
     
     <div class="bg-white dark:bg-neutral-900 rounded-xl p-4 border border-gray-100 dark:border-neutral-700 dark:ring-1 dark:ring-indigo-500/10 shadow-sm">
       @php
-        $out = $products->getCollection()->filter(function($p) use ($branchId) {
-          $stock = $branchId ? ($p->stock_in_branch ?? 0) : ($p->total_stock ?? 0);
+        $out = $products->getCollection()->filter(function($p){
+          $stock = (float) ($p->display_stock ?? 0);
           return $stock <= 0;
         })->count();
-        
-        $low = $products->getCollection()->filter(function($p) use ($branchId) {
-          $stock = $branchId ? ($p->stock_in_branch ?? 0) : ($p->total_stock ?? 0);
-          $min = $p->min_stock ?? 0;
+
+        $low = $products->getCollection()->filter(function($p){
+          $stock = (float) ($p->display_stock ?? 0);
+          $min   = (float) ($p->min_stock ?? 0);
           return $stock > 0 && $min > 0 && $stock <= $min;
         })->count();
       @endphp
@@ -244,7 +253,6 @@
                           border-gray-300 focus:border-indigo-500 focus:ring-indigo-500
                           dark:bg-neutral-900 dark:border-neutral-700 dark:text-neutral-100 dark:placeholder-neutral-400">
           </div>
-          {{-- mantener filtros --}}
           <input type="hidden" name="status" value="{{ request('status') }}">
           <input type="hidden" name="order_by" value="{{ request('order_by','name') }}">
           <input type="hidden" name="dir" value="{{ request('dir','asc') }}">
@@ -317,7 +325,7 @@
             $price = (float) ($p->price ?? 0);
             $value = $price * $displayStock;
 
-            $badgeBase = 'inline-flex rounded-full px-2.5 py-0.5 text-[11px]';
+            $badgeBase = 'inline-flex rounded-full px-2.5 py-0.5 text-[11px] font-medium';
             if ($displayStock <= 0) {
               $badge = "$badgeBase bg-rose-100 text-rose-700 dark:bg-rose-900/40 dark:text-rose-300";
               $badgeText = 'Sin stock';
@@ -330,14 +338,24 @@
             }
           @endphp
 
-          <div class="rounded-xl border border-gray-200 dark:border-neutral-700 p-3 hover:shadow-sm transition-colors bg-white dark:bg-neutral-900">
-            <div class="flex items-start justify-between gap-2">
+          <a href="{{ route('stock.show', $p->id) }}" class="rounded-xl border border-gray-200 dark:border-neutral-700 p-3 hover:shadow-sm transition-colors bg-white dark:bg-neutral-900 block focus:outline-none focus:ring-2 focus:ring-indigo-500">
+            <div class="flex items-start justify-between gap-2 mb-2">
               <div class="min-w-0 flex-1">
                 <div class="font-semibold text-gray-900 dark:text-neutral-100 truncate">{{ $p->name }}</div>
-                <div class="text-xs text-gray-500 dark:text-neutral-400 truncate">
-                  {{ $p->sku ?? '—' }}
-                  @if(!empty($p->barcode))
-                    · {{ $p->barcode }}
+                <div class="flex items-center gap-2 mt-1">
+                  <span class="text-xs text-gray-500 dark:text-neutral-400 truncate">{{ $p->sku ?? '—' }}</span>
+                  
+                  {{-- 🎯 INDICADOR DE ORIGEN DEL PRODUCTO --}}
+                  @if(isset($p->created_by_type))
+                    @if($p->created_by_type === 'branch')
+                      <span class="inline-flex items-center px-1.5 py-0.5 rounded-full text-[10px] font-medium bg-purple-100 text-purple-700 dark:bg-purple-900/30 dark:text-purple-300 flex-shrink-0">
+                        <i class="fas fa-store text-[8px] mr-0.5"></i> Sucursal
+                      </span>
+                    @else
+                      <span class="inline-flex items-center px-1.5 py-0.5 rounded-full text-[10px] font-medium bg-blue-100 text-blue-700 dark:bg-blue-900/30 dark:text-blue-300 flex-shrink-0">
+                        <i class="fas fa-building text-[8px] mr-0.5"></i> Empresa
+                      </span>
+                    @endif
                   @endif
                 </div>
               </div>
@@ -374,7 +392,7 @@
               <div class="text-sm text-gray-600 dark:text-neutral-300">Valorización</div>
               <div class="font-semibold text-gray-900 dark:text-neutral-100">$ {{ number_format($value, 2, ',', '.') }}</div>
             </div>
-          </div>
+          </a>
         @endforeach
       </div>
     @endif
@@ -440,7 +458,7 @@
             <div class="text-sm text-gray-500 dark:text-neutral-400">Usa "Guardar como PDF" al imprimir</div>
           </div>
         </div>
-        <i class="fas fa-print text-gray-400 dark:text-neutral-500"></i>
+        <i class="fas fa-print text-gray-400<i class="fas fa-print text-gray-400 dark:text-neutral-500"></i>
       </button>
     </div>
 

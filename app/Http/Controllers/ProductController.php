@@ -10,39 +10,85 @@ use Illuminate\Support\Facades\Storage;
 class ProductController extends Controller
 {
     public function index(Request $request)
-    {
-        $auth = $request->user() ?? auth()->user();
+{
+    $auth = $request->user() ?? auth()->user();
 
-        // Master ve todo sin restricciones
-        $base = (method_exists($auth,'isMaster') && $auth->isMaster())
-            ? Product::query()
-            : Product::availableFor($auth);
-
-        $query = $base->with([
-                'user:id,name,parent_id,representable_id,representable_type',
-                'user.parent:id,name',
-                'company:id,name'
-            ])
-            ->when($request->filled('q'), function ($q) use ($request) {
-                $term = trim((string)$request->input('q'));
-                $lc = mb_strtolower($term, 'UTF-8');
-                $q->where(function($w) use ($lc) {
-                    $w->whereRaw('LOWER(name) LIKE ?', ["%{$lc}%"]) 
-                      ->orWhereRaw('LOWER(sku) LIKE ?', ["%{$lc}%"]);
+    // Determinar query base según jerarquía
+    if ($auth->isMaster()) {
+        // Master ve todo
+        $base = Product::query();
+        
+    } elseif ($auth->isCompany()) {
+        // Company (nivel 0) ve: productos propios + de todas sus sucursales
+        $base = Product::query()
+            ->withoutGlobalScope('byUser')
+            ->where('company_id', $auth->id);
+        
+    } elseif ($auth->isAdmin()) {
+        // Admin de sucursal (nivel 1)
+        $branch = $auth->representable;
+        $company = $auth->rootCompany();
+        
+        if ($branch && $branch->use_company_inventory) {
+            // Inventario compartido: ver catálogo completo de la empresa
+            $base = Product::query()
+                ->withoutGlobalScope('byUser')
+                ->where('company_id', $company->id);
+        } else {
+            // Inventario propio: productos propios + recibidos de empresa
+            $base = Product::query()
+                ->withoutGlobalScope('byUser')
+                ->where(function ($q) use ($auth, $company) {
+                    // 1. Productos creados por esta sucursal
+                    $q->where(function($sq) use ($auth) {
+                        $sq->where('user_id', $auth->id)
+                           ->where('created_by_type', 'branch');
+                    })
+                    // 2. Productos de empresa con stock en esta sucursal
+                    ->orWhere(function($sq) use ($auth, $company) {
+                        $sq->where('company_id', $company->id)
+                           ->where('created_by_type', 'company')
+                           ->whereExists(function ($sub) use ($auth) {
+                               $sub->selectRaw('1')
+                                   ->from('product_locations as pl')
+                                   ->whereColumn('pl.product_id', 'products.id')
+                                   ->where('pl.branch_id', $auth->id)
+                                   ->where('pl.stock', '>', 0);
+                           });
+                    });
                 });
-            });
-
-        if (method_exists($auth, 'isMaster') && $auth->isMaster() && $request->filled('user_id')) {
-            $query->where('user_id', (int) $request->input('user_id'));
         }
-
-        $products = $query->orderBy('name')->paginate(20)->withQueryString();
-
-        return view('products.index', [
-            'products' => $products,
-            'authUser' => $auth,
-        ]);
+        
+    } else {
+        // Usuario regular (nivel 2)
+        $base = Product::availableFor($auth);
     }
+
+    $query = $base->with([
+            'user:id,name,parent_id,representable_id,representable_type,hierarchy_level',
+            'user.parent:id,name',
+            'company:id,name'
+        ])
+        ->when($request->filled('q'), function ($q) use ($request) {
+            $term = trim((string)$request->input('q'));
+            $lc = mb_strtolower($term, 'UTF-8');
+            $q->where(function($w) use ($lc) {
+                $w->whereRaw('LOWER(name) LIKE ?', ["%{$lc}%"]) 
+                  ->orWhereRaw('LOWER(sku) LIKE ?', ["%{$lc}%"]);
+            });
+        });
+
+    if ($auth->isMaster() && $request->filled('user_id')) {
+        $query->where('user_id', (int) $request->input('user_id'));
+    }
+
+    $products = $query->orderBy('name')->paginate(20)->withQueryString();
+
+    return view('products.index', [
+        'products' => $products,
+        'authUser' => $auth,
+    ]);
+}
 
     public function create()
     {
@@ -102,15 +148,13 @@ public function update(Request $request, Product $product)
 
     public function show(Product $product)
     {
-    // Stock total por sucursal
-    $product->load(['user.parent','user.representable','company']);
-    $locations = $product->productLocations()->with('branch')->get();
+        // Stock: replicar criterio de ProductCard: usar products.stock como stock principal visible
+        $product->load(['user.parent','user.representable','company']);
+        $locations = $product->productLocations()->with('branch')->get();
+        $totalStock = (float) ($product->stock ?? 0);
 
-    // Stock total consolidado
-    $totalStock = $locations->sum(fn($l) => $l->stock);
-
-    return view('products.show', compact('product', 'locations', 'totalStock'));
-}
+        return view('products.show', compact('product', 'locations', 'totalStock'));
+    }
 
 
 
