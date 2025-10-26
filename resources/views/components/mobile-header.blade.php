@@ -1,11 +1,38 @@
-{{-- MOBILE: barra superior --}}
+{{-- MOBILE: barra superior (componente parcial) --}}
+  @php
+    $levelLabel = null;
+    if (Auth::check()) {
+        $roles = Auth::user()->getRoleNames()->toArray();
+        $firstRole = $roles[0] ?? null;
+        if ($firstRole) {
+            $roleMap = [
+                'company' => 'Empresa',
+                'admin'   => 'Sucursal',
+                'user'    => 'Usuario',
+                'master'  => 'Master',
+            ];
+            $levelLabel = $roleMap[$firstRole] ?? Str::title(str_replace(['-', '_'], ' ', $firstRole));
+        } else {
+            switch (Auth::user()->hierarchy_level) {
+                case \App\Models\User::HIERARCHY_MASTER:  $levelLabel = 'Master'; break;
+                case \App\Models\User::HIERARCHY_COMPANY: $levelLabel = 'Empresa'; break;
+                case \App\Models\User::HIERARCHY_ADMIN:   $levelLabel = 'Sucursal'; break;
+                case \App\Models\User::HIERARCHY_USER:    $levelLabel = 'Usuario'; break;
+                default: $levelLabel = null; break;
+            }
+        }
+    }
+  @endphp
 <div class="md:hidden w-full bg-white dark:bg-neutral-900 border-b border-neutral-200 dark:border-neutral-800 no-print"
      x-data="{ moreOpen: false }">
     <div class="h-14 flex items-center justify-between px-4">
         {{-- Logo y título --}}
-        <a href="{{ route('dashboard') }}" class="inline-flex items-center gap-2">
+        <a href="{{ route('inicio') }}" class="inline-flex items-center gap-2">
             <x-application-mark class="h-8 w-auto" />
             <span class="font-semibold text-neutral-900 dark:text-neutral-100">Panel</span>
+            @if($levelLabel)
+              <span class="ml-1 text-sm font-semibold text-neutral-500 dark:text-neutral-400">{{ $levelLabel }}</span>
+            @endif
         </a>
 
         {{-- Botón "Más" con dropdown --}}

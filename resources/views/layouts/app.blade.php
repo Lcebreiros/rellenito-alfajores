@@ -65,7 +65,7 @@
 
     {{-- HEADER: slot Jetstream o sección Blade --}}
     @if (isset($header))
-      <header class="bg-white border-b border-neutral-200 dark:bg-neutral-900 dark:border-neutral-800">
+      <header class="bg-white border-b border-neutral-200 dark:bg-neutral-900 dark:border-neutral-800 @if(request()->routeIs('inicio')) hidden md:block @endif">
         <div class="w-full py-4 px-4 sm:px-6 lg:px-8">
           <div class="flex items-center justify-between gap-4">
             <div class="min-w-0">{{ $header }}</div>
@@ -106,7 +106,7 @@
       </header>
     @else
       @hasSection('header')
-        <header class="bg-white border-b border-neutral-200 dark:bg-neutral-900 dark:border-neutral-800">
+        <header class="bg-white border-b border-neutral-200 dark:bg-neutral-900 dark:border-neutral-800 @if(request()->routeIs('inicio')) hidden md:block @endif">
           <div class="w-full py-4 px-4 sm:px-6 lg:px-8">
             <div class="flex items-center justify-between gap-4">
               <div class="min-w-0">@yield('header')</div>
@@ -149,7 +149,7 @@
     @endif
 
     {{-- CONTENIDO: padding extra en mobile para no tapar con la bottom bar --}}
-    <main class="flex-1 p-4 md:p-6 pb-24 md:pb-6">
+    <main class="flex-1 p-4 md:p-6 pb-6 md:pb-6">
       @if (isset($slot))
         {{ $slot }}
       @else
@@ -179,10 +179,10 @@
     });
   </script>
 
-  {{-- ===== Bottom bar (usa tus imágenes y añade el menú "Más") ===== --}}
-  {{-- Espaciador para que nada quede detrás de la barra en mobile --}}
-  <div class="h-16 md:hidden"></div>
-  <x-bottom-nav />
+  {{-- Menú flotante móvil (reemplaza la bottom bar) --}}
+  @if (!request()->routeIs(['inicio','login','register']))
+    <x-mobile-fab-menu />
+  @endif
 
   @stack('scripts')
 </body>
