@@ -103,7 +103,7 @@
     closeBtn.addEventListener('click', close);
     modal.addEventListener('click', (e)=>{ if (e.target.dataset.close) close(); });
 
-    async function lookupExternal(code){
+async function lookupExternal(code){
   if (!code) return;
   resultBox.classList.remove('hidden');
   statusEl.innerHTML = '<span class="animate-pulse">🔍 Buscando en bases de datos...</span>';
@@ -130,27 +130,53 @@
     console.log('Respuesta:', data);
     
     if (data.found && data.product && data.product.name) {
-      // ✅ Producto encontrado en APIs externas
+      // ✅ Producto encontrado
       const productName = data.product.name;
       const productBrand = data.product.brand;
       const source = data.product.source || 'base de datos';
+      const imageUrl = data.product.image_url; // 🖼️ Obtener imagen
       
       statusEl.innerHTML = `
-        <div class="flex items-start gap-2">
-          <span class="text-green-600 dark:text-green-400 text-lg">✅</span>
-          <div>
-            <div class="font-medium text-green-700 dark:text-green-300">Producto reconocido</div>
-            <div class="text-xs text-neutral-600 dark:text-neutral-400 mt-1">
-              Encontrado en ${source}. Revisá y completá el precio.
+        <div class="flex items-start gap-3">
+          ${imageUrl ? `
+            <img src="${imageUrl}" 
+                 alt="${productName}" 
+                 class="w-20 h-20 object-contain rounded-lg border border-neutral-200 dark:border-neutral-700 bg-white"
+                 onerror="this.style.display='none'">
+          ` : ''}
+          <div class="flex-1">
+            <div class="flex items-start gap-2">
+              <span class="text-green-600 dark:text-green-400 text-lg">✅</span>
+              <div>
+                <div class="font-medium text-green-700 dark:text-green-300">Producto reconocido</div>
+                <div class="text-xs text-neutral-600 dark:text-neutral-400 mt-1">
+                  Encontrado en ${source}. Revisá los datos y completá el precio.
+                </div>
+              </div>
             </div>
           </div>
         </div>
       `;
       
-      // Combinar marca + nombre si hay marca
+      // Combinar marca + nombre
       formName.value = productBrand && productBrand.toLowerCase() !== productName.toLowerCase()
         ? `${productBrand} ${productName}`
         : productName;
+      
+      // 🖼️ Guardar la URL de la imagen en un campo oculto (opcional)
+      // Si quieres guardar la imagen automáticamente, agrega esto:
+      if (imageUrl) {
+        // Crear un campo oculto para la URL de la imagen
+        let imageField = document.getElementById(@json($cid . '_form_image'));
+        if (!imageField) {
+          imageField = document.createElement('input');
+          imageField.type = 'hidden';
+          imageField.name = 'external_image_url';
+          imageField.id = @json($cid . '_form_image');
+          form.appendChild(imageField);
+        }
+        imageField.value = imageUrl;
+      }
       
     } else {
       // ❌ No encontrado
@@ -166,16 +192,13 @@
         </div>
       `;
       
-      // Dejar el nombre vacío para que lo complete manualmente
       formName.value = '';
     }
     
-    // Siempre llenar estos campos
     formSku.value = code;
     formBarcode.value = code;
     form.classList.remove('hidden');
     
-    // Focus en el campo de nombre si está vacío
     if (!formName.value) {
       setTimeout(() => formName.focus(), 100);
     } else {

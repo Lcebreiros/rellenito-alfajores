@@ -109,15 +109,34 @@ class ProductController extends Controller
         'sku' => 'required|string|max:50|unique:products,sku,NULL,id,user_id,' . $userId,
         'barcode' => 'nullable|string|max:64|unique:products,barcode,NULL,id,user_id,' . $userId,
         'image' => 'nullable|image|max:5120',
+        'external_image_url' => 'nullable|url|max:500',
         'price' => 'required|numeric|min:0',
         'stock' => 'required|integer|min:0',
         'is_active' => 'boolean'
     ]);
 
-    // Guardar imagen si se subió
+    // Guardar imagen si se subió un archivo
     if ($request->hasFile('image')) {
         $data['image'] = $request->file('image')->store('products', 'public');
     }
+    // O descargar imagen desde URL externa
+    elseif ($request->filled('external_image_url')) {
+        try {
+            $imagePath = $this->downloadExternalImage($request->input('external_image_url'));
+            if ($imagePath) {
+                $data['image'] = $imagePath;
+            }
+        } catch (\Throwable $e) {
+            \Log::warning('No se pudo descargar imagen externa', [
+                'url' => $request->input('external_image_url'),
+                'error' => $e->getMessage()
+            ]);
+            // Continuar sin imagen si falla la descarga
+        }
+    }
+
+    // Remover external_image_url del array (no es columna de BD)
+    unset($data['external_image_url']);
 
     Product::create($data);
 
@@ -133,9 +152,11 @@ public function update(Request $request, Product $product)
         'barcode' => 'nullable|string|max:64|unique:products,barcode,' . $product->id . ',id,user_id,' . $userId,
         'price' => 'required|numeric|min:0',
         'image' => 'nullable|image|max:5120',
+        'external_image_url' => 'nullable|url|max:500',
         'is_active' => 'boolean'
     ]);
 
+    // Guardar imagen si se subió un archivo
     if ($request->hasFile('image')) {
         // Borrar vieja (si existe)
         if ($product->image && Storage::disk('public')->exists($product->image)) {
@@ -143,6 +164,28 @@ public function update(Request $request, Product $product)
         }
         $data['image'] = $request->file('image')->store('products', 'public');
     }
+    // O descargar imagen desde URL externa
+    elseif ($request->filled('external_image_url')) {
+        try {
+            $imagePath = $this->downloadExternalImage($request->input('external_image_url'));
+            if ($imagePath) {
+                // Borrar imagen anterior
+                if ($product->image && Storage::disk('public')->exists($product->image)) {
+                    Storage::disk('public')->delete($product->image);
+                }
+                $data['image'] = $imagePath;
+            }
+        } catch (\Throwable $e) {
+            \Log::warning('No se pudo descargar imagen externa', [
+                'url' => $request->input('external_image_url'),
+                'error' => $e->getMessage()
+            ]);
+            // Continuar sin cambiar la imagen si falla la descarga
+        }
+    }
+
+    // Remover external_image_url del array (no es columna de BD)
+    unset($data['external_image_url']);
 
     $product->update($data);
 
@@ -250,17 +293,32 @@ public function lookupExternal(Request $request)
                 
                 $brand = $p['brands'] ?? null;
                 
+                // 🖼️ OBTENER IMÁGENES
+                $image = null;
+                
+                // Prioridad: imagen frontal > imagen del producto > cualquier imagen
+                if (isset($p['image_front_url'])) {
+                    $image = $p['image_front_url'];
+                } elseif (isset($p['image_url'])) {
+                    $image = $p['image_url'];
+                } elseif (isset($p['image_front_small_url'])) {
+                    $image = $p['image_front_small_url'];
+                } elseif (isset($p['selected_images']['front']['display']['es'])) {
+                    $image = $p['selected_images']['front']['display']['es'];
+                } elseif (isset($p['selected_images']['front']['display']['en'])) {
+                    $image = $p['selected_images']['front']['display']['en'];
+                }
+                
+                \Log::info('Imagen encontrada:', ['image' => $image]);
+                
                 if ($name) {
-                    // 🔧 Limpiar y normalizar el nombre
-                    $name = $this->normalizarNombre($name);
-                    $brand = $brand ? $this->normalizarNombre($brand) : null;
-                    
                     $result['found'] = true;
                     $result['product'] = [
-                        'name' => $name,
-                        'brand' => $brand,
+                        'name' => trim($name),
+                        'brand' => $brand ? trim($brand) : null,
                         'source' => 'OpenFoodFacts',
-                        'original_name' => $p['product_name'] ?? null, // Guardar el original por si acaso
+                        'image_url' => $image, // 🖼️ Agregar imagen
+                        'barcode' => $barcode
                     ];
                     
                     \Log::info('✅ Producto encontrado en OpenFoodFacts', $result['product']);
@@ -272,7 +330,7 @@ public function lookupExternal(Request $request)
         \Log::error('Error en OpenFoodFacts', ['message' => $e->getMessage()]);
     }
 
-    // 2) UPCItemDB
+    // 2) UPCItemDB (también tiene imágenes)
     if (!$result['found']) {
         try {
             \Log::info('Consultando UPCItemDB...');
@@ -291,11 +349,16 @@ public function lookupExternal(Request $request)
                     $title = $item['title'] ?? null;
                     
                     if ($title) {
+                        // 🖼️ UPCItemDB también tiene imágenes
+                        $image = $item['images'][0] ?? null;
+                        
                         $result['found'] = true;
                         $result['product'] = [
-                            'name' => $this->normalizarNombre($title),
-                            'brand' => isset($item['brand']) ? $this->normalizarNombre($item['brand']) : null,
-                            'source' => 'UPCItemDB'
+                            'name' => trim($title),
+                            'brand' => isset($item['brand']) ? trim($item['brand']) : null,
+                            'source' => 'UPCItemDB',
+                            'image_url' => $image, // 🖼️ Imagen
+                            'barcode' => $barcode
                         ];
                         
                         \Log::info('✅ Producto encontrado en UPCItemDB', $result['product']);
@@ -375,6 +438,87 @@ private function normalizarNombre(string $nombre): string
             return redirect()->route('products.index')->with('ok','Producto eliminado');
         } catch (\Throwable $e) {
             return back()->with('error','No se pudo eliminar. Puede estar referenciado por otros registros.');
+        }
+    }
+
+    /**
+     * Descarga una imagen desde una URL externa y la guarda en storage
+     *
+     * @param string $url URL de la imagen externa
+     * @return string|null Path relativo de la imagen guardada o null si falla
+     */
+    private function downloadExternalImage(string $url): ?string
+    {
+        try {
+            // Validar que sea una URL válida
+            if (!filter_var($url, FILTER_VALIDATE_URL)) {
+                \Log::warning('URL inválida para descarga de imagen', ['url' => $url]);
+                return null;
+            }
+
+            // Descargar la imagen con timeout de 15 segundos
+            $response = Http::timeout(15)
+                ->withHeaders([
+                    'User-Agent' => 'Gestior-POS/1.0 (+https://gestior.com.ar)',
+                    'Accept' => 'image/*'
+                ])
+                ->get($url);
+
+            if (!$response->successful()) {
+                \Log::warning('Error al descargar imagen externa', [
+                    'url' => $url,
+                    'status' => $response->status()
+                ]);
+                return null;
+            }
+
+            // Obtener el contenido de la imagen
+            $imageContent = $response->body();
+
+            // Validar que sea una imagen (verificar primeros bytes - magic numbers)
+            $finfo = new \finfo(FILEINFO_MIME_TYPE);
+            $mimeType = $finfo->buffer($imageContent);
+
+            // Solo permitir formatos de imagen comunes
+            $allowedMimes = ['image/jpeg', 'image/png', 'image/gif', 'image/webp'];
+            if (!in_array($mimeType, $allowedMimes)) {
+                \Log::warning('Tipo de archivo no permitido', [
+                    'url' => $url,
+                    'mime' => $mimeType
+                ]);
+                return null;
+            }
+
+            // Determinar extensión según mime type
+            $extensions = [
+                'image/jpeg' => 'jpg',
+                'image/png' => 'png',
+                'image/gif' => 'gif',
+                'image/webp' => 'webp'
+            ];
+            $extension = $extensions[$mimeType] ?? 'jpg';
+
+            // Generar nombre único para la imagen
+            $filename = 'products/' . uniqid('ext_', true) . '.' . $extension;
+
+            // Guardar en storage/app/public/products
+            Storage::disk('public')->put($filename, $imageContent);
+
+            \Log::info('Imagen externa descargada exitosamente', [
+                'url' => $url,
+                'path' => $filename,
+                'size' => strlen($imageContent)
+            ]);
+
+            return $filename;
+
+        } catch (\Throwable $e) {
+            \Log::error('Excepción al descargar imagen externa', [
+                'url' => $url,
+                'error' => $e->getMessage(),
+                'trace' => $e->getTraceAsString()
+            ]);
+            return null;
         }
     }
 }
