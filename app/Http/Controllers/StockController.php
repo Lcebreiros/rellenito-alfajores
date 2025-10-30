@@ -759,4 +759,36 @@ class StockController extends Controller
             'type' => $type,
         ]];
     }
+
+    /**
+     * Actualizar configuración de notificaciones de stock
+     */
+    public function updateNotifications(Request $request)
+    {
+        $validated = $request->validate([
+            'notify_low_stock' => 'required|boolean',
+            'low_stock_threshold' => 'required|integer|min:1|max:1000',
+            'notify_out_of_stock' => 'required|boolean',
+        ]);
+
+        $user = auth()->user();
+
+        if (!$user) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Usuario no autenticado'
+            ], 401);
+        }
+
+        $user->update([
+            'notify_low_stock' => $validated['notify_low_stock'],
+            'low_stock_threshold' => $validated['low_stock_threshold'],
+            'notify_out_of_stock' => $validated['notify_out_of_stock'],
+        ]);
+
+        return response()->json([
+            'success' => true,
+            'message' => 'Configuración de notificaciones guardada correctamente'
+        ]);
+    }
 }

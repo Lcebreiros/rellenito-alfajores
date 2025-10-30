@@ -281,6 +281,73 @@
                 @endif
               </div>
 
+              {{-- Agendamiento --}}
+              <div>
+                <div class="flex items-center justify-between mb-4">
+                  <label class="font-medium text-gray-900 dark:text-gray-100 flex items-center gap-2">
+                    <i class="fas fa-calendar-clock text-indigo-600 dark:text-indigo-400"></i>
+                    Agendar pedido
+                  </label>
+
+                  <button type="button"
+                          wire:click="toggleScheduled"
+                          role="switch"
+                          aria-checked="{{ $isScheduled ? 'true' : 'false' }}"
+                          class="relative inline-flex h-6 w-11 items-center rounded-full transition-colors duration-200 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2 {{ $isScheduled ? 'bg-indigo-600' : 'bg-gray-200 dark:bg-gray-700' }}">
+                    <span class="inline-block h-4 w-4 transform rounded-full bg-white shadow-sm transition-transform duration-200 {{ $isScheduled ? 'translate-x-6' : 'translate-x-1' }}"></span>
+                  </button>
+                </div>
+
+                @if($isScheduled)
+                  <div class="space-y-3">
+                    <div>
+                      <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+                        Fecha y hora del encargo
+                      </label>
+                      <input type="datetime-local"
+                             wire:model="scheduledFor"
+                             class="w-full px-3 py-2 text-sm border border-gray-200 dark:border-gray-700 rounded
+                                    bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100
+                                    focus:outline-none focus:ring-2 focus:ring-indigo-500" />
+                      @error('scheduledFor')
+                        <p class="text-sm text-red-600 dark:text-red-400 mt-1">{{ $message }}</p>
+                      @enderror
+                      <p class="text-xs text-gray-500 dark:text-gray-400 mt-1">
+                        Se enviará un recordatorio un día antes
+                      </p>
+                    </div>
+
+                    <div>
+                      <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+                        Notas del encargo
+                      </label>
+                      <textarea
+                        wire:model="orderNotes"
+                        rows="3"
+                        placeholder="Ej: Torta de chocolate para 20 personas..."
+                        class="w-full px-3 py-2 text-sm border border-gray-200 dark:border-gray-700 rounded
+                               bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100
+                               placeholder:text-gray-400 dark:placeholder:text-gray-500
+                               focus:outline-none focus:ring-2 focus:ring-indigo-500"></textarea>
+                      @error('orderNotes')
+                        <p class="text-sm text-red-600 dark:text-red-400 mt-1">{{ $message }}</p>
+                      @enderror
+                    </div>
+
+                    <div class="p-3 bg-blue-50 dark:bg-blue-900/20 border border-blue-200 dark:border-blue-800 rounded-lg">
+                      <div class="flex items-start gap-2">
+                        <svg class="w-5 h-5 text-blue-600 dark:text-blue-400 flex-shrink-0 mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/>
+                        </svg>
+                        <div class="text-sm text-blue-800 dark:text-blue-200">
+                          <strong>Pedido agendado:</strong> Se guardará como "Agendado" y podrás confirmarlo el día indicado.
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                @endif
+              </div>
+
               {{-- Carrito --}}
               <div>
                 <div class="flex items-center justify-between mb-4">

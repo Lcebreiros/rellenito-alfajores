@@ -535,6 +535,137 @@ function timezoneSelector({ tz = '', list = [], recommended = '' }) {
     </div>
   </div>
 
+  {{-- CARD: Notificaciones de Stock --}}
+  <div class="rounded-2xl border border-neutral-200 bg-white p-6 shadow
+              dark:border-neutral-800 dark:bg-neutral-900">
+    <div class="flex items-center gap-3 mb-6">
+      <div class="flex items-center justify-center w-10 h-10 rounded-xl bg-indigo-100 dark:bg-indigo-900/30">
+        <i class="fas fa-bell text-indigo-600 dark:text-indigo-400"></i>
+      </div>
+      <div>
+        <h2 class="text-lg font-semibold text-neutral-900 dark:text-neutral-100">Notificaciones de Stock</h2>
+        <p class="text-xs text-neutral-500 dark:text-neutral-400">Configurá alertas automáticas</p>
+      </div>
+    </div>
+
+    <div class="space-y-5">
+      {{-- Alerta de stock bajo --}}
+      <div class="p-4 rounded-xl bg-amber-50/50 dark:bg-amber-900/10 border border-amber-200 dark:border-amber-900/30">
+        <div class="flex items-start justify-between gap-4 mb-4">
+          <div class="flex-1">
+            <div class="flex items-center gap-2 mb-2">
+              <i class="fas fa-triangle-exclamation text-amber-600 dark:text-amber-400"></i>
+              <h3 class="font-semibold text-neutral-900 dark:text-neutral-100">Alerta de Stock Bajo</h3>
+            </div>
+            <p class="text-sm text-neutral-600 dark:text-neutral-400">
+              Recibí una notificación cuando el stock esté por debajo del umbral configurado
+            </p>
+          </div>
+
+          {{-- Toggle switch --}}
+          <button type="button"
+                  x-data="{ on: @entangle('notify_low_stock').live }"
+                  @click="on = !on"
+                  wire:ignore
+                  role="switch"
+                  :aria-checked="on.toString()"
+                  class="relative inline-flex h-7 w-14 flex-shrink-0 items-center rounded-full border-2 focus:outline-none focus:ring-2 focus:ring-amber-500 focus:ring-offset-2 transition-colors ease-in-out duration-200"
+                  :class="on ? 'bg-amber-600 border-amber-600' : 'bg-gray-200 dark:bg-neutral-700 border-gray-300 dark:border-neutral-600'">
+            <span class="inline-block h-5 w-5 transform rounded-full bg-white shadow-lg transition-transform ease-in-out duration-200"
+                  :class="on ? 'translate-x-[1.875rem]' : 'translate-x-0.5'"></span>
+          </button>
+        </div>
+
+        {{-- Threshold input --}}
+        @if($notify_low_stock)
+          <div class="mt-4 pt-4 border-t border-amber-200 dark:border-amber-900/30">
+            <label class="block text-sm font-medium text-neutral-700 dark:text-neutral-300 mb-2">
+              Umbral de stock bajo
+            </label>
+            <div class="flex items-center gap-3">
+              <div class="relative flex-1">
+                <input type="number"
+                       wire:model.defer="low_stock_threshold"
+                       min="1"
+                       max="1000"
+                       class="w-full px-4 py-2.5 rounded-lg border-neutral-300 dark:border-neutral-600
+                              dark:bg-neutral-900 dark:text-neutral-100
+                              focus:ring-2 focus:ring-amber-500 focus:border-amber-500"
+                       placeholder="Ej: 5">
+                <div class="absolute right-3 top-1/2 -translate-y-1/2 text-sm text-neutral-500 dark:text-neutral-400 pointer-events-none">
+                  unidades
+                </div>
+              </div>
+              <div class="text-xs text-neutral-500 dark:text-neutral-400 flex-shrink-0">
+                <i class="fas fa-info-circle mr-1"></i>
+                Mínimo: 1
+              </div>
+            </div>
+            @error('low_stock_threshold')
+              <p class="mt-2 text-sm text-rose-600 dark:text-rose-400">{{ $message }}</p>
+            @enderror
+            <p class="mt-2 text-xs text-neutral-600 dark:text-neutral-400">
+              Te notificaremos cuando un producto tenga {{ $low_stock_threshold }} o menos unidades en stock.
+            </p>
+          </div>
+        @endif
+      </div>
+
+      {{-- Alerta sin stock --}}
+      <div class="p-4 rounded-xl bg-rose-50/50 dark:bg-rose-900/10 border border-rose-200 dark:border-rose-900/30">
+        <div class="flex items-start justify-between gap-4">
+          <div class="flex-1">
+            <div class="flex items-center gap-2 mb-2">
+              <i class="fas fa-circle-xmark text-rose-600 dark:text-rose-400"></i>
+              <h3 class="font-semibold text-neutral-900 dark:text-neutral-100">Alerta Sin Stock</h3>
+            </div>
+            <p class="text-sm text-neutral-600 dark:text-neutral-400">
+              Recibí una notificación cuando un producto se quede sin stock (0 unidades)
+            </p>
+          </div>
+
+          {{-- Toggle switch --}}
+          <button type="button"
+                  x-data="{ on: @entangle('notify_out_of_stock').live }"
+                  @click="on = !on"
+                  wire:ignore
+                  role="switch"
+                  :aria-checked="on.toString()"
+                  class="relative inline-flex h-7 w-14 flex-shrink-0 items-center rounded-full border-2 focus:outline-none focus:ring-2 focus:ring-rose-500 focus:ring-offset-2 transition-colors ease-in-out duration-200"
+                  :class="on ? 'bg-rose-600 border-rose-600' : 'bg-gray-200 dark:bg-neutral-700 border-gray-300 dark:border-neutral-600'">
+            <span class="inline-block h-5 w-5 transform rounded-full bg-white shadow-lg transition-transform ease-in-out duration-200"
+                  :class="on ? 'translate-x-[1.875rem]' : 'translate-x-0.5'"></span>
+          </button>
+        </div>
+      </div>
+
+      {{-- Botón guardar --}}
+      <div class="flex items-center justify-between pt-4 border-t border-neutral-200 dark:border-neutral-700">
+        <div class="flex items-center gap-2 text-sm text-neutral-600 dark:text-neutral-400">
+          <i class="fas fa-lightbulb text-neutral-400"></i>
+          <span>Las notificaciones se aplican a todos tus productos</span>
+        </div>
+
+        <button wire:click="saveStockNotifications"
+                wire:loading.attr="disabled"
+                wire:loading.class="opacity-50 cursor-not-allowed"
+                class="group px-6 py-2.5 rounded-xl bg-indigo-600 hover:bg-indigo-700
+                       text-white font-medium text-sm transition-all duration-200 shadow-sm hover:shadow-md
+                       focus:ring-2 focus:ring-indigo-500/20 disabled:opacity-60 disabled:cursor-not-allowed
+                       dark:bg-indigo-500 dark:hover:bg-indigo-600">
+          <span wire:loading.remove class="flex items-center gap-2">
+            <i class="fas fa-save"></i>
+            Guardar configuración
+          </span>
+          <span wire:loading class="flex items-center gap-2">
+            <i class="fas fa-spinner fa-spin"></i>
+            Guardando...
+          </span>
+        </button>
+      </div>
+    </div>
+  </div>
+
   {{-- CARD: Logo del comprobante --}}
   <div class="rounded-2xl border border-neutral-200 bg-white p-6 shadow
               dark:border-neutral-800 dark:bg-neutral-900">

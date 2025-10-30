@@ -4,7 +4,24 @@
   $latest = $user ? $user->notifications()->latest()->take(10)->get() : collect();
 @endphp
 
-<div x-data="{ open: false }" class="relative">
+<div x-data="{
+  open: false,
+  markAsRead(notificationId) {
+    if (!notificationId) return;
+
+    fetch(`/notifications/${notificationId}/mark-as-read`, {
+      method: 'POST',
+      headers: {
+        'X-CSRF-TOKEN': document.querySelector('meta[name=csrf-token]')?.content,
+        'Content-Type': 'application/json',
+        'Accept': 'application/json'
+      }
+    }).then(() => {
+      // Recargar la página para actualizar el contador
+      window.location.reload();
+    });
+  }
+}" class="relative">
   <button @click="open = !open" @keydown.escape.window="open=false"
           class="relative inline-flex items-center justify-center w-10 h-10 rounded-full border border-neutral-300 dark:border-neutral-700 bg-white dark:bg-neutral-900 hover:bg-neutral-50 dark:hover:bg-neutral-800 transition focus:outline-none focus-visible:ring-2 focus-visible:ring-indigo-500">
     <svg class="w-5 h-5 text-neutral-700 dark:text-neutral-200" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true">
@@ -28,31 +45,100 @@
     <div class="max-h-96 overflow-auto divide-y divide-neutral-100 dark:divide-neutral-800">
       @forelse($latest as $n)
         @php $data = $n->data ?? []; @endphp
-        <a href="{{ $data['url'] ?? '#' }}" class="block px-4 py-3 hover:bg-neutral-50 dark:hover:bg-neutral-800 transition-colors">
+        <div class="px-4 py-3 hover:bg-neutral-50 dark:hover:bg-neutral-800 transition-colors">
           <div class="flex items-start gap-3">
             <div class="mt-0.5">
               <span class="inline-block w-2 h-2 rounded-full {{ $n->read_at ? 'bg-neutral-300 dark:bg-neutral-700' : 'bg-indigo-500' }}"></span>
             </div>
-            <div class="min-w-0">
-              <div class="text-sm font-medium text-neutral-800 dark:text-neutral-100 truncate">
-                @switch($data['type'] ?? $n->type)
-                  @case('support_replied')
-                    Nueva respuesta en soporte
-                    @break
-                  @case('support_status_changed')
-                    Estado de reclamo actualizado
-                    @break
-                  @default
-                    Notificación
-                @endswitch
-              </div>
-              @if(!empty($data['subject']))
-                <div class="text-xs text-neutral-600 dark:text-neutral-300 truncate">{{ $data['subject'] }}</div>
+            <div class="min-w-0 w-full">
+              @php $ntype = $data['type'] ?? $n->type; @endphp
+              @if($ntype === 'order_scheduled_today' || $n->type === \App\Notifications\ScheduledOrderDueToday::class)
+                <div class="text-sm font-medium text-neutral-800 dark:text-neutral-100 truncate">
+                  Pedido agendado para hoy
+                </div>
+                <div class="text-xs text-neutral-600 dark:text-neutral-300">
+                  {{ $data['message'] ?? ('¿Realizaste el pedido #' . ($data['order_number'] ?? $data['order_id'] ?? '')) }}
+                </div>
+                <div class="mt-2 flex items-center gap-2">
+                  <form method="POST" action="{{ $data['confirm_route'] ?? '#' }}">
+                    @csrf
+                    <button class="px-2.5 py-1.5 text-xs rounded bg-emerald-600 text-white hover:bg-emerald-700">Confirmar</button>
+                  </form>
+                  <form method="POST" action="{{ $data['cancel_route'] ?? '#' }}">
+                    @csrf
+                    <button class="px-2.5 py-1.5 text-xs rounded border border-neutral-300 dark:border-neutral-700 text-neutral-700 dark:text-neutral-200 hover:bg-neutral-50 dark:hover:bg-neutral-700/50">Cancelar</button>
+                  </form>
+                  <a href="{{ $data['url'] ?? '#' }}" class="ml-auto text-[11px] text-indigo-600 dark:text-indigo-400 hover:underline">Ver</a>
+                </div>
+              @elseif($ntype === 'low_stock' || $n->type === \App\Notifications\LowStockAlert::class)
+                <a href="{{ $data['url'] ?? '#' }}"
+                   @click.prevent="markAsRead('{{ $n->id }}'); setTimeout(() => window.location.href = '{{ $data['url'] ?? '#' }}', 100)"
+                   class="block">
+                  <div class="flex items-start gap-2">
+                    <div class="flex-shrink-0 w-8 h-8 rounded-lg bg-amber-100 dark:bg-amber-900/30 flex items-center justify-center">
+                      <i class="fas fa-triangle-exclamation text-amber-600 dark:text-amber-400 text-sm"></i>
+                    </div>
+                    <div class="flex-1 min-w-0">
+                      <div class="text-sm font-medium text-neutral-800 dark:text-neutral-100">
+                        Stock Bajo
+                      </div>
+                      <div class="text-xs text-neutral-600 dark:text-neutral-300 truncate">
+                        {{ $data['product_name'] ?? 'Producto' }}
+                      </div>
+                      <div class="text-xs text-amber-600 dark:text-amber-400 mt-1">
+                        {{ $data['current_stock'] ?? 0 }} unidades (umbral: {{ $data['threshold'] ?? 5 }})
+                      </div>
+                    </div>
+                  </div>
+                </a>
+                <div class="mt-1 text-[11px] text-neutral-500 dark:text-neutral-400">{{ $n->created_at?->diffForHumans() }}</div>
+              @elseif($ntype === 'out_of_stock' || $n->type === \App\Notifications\OutOfStockAlert::class)
+                <a href="{{ $data['url'] ?? '#' }}"
+                   @click.prevent="markAsRead('{{ $n->id }}'); setTimeout(() => window.location.href = '{{ $data['url'] ?? '#' }}', 100)"
+                   class="block">
+                  <div class="flex items-start gap-2">
+                    <div class="flex-shrink-0 w-8 h-8 rounded-lg bg-rose-100 dark:bg-rose-900/30 flex items-center justify-center">
+                      <i class="fas fa-circle-xmark text-rose-600 dark:text-rose-400 text-sm"></i>
+                    </div>
+                    <div class="flex-1 min-w-0">
+                      <div class="text-sm font-medium text-neutral-800 dark:text-neutral-100">
+                        Sin Stock
+                      </div>
+                      <div class="text-xs text-neutral-600 dark:text-neutral-300 truncate">
+                        {{ $data['product_name'] ?? 'Producto' }}
+                      </div>
+                      <div class="text-xs text-rose-600 dark:text-rose-400 mt-1">
+                        0 unidades disponibles
+                      </div>
+                    </div>
+                  </div>
+                </a>
+                <div class="mt-1 text-[11px] text-neutral-500 dark:text-neutral-400">{{ $n->created_at?->diffForHumans() }}</div>
+              @else
+                <a href="{{ $data['url'] ?? '#' }}"
+                   @click.prevent="markAsRead('{{ $n->id }}'); setTimeout(() => window.location.href = '{{ $data['url'] ?? '#' }}', 100)"
+                   class="block">
+                  <div class="text-sm font-medium text-neutral-800 dark:text-neutral-100 truncate">
+                    @switch($ntype)
+                      @case('support_replied')
+                        Nueva respuesta en soporte
+                        @break
+                      @case('support_status_changed')
+                        Estado de reclamo actualizado
+                        @break
+                      @default
+                        Notificación
+                    @endswitch
+                  </div>
+                  @if(!empty($data['subject']))
+                    <div class="text-xs text-neutral-600 dark:text-neutral-300 truncate">{{ $data['subject'] }}</div>
+                  @endif
+                </a>
+                <div class="mt-0.5 text-[11px] text-neutral-500 dark:text-neutral-400">{{ $n->created_at?->diffForHumans() }}</div>
               @endif
-              <div class="mt-0.5 text-[11px] text-neutral-500 dark:text-neutral-400">{{ $n->created_at?->diffForHumans() }}</div>
             </div>
           </div>
-        </a>
+        </div>
       @empty
         <div class="px-4 py-6 text-center text-sm text-neutral-600 dark:text-neutral-300">Sin notificaciones</div>
       @endforelse

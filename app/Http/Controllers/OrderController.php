@@ -863,4 +863,49 @@ public function index(Request $request)
             return back()->with('error', 'No se pudo cancelar el pedido.');
         }
     }
+
+    /**
+     * Confirma un pedido agendado (lo pasa de SCHEDULED a PENDING)
+     */
+    public function confirmScheduled(Order $order, Request $request)
+    {
+        try {
+            $order->confirmScheduled();
+
+            return back()->with('ok', "Pedido #{$order->id} confirmado y marcado como completado.");
+
+        } catch (DomainException $e) {
+            return back()->with('error', $e->getMessage());
+        } catch (\Throwable $e) {
+            \Log::error('Error confirmando pedido agendado', ['order_id' => $order->id, 'msg' => $e->getMessage()]);
+            return back()->with('error', 'No se pudo confirmar el pedido.');
+        }
+    }
+
+    /**
+     * Cancela un pedido agendado (SCHEDULED) sin afectar stock
+     */
+    public function cancelScheduled(Order $order, Request $request)
+    {
+        try {
+            if ($order->status !== \App\Enums\OrderStatus::SCHEDULED || !$order->is_scheduled) {
+                throw new DomainException('Solo se pueden cancelar pedidos agendados.');
+            }
+
+            $reason = (string) $request->input('reason', 'cancelado desde notificación');
+            $notes = trim($order->notes ?? '');
+            $notes .= ($notes ? "\n" : '') . 'Cancelado: ' . $reason;
+            $order->update([
+                'status' => \App\Enums\OrderStatus::CANCELED,
+                'notes' => $notes,
+            ]);
+
+            return back()->with('ok', "Pedido #{$order->id} cancelado.");
+        } catch (DomainException $e) {
+            return back()->with('error', $e->getMessage());
+        } catch (\Throwable $e) {
+            \Log::error('Error cancelando pedido agendado', ['order_id' => $order->id, 'msg' => $e->getMessage()]);
+            return back()->with('error', 'No se pudo cancelar el pedido agendado.');
+        }
+    }
 }

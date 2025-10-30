@@ -96,20 +96,41 @@ $s = $statusMap[$statusKey] ?? [
         Volver
     </a>
 
-    {{-- Cancelar pedido (centrado) --}}
-    <form action="{{ route('orders.cancel', $order) }}" method="POST" class="mx-auto">
-        @csrf
-        <button type="submit"
-                class="flex items-center gap-2 px-5 py-2 rounded-lg 
-                       bg-red-600 text-white font-semibold tracking-wide
-                       hover:bg-red-700 transition-colors duration-200 
-                       focus:outline-none focus:ring-2 focus:ring-red-400 focus:ring-offset-1">
-            <svg class="w-4 h-4" viewBox="0 0 24 24" fill="none">
-                <path d="M6 18L18 6M6 6l12 12" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
-            </svg>
+    {{-- Acciones de estado (centrado) --}}
+    @if($order->status === \App\Enums\OrderStatus::SCHEDULED)
+      <div class="mx-auto flex items-center gap-2">
+        <form action="{{ route('orders.confirm-scheduled', $order) }}" method="POST">
+          @csrf
+          <button type="submit"
+                  class="flex items-center gap-2 px-4 py-2 rounded-lg bg-emerald-600 text-white font-semibold hover:bg-emerald-700 focus:outline-none focus:ring-2 focus:ring-emerald-400 focus:ring-offset-1 text-sm">
+            <svg class="w-4 h-4" viewBox="0 0 24 24" fill="none"><path d="M5 13l4 4L19 7" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+            Confirmar pedido
+          </button>
+        </form>
+        <form action="{{ route('orders.cancel-scheduled', $order) }}" method="POST">
+          @csrf
+          <button type="submit"
+                  class="flex items-center gap-2 px-4 py-2 rounded-lg bg-red-600 text-white font-semibold hover:bg-red-700 focus:outline-none focus:ring-2 focus:ring-red-400 focus:ring-offset-1 text-sm">
+            <svg class="w-4 h-4" viewBox="0 0 24 24" fill="none"><path d="M6 18L18 6M6 6l12 12" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>
             Cancelar pedido
-        </button>
-    </form>
+          </button>
+        </form>
+      </div>
+    @else
+      <form action="{{ route('orders.cancel', $order) }}" method="POST" class="mx-auto">
+          @csrf
+          <button type="submit"
+                  class="flex items-center gap-2 px-5 py-2 rounded-lg 
+                         bg-red-600 text-white font-semibold tracking-wide
+                         hover:bg-red-700 transition-colors duration-200 
+                         focus:outline-none focus:ring-2 focus:ring-red-400 focus:ring-offset-1">
+              <svg class="w-4 h-4" viewBox="0 0 24 24" fill="none">
+                  <path d="M6 18L18 6M6 6l12 12" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+              </svg>
+              Cancelar pedido
+          </button>
+      </form>
+    @endif
 
     {{-- Acciones secundarias (derecha) --}}
     <div class="flex flex-wrap gap-2 mt-2 sm:mt-0">

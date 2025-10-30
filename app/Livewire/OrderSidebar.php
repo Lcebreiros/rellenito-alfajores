@@ -235,10 +235,15 @@ public function finalize(): void
                 }
             }
 
-            // Ajustar stock
+            // Ajustar stock (usar adjustStock para que dispare notificaciones)
             foreach ($order->items as $item) {
                 if ($item->product) {
-                    $stockService->adjust($item->product, -$item->quantity, 'order', $order);
+                    $item->product->adjustStock(
+                        -$item->quantity,
+                        'pedido_completado',
+                        auth()->user(),
+                        $order
+                    );
                     $affectedProductIds[] = $item->product->id;
                 }
             }

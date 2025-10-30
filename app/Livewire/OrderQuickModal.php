@@ -36,11 +36,25 @@ class OrderQuickModal extends Component
     // Formato compatible con <input type="datetime-local"> -> "Y-m-d\TH:i"
     public string $orderDate = '';
 
+    // ---- Agendamiento
+    public bool $isScheduled = false;
+    public string $scheduledFor = '';
+    public string $orderNotes = '';
+
     public function mount(): void
     {
         $this->resetModal();
         // Valor por defecto = ahora (en formato datetime-local)
         $this->orderDate = now()->format('Y-m-d\TH:i');
+        $this->scheduledFor = now()->addDay()->format('Y-m-d\TH:i');
+    }
+
+    public function toggleScheduled(): void
+    {
+        $this->isScheduled = !$this->isScheduled;
+        if ($this->isScheduled) {
+            $this->completeOnSave = false; // Si está agendado, no puede estar completado
+        }
     }
 
     // Abrir / cerrar modal
@@ -70,6 +84,8 @@ class OrderQuickModal extends Component
             'newClientName',
             'newClientEmail',
             'newClientPhone',
+            'isScheduled',
+            'orderNotes',
         ]);
         $this->resetPage();
     }
@@ -156,7 +172,13 @@ class OrderQuickModal extends Component
         $baseRules = [
             'items'     => 'required|array|min:1',
             'orderDate' => ['required', 'date_format:Y-m-d\TH:i'],
+            'orderNotes' => 'nullable|string|max:1000',
         ];
+
+        // Si está agendado, validar fecha futura
+        if ($this->isScheduled) {
+            $baseRules['scheduledFor'] = ['required', 'date_format:Y-m-d\TH:i', 'after:now'];
+        }
 
         if ($this->showClientForm) {
             $rules = array_merge($baseRules, [
@@ -194,15 +216,24 @@ class OrderQuickModal extends Component
                 $clientId = $client->id;
             }
 
-            //  Estado según toggle
-            $status = $this->completeOnSave ? OrderStatus::COMPLETED : OrderStatus::DRAFT;
+            //  Estado según toggle y agendamiento
+            if ($this->isScheduled) {
+                $status = OrderStatus::SCHEDULED;
+                $scheduledDateTime = Carbon::createFromFormat('Y-m-d\TH:i', $this->scheduledFor);
+            } else {
+                $status = $this->completeOnSave ? OrderStatus::COMPLETED : OrderStatus::DRAFT;
+                $scheduledDateTime = null;
+            }
 
             // Crear pedido con created_at/updated_at forzados
             $order = new Order([
                 'client_id' => $clientId,
                 'total'     => 0,
                 'status'    => $status,
-                'user_id'   => auth()->id(), // cuidado si es NOT NULL
+                'user_id'   => auth()->id(),
+                'notes'     => $this->orderNotes ? trim($this->orderNotes) : null,
+                'is_scheduled' => $this->isScheduled,
+                'scheduled_for' => $scheduledDateTime,
             ]);
             $order->created_at = $createdAt;
             $order->updated_at = $createdAt;
@@ -255,7 +286,11 @@ class OrderQuickModal extends Component
 
             DB::commit();
 
-            session()->flash('ok', 'Pedido #' . $order->id . ' creado exitosamente');
+            $message = $this->isScheduled
+                ? "Pedido #{$order->id} agendado para " . $scheduledDateTime->format('d/m/Y H:i')
+                : "Pedido #{$order->id} creado exitosamente";
+
+            session()->flash('ok', $message);
 
             // Cierra y resetea modal
             $this->hideModal();
@@ -279,9 +314,14 @@ class OrderQuickModal extends Component
     public function render()
     {
         $user = auth()->user();
-        $products = (method_exists($user,'isMaster') && $user->isMaster())
+
+        // Construir query base
+        $query = (method_exists($user,'isMaster') && $user->isMaster())
             ? Product::query()
-            : Product::availableFor($user)
+            : Product::availableFor($user);
+
+        // Aplicar filtros y búsqueda
+        $products = $query
             ->when($this->search, function ($query) {
                 $query->where(function ($q) {
                     $q->where('name', 'like', '%' . $this->search . '%')

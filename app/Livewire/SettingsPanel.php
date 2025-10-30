@@ -24,6 +24,11 @@ class SettingsPanel extends Component
     public $receipt_logo;            // archivo temporal (Livewire)
     public $receipt_logo_url = null; // URL actual para preview
 
+    // Configuraciones de notificaciones de stock
+    public bool $notify_low_stock = true;
+    public int $low_stock_threshold = 5;
+    public bool $notify_out_of_stock = true;
+
     public function mount()
     {
         $this->theme      = Setting::get('theme', 'light');
@@ -33,6 +38,11 @@ class SettingsPanel extends Component
 
         $user = auth()->user();
         $this->timezone = $user?->timezone ?: config('app.timezone', 'UTC');
+
+        // Cargar configuraciones de notificaciones de stock
+        $this->notify_low_stock = $user?->notify_low_stock ?? true;
+        $this->low_stock_threshold = $user?->low_stock_threshold ?? 5;
+        $this->notify_out_of_stock = $user?->notify_out_of_stock ?? true;
 
         $this->refreshReceiptLogoUrl();
     }
@@ -143,6 +153,32 @@ class SettingsPanel extends Component
         }
 
         $this->receipt_logo_url = null;
+    }
+
+    // === STOCK NOTIFICATIONS ===
+    public function saveStockNotifications()
+    {
+        $this->validate([
+            'notify_low_stock' => 'boolean',
+            'low_stock_threshold' => 'required|integer|min:1|max:1000',
+            'notify_out_of_stock' => 'boolean',
+        ], [
+            'low_stock_threshold.required' => 'El umbral de stock bajo es obligatorio.',
+            'low_stock_threshold.min' => 'El umbral debe ser al menos 1.',
+            'low_stock_threshold.max' => 'El umbral no puede exceder 1000.',
+        ]);
+
+        $user = Auth::user();
+        if (!$user) return;
+
+        $user->update([
+            'notify_low_stock' => $this->notify_low_stock,
+            'low_stock_threshold' => $this->low_stock_threshold,
+            'notify_out_of_stock' => $this->notify_out_of_stock,
+        ]);
+
+        session()->flash('ok', 'Configuración de notificaciones de stock guardada.');
+        $this->dispatch('stock-notifications-updated');
     }
 
     public function render()

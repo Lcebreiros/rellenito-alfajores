@@ -48,6 +48,11 @@ class User extends Authenticatable
         // Campos para relación polimórfica
         'representable_id',
         'representable_type',
+        // Configuraciones de notificaciones de stock
+        'notify_low_stock',
+        'low_stock_threshold',
+        'notify_out_of_stock',
+        'notify_by_email',
     ];
 
     protected $hidden = [
@@ -69,6 +74,10 @@ class User extends Authenticatable
         'hierarchy_level'   => 'integer',
         'user_limit'        => 'integer',
         'subscription_level'=> 'string',
+        'notify_low_stock'  => 'boolean',
+        'low_stock_threshold' => 'integer',
+        'notify_out_of_stock' => 'boolean',
+        'notify_by_email' => 'boolean',
     ];
 
     // ================================

@@ -182,6 +182,9 @@ Route::middleware([
     // Finalizar / cancelar pedido (un único endpoint para cancelar vía POST)
     Route::post('orders/{order}/finalize', [OrderController::class, 'finalize'])->name('orders.finalize');
     Route::post('orders/{order}/cancel', [OrderController::class, 'cancel'])->name('orders.cancel');
+    // Confirmar / cancelar pedidos agendados (acciones desde notificaciones)
+    Route::post('orders/{order}/confirm-scheduled', [OrderController::class, 'confirmScheduled'])->name('orders.confirm-scheduled');
+    Route::post('orders/{order}/cancel-scheduled', [OrderController::class, 'cancelScheduled'])->name('orders.cancel-scheduled');
 
     // Index / show / edit / update / destroy
     Route::get('orders', [OrderController::class, 'index'])->name('orders.index');
@@ -193,6 +196,15 @@ Route::middleware([
     // ============ STOCK ============
     Route::get('/stock', [StockController::class, 'index'])->name('stock.index');
     Route::get('/stock/export/csv', [StockController::class, 'exportCsv'])->name('stock.export.csv');
+
+    // Configuración de notificaciones de stock
+    Route::post('/stock/notifications/update', [StockController::class, 'updateNotifications'])->name('stock.notifications.update');
+
+    // Marcar notificación como leída
+    Route::post('/notifications/{id}/mark-as-read', function($id) {
+        auth()->user()->notifications()->where('id', $id)->update(['read_at' => now()]);
+        return response()->json(['success' => true]);
+    })->name('notifications.mark-as-read');
 
     // Historial de stock — una sola ruta canonical
     Route::get('/stock/history', [StockController::class, 'history'])->name('stock.history');

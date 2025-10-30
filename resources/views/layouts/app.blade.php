@@ -40,6 +40,7 @@
   @endif
 
   @livewireStyles
+  @stack('styles')
   {{-- resources/views/layouts/app.blade.php del PANEL --}}
 @if (auth()->check() && !auth()->user()->hasVerifiedEmail())
     <div class="bg-yellow-50 border-l-4 border-yellow-400 p-4 mb-4">

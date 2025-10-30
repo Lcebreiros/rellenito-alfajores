@@ -5,6 +5,10 @@ namespace App\Providers;
 use Illuminate\Support\ServiceProvider;
 use Illuminate\Support\URL;
 use Inertia\Inertia;
+use App\Models\Product;
+use App\Models\OrderItem;
+use App\Observers\ProductObserver;
+use App\Observers\OrderItemObserver;
 
 class AppServiceProvider extends ServiceProvider
 {
@@ -25,5 +29,9 @@ public function boot()
         URL::forceScheme('https');
     }
     Inertia::setRootView('layouts.app');
+
+    // Registrar observers
+    Product::observe(ProductObserver::class);
+    OrderItem::observe(OrderItemObserver::class);
 }
 }

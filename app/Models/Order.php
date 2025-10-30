@@ -32,6 +32,9 @@ class Order extends Model
         'sold_at',
         'discount',
         'tax_amount',
+        'scheduled_for',
+        'is_scheduled',
+        'reminder_sent_at',
     ];
 
     protected $casts = [
@@ -39,6 +42,9 @@ class Order extends Model
         'discount' => 'decimal:2',
         'tax_amount' => 'decimal:2',
         'sold_at' => 'datetime',
+        'scheduled_for' => 'datetime',
+        'reminder_sent_at' => 'datetime',
+        'is_scheduled' => 'boolean',
         'status' => OrderStatus::class,
         'payment_status' => PaymentStatus::class,
         'payment_method' => PaymentMethod::class,
@@ -101,6 +107,29 @@ class Order extends Model
     public function scopeOfCompany($query, $companyId): Builder { return $query->where('company_id', $companyId); }
     public function scopeCompleted($query): Builder { return $query->where('status', OrderStatus::COMPLETED->value); }
     public function scopeExcludeDrafts($query): Builder { return $query->where('status', '!=', OrderStatus::DRAFT->value); }
+    public function scopeScheduled($query): Builder { return $query->where('status', OrderStatus::SCHEDULED->value)->where('is_scheduled', true); }
+
+    public function scopeScheduledForToday($query): Builder
+    {
+        return $query->where('status', OrderStatus::SCHEDULED->value)
+            ->whereDate('scheduled_for', Carbon::today())
+            ->where('is_scheduled', true);
+    }
+
+    public function scopeScheduledForTomorrow($query): Builder
+    {
+        return $query->where('status', OrderStatus::SCHEDULED->value)
+            ->whereDate('scheduled_for', Carbon::tomorrow())
+            ->where('is_scheduled', true);
+    }
+
+    public function scopeNeedsReminder($query): Builder
+    {
+        return $query->where('status', OrderStatus::SCHEDULED->value)
+            ->whereDate('scheduled_for', Carbon::tomorrow())
+            ->whereNull('reminder_sent_at')
+            ->where('is_scheduled', true);
+    }
 
     public function scopeBetweenDates($query, $startDate, $endDate): Builder
     {
@@ -153,6 +182,44 @@ class Order extends Model
             // delegar la lógica de stock a StockService (debe lanzar excepcion si falla)
             $this->reduceProductStock();
         }, 5);
+    }
+
+    /**
+     * Confirma manualmente un pedido agendado y lo marca como COMPLETED.
+     * Descuenta stock en el proceso (vía markAsCompleted).
+     */
+    public function confirmScheduled(): void
+    {
+        if ($this->status !== OrderStatus::SCHEDULED) {
+            throw new DomainException("Solo se pueden confirmar pedidos agendados. Estado actual: {$this->status->value}");
+        }
+
+        // Completar la orden y descontar stock
+        $this->markAsCompleted(now());
+
+        // Ya no está agendada
+        $this->is_scheduled = false;
+        $this->save();
+    }
+
+    /**
+     * Verifica si el pedido está agendado para hoy
+     */
+    public function isScheduledForToday(): bool
+    {
+        return $this->is_scheduled
+            && $this->status === OrderStatus::SCHEDULED
+            && $this->scheduled_for?->isToday();
+    }
+
+    /**
+     * Verifica si el pedido está vencido (agendado para una fecha pasada)
+     */
+    public function isOverdue(): bool
+    {
+        return $this->is_scheduled
+            && $this->status === OrderStatus::SCHEDULED
+            && $this->scheduled_for?->isPast();
     }
 
     /**
