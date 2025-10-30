@@ -153,6 +153,12 @@ Route::middleware([
     // web.php
 Route::get('/products/{product}', [ProductController::class, 'show'])->name('products.show');
 
+    // Búsqueda/lookup por código de barras (AJAX)
+    Route::get('/products-lookup', [ProductController::class, 'lookup'])
+        ->name('products.lookup');
+    Route::get('/products-lookup/external', [ProductController::class, 'lookupExternal'])
+        ->name('products.lookup.external');
+
 
     // Actualizar stock de un producto (un único nombre de ruta)
     Route::patch('products/{product}/stock', [ProductController::class, 'updateStock'])

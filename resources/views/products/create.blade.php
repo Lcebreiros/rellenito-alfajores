@@ -78,6 +78,26 @@
         @enderror
       </div>
 
+      {{-- Código de barras (manual o escaneo) --}}
+      <div>
+        <div class="flex items-end gap-3">
+          <div class="flex-1">
+            <label for="barcode" class="block text-sm font-medium text-neutral-700 dark:text-neutral-200 mb-1">
+              Código de barras (opcional)
+            </label>
+            <input id="barcode" type="text" name="barcode" value="{{ old('barcode') }}" maxlength="64"
+                   placeholder="EAN/UPC/QR"
+                   class="w-full rounded-lg border-neutral-300 bg-white px-4 py-2.5
+                          text-neutral-900 placeholder:text-neutral-400 focus:border-indigo-500 focus:ring-indigo-500
+                          dark:border-neutral-700 dark:bg-neutral-900/50 dark:text-neutral-100 dark:placeholder:text-neutral-500">
+          </div>
+          
+        </div>
+        <p class="mt-1 text-xs text-neutral-500 dark:text-neutral-400">Podés escribir o pegar el código.</p>
+
+        
+      </div>
+
       {{-- Precio y Stock --}}
       <div class="grid grid-cols-1 sm:grid-cols-2 gap-5">
         <div>
@@ -219,6 +239,148 @@
         reader.readAsDataURL(file);
       });
     }
+
+    // Lookup por código de barras (cuando el usuario escribe/pega)
+    const barcodeInput = document.getElementById('barcode');
+    const resultBox = document.getElementById('barcodeResult');
+    const statusEl = document.getElementById('barcodeStatus');
+    const productEl = document.getElementById('barcodeProduct');
+
+    async function lookupBarcode(code) {
+      if (!resultBox) return;
+      if (!code) return;
+      resultBox.classList.remove('hidden');
+      statusEl.textContent = 'Buscando…';
+      productEl.classList.add('hidden');
+      try {
+        const url = new URL(@json(route('products.lookup')), window.location.origin);
+        url.searchParams.set('barcode', code);
+        const res = await fetch(url.toString(), { headers: { 'X-Requested-With': 'XMLHttpRequest' }});
+        const data = await res.json();
+        if (!data.ok) throw new Error('Error en búsqueda');
+        if (!data.found) {
+          statusEl.textContent = 'No se encontró un producto con este código. Podés crearlo con este código.';
+          productEl.classList.add('hidden');
+        } else {
+          const p = data.product;
+          statusEl.textContent = 'Producto encontrado. Podés usar estos datos o modificarlos.';
+          productEl.innerHTML = `
+            <div class="flex items-center gap-3">
+              ${p.image_url ? `<img src="${p.image_url}" class=\"w-12 h-12 rounded object-cover\" alt=\"\">` : ''}
+              <div>
+                <div class="font-medium">${p.name}</div>
+                <div class="text-neutral-500 text-xs">SKU: ${p.sku ?? '—'} · Precio: $${(p.price ?? 0).toFixed(2)}</div>
+              </div>
+            </div>
+            <div class="mt-2">
+              <button type="button" id="useFoundBtn" class="inline-flex items-center gap-2 rounded bg-neutral-100 px-3 py-1.5 text-sm hover:bg-neutral-200 dark:bg-neutral-800 dark:hover:bg-neutral-700">Usar estos datos</button>
+            </div>`;
+          productEl.classList.remove('hidden');
+          // Autorrelleno al click
+          setTimeout(() => {
+            const useBtn = document.getElementById('useFoundBtn');
+            if (useBtn) {
+              useBtn.addEventListener('click', () => {
+                document.getElementById('name').value = p.name ?? '';
+                document.getElementById('sku').value = p.sku ?? '';
+                document.getElementById('price').value = (p.price ?? 0);
+              });
+            }
+          }, 0);
+        }
+      } catch (e) {
+        statusEl.textContent = 'No se pudo completar la búsqueda.';
+        productEl.classList.add('hidden');
+      }
+    }
+
+    let lookupTimer;
+    barcodeInput?.addEventListener('input', (e) => {
+      clearTimeout(lookupTimer);
+      const v = e.target.value.trim();
+      if (v.length < 6) return; // evitar spam
+      lookupTimer = setTimeout(() => lookupBarcode(v), 400);
+    });
+
+    // Escaneo por cámara con html5-qrcode si está disponible
+    const scanBtn = document.getElementById('scanBtn');
+    let scannerInstance = null;
+    let scannerOpen = false;
+
+    function ensureScannerContainer() {
+      let el = document.getElementById('qr-scanner');
+      if (!el) {
+        el = document.createElement('div');
+        el.id = 'qr-scanner';
+        el.className = 'fixed inset-0 bg-black/70 z-50 hidden';
+        el.innerHTML = `
+          <div class=\"absolute inset-0 grid place-items-center p-4\">
+            <div class=\"w-full max-w-md rounded-xl bg-white dark:bg-neutral-900 p-3 shadow-lg\">
+              <div class=\"flex items-center justify-between mb-2\">
+                <div class=\"text-sm font-medium\">Escanear código</div>
+                <button type=\"button\" id=\"closeScan\" class=\"text-sm px-2 py-1 rounded border border-neutral-300 dark:border-neutral-700\">Cerrar</button>
+              </div>
+              <div id=\"qr-reader\" class=\"rounded overflow-hidden\"></div>
+            </div>
+          </div>`;
+        document.body.appendChild(el);
+      }
+      return el;
+    }
+
+    async function startScan() {
+      const container = ensureScannerContainer();
+      container.classList.remove('hidden');
+      scannerOpen = true;
+      // Cerrar
+      container.querySelector('#closeScan').onclick = stopScan;
+      // Html5Qrcode
+      const runHtml5 = () => {
+        try {
+          const Html5Qrcode = window.Html5Qrcode;
+          if (!Html5Qrcode) return false;
+          const target = document.getElementById('qr-reader');
+          scannerInstance = new Html5Qrcode('qr-reader');
+          const config = { fps: 10, qrbox: 250, aspectRatio: 1.7778, formatsToSupport: [
+            Html5QrcodeSupportedFormats.QR_CODE,
+            Html5QrcodeSupportedFormats.EAN_13,
+            Html5QrcodeSupportedFormats.EAN_8,
+            Html5QrcodeSupportedFormats.UPC_A,
+            Html5QrcodeSupportedFormats.UPC_E,
+            Html5QrcodeSupportedFormats.CODE_128,
+          ]};
+          scannerInstance.start({ facingMode: 'environment' }, config, (decodedText) => {
+            if (!scannerOpen) return;
+            barcodeInput.value = decodedText;
+            lookupBarcode(decodedText);
+            stopScan();
+          });
+          return true;
+        } catch (e) {
+          return false;
+        }
+      };
+
+      if (!runHtml5()) {
+        // Cargar script on-demand y reintentar una vez
+        const s = document.createElement('script');
+        s.src = 'https://unpkg.com/html5-qrcode';
+        s.async = true;
+        s.onload = () => runHtml5();
+        document.head.appendChild(s);
+      }
+    }
+
+    async function stopScan() {
+      const container = document.getElementById('qr-scanner');
+      container?.classList.add('hidden');
+      scannerOpen = false;
+      try { await scannerInstance?.stop(); } catch (_) {}
+      try { await scannerInstance?.clear(); } catch (_) {}
+      scannerInstance = null;
+    }
+
+    scanBtn?.addEventListener('click', () => startScan());
   });
 </script>
 @endsection

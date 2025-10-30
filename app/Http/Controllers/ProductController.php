@@ -6,6 +6,7 @@ use App\Models\Product;
 use Illuminate\Http\Request;
 use App\Services\StockService;
 use Illuminate\Support\Facades\Storage;
+use Illuminate\Support\Facades\Http;
 
 class ProductController extends Controller
 {
@@ -106,6 +107,7 @@ class ProductController extends Controller
     $data = $request->validate([
         'name' => 'required|string|max:100',
         'sku' => 'required|string|max:50|unique:products,sku,NULL,id,user_id,' . $userId,
+        'barcode' => 'nullable|string|max:64|unique:products,barcode,NULL,id,user_id,' . $userId,
         'image' => 'nullable|image|max:5120',
         'price' => 'required|numeric|min:0',
         'stock' => 'required|integer|min:0',
@@ -128,6 +130,7 @@ public function update(Request $request, Product $product)
     $data = $request->validate([
         'name' => 'required|string|max:100',
         'sku' => 'required|string|max:50|unique:products,sku,' . $product->id . ',id,user_id,' . $userId,
+        'barcode' => 'nullable|string|max:64|unique:products,barcode,' . $product->id . ',id,user_id,' . $userId,
         'price' => 'required|numeric|min:0',
         'image' => 'nullable|image|max:5120',
         'is_active' => 'boolean'
@@ -164,6 +167,107 @@ public function update(Request $request, Product $product)
         $data = $request->validate(['stock'=>'required|integer|min:0']);
         $stock->setAbsolute($product, $data['stock'], 'admin set');
         return back()->with('ok','Stock actualizado');
+    }
+
+    // Lookup de producto por código de barras (AJAX)
+    public function lookup(Request $request)
+    {
+        $barcode = trim((string) $request->query('barcode', ''));
+        abort_unless($request->user(), 401);
+        if ($barcode === '') {
+            return response()->json(['ok' => false, 'error' => 'barcode_required'], 422);
+        }
+
+        $user = $request->user();
+        $query = Product::query()->withoutGlobalScope('byUser');
+
+        if ($user->isMaster()) {
+            // sin filtro
+        } elseif ($user->isCompany()) {
+            $query->where('company_id', $user->id);
+        } else {
+            // usar scope de disponibilidad
+            $query = Product::availableFor($user);
+        }
+
+        $product = $query->where('barcode', $barcode)->first();
+        if (!$product) {
+            return response()->json(['ok' => true, 'found' => false]);
+        }
+
+        return response()->json([
+            'ok' => true,
+            'found' => true,
+            'product' => [
+                'id' => $product->id,
+                'name' => $product->name,
+                'sku' => $product->sku,
+                'barcode' => $product->barcode,
+                'price' => (float) $product->price,
+                'image_url' => $product->image ? \Storage::url($product->image) : null,
+                'is_active' => (bool) $product->is_active,
+            ],
+        ]);
+    }
+
+    // Lookup externo: intenta obtener datos reales por EAN/UPC (OpenFoodFacts y otros)
+    public function lookupExternal(Request $request)
+    {
+        $barcode = trim((string) $request->query('barcode', ''));
+        abort_unless($request->user(), 401);
+        if ($barcode === '') {
+            return response()->json(['ok' => false, 'error' => 'barcode_required'], 422);
+        }
+
+        $result = [ 'ok' => true, 'found' => false, 'product' => null ];
+
+        // 1) OpenFoodFacts (mejor para alimentos y bebidas)
+        try {
+            $resp = Http::timeout(6)->acceptJson()->get('https://world.openfoodfacts.org/api/v2/product/' . urlencode($barcode) . '.json');
+            if ($resp->ok()) {
+                $json = $resp->json();
+                if (($json['status'] ?? 0) == 1 && isset($json['product'])) {
+                    $p = $json['product'];
+                    $name = $p['product_name'] ?? $p['generic_name'] ?? null;
+                    $brand = $p['brands'] ?? null;
+                    if ($name) {
+                        $result['found'] = true;
+                        $result['product'] = [
+                            'name' => $name,
+                            'brand' => $brand,
+                        ];
+                    }
+                }
+            }
+        } catch (\Throwable $e) {
+            // silenciar
+        }
+
+        // 2) UPCItemDB (trial) — solo si no encontró antes
+        if (!$result['found']) {
+            try {
+                $resp = Http::timeout(6)->acceptJson()->get('https://api.upcitemdb.com/prod/trial/lookup', [ 'upc' => $barcode ]);
+                if ($resp->ok()) {
+                    $json = $resp->json();
+                    $items = $json['items'] ?? [];
+                    if (is_array($items) && count($items) > 0) {
+                        $item = $items[0];
+                        $title = $item['title'] ?? null;
+                        if ($title) {
+                            $result['found'] = true;
+                            $result['product'] = [
+                                'name' => $title,
+                                'brand' => $item['brand'] ?? null,
+                            ];
+                        }
+                    }
+                }
+            } catch (\Throwable $e) {
+                // silenciar
+            }
+        }
+
+        return response()->json($result);
     }
     public function destroy(Product $product)
     {

@@ -33,6 +33,9 @@
     </div>
 
     <div class="flex items-center gap-2">
+      {{-- Componente de escaneo/ingreso por código --}}
+      <x-barcode-scanner />
+
       {{-- (Opcional) Buscador rápido --}}
       <form method="GET" class="hidden sm:flex items-center gap-2">
         <div class="relative">
@@ -67,6 +70,7 @@
       </a>
     </div>
   </div>
+
 
   @if($products->count())
     <div class="grid gap-4 sm:gap-6 grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">

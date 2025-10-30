@@ -19,6 +19,7 @@ class Product extends Model
         'branch_id',
         'name',
         'sku',
+        'barcode',
         'price',
         'image',
         'stock',
