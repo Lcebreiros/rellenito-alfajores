@@ -24,7 +24,6 @@ use App\Http\Controllers\Company\EmployeeController; // <-- import correcto para
 
 // Si tenés un EmployeeController específico para el namespace Branch, importalo con alias:
 use App\Http\Controllers\Branch\UserController as BranchUserController;
-use App\Http\Controllers\Branch\EmployeeController as BranchEmployeeController; // <-- solo si existe realmente
 
 
 // Livewire (route binding)
