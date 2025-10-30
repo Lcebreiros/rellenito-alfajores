@@ -211,7 +211,7 @@ public function update(Request $request, Product $product)
     }
 
     // Lookup externo: intenta obtener datos reales por EAN/UPC (OpenFoodFacts y otros)
-    public function lookupExternal(Request $request)
+public function lookupExternal(Request $request)
 {
     $barcode = trim((string) $request->query('barcode', ''));
     abort_unless($request->user(), 401);
@@ -220,40 +220,50 @@ public function update(Request $request, Product $product)
         return response()->json(['ok' => false, 'error' => 'barcode_required'], 422);
     }
 
-    \Log::info('Lookup externo:', ['barcode' => $barcode]);
+    \Log::info('=== LOOKUP EXTERNO INICIADO ===', ['barcode' => $barcode]);
 
     $result = ['ok' => true, 'found' => false, 'product' => null];
 
-    // 1) OpenFoodFacts (mejor para alimentos y bebidas)
+    // 1) OpenFoodFacts
     try {
         $url = 'https://world.openfoodfacts.org/api/v2/product/' . urlencode($barcode) . '.json';
-        \Log::info('Consultando OpenFoodFacts:', ['url' => $url]);
+        \Log::info('Consultando OpenFoodFacts', ['url' => $url]);
         
-        $resp = Http::timeout(10)
+        $resp = Http::timeout(15)
             ->withHeaders([
-                'User-Agent' => 'Gestior-POS/1.0 (+https://gestior.com.ar)'
+                'User-Agent' => 'Gestior-POS/1.0 (+https://gestior.com.ar)',
+                'Accept' => 'application/json'
             ])
             ->get($url);
         
-        \Log::info('Respuesta OpenFoodFacts:', [
+        \Log::info('Respuesta OpenFoodFacts', [
             'status' => $resp->status(),
-            'successful' => $resp->successful()
+            'successful' => $resp->successful(),
+            'body_preview' => substr($resp->body(), 0, 200)
         ]);
         
         if ($resp->successful()) {
             $json = $resp->json();
             
-            // Log para debug
-            \Log::info('JSON OpenFoodFacts:', [
-                'status' => $json['status'] ?? 'no status',
+            \Log::info('JSON OpenFoodFacts parseado', [
+                'status' => $json['status'] ?? 'no_status',
                 'has_product' => isset($json['product']),
-                'product_keys' => isset($json['product']) ? array_keys($json['product']) : []
+                'status_verbose' => $json['status_verbose'] ?? 'no_verbose'
             ]);
             
             if (isset($json['status']) && $json['status'] == 1 && isset($json['product'])) {
                 $p = $json['product'];
                 
-                // Intentar múltiples campos de nombre (orden de prioridad)
+                // Log de campos disponibles
+                \Log::info('Campos disponibles en producto', [
+                    'tiene_product_name' => isset($p['product_name']),
+                    'tiene_product_name_es' => isset($p['product_name_es']),
+                    'tiene_generic_name' => isset($p['generic_name']),
+                    'product_name_value' => $p['product_name'] ?? 'null',
+                    'brands_value' => $p['brands'] ?? 'null'
+                ]);
+                
+                // Intentar múltiples campos
                 $name = $p['product_name'] ?? 
                         $p['product_name_es'] ?? 
                         $p['product_name_en'] ?? 
@@ -263,11 +273,6 @@ public function update(Request $request, Product $product)
                 
                 $brand = $p['brands'] ?? null;
                 
-                \Log::info('Datos extraídos:', [
-                    'name' => $name,
-                    'brand' => $brand
-                ]);
-                
                 if ($name) {
                     $result['found'] = true;
                     $result['product'] = [
@@ -276,38 +281,50 @@ public function update(Request $request, Product $product)
                         'source' => 'OpenFoodFacts'
                     ];
                     
-                    \Log::info('✅ Producto encontrado en OpenFoodFacts');
+                    \Log::info('✅ Producto encontrado en OpenFoodFacts', $result['product']);
                     return response()->json($result);
+                } else {
+                    \Log::warning('Producto existe en OpenFoodFacts pero sin nombre válido');
                 }
+            } else {
+                \Log::warning('OpenFoodFacts: status != 1 o sin producto');
             }
+        } else {
+            \Log::warning('OpenFoodFacts: respuesta no exitosa', ['status' => $resp->status()]);
         }
     } catch (\Throwable $e) {
-        \Log::error('Error OpenFoodFacts:', [
+        \Log::error('❌ Error en OpenFoodFacts', [
             'message' => $e->getMessage(),
-            'line' => $e->getLine()
+            'line' => $e->getLine(),
+            'file' => $e->getFile()
         ]);
     }
 
-    // 2) UPCItemDB - solo si no encontró en OpenFoodFacts
+    // 2) UPCItemDB
     if (!$result['found']) {
         try {
             \Log::info('Consultando UPCItemDB...');
             
-            $resp = Http::timeout(10)
+            $resp = Http::timeout(15)
+                ->withHeaders(['Accept' => 'application/json'])
                 ->get('https://api.upcitemdb.com/prod/trial/lookup', [
                     'upc' => $barcode
                 ]);
             
-            \Log::info('Respuesta UPCItemDB:', [
+            \Log::info('Respuesta UPCItemDB', [
                 'status' => $resp->status(),
-                'successful' => $resp->successful()
+                'successful' => $resp->successful(),
+                'body_preview' => substr($resp->body(), 0, 200)
             ]);
             
             if ($resp->successful()) {
                 $json = $resp->json();
                 $items = $json['items'] ?? [];
                 
-                \Log::info('Items UPCItemDB:', ['count' => count($items)]);
+                \Log::info('Items UPCItemDB', [
+                    'count' => count($items),
+                    'first_item' => $items[0] ?? 'no_items'
+                ]);
                 
                 if (is_array($items) && count($items) > 0) {
                     $item = $items[0];
@@ -321,18 +338,21 @@ public function update(Request $request, Product $product)
                             'source' => 'UPCItemDB'
                         ];
                         
-                        \Log::info('✅ Producto encontrado en UPCItemDB');
+                        \Log::info('✅ Producto encontrado en UPCItemDB', $result['product']);
                     }
                 }
+            } else {
+                \Log::warning('UPCItemDB: respuesta no exitosa', ['status' => $resp->status()]);
             }
         } catch (\Throwable $e) {
-            \Log::error('Error UPCItemDB:', [
+            \Log::error('❌ Error en UPCItemDB', [
                 'message' => $e->getMessage()
             ]);
         }
     }
 
-    \Log::info('Resultado final:', $result);
+    \Log::info('=== LOOKUP EXTERNO FINALIZADO ===', ['result' => $result]);
+    
     return response()->json($result);
 }
     public function destroy(Product $product)
