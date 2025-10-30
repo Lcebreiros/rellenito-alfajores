@@ -104,29 +104,106 @@
     modal.addEventListener('click', (e)=>{ if (e.target.dataset.close) close(); });
 
     async function lookupExternal(code){
-      if (!code) return;
-      resultBox.classList.remove('hidden');
-      statusEl.textContent = 'Buscando…';
-      form.classList.add('hidden');
-      try {
-        const url = new URL(@json(route('products.lookup.external')), window.location.origin);
-        url.searchParams.set('barcode', code);
-        const res = await fetch(url.toString(), { headers: {'X-Requested-With': 'XMLHttpRequest'} });
-        const data = await res.json();
-        const name = data?.product?.name ?? `Producto ${code}`;
-        statusEl.textContent = data.found ? 'Producto reconocido. Revisá y completá el precio.' : 'No se encontró en bases públicas. Podés crearlo igualmente.';
-        formName.value = name;
-        formSku.value = code;
-        formBarcode.value = code;
-        form.classList.remove('hidden');
-      } catch (e) {
-        statusEl.textContent = 'No se pudo consultar. Cargá manualmente.';
-        formName.value = `Producto ${code}`;
-        formSku.value = code;
-        formBarcode.value = code;
-        form.classList.remove('hidden');
+  if (!code) return;
+  resultBox.classList.remove('hidden');
+  statusEl.innerHTML = '<span class="animate-pulse">🔍 Buscando en bases de datos...</span>';
+  form.classList.add('hidden');
+  
+  try {
+    console.log('Buscando código:', code);
+    
+    const url = new URL(@json(route('products.lookup.external')), window.location.origin);
+    url.searchParams.set('barcode', code);
+    
+    const res = await fetch(url.toString(), { 
+      headers: {
+        'X-Requested-With': 'XMLHttpRequest',
+        'Accept': 'application/json'
       }
+    });
+    
+    if (!res.ok) {
+      throw new Error(`HTTP ${res.status}`);
     }
+    
+    const data = await res.json();
+    console.log('Respuesta:', data);
+    
+    if (data.found && data.product && data.product.name) {
+      // ✅ Producto encontrado en APIs externas
+      const productName = data.product.name;
+      const productBrand = data.product.brand;
+      const source = data.product.source || 'base de datos';
+      
+      statusEl.innerHTML = `
+        <div class="flex items-start gap-2">
+          <span class="text-green-600 dark:text-green-400 text-lg">✅</span>
+          <div>
+            <div class="font-medium text-green-700 dark:text-green-300">Producto reconocido</div>
+            <div class="text-xs text-neutral-600 dark:text-neutral-400 mt-1">
+              Encontrado en ${source}. Revisá y completá el precio.
+            </div>
+          </div>
+        </div>
+      `;
+      
+      // Combinar marca + nombre si hay marca
+      formName.value = productBrand && productBrand.toLowerCase() !== productName.toLowerCase()
+        ? `${productBrand} ${productName}`
+        : productName;
+      
+    } else {
+      // ❌ No encontrado
+      statusEl.innerHTML = `
+        <div class="flex items-start gap-2">
+          <span class="text-amber-600 dark:text-amber-400 text-lg">ℹ️</span>
+          <div>
+            <div class="font-medium text-amber-700 dark:text-amber-300">No encontrado en bases públicas</div>
+            <div class="text-xs text-neutral-600 dark:text-neutral-400 mt-1">
+              Podés crear el producto manualmente completando los datos.
+            </div>
+          </div>
+        </div>
+      `;
+      
+      // Dejar el nombre vacío para que lo complete manualmente
+      formName.value = '';
+    }
+    
+    // Siempre llenar estos campos
+    formSku.value = code;
+    formBarcode.value = code;
+    form.classList.remove('hidden');
+    
+    // Focus en el campo de nombre si está vacío
+    if (!formName.value) {
+      setTimeout(() => formName.focus(), 100);
+    } else {
+      setTimeout(() => formPrice.focus(), 100);
+    }
+    
+  } catch (e) {
+    console.error('Error en lookup:', e);
+    
+    statusEl.innerHTML = `
+      <div class="flex items-start gap-2">
+        <span class="text-red-600 dark:text-red-400 text-lg">⚠️</span>
+        <div>
+          <div class="font-medium text-red-700 dark:text-red-300">Error de conexión</div>
+          <div class="text-xs text-neutral-600 dark:text-neutral-400 mt-1">
+            ${e.message}. Cargá el producto manualmente.
+          </div>
+        </div>
+      </div>
+    `;
+    
+    formName.value = '';
+    formSku.value = code;
+    formBarcode.value = code;
+    form.classList.remove('hidden');
+    setTimeout(() => formName.focus(), 100);
+  }
+}
     lookupBtn.addEventListener('click', ()=>{
       const code = barcodeInput.value.trim();
       if (!code) { barcodeInput.focus(); return; }

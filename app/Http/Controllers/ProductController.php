@@ -212,63 +212,129 @@ public function update(Request $request, Product $product)
 
     // Lookup externo: intenta obtener datos reales por EAN/UPC (OpenFoodFacts y otros)
     public function lookupExternal(Request $request)
-    {
-        $barcode = trim((string) $request->query('barcode', ''));
-        abort_unless($request->user(), 401);
-        if ($barcode === '') {
-            return response()->json(['ok' => false, 'error' => 'barcode_required'], 422);
+{
+    $barcode = trim((string) $request->query('barcode', ''));
+    abort_unless($request->user(), 401);
+    
+    if ($barcode === '') {
+        return response()->json(['ok' => false, 'error' => 'barcode_required'], 422);
+    }
+
+    \Log::info('Lookup externo:', ['barcode' => $barcode]);
+
+    $result = ['ok' => true, 'found' => false, 'product' => null];
+
+    // 1) OpenFoodFacts (mejor para alimentos y bebidas)
+    try {
+        $url = 'https://world.openfoodfacts.org/api/v2/product/' . urlencode($barcode) . '.json';
+        \Log::info('Consultando OpenFoodFacts:', ['url' => $url]);
+        
+        $resp = Http::timeout(10)
+            ->withHeaders([
+                'User-Agent' => 'Gestior-POS/1.0 (+https://gestior.com.ar)'
+            ])
+            ->get($url);
+        
+        \Log::info('Respuesta OpenFoodFacts:', [
+            'status' => $resp->status(),
+            'successful' => $resp->successful()
+        ]);
+        
+        if ($resp->successful()) {
+            $json = $resp->json();
+            
+            // Log para debug
+            \Log::info('JSON OpenFoodFacts:', [
+                'status' => $json['status'] ?? 'no status',
+                'has_product' => isset($json['product']),
+                'product_keys' => isset($json['product']) ? array_keys($json['product']) : []
+            ]);
+            
+            if (isset($json['status']) && $json['status'] == 1 && isset($json['product'])) {
+                $p = $json['product'];
+                
+                // Intentar múltiples campos de nombre (orden de prioridad)
+                $name = $p['product_name'] ?? 
+                        $p['product_name_es'] ?? 
+                        $p['product_name_en'] ?? 
+                        $p['generic_name'] ?? 
+                        $p['generic_name_es'] ?? 
+                        null;
+                
+                $brand = $p['brands'] ?? null;
+                
+                \Log::info('Datos extraídos:', [
+                    'name' => $name,
+                    'brand' => $brand
+                ]);
+                
+                if ($name) {
+                    $result['found'] = true;
+                    $result['product'] = [
+                        'name' => trim($name),
+                        'brand' => $brand ? trim($brand) : null,
+                        'source' => 'OpenFoodFacts'
+                    ];
+                    
+                    \Log::info('✅ Producto encontrado en OpenFoodFacts');
+                    return response()->json($result);
+                }
+            }
         }
+    } catch (\Throwable $e) {
+        \Log::error('Error OpenFoodFacts:', [
+            'message' => $e->getMessage(),
+            'line' => $e->getLine()
+        ]);
+    }
 
-        $result = [ 'ok' => true, 'found' => false, 'product' => null ];
-
-        // 1) OpenFoodFacts (mejor para alimentos y bebidas)
+    // 2) UPCItemDB - solo si no encontró en OpenFoodFacts
+    if (!$result['found']) {
         try {
-            $resp = Http::timeout(6)->acceptJson()->get('https://world.openfoodfacts.org/api/v2/product/' . urlencode($barcode) . '.json');
-            if ($resp->ok()) {
+            \Log::info('Consultando UPCItemDB...');
+            
+            $resp = Http::timeout(10)
+                ->get('https://api.upcitemdb.com/prod/trial/lookup', [
+                    'upc' => $barcode
+                ]);
+            
+            \Log::info('Respuesta UPCItemDB:', [
+                'status' => $resp->status(),
+                'successful' => $resp->successful()
+            ]);
+            
+            if ($resp->successful()) {
                 $json = $resp->json();
-                if (($json['status'] ?? 0) == 1 && isset($json['product'])) {
-                    $p = $json['product'];
-                    $name = $p['product_name'] ?? $p['generic_name'] ?? null;
-                    $brand = $p['brands'] ?? null;
-                    if ($name) {
+                $items = $json['items'] ?? [];
+                
+                \Log::info('Items UPCItemDB:', ['count' => count($items)]);
+                
+                if (is_array($items) && count($items) > 0) {
+                    $item = $items[0];
+                    $title = $item['title'] ?? null;
+                    
+                    if ($title) {
                         $result['found'] = true;
                         $result['product'] = [
-                            'name' => $name,
-                            'brand' => $brand,
+                            'name' => trim($title),
+                            'brand' => isset($item['brand']) ? trim($item['brand']) : null,
+                            'source' => 'UPCItemDB'
                         ];
+                        
+                        \Log::info('✅ Producto encontrado en UPCItemDB');
                     }
                 }
             }
         } catch (\Throwable $e) {
-            // silenciar
+            \Log::error('Error UPCItemDB:', [
+                'message' => $e->getMessage()
+            ]);
         }
-
-        // 2) UPCItemDB (trial) — solo si no encontró antes
-        if (!$result['found']) {
-            try {
-                $resp = Http::timeout(6)->acceptJson()->get('https://api.upcitemdb.com/prod/trial/lookup', [ 'upc' => $barcode ]);
-                if ($resp->ok()) {
-                    $json = $resp->json();
-                    $items = $json['items'] ?? [];
-                    if (is_array($items) && count($items) > 0) {
-                        $item = $items[0];
-                        $title = $item['title'] ?? null;
-                        if ($title) {
-                            $result['found'] = true;
-                            $result['product'] = [
-                                'name' => $title,
-                                'brand' => $item['brand'] ?? null,
-                            ];
-                        }
-                    }
-                }
-            } catch (\Throwable $e) {
-                // silenciar
-            }
-        }
-
-        return response()->json($result);
     }
+
+    \Log::info('Resultado final:', $result);
+    return response()->json($result);
+}
     public function destroy(Product $product)
     {
         try {
