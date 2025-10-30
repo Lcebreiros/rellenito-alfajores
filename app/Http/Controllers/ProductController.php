@@ -236,68 +236,40 @@ public function lookupExternal(Request $request)
             ])
             ->get($url);
         
-        \Log::info('Respuesta OpenFoodFacts', [
-            'status' => $resp->status(),
-            'successful' => $resp->successful(),
-            'body_preview' => substr($resp->body(), 0, 200)
-        ]);
-        
         if ($resp->successful()) {
             $json = $resp->json();
-            
-            \Log::info('JSON OpenFoodFacts parseado', [
-                'status' => $json['status'] ?? 'no_status',
-                'has_product' => isset($json['product']),
-                'status_verbose' => $json['status_verbose'] ?? 'no_verbose'
-            ]);
             
             if (isset($json['status']) && $json['status'] == 1 && isset($json['product'])) {
                 $p = $json['product'];
                 
-                // Log de campos disponibles
-                \Log::info('Campos disponibles en producto', [
-                    'tiene_product_name' => isset($p['product_name']),
-                    'tiene_product_name_es' => isset($p['product_name_es']),
-                    'tiene_generic_name' => isset($p['generic_name']),
-                    'product_name_value' => $p['product_name'] ?? 'null',
-                    'brands_value' => $p['brands'] ?? 'null'
-                ]);
-                
-                // Intentar múltiples campos
                 $name = $p['product_name'] ?? 
                         $p['product_name_es'] ?? 
                         $p['product_name_en'] ?? 
                         $p['generic_name'] ?? 
-                        $p['generic_name_es'] ?? 
                         null;
                 
                 $brand = $p['brands'] ?? null;
                 
                 if ($name) {
+                    // 🔧 Limpiar y normalizar el nombre
+                    $name = $this->normalizarNombre($name);
+                    $brand = $brand ? $this->normalizarNombre($brand) : null;
+                    
                     $result['found'] = true;
                     $result['product'] = [
-                        'name' => trim($name),
-                        'brand' => $brand ? trim($brand) : null,
-                        'source' => 'OpenFoodFacts'
+                        'name' => $name,
+                        'brand' => $brand,
+                        'source' => 'OpenFoodFacts',
+                        'original_name' => $p['product_name'] ?? null, // Guardar el original por si acaso
                     ];
                     
                     \Log::info('✅ Producto encontrado en OpenFoodFacts', $result['product']);
                     return response()->json($result);
-                } else {
-                    \Log::warning('Producto existe en OpenFoodFacts pero sin nombre válido');
                 }
-            } else {
-                \Log::warning('OpenFoodFacts: status != 1 o sin producto');
             }
-        } else {
-            \Log::warning('OpenFoodFacts: respuesta no exitosa', ['status' => $resp->status()]);
         }
     } catch (\Throwable $e) {
-        \Log::error('❌ Error en OpenFoodFacts', [
-            'message' => $e->getMessage(),
-            'line' => $e->getLine(),
-            'file' => $e->getFile()
-        ]);
+        \Log::error('Error en OpenFoodFacts', ['message' => $e->getMessage()]);
     }
 
     // 2) UPCItemDB
@@ -306,54 +278,95 @@ public function lookupExternal(Request $request)
             \Log::info('Consultando UPCItemDB...');
             
             $resp = Http::timeout(15)
-                ->withHeaders(['Accept' => 'application/json'])
                 ->get('https://api.upcitemdb.com/prod/trial/lookup', [
                     'upc' => $barcode
                 ]);
-            
-            \Log::info('Respuesta UPCItemDB', [
-                'status' => $resp->status(),
-                'successful' => $resp->successful(),
-                'body_preview' => substr($resp->body(), 0, 200)
-            ]);
             
             if ($resp->successful()) {
                 $json = $resp->json();
                 $items = $json['items'] ?? [];
                 
-                \Log::info('Items UPCItemDB', [
-                    'count' => count($items),
-                    'first_item' => $items[0] ?? 'no_items'
-                ]);
-                
-                if (is_array($items) && count($items) > 0) {
+                if (!empty($items)) {
                     $item = $items[0];
                     $title = $item['title'] ?? null;
                     
                     if ($title) {
                         $result['found'] = true;
                         $result['product'] = [
-                            'name' => trim($title),
-                            'brand' => isset($item['brand']) ? trim($item['brand']) : null,
+                            'name' => $this->normalizarNombre($title),
+                            'brand' => isset($item['brand']) ? $this->normalizarNombre($item['brand']) : null,
                             'source' => 'UPCItemDB'
                         ];
                         
                         \Log::info('✅ Producto encontrado en UPCItemDB', $result['product']);
                     }
                 }
-            } else {
-                \Log::warning('UPCItemDB: respuesta no exitosa', ['status' => $resp->status()]);
             }
         } catch (\Throwable $e) {
-            \Log::error('❌ Error en UPCItemDB', [
-                'message' => $e->getMessage()
-            ]);
+            \Log::error('Error en UPCItemDB', ['message' => $e->getMessage()]);
         }
     }
 
     \Log::info('=== LOOKUP EXTERNO FINALIZADO ===', ['result' => $result]);
     
     return response()->json($result);
+}
+
+/**
+ * Normaliza nombres de productos para el mercado argentino
+ */
+private function normalizarNombre(string $nombre): string
+{
+    // Diccionario de correcciones comunes
+    $correcciones = [
+        // Marcas argentinas mal escritas
+        'manaus' => 'Manaos',
+        'quilmez' => 'Quilmes',
+        'arcor' => 'Arcor',
+        
+        // Sabores mal escritos
+        'guatana' => 'Guaraná',
+        'guarana' => 'Guaraná',
+        'pomelo' => 'Pomelo',
+        'limon' => 'Limón',
+        'naranja' => 'Naranja',
+        'manzana' => 'Manzana',
+        
+        // Errores comunes
+        'coca cola' => 'Coca-Cola',
+        'cocacola' => 'Coca-Cola',
+        'sprite' => 'Sprite',
+        'fanta' => 'Fanta',
+    ];
+    
+    $nombreLower = mb_strtolower($nombre);
+    
+    // Aplicar correcciones
+    foreach ($correcciones as $buscar => $reemplazar) {
+        if (stripos($nombreLower, $buscar) !== false) {
+            $nombre = str_ireplace($buscar, $reemplazar, $nombre);
+        }
+    }
+    
+    // Limpiar espacios y capitalizar correctamente
+    $nombre = trim($nombre);
+    
+    // Capitalizar primera letra de cada palabra
+    $nombre = mb_convert_case($nombre, MB_CASE_TITLE, 'UTF-8');
+    
+    // Remover duplicados (ej: "Manaus Manaus" -> "Manaus")
+    $palabras = explode(' ', $nombre);
+    $palabras = array_unique(array_map('mb_strtolower', $palabras));
+    
+    // Reconstruir manteniendo capitalización
+    $palabrasFinales = [];
+    foreach ($palabras as $palabra) {
+        if (!empty($palabra)) {
+            $palabrasFinales[] = mb_convert_case($palabra, MB_CASE_TITLE, 'UTF-8');
+        }
+    }
+    
+    return implode(' ', $palabrasFinales);
 }
     public function destroy(Product $product)
     {
