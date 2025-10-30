@@ -14,7 +14,6 @@ class StockAdjustment extends Model
         'user_id',           // Usuario que hizo el ajuste
         'product_id',        // Producto ajustado
         'quantity_change',   // Cantidad agregada o restada (+/-)
-        'previous_stock',    // Stock anterior al ajuste
         'new_stock',         // Stock resultante después del ajuste
         'reason',            // Motivo del ajuste
         'reference_id',      // ID polimórfico de referencia
@@ -25,7 +24,6 @@ class StockAdjustment extends Model
 
     protected $casts = [
         'quantity_change' => 'decimal:2',
-        'previous_stock' => 'decimal:2',
         'new_stock' => 'decimal:2',
     ];
 

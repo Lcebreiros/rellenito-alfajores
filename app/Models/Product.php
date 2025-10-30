@@ -274,7 +274,6 @@ class Product extends Model
                 'user_id' => $actor?->id ?? auth()->id(),
                 'product_id' => $product->id,
                 'quantity_change' => $quantityChange,
-                'previous_stock' => $oldStock,
                 'new_stock' => $newStock,
                 'reason' => $reason,
                 'reference_id' => $reference?->id,
@@ -330,7 +329,6 @@ protected static function booted(): void
             StockAdjustment::create([
                 'product_id' => $product->id,
                 'quantity_change' => $product->stock,
-                'old_stock' => 0,
                 'new_stock' => $product->stock,
                 'reason' => 'producto_creado',
                 'reference_id' => null,
