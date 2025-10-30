@@ -104,6 +104,41 @@ class ProductController extends Controller
     public function store(Request $request)
 {
     $userId = (int) ($request->user()?->id ?? auth()->id());
+
+    // Verificar si es actualización de stock de producto existente
+    $existingProductId = $request->input('_existing_product_id');
+
+    if ($existingProductId) {
+        // 🔄 Agregar stock a producto existente
+        $product = Product::query()
+            ->withoutGlobalScope('byUser')
+            ->where('id', $existingProductId)
+            ->firstOrFail();
+
+        // Validar solo el stock
+        $validated = $request->validate([
+            'stock' => 'required|numeric|min:1',
+        ]);
+
+        $stockToAdd = (float) $validated['stock'];
+
+        // Usar el método adjustStock del modelo
+        try {
+            $product->adjustStock(
+                $stockToAdd,
+                'Entrada por scanner - código de barras',
+                auth()->user()
+            );
+
+            return redirect()->route('products.index')
+                ->with('ok', "Stock agregado: +{$stockToAdd} unidades a {$product->name}");
+
+        } catch (\DomainException $e) {
+            return back()->with('error', 'Error al ajustar stock: ' . $e->getMessage());
+        }
+    }
+
+    // ➕ Crear nuevo producto
     $data = $request->validate([
         'name' => 'required|string|max:100',
         'sku' => 'required|string|max:50|unique:products,sku,NULL,id,user_id,' . $userId,
@@ -111,7 +146,7 @@ class ProductController extends Controller
         'image' => 'nullable|image|max:5120',
         'external_image_url' => 'nullable|url|max:500',
         'price' => 'required|numeric|min:0',
-        'stock' => 'required|integer|min:0',
+        'stock' => 'required|numeric|min:0',
         'is_active' => 'boolean'
     ]);
 
@@ -434,10 +469,22 @@ private function normalizarNombre(string $nombre): string
     public function destroy(Product $product)
     {
         try {
-            $product->delete(); // si el modelo usa SoftDeletes, hará borrado lógico
-            return redirect()->route('products.index')->with('ok','Producto eliminado');
+            // Eliminar imagen física si existe
+            if ($product->image && Storage::disk('public')->exists($product->image)) {
+                Storage::disk('public')->delete($product->image);
+            }
+
+            // Eliminar permanentemente (bypass soft delete)
+            // Como order_items ahora tiene nullOnDelete, esto funcionará incluso con ventas
+            $product->forceDelete();
+
+            return redirect()->route('products.index')->with('ok','Producto eliminado permanentemente');
         } catch (\Throwable $e) {
-            return back()->with('error','No se pudo eliminar. Puede estar referenciado por otros registros.');
+            \Log::error('Error al eliminar producto', [
+                'product_id' => $product->id,
+                'error' => $e->getMessage()
+            ]);
+            return back()->with('error','No se pudo eliminar: ' . $e->getMessage());
         }
     }
 

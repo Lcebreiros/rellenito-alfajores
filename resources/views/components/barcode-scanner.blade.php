@@ -47,18 +47,24 @@
             @csrf
             <input type="hidden" name="barcode" id="{{ $cid }}_form_barcode">
             <input type="hidden" name="sku" id="{{ $cid }}_form_sku">
-            <input type="hidden" name="stock" value="0">
             <input type="hidden" name="is_active" value="1">
+            <input type="hidden" name="_existing_product_id" id="{{ $cid }}_existing_id">
             <div>
               <label class="block text-sm font-medium text-neutral-700 dark:text-neutral-200">Nombre</label>
               <input name="name" id="{{ $cid }}_form_name" type="text" required maxlength="100" class="mt-1 w-full rounded-lg border border-neutral-300 bg-white px-3 py-2 text-neutral-800 placeholder-neutral-400 focus:border-indigo-500 focus:ring-indigo-500 dark:border-neutral-700 dark:bg-neutral-900 dark:text-neutral-100">
             </div>
-            <div>
-              <label class="block text-sm font-medium text-neutral-700 dark:text-neutral-200">Precio</label>
-              <input name="price" id="{{ $cid }}_form_price" type="number" step="0.01" min="0" required class="mt-1 w-full rounded-lg border border-neutral-300 bg-white px-3 py-2 text-neutral-800 focus:border-indigo-500 focus:ring-indigo-500 dark:border-neutral-700 dark:bg-neutral-900 dark:text-neutral-100">
+            <div class="grid grid-cols-2 gap-3">
+              <div>
+                <label class="block text-sm font-medium text-neutral-700 dark:text-neutral-200">Precio</label>
+                <input name="price" id="{{ $cid }}_form_price" type="number" step="0.01" min="0" required class="mt-1 w-full rounded-lg border border-neutral-300 bg-white px-3 py-2 text-neutral-800 focus:border-indigo-500 focus:ring-indigo-500 dark:border-neutral-700 dark:bg-neutral-900 dark:text-neutral-100">
+              </div>
+              <div>
+                <label class="block text-sm font-medium text-neutral-700 dark:text-neutral-200">Stock entrante</label>
+                <input name="stock" id="{{ $cid }}_form_stock" type="number" step="1" min="1" value="1" required class="mt-1 w-full rounded-lg border border-neutral-300 bg-white px-3 py-2 text-neutral-800 focus:border-indigo-500 focus:ring-indigo-500 dark:border-neutral-700 dark:bg-neutral-900 dark:text-neutral-100">
+              </div>
             </div>
             <div class="pt-1 flex items-center justify-end gap-2">
-              <button type="submit" class="inline-flex items-center gap-2 rounded-lg bg-indigo-600 px-4 py-2 text-sm font-medium text-white hover:bg-indigo-700">
+              <button type="submit" id="{{ $cid }}_submit_btn" class="inline-flex items-center gap-2 rounded-lg bg-indigo-600 px-4 py-2 text-sm font-medium text-white hover:bg-indigo-700">
                 Crear producto
               </button>
             </div>
@@ -86,6 +92,9 @@
     const formPrice = document.getElementById(@json($cid . '_form_price'));
     const formSku = document.getElementById(@json($cid . '_form_sku'));
     const formBarcode = document.getElementById(@json($cid . '_form_barcode'));
+    const formStock = document.getElementById(@json($cid . '_form_stock'));
+    const existingIdField = document.getElementById(@json($cid . '_existing_id'));
+    const submitBtn = document.getElementById(@json($cid . '_submit_btn'));
 
     if (!openBtn || !modal) return;
 
@@ -97,7 +106,10 @@
       statusEl.textContent = '—';
       formName.value = '';
       formPrice.value = '';
+      formStock.value = '1';
+      existingIdField.value = '';
       barcodeInput.value = '';
+      submitBtn.textContent = 'Crear producto';
     }
     openBtn.addEventListener('click', open);
     closeBtn.addEventListener('click', close);
@@ -106,26 +118,86 @@
 async function lookupExternal(code){
   if (!code) return;
   resultBox.classList.remove('hidden');
-  statusEl.innerHTML = '<span class="animate-pulse">🔍 Buscando en bases de datos...</span>';
+  statusEl.innerHTML = '<span class="animate-pulse">🔍 Buscando producto...</span>';
   form.classList.add('hidden');
-  
+
   try {
     console.log('Buscando código:', code);
-    
-    const url = new URL(@json(route('products.lookup.external')), window.location.origin);
-    url.searchParams.set('barcode', code);
-    
-    const res = await fetch(url.toString(), { 
+
+    // 1️⃣ Primero buscar en BD local
+    const localUrl = new URL(@json(route('products.lookup')), window.location.origin);
+    localUrl.searchParams.set('barcode', code);
+
+    const localRes = await fetch(localUrl.toString(), {
       headers: {
         'X-Requested-With': 'XMLHttpRequest',
         'Accept': 'application/json'
       }
     });
-    
+
+    if (localRes.ok) {
+      const localData = await localRes.json();
+
+      if (localData.found && localData.product) {
+        // ✅ Producto existe en BD local
+        const p = localData.product;
+
+        statusEl.innerHTML = `
+          <div class="flex items-start gap-3">
+            ${p.image_url ? `
+              <img src="${p.image_url}"
+                   alt="${p.name}"
+                   class="w-20 h-20 object-contain rounded-lg border border-neutral-200 dark:border-neutral-700 bg-white"
+                   onerror="this.style.display='none'">
+            ` : ''}
+            <div class="flex-1">
+              <div class="flex items-start gap-2">
+                <span class="text-blue-600 dark:text-blue-400 text-lg">📦</span>
+                <div>
+                  <div class="font-medium text-blue-700 dark:text-blue-300">Producto existente</div>
+                  <div class="text-xs text-neutral-600 dark:text-neutral-400 mt-1">
+                    Este producto ya está en tu inventario. Especificá el stock a agregar.
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        `;
+
+        formName.value = p.name;
+        formPrice.value = p.price;
+        formSku.value = p.sku;
+        formBarcode.value = p.barcode;
+        existingIdField.value = p.id;
+        formStock.value = '1';
+
+        // Cambiar texto del botón y la acción del form
+        submitBtn.textContent = 'Agregar stock';
+        form.action = @json(route('products.store')); // misma ruta, backend decidirá
+        form.classList.remove('hidden');
+
+        setTimeout(() => formStock.focus(), 100);
+        return; // No buscar en APIs externas
+      }
+    }
+
+    // 2️⃣ Si no existe localmente, buscar en APIs externas
+    statusEl.innerHTML = '<span class="animate-pulse">🔍 Buscando en bases de datos externas...</span>';
+
+    const url = new URL(@json(route('products.lookup.external')), window.location.origin);
+    url.searchParams.set('barcode', code);
+
+    const res = await fetch(url.toString(), {
+      headers: {
+        'X-Requested-With': 'XMLHttpRequest',
+        'Accept': 'application/json'
+      }
+    });
+
     if (!res.ok) {
       throw new Error(`HTTP ${res.status}`);
     }
-    
+
     const data = await res.json();
     console.log('Respuesta:', data);
     
@@ -162,11 +234,9 @@ async function lookupExternal(code){
       formName.value = productBrand && productBrand.toLowerCase() !== productName.toLowerCase()
         ? `${productBrand} ${productName}`
         : productName;
-      
-      // 🖼️ Guardar la URL de la imagen en un campo oculto (opcional)
-      // Si quieres guardar la imagen automáticamente, agrega esto:
+
+      // 🖼️ Guardar la URL de la imagen en un campo oculto
       if (imageUrl) {
-        // Crear un campo oculto para la URL de la imagen
         let imageField = document.getElementById(@json($cid . '_form_image'));
         if (!imageField) {
           imageField = document.createElement('input');
@@ -177,7 +247,7 @@ async function lookupExternal(code){
         }
         imageField.value = imageUrl;
       }
-      
+
     } else {
       // ❌ No encontrado
       statusEl.innerHTML = `
@@ -191,14 +261,17 @@ async function lookupExternal(code){
           </div>
         </div>
       `;
-      
+
       formName.value = '';
     }
-    
+
     formSku.value = code;
     formBarcode.value = code;
+    existingIdField.value = '';
+    formStock.value = '1';
+    submitBtn.textContent = 'Crear producto';
     form.classList.remove('hidden');
-    
+
     if (!formName.value) {
       setTimeout(() => formName.focus(), 100);
     } else {
@@ -207,7 +280,7 @@ async function lookupExternal(code){
     
   } catch (e) {
     console.error('Error en lookup:', e);
-    
+
     statusEl.innerHTML = `
       <div class="flex items-start gap-2">
         <span class="text-red-600 dark:text-red-400 text-lg">⚠️</span>
@@ -219,10 +292,13 @@ async function lookupExternal(code){
         </div>
       </div>
     `;
-    
+
     formName.value = '';
     formSku.value = code;
     formBarcode.value = code;
+    existingIdField.value = '';
+    formStock.value = '1';
+    submitBtn.textContent = 'Crear producto';
     form.classList.remove('hidden');
     setTimeout(() => formName.focus(), 100);
   }
