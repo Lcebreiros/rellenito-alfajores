@@ -320,7 +320,6 @@ Route::prefix('branch')
     ->name('branch.')
     ->group(function () {
         Route::resource('users', BranchUserController::class);
-        Route::resource('employees', BranchEmployeeController::class);
     });
     
 /*
