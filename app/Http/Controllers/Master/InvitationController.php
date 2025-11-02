@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Master;
 
 use App\Http\Controllers\Controller;
 use App\Models\Invitation;
+use App\Models\InvitationHistory;
 use App\Services\InvitationService;
 use Illuminate\Http\Request;
 use Illuminate\Http\RedirectResponse;
@@ -69,8 +70,6 @@ class InvitationController extends Controller
 
     /**
      * Crear nueva invitación (form integrado en index/manage).
-     *
-     * Se recomienda reemplazar Request por un StoreInvitationRequest.
      */
     public function store(Request $request): RedirectResponse
     {
@@ -237,6 +236,66 @@ class InvitationController extends Controller
     }
 
     /**
+     * Consumir/validar invitación (para uso desde otros sistemas o flujos)
+     * 
+     * ⚠️ NOTA: En Gestior, esto se maneja desde SubscriptionController
+     * Este método es para otros flujos dentro de rellenito-alfajores
+     */
+    public function consume(Request $request): RedirectResponse
+    {
+        $request->validate([
+            'code' => 'required|string|min:10',
+        ]);
+
+        $plainKey = strtoupper($request->input('code'));
+
+        return DB::transaction(function () use ($plainKey) {
+            // ✅ Usar el servicio para buscar y validar
+            $invitation = $this->invitationService->findAndValidateInvitation($plainKey);
+
+            if (!$invitation) {
+                return redirect()->back()
+                    ->withErrors(['code' => 'Código de invitación inválido o expirado.']);
+            }
+
+            $user = Auth::user();
+
+            if (!$user) {
+                return redirect()->back()
+                    ->withErrors(['code' => 'Debes iniciar sesión primero.']);
+            }
+
+            // Marcar como usada
+            $used = $this->invitationService->useInvitation($invitation, $user->id);
+
+            if (!$used) {
+                return redirect()->back()
+                    ->withErrors(['code' => 'Este código ya fue utilizado.']);
+            }
+
+            // Guardar en historial
+            InvitationHistory::create([
+                'invitation_id' => $invitation->id,
+                'key' => substr($plainKey, 0, 8) . '***', // Solo primeros 8 caracteres
+                'email' => $user->email,
+                'notes' => $invitation->notes,
+                'used_at' => now(),
+                'used_by' => $user->id,
+                'payload' => $invitation->toArray(),
+            ]);
+
+            Log::info('Invitación consumida', [
+                'invitation_id' => $invitation->id,
+                'user_id' => $user->id,
+                'subscription_level' => $invitation->subscription_level,
+            ]);
+
+            return redirect()->route('home')
+                ->with('success', 'Código de invitación aplicado correctamente.');
+        }, 5); // reintentos DB
+    }
+
+    /**
      * Asegura que la invitación pertenezca al master actual.
      */
     protected function ensureOwnership(Invitation $invitation): void
@@ -261,46 +320,4 @@ class InvitationController extends Controller
             Log::warning('Error limpiando keys plain viejas', ['error' => $e->getMessage()]);
         }
     }
-    public function consume(Request $request)
-{
-    $request->validate([
-        'key' => 'required|string',
-    ]);
-
-    $key = $request->input('key');
-
-    return DB::transaction(function () use ($key) {
-
-        $inv = Invitation::where('key', $key)->first();
-
-        if (! $inv) {
-            return redirect()->back()->withErrors(['key' => 'Invitación no encontrada o ya usada.']);
-        }
-
-        // lógica de creación de usuario o asociación (ejemplo)
-        $user = auth()->user(); // o crear usuario a partir de la invitación
-
-        // preparar payload (copia de la fila antes de borrarla)
-        $payload = $inv->toArray();
-
-        // insertar en history
-        InvitationHistory::create([
-            'invitation_id' => $inv->id,
-            'key' => $inv->key,
-            'email' => $inv->email,
-            'notes' => $inv->notes ?? null,
-            'used_at' => now(),
-            'used_by' => $user ? $user->id : null,
-            'payload' => $payload,
-        ]);
-
-        // finalmente borramos la invitación original
-        $inv->delete();
-
-        // aquí podés continuar con el flujo: redirigir, crear cuenta, etc.
-        return redirect()->route('home')->with('success', 'Invitación consumida correctamente.');
-    }, 5); // reintentos DB
-}
-
-    
 }

@@ -266,11 +266,16 @@ Route::prefix('master/invitations')
     ->name('master.invitations.')
     ->middleware(['auth'])
     ->group(function () {
+        // Rutas específicas primero (antes de las dinámicas)
+        Route::get('/stats/json', [InvitationController::class, 'stats'])->name('stats');
+        
+        // CRUD básico
         Route::get('/', [InvitationController::class, 'index'])->name('index');
         Route::post('/', [InvitationController::class, 'store'])->name('store');
         Route::get('/{invitation}', [InvitationController::class, 'show'])->name('show');
-        Route::post('/{invitation}', [InvitationController::class, 'revoke'])->name('revoke');
-        Route::get('/stats/json', [InvitationController::class, 'stats'])->name('stats');
+        
+        // Acciones sobre invitación específica
+        Route::patch('/{invitation}/revoke', [InvitationController::class, 'revoke'])->name('revoke');
         Route::post('/{invitation}/regenerate', [InvitationController::class, 'regenerate'])->name('regenerate');
     });
 

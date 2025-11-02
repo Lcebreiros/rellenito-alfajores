@@ -3,9 +3,11 @@
 namespace App\Services;
 
 use App\Models\Invitation;
+use App\Models\InvitationHistory;
 use App\Models\User;
 use Illuminate\Support\Str;
 use Illuminate\Support\Facades\Hash;
+use Illuminate\Support\Facades\DB;
 use Carbon\Carbon;
 use Exception;
 
@@ -39,58 +41,60 @@ class InvitationService
      * Crea una nueva invitación
      */
     public function createInvitation(
-    int $masterUserId, 
-    string $invitationType, 
-    ?string $subscriptionLevel = null,
-    ?array $permissions = null,
-    ?int $maxUsers = null,
-    int $expiresInHours = 72,
-    ?string $notes = null
-): array { // Cambiar a array para devolver key también
-    // Validaciones
-    $this->validateInvitationType($invitationType);
-    
-    if ($subscriptionLevel && !in_array($subscriptionLevel, self::VALID_SUBSCRIPTION_LEVELS)) {
-        throw new Exception("Nivel de suscripción inválido: {$subscriptionLevel}");
+        int $masterUserId, 
+        string $invitationType, 
+        ?string $subscriptionLevel = null,
+        ?array $permissions = null,
+        ?int $maxUsers = null,
+        int $expiresInHours = 72,
+        ?string $notes = null
+    ): array {
+        // Validaciones
+        $this->validateInvitationType($invitationType);
+        
+        if ($subscriptionLevel && !in_array($subscriptionLevel, self::VALID_SUBSCRIPTION_LEVELS)) {
+            throw new Exception("Nivel de suscripción inválido: {$subscriptionLevel}");
+        }
+
+        // Generar key única
+        do {
+            $plainKey = $this->generateKeyString(12);
+            $keyHash = Hash::make($plainKey);
+            $fingerprint = $this->computeFingerprint($plainKey);
+            $exists = Invitation::where('key_fingerprint', $fingerprint)->exists();
+        } while ($exists);
+
+        // Configurar defaults por tipo
+        $config = $this->getDefaultConfigForType($invitationType);
+        
+        $invitation = Invitation::create([
+            'created_by' => $masterUserId,
+            'invitation_type' => $invitationType,
+            'subscription_level' => $subscriptionLevel ?? $config['subscription_level'],
+            'permissions' => $permissions ?? $config['permissions'],
+            'key_hash' => $keyHash,
+            'key_fingerprint' => $fingerprint,
+            'key_plain' => $plainKey,
+            'expires_at' => Carbon::now()->addHours($expiresInHours),
+            'max_users' => $maxUsers ?? $config['max_users'],
+            'notes' => $notes,
+            'status' => Invitation::STATUS_PENDING,
+        ]);
+
+        return ['invitation' => $invitation, 'plain_key' => $plainKey];
     }
 
-    // Generar key única
-    do {
-        $plainKey = $this->generateKeyString(12);
-        $keyHash = Hash::make($plainKey);
-        $fingerprint = $this->computeFingerprint($plainKey); // Agregar fingerprint
-        $exists = Invitation::where('key_fingerprint', $fingerprint)->exists();
-    } while ($exists);
-
-    // Configurar defaults por tipo
-    $config = $this->getDefaultConfigForType($invitationType);
-    
-    $invitation = Invitation::create([
-        'created_by' => $masterUserId,
-        'invitation_type' => $invitationType,
-        'subscription_level' => $subscriptionLevel ?? $config['subscription_level'],
-        'permissions' => $permissions ?? $config['permissions'],
-        'key_hash' => $keyHash,
-        'key_fingerprint' => $fingerprint, // AGREGAR ESTO
-        'key_plain' => $plainKey,
-        'expires_at' => Carbon::now()->addHours($expiresInHours),
-        'max_users' => $maxUsers ?? $config['max_users'],
-        'notes' => $notes,
-        'status' => Invitation::STATUS_PENDING, // AGREGAR STATUS
-    ]);
-
-    return ['invitation' => $invitation, 'plain_key' => $plainKey]; // Devolver ambos
-}
-
-// Agregar método fingerprint
-private function computeFingerprint(string $plainKey): string
-{
-    $appKey = config('app.key') ?? env('APP_KEY');
-    if (empty($appKey)) {
-        throw new Exception('APP_KEY no configurada');
+    /**
+     * Calcula el fingerprint de una key
+     */
+    private function computeFingerprint(string $plainKey): string
+    {
+        $appKey = config('app.key') ?? env('APP_KEY');
+        if (empty($appKey)) {
+            throw new Exception('APP_KEY no configurada');
+        }
+        return hash_hmac('sha256', $plainKey, $appKey);
     }
-    return hash_hmac('sha256', $plainKey, $appKey);
-}
 
     /**
      * Valida una key contra una invitación
@@ -105,21 +109,29 @@ private function computeFingerprint(string $plainKey): string
      */
     public function findAndValidateInvitation(string $plainKey): ?Invitation
     {
-        $invitations = Invitation::where('status', Invitation::STATUS_PENDING)->get();
-        
-        foreach ($invitations as $invitation) {
-            if ($this->validateKey($plainKey, $invitation)) {
-                // Verificar si no ha expirado
-                if ($invitation->expires_at && $invitation->expires_at->isPast()) {
-                    $invitation->update(['status' => Invitation::STATUS_EXPIRED]);
-                    return null;
-                }
-                
-                return $invitation;
-            }
+        // ✅ Usar fingerprint para búsqueda indexada (mucho más rápido)
+        $fingerprint = $this->computeFingerprint($plainKey);
+
+        $invitation = Invitation::where('key_fingerprint', $fingerprint)
+            ->where('status', Invitation::STATUS_PENDING)
+            ->first();
+
+        if (!$invitation) {
+            return null;
         }
-        
-        return null;
+
+        // Verificar que no ha expirado
+        if ($invitation->expires_at && $invitation->expires_at->isPast()) {
+            $invitation->update(['status' => Invitation::STATUS_EXPIRED]);
+            return null;
+        }
+
+        // Verificar el hash (seguridad final)
+        if (!Hash::check($plainKey, $invitation->key_hash)) {
+            return null;
+        }
+
+        return $invitation;
     }
 
     /**
@@ -211,28 +223,32 @@ private function computeFingerprint(string $plainKey): string
         
         return [
             'total' => $invitations->count(),
-            'pending' => $invitations->where('status', Invitation::STATUS_PENDING)->count(),
-            'used' => $invitations->where('status', Invitation::STATUS_USED)->count(),
-            'expired' => $invitations->where('status', Invitation::STATUS_EXPIRED)->count(),
-            'revoked' => $invitations->where('status', Invitation::STATUS_REVOKED)->count(),
+            'pending' => (clone $invitations)->where('status', Invitation::STATUS_PENDING)->count(),
+            'used' => (clone $invitations)->where('status', Invitation::STATUS_USED)->count(),
+            'expired' => (clone $invitations)->where('status', Invitation::STATUS_EXPIRED)->count(),
+            'revoked' => (clone $invitations)->where('status', Invitation::STATUS_REVOKED)->count(),
         ];
     }
-    public function archiveAndDelete(Invitation $inv, ?User $user = null): InvitationHistory
-    {
-        return DB::transaction(function () use ($inv, $user) {
-            $payload = $inv->toArray();
 
+    /**
+     * Archiva y elimina una invitación (guarda en historial)
+     */
+    public function archiveAndDelete(Invitation $invitation, ?User $user = null): InvitationHistory
+    {
+        return DB::transaction(function () use ($invitation, $user) {
+            // Guardar en historial
             $history = InvitationHistory::create([
-                'invitation_id' => $inv->id,
-                'key' => $inv->key,
-                'email' => $inv->email,
-                'notes' => $inv->notes ?? null,
+                'invitation_id' => $invitation->id,
+                'key' => $invitation->key_plain ? substr($invitation->key_plain, 0, 8) . '***' : null,
+                'email' => $user?->email, // Email del usuario que la usó
+                'notes' => $invitation->notes,
                 'used_at' => now(),
                 'used_by' => $user?->id,
-                'payload' => $payload,
+                'payload' => $invitation->toArray(),
             ]);
 
-            $inv->delete();
+            // Eliminar invitación
+            $invitation->delete();
 
             return $history;
         });

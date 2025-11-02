@@ -61,10 +61,11 @@
                 <div>
                     <label for="subscription_level" class="block text-sm font-medium text-gray-700">Nivel de suscripción</label>
                     @php
+                        // ✅ Actualizado para coincidir con Gestior
                         $planLabels = [
-                          'basic' => 'Basic — 1 empresa, 1 sucursal, hasta 3 usuarios',
-                          'premium' => 'Premium — 1 empresa, hasta 5 sucursales, hasta 10 usuarios',
-                          'enterprise' => 'Enterprise — múltiples empresas, sucursales y usuarios ilimitados',
+                          'basic' => 'Basic — Hasta 5 usuarios, 1 sucursal',
+                          'premium' => 'Premium — Hasta 50 usuarios, 5 sucursales',
+                          'enterprise' => 'Enterprise — Usuarios y sucursales ilimitados',
                         ];
                     @endphp
                     <select id="subscription_level" name="subscription_level" 
@@ -76,6 +77,9 @@
                             </option>
                         @endforeach
                     </select>
+                    <p class="mt-1 text-xs text-gray-500">
+                        💡 Este código será válido solo para el plan seleccionado en Gestior
+                    </p>
                     @error('subscription_level') 
                         <p class="text-xs text-red-500 mt-1">{{ $message }}</p> 
                     @enderror
@@ -84,8 +88,9 @@
                 <div>
                     <label for="expires_in_hours" class="block text-sm font-medium text-gray-700">Expira en (horas)</label>
                     <input type="number" id="expires_in_hours" name="expires_in_hours" min="1" max="8760" 
-                           value="{{ old('expires_in_hours', 72) }}" 
+                           value="{{ old('expires_in_hours', 720) }}" 
                            class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500">
+                    <p class="mt-1 text-xs text-gray-500">Por defecto: 30 días (720 horas)</p>
                     @error('expires_in_hours') 
                         <p class="text-xs text-red-500 mt-1">{{ $message }}</p> 
                     @enderror
@@ -96,6 +101,7 @@
                     <input type="number" id="max_users" name="max_users" min="1" max="1000" 
                            value="{{ old('max_users') }}" placeholder="Solo para tipo empresa"
                            class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500">
+                    <p class="mt-1 text-xs text-gray-500">Opcional - Se define según el plan</p>
                     @error('max_users') 
                         <p class="text-xs text-red-500 mt-1">{{ $message }}</p> 
                     @enderror
@@ -105,7 +111,7 @@
                     <label for="notes" class="block text-sm font-medium text-gray-700">Notas internas</label>
                     <input type="text" id="notes" name="notes" value="{{ old('notes') }}" 
                            class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500" 
-                           placeholder="Información para tu equipo">
+                           placeholder="Ej: Cliente ABC - Contrato #123">
                     @error('notes') 
                         <p class="text-xs text-red-500 mt-1">{{ $message }}</p> 
                     @enderror
@@ -115,8 +121,8 @@
             <div class="mt-6 flex items-center gap-3">
                 <button type="submit" id="submitBtn" 
                         class="px-6 py-2 bg-indigo-600 text-white rounded-md hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2 disabled:opacity-50">
-                    <span class="submit-text">Generar clave</span>
-                    <span class="submit-loading hidden">Generando...</span>
+                    <span class="submit-text">🔑 Generar código</span>
+                    <span class="submit-loading hidden">⏳ Generando...</span>
                 </button>
                 <button type="reset" class="px-4 py-2 bg-gray-200 text-gray-800 rounded-md hover:bg-gray-300">
                     Limpiar
@@ -153,8 +159,11 @@
 
     {{-- LISTADO --}}
     <div class="bg-white rounded-lg shadow overflow-hidden">
-        <div class="px-6 py-4 border-b border-gray-200">
+        <div class="px-6 py-4 border-b border-gray-200 flex items-center justify-between">
             <h2 class="text-lg font-medium">Invitaciones recientes</h2>
+            <p class="text-xs text-gray-500">
+                💡 Los códigos son compatibles con Gestior y Rellenito-Alfajores
+            </p>
         </div>
 
         <div class="overflow-x-auto">
@@ -165,9 +174,9 @@
                         <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Tipo</th>
                         <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Suscripción</th>
                         <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Estado</th>
-                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Key visible</th>
+                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Código visible</th>
                         <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Usado por</th>
-                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Creada</th>
+                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Expira</th>
                         <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Acciones</th>
                     </tr>
                 </thead>
@@ -175,8 +184,30 @@
                     @forelse ($invitations as $inv)
                         <tr class="hover:bg-gray-50">
                             <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">{{ $inv->id }}</td>
-                            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">{{ $inv->type_label }}</td>
-                            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">{{ $inv->subscription_level ?? '—' }}</td>
+                            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                                <span class="inline-flex items-center gap-1">
+                                    @if($inv->invitation_type === 'company')
+                                        🏢
+                                    @elseif($inv->invitation_type === 'admin')
+                                        👤
+                                    @else
+                                        👥
+                                    @endif
+                                    {{ $inv->type_label }}
+                                </span>
+                            </td>
+                            <td class="px-6 py-4 whitespace-nowrap text-sm">
+                                @if($inv->subscription_level)
+                                    <span class="inline-flex px-2 py-1 text-xs font-semibold rounded
+                                        {{ $inv->subscription_level === 'basic' ? 'bg-gray-100 text-gray-800' : '' }}
+                                        {{ $inv->subscription_level === 'premium' ? 'bg-purple-100 text-purple-800' : '' }}
+                                        {{ $inv->subscription_level === 'enterprise' ? 'bg-indigo-100 text-indigo-800' : '' }}">
+                                        {{ ucfirst($inv->subscription_level) }}
+                                    </span>
+                                @else
+                                    <span class="text-gray-400">—</span>
+                                @endif
+                            </td>
                             <td class="px-6 py-4 whitespace-nowrap">
                                 <span class="inline-flex px-2 py-1 text-xs font-semibold rounded-full
                                     {{ $inv->status === 'pending' ? 'bg-blue-100 text-blue-800' : '' }}
@@ -187,14 +218,38 @@
                                 </span>
                             </td>
                             <td class="px-6 py-4 whitespace-nowrap text-sm">
-                                @if($inv->has_plain_key)
-                                    <code class="bg-gray-100 px-2 py-1 rounded text-xs">{{ $inv->key_plain }}</code>
+                                @if($inv->key_plain)
+                                    <div class="flex items-center gap-2">
+                                        <code class="bg-gray-100 px-2 py-1 rounded text-xs font-mono select-all">{{ $inv->key_plain }}</code>
+                                        <button onclick="copyCode('{{ $inv->key_plain }}')" 
+                                                class="text-indigo-600 hover:text-indigo-900" 
+                                                title="Copiar código">
+                                            📋
+                                        </button>
+                                    </div>
                                 @else
-                                    <span class="text-gray-400">—</span>
+                                    <span class="text-gray-400 text-xs">🔒 Oculto</span>
                                 @endif
                             </td>
-                            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">{{ $inv->user->name ?? '—' }}</td>
-                            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">{{ $inv->created_at->diffForHumans() }}</td>
+                            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                                {{ $inv->user->name ?? '—' }}
+                                @if($inv->used_at)
+                                    <br><span class="text-xs text-gray-400">{{ $inv->used_at->format('d/m/Y H:i') }}</span>
+                                @endif
+                            </td>
+                            <td class="px-6 py-4 whitespace-nowrap text-sm">
+                                @if($inv->expires_at)
+                                    @if($inv->isExpired())
+                                        <span class="text-red-600 text-xs">⏰ Expiró</span>
+                                    @else
+                                        <span class="text-gray-600 text-xs">
+                                            {{ $inv->expires_at->diffForHumans() }}
+                                        </span>
+                                    @endif
+                                @else
+                                    <span class="text-gray-400 text-xs">∞ Sin expiración</span>
+                                @endif
+                            </td>
                             <td class="px-6 py-4 whitespace-nowrap text-sm font-medium">
                                 <a href="{{ route('master.invitations.show', $inv) }}" 
                                    class="text-indigo-600 hover:text-indigo-900 mr-3">Ver</a>
@@ -207,9 +262,9 @@
                                     </form>
 
                                     <form action="{{ route('master.invitations.regenerate', $inv) }}" method="POST" 
-                                          class="inline" onsubmit="return confirm('¿Generar nueva clave? Esto revocará la anterior.')">
+                                          class="inline" onsubmit="return confirm('¿Generar nuevo código? Esto revocará el anterior.')">
                                         @csrf
-                                        <button type="submit" class="text-yellow-600 hover:text-yellow-900">Regenerar</button>
+                                        <button type="submit" class="text-yellow-600 hover:text-yellow-900">🔄 Regenerar</button>
                                     </form>
                                 @endif
                             </td>
@@ -244,26 +299,48 @@
     <div id="plainKeyModal" class="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-50">
         <div class="bg-white rounded-lg p-6 w-full max-w-lg mx-4">
             <div class="flex items-center justify-between mb-4">
-                <h2 class="text-lg font-semibold text-gray-900">✅ Clave generada</h2>
-                <button id="closeModal" class="text-gray-400 hover:text-gray-600">&times;</button>
+                <h2 class="text-lg font-semibold text-gray-900">✅ Código generado exitosamente</h2>
+                <button id="closeModal" class="text-gray-400 hover:text-gray-600 text-2xl">&times;</button>
             </div>
             
-            <p class="text-sm text-gray-600 mb-4">
-                Copia esta clave y compártela con el usuario. 
-                <strong>Se mostrará solo esta vez</strong> por seguridad.
-            </p>
+            <div class="bg-blue-50 border-l-4 border-blue-400 p-4 mb-4">
+                <div class="flex">
+                    <div class="flex-shrink-0">
+                        <svg class="h-5 w-5 text-blue-400" viewBox="0 0 20 20" fill="currentColor">
+                            <path fill-rule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7-4a1 1 0 11-2 0 1 1 0 012 0zM9 9a1 1 0 000 2v3a1 1 0 001 1h1a1 1 0 100-2v-3a1 1 0 00-1-1H9z" clip-rule="evenodd" />
+                        </svg>
+                    </div>
+                    <div class="ml-3">
+                        <p class="text-sm text-blue-700">
+                            <strong>Importante:</strong> Este código se mostrará solo una vez por seguridad. 
+                            Cópialo antes de cerrar esta ventana.
+                        </p>
+                    </div>
+                </div>
+            </div>
 
-            <div class="flex items-center gap-3 bg-gray-50 rounded-lg p-4 mb-4">
-                <code id="plainKeyText" class="flex-1 select-all break-all font-mono text-lg font-bold text-indigo-600">{{ session('plain_key') }}</code>
+            <div class="flex items-center gap-3 bg-gradient-to-r from-indigo-50 to-purple-50 rounded-lg p-4 mb-4 border-2 border-indigo-200">
+                <code id="plainKeyText" class="flex-1 select-all break-all font-mono text-lg font-bold text-indigo-700 tracking-wider">{{ session('plain_key') }}</code>
                 <button id="copyPlainKeyBtn" 
-                        class="px-4 py-2 bg-indigo-600 text-white rounded-md hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-indigo-500">
-                    Copiar
+                        class="px-4 py-2 bg-indigo-600 text-white rounded-md hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-indigo-500 transition-colors">
+                    📋 Copiar
                 </button>
             </div>
 
-            <div class="flex justify-end">
+            <div class="bg-gray-50 rounded-lg p-4 mb-4">
+                <h3 class="text-sm font-medium text-gray-700 mb-2">💡 Instrucciones para el usuario:</h3>
+                <ol class="text-sm text-gray-600 space-y-1 list-decimal list-inside">
+                    <li>Registrarse en Gestior</li>
+                    <li>Verificar su email</li>
+                    <li>Ir a la página de planes</li>
+                    <li>Seleccionar el plan correspondiente</li>
+                    <li>Ingresar este código en el modal</li>
+                </ol>
+            </div>
+
+            <div class="flex justify-end gap-3">
                 <button id="closeModalBtn" 
-                        class="px-4 py-2 bg-gray-200 text-gray-800 rounded-md hover:bg-gray-300">
+                        class="px-4 py-2 bg-indigo-600 text-white rounded-md hover:bg-indigo-700">
                     Entendido
                 </button>
             </div>
@@ -299,11 +376,12 @@ document.addEventListener('DOMContentLoaded', function () {
                 const text = document.getElementById('plainKeyText').innerText.trim();
                 try {
                     await navigator.clipboard.writeText(text);
-                    copyBtn.innerText = '✅ Copiado';
+                    const originalText = copyBtn.innerHTML;
+                    copyBtn.innerHTML = '✅ Copiado';
                     copyBtn.classList.add('bg-green-600', 'hover:bg-green-700');
                     copyBtn.classList.remove('bg-indigo-600', 'hover:bg-indigo-700');
                     setTimeout(() => {
-                        copyBtn.innerText = 'Copiar';
+                        copyBtn.innerHTML = originalText;
                         copyBtn.classList.remove('bg-green-600', 'hover:bg-green-700');
                         copyBtn.classList.add('bg-indigo-600', 'hover:bg-indigo-700');
                     }, 2000);
@@ -329,6 +407,16 @@ document.addEventListener('DOMContentLoaded', function () {
         });
     }
 });
+
+// Función para copiar código desde la tabla
+async function copyCode(code) {
+    try {
+        await navigator.clipboard.writeText(code);
+        alert('✅ Código copiado: ' + code);
+    } catch (e) {
+        prompt('Copia este código manualmente:', code);
+    }
+}
 </script>
 @endpush
 @endsection
