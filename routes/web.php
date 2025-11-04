@@ -17,6 +17,7 @@ use App\Http\Controllers\CalculatorController;
 // Master Controllers
 use App\Http\Controllers\Master\InvitationController;
 use App\Http\Controllers\Master\UserController;
+use App\Http\Controllers\PaymentMethodController;
 
 // Company Controllers
 use App\Http\Controllers\Company\BranchController;
@@ -250,6 +251,10 @@ Route::middleware([
 
     // ============ SERVICIOS ============
     Route::resource('services', ServiceController::class);
+
+    // ============ MÉTODOS DE PAGO ============
+    Route::resource('payment-methods', PaymentMethodController::class)->except(['show']);
+    Route::post('payment-methods/{paymentMethod}/toggle', [PaymentMethodController::class, 'toggleActive'])->name('payment-methods.toggle');
 
     // (Revert) Recibir productos: eliminado
 

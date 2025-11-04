@@ -259,8 +259,9 @@
                     @endif
                     <th class="text-left px-3 py-3 font-medium text-neutral-600 dark:text-neutral-300">Items</th>
                     <th class="text-left px-3 py-3 font-medium text-neutral-600 dark:text-neutral-300">Total</th>
-                    <th class="text-left px-3 py-3 font-medium text-neutral-600 dark:text-neutral-300">Estado</th>
-                    <th class="text-right px-6 py-3 font-medium text-neutral-600 dark:text-neutral-300">Acción</th>
+                    <th class="text-left px-4 py-3 font-medium text-neutral-600 dark:text-neutral-300">Pago</th>
+                    <th class="text-left px-2 py-3 font-medium text-neutral-600 dark:text-neutral-300 w-28">Estado</th>
+                    <th class="text-right px-3 py-3 font-medium text-neutral-600 dark:text-neutral-300">Acción</th>
                 </tr>
             </thead>
             <tbody class="divide-y divide-neutral-100 dark:divide-neutral-800">
@@ -292,12 +293,41 @@
                         @endif
                         <td class="px-3 py-3 text-neutral-700 dark:text-neutral-200">{{ (int)($o->items_qty ?? 0) }}</td>
                         <td class="px-3 py-3 font-semibold text-neutral-900 dark:text-neutral-100">{{ $fmt($o->total) }}</td>
-                        <td class="px-3 py-3">
+                        <td class="px-4 py-3">
+                            @if($o->paymentMethods && $o->paymentMethods->isNotEmpty())
+                                <div class="flex items-center gap-1.5 flex-wrap">
+                                    @foreach($o->paymentMethods->take(3) as $pm)
+                                        @if($pm->hasLogo())
+                                            <img
+                                                src="{{ asset('images/' . $pm->getLogo()) }}"
+                                                alt="{{ $pm->name }}"
+                                                title="{{ $pm->name }}"
+                                                class="h-10 w-auto object-contain rounded"
+                                                style="max-width: 56px;"
+                                            />
+                                        @else
+                                            <div class="w-10 h-10 flex items-center justify-center" title="{{ $pm->name }}">
+                                                <x-dynamic-component
+                                                    :component="'heroicon-o-' . $pm->getIcon()"
+                                                    class="w-8 h-8 text-neutral-600 dark:text-neutral-400"
+                                                />
+                                            </div>
+                                        @endif
+                                    @endforeach
+                                    @if($o->paymentMethods->count() > 3)
+                                        <span class="text-xs text-neutral-500 dark:text-neutral-400">+{{ $o->paymentMethods->count() - 3 }}</span>
+                                    @endif
+                                </div>
+                            @else
+                                <span class="text-xs text-neutral-400 dark:text-neutral-500">—</span>
+                            @endif
+                        </td>
+                        <td class="px-2 py-3">
                             <span class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-[11px] font-medium {{ $badge['cls'] }}">
                                 <span class="w-1.5 h-1.5 rounded-full bg-current"></span>{{ $badge['text'] }}
                             </span>
                         </td>
-                        <td class="px-6 py-3">
+                        <td class="px-4 py-3">
                             <div class="flex items-center justify-end gap-2">
                                 <a href="{{ route('orders.show',$o) }}" class="inline-flex items-center gap-2 px-3 py-1.5 rounded-lg text-xs font-medium bg-indigo-50 text-indigo-700 hover:bg-indigo-100 dark:bg-indigo-900/30 dark:text-indigo-300 dark:hover:bg-indigo-900/50">
                                     <i class="far fa-eye"></i> Ver
@@ -311,7 +341,7 @@
                     </tr>
                 @empty
                     <tr>
-                        <td colspan="{{ (!empty($isCompany) ? 9 : 8) + (!empty($isMaster) ? 1 : 0) }}" class="px-6 py-16 text-center text-neutral-500 dark:text-neutral-400">
+                        <td colspan="{{ (!empty($isCompany) ? 10 : 9) + (!empty($isMaster) ? 1 : 0) }}" class="px-6 py-16 text-center text-neutral-500 dark:text-neutral-400">
                             <i class="fas fa-search text-neutral-300 dark:text-neutral-600 text-5xl mb-3"></i>
                             <div class="text-lg font-medium">No se encontraron pedidos</div>
                             <p class="text-neutral-500 dark:text-neutral-400">Ajustá los filtros para ver resultados.</p>

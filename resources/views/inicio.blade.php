@@ -126,6 +126,15 @@
       </div>
     </a>
 
+    {{-- Métodos de Pago --}}
+    <a href="{{ route('payment-methods.index') }}" class="{{ $tile }}">
+      <div class="{{ $box }}">
+        <img src="{{ asset('images/payment.png') }}" alt="Métodos de Pago" class="{{ $imgCls }}">
+        <div class="{{ $titleCls }}">Métodos de Pago</div>
+        <div class="{{ $descCls }}">Configurar pagos</div>
+      </div>
+    </a>
+
     {{-- Stock --}}
     <a href="{{ route('stock.index') }}#stock" class="{{ $tile }}">
       <div class="{{ $box }}">

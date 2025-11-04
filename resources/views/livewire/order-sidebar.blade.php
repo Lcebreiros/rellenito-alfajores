@@ -173,6 +173,7 @@
 
     {{-- Footer con total y acciones (fijo al fondo del componente) --}}
     <div class="flex-shrink-0 mt-4 space-y-4 border-t border-slate-200/60 dark:border-neutral-800/60 pt-4">
+
       {{-- Bloque de total --}}
       <div class="p-4 rounded-2xl bg-gradient-to-r from-slate-50 to-slate-100/80 dark:from-neutral-900/80 dark:to-neutral-800/60 border border-slate-200/60 dark:border-neutral-800/60 shadow-sm">
         <div class="flex items-center justify-between">

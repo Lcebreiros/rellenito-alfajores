@@ -196,6 +196,36 @@
 
   @livewireScripts
 
+  {{-- Manejador de sesión expirada (error 419) --}}
+  <script>
+    // Manejar errores 419 en peticiones Livewire
+    document.addEventListener('livewire:init', () => {
+      Livewire.hook('request', ({ fail }) => {
+        fail(({ status, preventDefault }) => {
+          if (status === 419) {
+            preventDefault();
+
+            // Mostrar mensaje amigable
+            if (confirm('Su sesión ha expirado. ¿Desea recargar la página para iniciar sesión nuevamente?')) {
+              window.location.href = '{{ route('login') }}';
+            }
+          }
+        });
+      });
+    });
+
+    // Manejar errores 419 en peticiones AJAX/Fetch globales
+    window.addEventListener('unhandledrejection', (event) => {
+      if (event.reason?.status === 419 || event.reason?.response?.status === 419) {
+        event.preventDefault();
+
+        if (confirm('Su sesión ha expirado. ¿Desea iniciar sesión nuevamente?')) {
+          window.location.href = '{{ route('login') }}';
+        }
+      }
+    });
+  </script>
+
   {{-- Tema instantáneo si Livewire emite `theme-updated` --}}
   <script>
     window.addEventListener('theme-updated', (e) => {

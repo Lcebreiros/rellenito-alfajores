@@ -42,7 +42,7 @@ public function index(Request $request)
         ->when($sort === 'total_desc', fn ($q) => $q->orderByDesc('total'))
         ->when($sort === 'total_asc', fn ($q) => $q->orderBy('total'))
         ->when($sort === 'newest' || !in_array($sort, ['oldest','total_desc','total_asc'], true), fn ($q) => $q->orderByDesc('created_at'))
-        ->with(['client','branch','user:id,name']) // cargar relaciones
+        ->with(['client','branch','user:id,name','paymentMethods']) // cargar relaciones
         ->paginate(20)
         ->withQueryString();
 
@@ -602,7 +602,7 @@ public function index(Request $request)
 
     public function show(Order $order)
     {
-        $order->load(['items.product','items.service','client']);
+        $order->load(['items.product','items.service','client','paymentMethods']);
         return view('orders.show', compact('order'));
     }
 

@@ -1,0 +1,35 @@
+<?php
+
+use Illuminate\Database\Migrations\Migration;
+use Illuminate\Database\Schema\Blueprint;
+use Illuminate\Support\Facades\Schema;
+
+return new class extends Migration
+{
+    /**
+     * Run the migrations.
+     */
+    public function up(): void
+    {
+        Schema::create('order_payment_method', function (Blueprint $table) {
+            $table->id();
+            $table->foreignId('order_id')->constrained()->onDelete('cascade');
+            $table->foreignId('payment_method_id')->constrained()->onDelete('cascade');
+            $table->decimal('amount', 12, 2)->default(0); // monto pagado con este método
+            $table->string('reference')->nullable(); // ej: número de transacción, comprobante
+            $table->text('notes')->nullable();
+            $table->json('gateway_response')->nullable(); // respuesta de la API de la pasarela
+            $table->timestamps();
+
+            $table->index(['order_id', 'payment_method_id']);
+        });
+    }
+
+    /**
+     * Reverse the migrations.
+     */
+    public function down(): void
+    {
+        Schema::dropIfExists('order_payment_method');
+    }
+};

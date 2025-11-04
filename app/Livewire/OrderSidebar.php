@@ -21,6 +21,9 @@ class OrderSidebar extends Component
     // 👇 NUEVO: campo editable para el nombre del cliente
     public ?string $customerName = '';
 
+    // 👇 NUEVO: métodos de pago seleccionados (IDs) - recibidos desde PaymentMethodSelector
+    public array $selectedPaymentMethods = [];
+
     public function mount(?int $orderId = null): void
     {
         $this->orderId = $orderId ?? (int) session('draft_order_id');
@@ -52,6 +55,12 @@ class OrderSidebar extends Component
             $this->orderId = $orderId;
         }
         $this->refreshOrder();
+    }
+
+    #[On('paymentMethodsUpdated')]
+    public function onPaymentMethodsUpdated(array $selectedIds): void
+    {
+        $this->selectedPaymentMethods = $selectedIds;
     }
 
     public function refreshOrder(): void
@@ -115,6 +124,7 @@ class OrderSidebar extends Component
         $this->items = [];
         $this->total = 0.0;
         $this->customerName = ''; // 👈 limpiar cliente
+        $this->selectedPaymentMethods = []; // 👈 limpiar métodos de pago
 
         $this->dispatch('draft-changed', id: $this->orderId);
         $this->skipRender = false;
@@ -248,6 +258,27 @@ public function finalize(): void
                 }
             }
 
+            // Asociar métodos de pago seleccionados
+            if (!empty($this->selectedPaymentMethods)) {
+                $pivotData = [];
+                $totalAmount = $order->total;
+                $methodCount = count($this->selectedPaymentMethods);
+
+                // Si solo hay un método, asignar todo el monto
+                // Si hay múltiples, dividir el monto equitativamente (puede ajustarse después)
+                $amountPerMethod = $totalAmount / $methodCount;
+
+                foreach ($this->selectedPaymentMethods as $pmId) {
+                    $pivotData[$pmId] = [
+                        'amount' => $amountPerMethod,
+                        'created_at' => now(),
+                        'updated_at' => now(),
+                    ];
+                }
+
+                $order->paymentMethods()->sync($pivotData);
+            }
+
             // Recalcular total y finalizar pedido
             $order->recalcTotal();
             $order->status = \App\Enums\OrderStatus::COMPLETED;
@@ -265,6 +296,9 @@ public function finalize(): void
         foreach ($affectedProductIds as $productId) {
             $this->dispatch('stock-updated', productId: $productId);
         }
+
+        // Notificar al selector de métodos de pago para limpiar la selección
+        $this->dispatch('orderFinalized');
 
         // Notificación de éxito
         $url = route('orders.show', ['order' => $finishedId]);

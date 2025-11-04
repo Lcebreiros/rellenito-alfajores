@@ -440,8 +440,20 @@
         <span class="shrink-0 flex items-center justify-center w-7 h-7">
           <img src="{{ asset('images/clientes.png') }}" alt="Clientes" class="nav-icon">
         </span>
-        <span x-show="!collapsed" x-transition:enter="fade-slide-enter" 
+        <span x-show="!collapsed" x-transition:enter="fade-slide-enter"
               class="text-sm font-semibold truncate relative z-1">Clientes</span>
+      </a>
+
+      <!-- Métodos de Pago -->
+      <a href="{{ route('payment-methods.index') }}" wire:navigate data-turbo="false"
+         class="nav-link {{ request()->routeIs('payment-methods.*') ? $active : $idle }}"
+         :class="collapsed ? 'justify-center flex items-center gap-3 p-3' : 'flex items-center gap-3 p-3'"
+         :title="collapsed ? 'Métodos de Pago' : null">
+        <span class="shrink-0 flex items-center justify-center w-7 h-7">
+          <img src="{{ asset('images/payment.png') }}" alt="Métodos de Pago" class="nav-icon">
+        </span>
+        <span x-show="!collapsed" x-transition:enter="fade-slide-enter"
+              class="text-sm font-semibold truncate relative z-1">Métodos de Pago</span>
       </a>
 
       <!-- Stock -->

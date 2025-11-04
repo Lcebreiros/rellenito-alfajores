@@ -28,6 +28,11 @@
     </div>
   @endif
 
+  {{-- Selector de Métodos de Pago --}}
+  <div class="mb-6">
+    <livewire:payment-method-selector :key="'payment-method-selector'" />
+  </div>
+
   {{-- Layout responsive: IZQ productos (8/12) + DER pedido (4/12) --}}
   <div class="grid grid-cols-1 lg:grid-cols-12 gap-6 items-start">
 

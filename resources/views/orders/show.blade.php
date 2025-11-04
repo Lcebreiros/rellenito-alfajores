@@ -371,6 +371,39 @@ $s = $statusMap[$statusKey] ?? [
         </div>
       </div>
 
+      {{-- Métodos de pago --}}
+      @if($order->paymentMethods && $order->paymentMethods->isNotEmpty())
+        <div class="bg-white dark:bg-neutral-900 rounded-2xl border border-neutral-200 dark:border-neutral-800 shadow-sm">
+          <div class="px-5 sm:px-6 py-5 border-b border-neutral-100 dark:border-neutral-800/60">
+            <h3 class="text-base font-semibold text-neutral-900 dark:text-neutral-100">Métodos de Pago</h3>
+          </div>
+
+          <div class="px-5 sm:px-6 py-5 space-y-3">
+            @foreach($order->paymentMethods as $pm)
+              <div class="flex items-center gap-3 p-3 rounded-lg bg-neutral-50 dark:bg-neutral-950/40 border border-neutral-100 dark:border-neutral-800/60">
+                @if($pm->icon)
+                  <x-dynamic-component :component="'heroicon-o-' . $pm->getIcon()" class="w-6 h-6 text-indigo-600 dark:text-indigo-400 shrink-0" />
+                @endif
+                <div class="flex-1 min-w-0">
+                  <div class="font-medium text-neutral-900 dark:text-neutral-100 text-sm">{{ $pm->name }}</div>
+                  @if($pm->pivot->amount > 0)
+                    <div class="text-xs text-neutral-500 dark:text-neutral-400">Monto: {{ $fmt($pm->pivot->amount) }}</div>
+                  @endif
+                  @if($pm->pivot->reference)
+                    <div class="text-xs text-neutral-500 dark:text-neutral-400 font-mono">Ref: {{ $pm->pivot->reference }}</div>
+                  @endif
+                </div>
+                @if($pm->requires_gateway)
+                  <span class="shrink-0 inline-flex items-center gap-1 px-2 py-1 rounded text-xs font-medium bg-blue-100 text-blue-800 dark:bg-blue-900/30 dark:text-blue-300">
+                    <x-heroicon-s-link class="w-3 h-3" /> API
+                  </span>
+                @endif
+              </div>
+            @endforeach
+          </div>
+        </div>
+      @endif
+
       {{-- Resumen mini (mobile) --}}
       <div class="bg-white dark:bg-neutral-900 rounded-2xl border border-neutral-200 dark:border-neutral-800 shadow-sm lg:hidden">
         <div class="px-5 py-4 grid grid-cols-2 gap-3 text-sm">

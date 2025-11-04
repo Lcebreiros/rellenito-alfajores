@@ -24,7 +24,21 @@ return Application::configure(basePath: dirname(__DIR__))
         // ]);
     })
     ->withExceptions(function (Exceptions $exceptions): void {
-        //
+        // Manejar error 419 (CSRF Token Mismatch / Sesión expirada)
+        $exceptions->renderable(function (\Symfony\Component\HttpKernel\Exception\HttpException $e, $request) {
+            if ($e->getStatusCode() === 419) {
+                // Si es una petición AJAX o Livewire, devolver JSON
+                if ($request->expectsJson() || $request->header('X-Livewire')) {
+                    return response()->json([
+                        'message' => 'Su sesión ha expirado. Por favor, recargue la página e inicie sesión nuevamente.',
+                        'redirect' => route('login')
+                    ], 419);
+                }
+
+                // Para peticiones normales, mostrar la vista personalizada
+                return response()->view('errors.419', [], 419);
+            }
+        });
     })
     ->create();
 

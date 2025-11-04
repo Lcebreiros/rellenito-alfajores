@@ -79,6 +79,13 @@ class Order extends Model
         return $this->hasMany(OrderItem::class)->withoutGlobalScope('byUser');
     }
 
+    public function paymentMethods()
+    {
+        return $this->belongsToMany(\App\Models\PaymentMethod::class, 'order_payment_method')
+            ->withPivot(['amount', 'reference', 'notes', 'gateway_response'])
+            ->withTimestamps();
+    }
+
     // ---------- SCOPES ----------
     public function scopeAvailableFor(Builder $query, User $user): Builder
     {
