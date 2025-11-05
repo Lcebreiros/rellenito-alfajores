@@ -57,10 +57,25 @@ class SupportController extends Controller
             'message'         => $data['message'],
         ]);
 
-        // Notificar a Masters sobre nuevo reclamo (para que lo vean en la campana)
+        // Notificar a Masters sobre nuevo reclamo
         if (!$request->user()->isMaster()) {
             $masters = User::where('hierarchy_level', User::HIERARCHY_MASTER)->get();
-            foreach ($masters as $m) { $m->notify(new SupportReplied($message)); }
+            foreach ($masters as $m) {
+                // Crear notificación en user_notifications
+                $notification = \App\Models\UserNotification::create([
+                    'user_id' => $m->id,
+                    'type' => 'support',
+                    'title' => 'Nuevo ticket de soporte',
+                    'message' => $data['subject'] ?? 'Sin asunto',
+                    'data' => [
+                        'ticket_id' => $ticket->id,
+                        'url' => route('support.show', $ticket),
+                    ],
+                ]);
+
+                // Disparar evento de Pusher
+                broadcast(new \App\Events\NewNotification($notification))->toOthers();
+            }
         }
 
         return redirect()->route('support.show', $ticket)->with('ok', 'Reclamo creado.');
@@ -98,10 +113,39 @@ class SupportController extends Controller
                 $ticket->status = 'en_proceso';
                 $ticket->save();
             }
-            $ticket->user?->notify(new SupportReplied($message));
+
+            // Notificar al autor del ticket
+            if ($ticket->user) {
+                $notification = \App\Models\UserNotification::create([
+                    'user_id' => $ticket->user->id,
+                    'type' => 'support',
+                    'title' => 'Respuesta en tu ticket',
+                    'message' => 'Han respondido tu ticket: ' . ($ticket->subject ?? 'Sin asunto'),
+                    'data' => [
+                        'ticket_id' => $ticket->id,
+                        'url' => route('support.show', $ticket),
+                    ],
+                ]);
+
+                broadcast(new \App\Events\NewNotification($notification))->toOthers();
+            }
         } else {
+            // Notificar a todos los masters
             $masters = User::where('hierarchy_level', User::HIERARCHY_MASTER)->get();
-            foreach ($masters as $m) { $m->notify(new SupportReplied($message)); }
+            foreach ($masters as $m) {
+                $notification = \App\Models\UserNotification::create([
+                    'user_id' => $m->id,
+                    'type' => 'support',
+                    'title' => 'Nueva respuesta en ticket',
+                    'message' => $ticket->subject ?? 'Sin asunto',
+                    'data' => [
+                        'ticket_id' => $ticket->id,
+                        'url' => route('support.show', $ticket),
+                    ],
+                ]);
+
+                broadcast(new \App\Events\NewNotification($notification))->toOthers();
+            }
         }
 
         // Si master responde y ticket está nuevo, pasarlo a en_proceso

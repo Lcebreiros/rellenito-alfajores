@@ -18,7 +18,9 @@ class SupportStatusChanged extends Notification
 
     public function via(object $notifiable): array
     {
-        return ['database', 'mail'];
+        // Solo notificaciones de base de datos (sin email)
+        // Si necesitas email, configura MAIL_MAILER en .env
+        return ['database'];
     }
 
     public function toMail(object $notifiable): MailMessage

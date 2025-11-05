@@ -96,6 +96,29 @@ class="relative">
                   </div>
                 </a>
 
+              @elseif($n->type === 'support')
+                <a href="{{ $n->data['url'] ?? route('support.show', $n->data['ticket_id'] ?? 0) }}"
+                   @click.prevent="markAsRead('{{ $n->id }}'); setTimeout(() => window.location.href = '{{ $n->data['url'] ?? '#' }}', 100)"
+                   class="block">
+                  <div class="flex items-start gap-2">
+                    <div class="flex-shrink-0 w-8 h-8 rounded-lg bg-amber-100 dark:bg-amber-900/30 flex items-center justify-center">
+                      <svg class="w-4 h-4 text-amber-600 dark:text-amber-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M18.364 5.636l-3.536 3.536m0 5.656l3.536 3.536M9.172 9.172L5.636 5.636m3.536 9.192l-3.536 3.536M21 12a9 9 0 11-18 0 9 9 0 0118 0zm-5 0a4 4 0 11-8 0 4 4 0 018 0z" />
+                      </svg>
+                    </div>
+                    <div class="flex-1 min-w-0">
+                      <div class="text-sm font-medium text-neutral-800 dark:text-neutral-100">
+                        {{ $n->title }}
+                      </div>
+                      @if($n->message)
+                        <div class="text-xs text-neutral-600 dark:text-neutral-300 line-clamp-2">
+                          {{ $n->message }}
+                        </div>
+                      @endif
+                    </div>
+                  </div>
+                </a>
+
               @elseif($n->type === 'test')
                 <div class="block">
                   <div class="flex items-start gap-2">
