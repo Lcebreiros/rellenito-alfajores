@@ -4,8 +4,10 @@ namespace App\Observers;
 
 use App\Models\Product;
 use App\Models\User;
+use App\Models\UserNotification;
 use App\Notifications\LowStockAlert;
 use App\Notifications\OutOfStockAlert;
+use App\Events\NewNotification;
 use Illuminate\Support\Facades\Notification;
 
 class ProductObserver
@@ -36,6 +38,19 @@ class ProductObserver
             // Notificación de SIN STOCK (0 unidades)
             if ($user->notify_out_of_stock && $newStock === 0 && $oldStock > 0) {
                 $user->notify(new OutOfStockAlert($product));
+
+                // Notificación en vivo (campana)
+                $n = UserNotification::create([
+                    'user_id' => $user->id,
+                    'type' => 'out_of_stock',
+                    'title' => 'Producto sin stock',
+                    'message' => "Sin stock: {$product->name} se ha quedado sin unidades",
+                    'data' => [
+                        'product_id' => $product->id,
+                        'url' => route('stock.show', $product->id),
+                    ],
+                ]);
+                broadcast(new NewNotification($n))->toOthers();
                 continue; // Si está sin stock, no enviamos la de bajo stock
             }
 
@@ -44,6 +59,19 @@ class ProductObserver
                 // Solo notificar si pasó de arriba del umbral a abajo del umbral
                 if ($oldStock > $user->low_stock_threshold) {
                     $user->notify(new LowStockAlert($product, $newStock, $user->low_stock_threshold));
+
+                    // Notificación en vivo (campana)
+                    $n = UserNotification::create([
+                        'user_id' => $user->id,
+                        'type' => 'low_stock',
+                        'title' => 'Stock bajo',
+                        'message' => "{$product->name} tiene {$newStock} unidades (umbral: {$user->low_stock_threshold})",
+                        'data' => [
+                            'product_id' => $product->id,
+                            'url' => route('stock.show', $product->id),
+                        ],
+                    ]);
+                    broadcast(new NewNotification($n))->toOthers();
                 }
             }
         }
@@ -123,6 +151,19 @@ class ProductObserver
         foreach ($usersToNotify as $user) {
             if ($user->notify_low_stock && $stock > 0 && $stock <= $user->low_stock_threshold) {
                 $user->notify(new LowStockAlert($product, $stock, $user->low_stock_threshold));
+
+                // Notificación en vivo (campana)
+                $n = UserNotification::create([
+                    'user_id' => $user->id,
+                    'type' => 'low_stock',
+                    'title' => 'Stock bajo',
+                    'message' => "{$product->name} tiene {$stock} unidades (umbral: {$user->low_stock_threshold})",
+                    'data' => [
+                        'product_id' => $product->id,
+                        'url' => route('stock.show', $product->id),
+                    ],
+                ]);
+                broadcast(new NewNotification($n))->toOthers();
             }
         }
     }

@@ -119,6 +119,48 @@ class="relative">
                   </div>
                 </a>
 
+              @elseif($n->type === 'low_stock')
+                <a href="{{ $n->data['url'] ?? route('stock.show', $n->data['product_id'] ?? 0) }}"
+                   @click.prevent="markAsRead('{{ $n->id }}'); setTimeout(() => window.location.href = '{{ $n->data['url'] ?? '#' }}', 100)"
+                   class="block">
+                  <div class="flex items-start gap-2">
+                    <div class="flex-shrink-0 w-8 h-8 rounded-lg bg-amber-100 dark:bg-amber-900/30 flex items-center justify-center">
+                      <i class="fas fa-triangle-exclamation text-amber-600 dark:text-amber-400 text-sm"></i>
+                    </div>
+                    <div class="flex-1 min-w-0">
+                      <div class="text-sm font-medium text-neutral-800 dark:text-neutral-100">
+                        {{ $n->title }}
+                      </div>
+                      @if($n->message)
+                        <div class="text-xs text-neutral-600 dark:text-neutral-300 line-clamp-2">
+                          {{ $n->message }}
+                        </div>
+                      @endif
+                    </div>
+                  </div>
+                </a>
+
+              @elseif($n->type === 'out_of_stock')
+                <a href="{{ $n->data['url'] ?? route('stock.show', $n->data['product_id'] ?? 0) }}"
+                   @click.prevent="markAsRead('{{ $n->id }}'); setTimeout(() => window.location.href = '{{ $n->data['url'] ?? '#' }}', 100)"
+                   class="block">
+                  <div class="flex items-start gap-2">
+                    <div class="flex-shrink-0 w-8 h-8 rounded-lg bg-rose-100 dark:bg-rose-900/30 flex items-center justify-center">
+                      <i class="fas fa-circle-xmark text-rose-600 dark:text-rose-400 text-sm"></i>
+                    </div>
+                    <div class="flex-1 min-w-0">
+                      <div class="text-sm font-medium text-neutral-800 dark:text-neutral-100">
+                        {{ $n->title }}
+                      </div>
+                      @if($n->message)
+                        <div class="text-xs text-neutral-600 dark:text-neutral-300 line-clamp-2">
+                          {{ $n->message }}
+                        </div>
+                      @endif
+                    </div>
+                  </div>
+                </a>
+
               @elseif($n->type === 'test')
                 <div class="block">
                   <div class="flex items-start gap-2">
