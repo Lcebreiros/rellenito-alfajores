@@ -136,6 +136,18 @@ class="relative">
                           {{ $n->message }}
                         </div>
                       @endif
+                      @if(isset($n->data['stock']))
+                        <div class="mt-1 flex items-center gap-2">
+                          <span class="inline-flex items-center px-1.5 py-0.5 text-[10px] rounded-full bg-amber-100 text-amber-700 dark:bg-amber-900/40 dark:text-amber-300 ring-1 ring-amber-200/60 dark:ring-amber-800/50">
+                            {{ $n->data['stock'] }} u
+                          </span>
+                          @if(isset($n->data['threshold']))
+                            <span class="inline-flex items-center px-1.5 py-0.5 text-[10px] rounded-full bg-neutral-100 text-neutral-700 dark:bg-neutral-800 dark:text-neutral-300 ring-1 ring-neutral-200/60 dark:ring-neutral-700/50">
+                              ≤ {{ $n->data['threshold'] }}
+                            </span>
+                          @endif
+                        </div>
+                      @endif
                     </div>
                   </div>
                 </a>
@@ -157,6 +169,11 @@ class="relative">
                           {{ $n->message }}
                         </div>
                       @endif
+                      <div class="mt-1">
+                        <span class="inline-flex items-center px-1.5 py-0.5 text-[10px] rounded-full bg-rose-100 text-rose-700 dark:bg-rose-900/40 dark:text-rose-300 ring-1 ring-rose-200/60 dark:ring-rose-800/50">
+                          0 u
+                        </span>
+                      </div>
                     </div>
                   </div>
                 </a>

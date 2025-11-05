@@ -48,9 +48,10 @@ class ProductObserver
                     'data' => [
                         'product_id' => $product->id,
                         'url' => route('stock.show', $product->id),
+                        'stock' => 0,
                     ],
                 ]);
-                broadcast(new NewNotification($n))->toOthers();
+                broadcast(new NewNotification($n));
                 continue; // Si está sin stock, no enviamos la de bajo stock
             }
 
@@ -69,9 +70,11 @@ class ProductObserver
                         'data' => [
                             'product_id' => $product->id,
                             'url' => route('stock.show', $product->id),
+                            'stock' => $newStock,
+                            'threshold' => $user->low_stock_threshold,
                         ],
                     ]);
-                    broadcast(new NewNotification($n))->toOthers();
+                    broadcast(new NewNotification($n));
                 }
             }
         }
@@ -161,9 +164,11 @@ class ProductObserver
                     'data' => [
                         'product_id' => $product->id,
                         'url' => route('stock.show', $product->id),
+                        'stock' => $stock,
+                        'threshold' => $user->low_stock_threshold,
                     ],
                 ]);
-                broadcast(new NewNotification($n))->toOthers();
+                broadcast(new NewNotification($n));
             }
         }
     }
