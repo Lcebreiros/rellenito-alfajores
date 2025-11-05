@@ -106,8 +106,12 @@ class PaymentMethodsSeeder extends Seeder
             ],
         ];
 
-        // Obtener todos los usuarios que tienen rol de vendedor o admin
-        $users = User::whereIn('role', ['seller', 'admin'])->get();
+        // Obtener todos los usuarios de nivel Company (0) y Admin (1)
+        // Estos son los usuarios que pueden tener métodos de pago
+        $users = User::whereIn('hierarchy_level', [
+            User::HIERARCHY_COMPANY, // 0
+            User::HIERARCHY_ADMIN,   // 1
+        ])->get();
 
         foreach ($users as $user) {
             foreach ($defaultPaymentMethods as $method) {

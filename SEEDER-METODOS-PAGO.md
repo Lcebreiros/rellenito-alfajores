@@ -60,9 +60,10 @@ Luego visitar: `https://tudominio.com/seed-payment-methods-secret-123`
 ## Características del Seeder
 
 - ✅ **Evita duplicados**: Verifica si el método ya existe antes de crear
-- ✅ **Múltiples usuarios**: Crea métodos para todos los sellers/admins
+- ✅ **Múltiples usuarios**: Crea métodos para todos los usuarios de nivel Company (0) y Admin/Sucursal (1)
 - ✅ **Seguro**: No sobreescribe métodos existentes
 - ✅ **Informativo**: Muestra qué se creó y qué ya existía
+- ✅ **Automático**: Se ejecuta para todos los usuarios que pueden tener tiendas/sucursales
 
 ## Verificar Resultados
 
@@ -78,6 +79,7 @@ O desde tu aplicación, ir a la sección de configuración de métodos de pago.
 
 ## Notas
 
-- El seeder solo afecta a usuarios con rol `seller` o `admin`
-- Si necesitas agregar métodos para usuarios específicos después de crearlos, el seeder se puede ejecutar nuevamente sin problemas
+- El seeder solo afecta a usuarios con `hierarchy_level` 0 (Company) o 1 (Admin/Sucursal)
+- Si creas nuevos usuarios Company o Admin después, puedes ejecutar el seeder nuevamente sin problemas
 - Los métodos con `requires_gateway = true` (MercadoPago, PayPal) necesitarán configuración adicional de API keys
+- El seeder es **idempotente**: se puede ejecutar múltiples veces sin crear duplicados
