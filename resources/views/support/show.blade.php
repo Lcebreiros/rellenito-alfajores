@@ -37,65 +37,266 @@
     </div>
   @endif
 
-  <div class="bg-white dark:bg-neutral-900 rounded-xl shadow-sm border border-neutral-100 dark:border-neutral-800 p-4">
-    <div id="chat-messages" class="space-y-4">
-      @foreach($ticket->messages as $m)
-        <div class="flex {{ $m->user_id === auth()->id() ? 'justify-end' : 'justify-start' }}">
-          <div class="max-w-[80%] rounded-2xl px-4 py-2 text-sm {{ $m->user_id === auth()->id() ? 'bg-indigo-600 text-white' : 'bg-neutral-100 dark:bg-neutral-800 dark:text-neutral-100' }}">
-            <div class="mb-1 text-xs opacity-75">{{ $m->user->name }} · {{ $m->created_at?->format('d/m/Y H:i') }}</div>
-            <div>{{ $m->body }}</div>
+  <div class="bg-white dark:bg-neutral-900 rounded-xl shadow-sm border border-neutral-100 dark:border-neutral-800 overflow-hidden">
+    <div id="chat-container" class="h-[60vh] overflow-y-auto p-4" style="scroll-behavior: smooth;">
+      <div id="chat-messages" class="space-y-3">
+        @foreach($ticket->messages as $m)
+          <div class="flex {{ $m->user_id === auth()->id() ? 'justify-end' : 'justify-start' }} animate-fadeIn">
+            <div class="max-w-[80%] rounded-2xl px-4 py-2 text-sm shadow-sm {{ $m->user_id === auth()->id() ? 'bg-indigo-600 text-white' : 'bg-neutral-100 dark:bg-neutral-800 dark:text-neutral-100' }}">
+              <div class="mb-1 text-xs opacity-75">{{ $m->user->name }} · {{ $m->created_at?->format('d/m/Y H:i') }}</div>
+              <div class="whitespace-pre-wrap break-words">{{ $m->message }}</div>
+            </div>
+          </div>
+        @endforeach
+      </div>
+    </div>
+
+    <div class="border-t border-neutral-100 dark:border-neutral-800 p-4 bg-neutral-50 dark:bg-neutral-900/50">
+      <form id="chat-form" method="POST" action="{{ route('support.reply', $ticket) }}" class="flex items-end gap-2">
+        @csrf
+        <div class="flex-1">
+          <textarea
+            id="message-input"
+            name="message"
+            rows="2"
+            required
+            class="w-full rounded-lg border-neutral-300 dark:border-neutral-700 bg-white dark:bg-neutral-900 px-3 py-2 text-sm focus:ring-2 focus:ring-indigo-500 focus:border-transparent resize-none"
+            placeholder="Escribe tu mensaje..."
+            maxlength="5000"
+          ></textarea>
+          <div class="text-xs text-neutral-500 dark:text-neutral-400 mt-1">
+            <span id="char-count">0</span> / 5000
           </div>
         </div>
-      @endforeach
+        <button
+          type="submit"
+          id="send-button"
+          class="px-4 py-2 rounded-lg bg-indigo-600 text-white hover:bg-indigo-700 transition-colors disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-2"
+        >
+          <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 19l9 2-9-18-9 18 9-2zm0 0v-8"></path>
+          </svg>
+          <span>Enviar</span>
+        </button>
+      </form>
     </div>
-  </div>
-
-  <div class="bg-white dark:bg-neutral-900 rounded-xl shadow-sm border border-neutral-100 dark:border-neutral-800 p-4">
-    <form method="POST" action="{{ route('support.reply', $ticket) }}" class="flex items-start gap-2">
-      @csrf
-      <textarea name="message" rows="3" required class="flex-1 rounded-lg border-neutral-300 dark:border-neutral-700 bg-white dark:bg-neutral-900 px-3 py-2" placeholder="Escribe tu mensaje"></textarea>
-      <button class="px-4 py-2 rounded-lg bg-indigo-600 text-white">Enviar</button>
-    </form>
   </div>
 </div>
 @endsection
 
 @push('scripts')
+<style>
+  @keyframes fadeIn {
+    from {
+      opacity: 0;
+      transform: translateY(10px);
+    }
+    to {
+      opacity: 1;
+      transform: translateY(0);
+    }
+  }
+
+  .animate-fadeIn {
+    animation: fadeIn 0.3s ease-out;
+  }
+
+  #chat-container::-webkit-scrollbar {
+    width: 8px;
+  }
+
+  #chat-container::-webkit-scrollbar-track {
+    background: transparent;
+  }
+
+  #chat-container::-webkit-scrollbar-thumb {
+    background: #cbd5e1;
+    border-radius: 4px;
+  }
+
+  .dark #chat-container::-webkit-scrollbar-thumb {
+    background: #475569;
+  }
+
+  #chat-container::-webkit-scrollbar-thumb:hover {
+    background: #94a3b8;
+  }
+
+  .dark #chat-container::-webkit-scrollbar-thumb:hover {
+    background: #64748b;
+  }
+</style>
+
 <script>
   document.addEventListener('DOMContentLoaded', function () {
-    if (!window.Echo) return;
-
     const ticketId = {{ $ticket->id }};
     const authUserId = {{ auth()->id() }};
     const container = document.getElementById('chat-messages');
+    const chatContainer = document.getElementById('chat-container');
+    const messageInput = document.getElementById('message-input');
+    const charCount = document.getElementById('char-count');
+    const chatForm = document.getElementById('chat-form');
+    const sendButton = document.getElementById('send-button');
 
-    window.Echo.private('chat.' + ticketId)
-      .listen('.message.sent', (data) => {
-        if (!data || !data.message || !data.user) return;
+    // Scroll inicial al final
+    function scrollToBottom(smooth = false) {
+      if (smooth) {
+        chatContainer.scrollTo({
+          top: chatContainer.scrollHeight,
+          behavior: 'smooth'
+        });
+      } else {
+        chatContainer.scrollTop = chatContainer.scrollHeight;
+      }
+    }
 
-        const isMine = Number(data.user.id) === Number(authUserId);
+    // Scroll al cargar la página
+    scrollToBottom(false);
 
-        const wrapper = document.createElement('div');
-        wrapper.className = 'flex ' + (isMine ? 'justify-end' : 'justify-start');
+    // Contador de caracteres
+    messageInput.addEventListener('input', function() {
+      charCount.textContent = this.value.length;
+    });
 
-        const bubble = document.createElement('div');
-        bubble.className = 'max-w-[80%] rounded-2xl px-4 py-2 text-sm ' + (isMine ? 'bg-indigo-600 text-white' : 'bg-neutral-100 dark:bg-neutral-800 dark:text-neutral-100');
+    // Enter para enviar (Shift+Enter para nueva línea)
+    messageInput.addEventListener('keydown', function(e) {
+      if (e.key === 'Enter' && !e.shiftKey) {
+        e.preventDefault();
+        chatForm.dispatchEvent(new Event('submit', { cancelable: true }));
+      }
+    });
 
-        const meta = document.createElement('div');
-        meta.className = 'mb-1 text-xs opacity-75';
-        meta.textContent = `${data.user.name} · ${new Date(data.created_at).toLocaleString()}`;
+    // Prevenir doble submit
+    let isSubmitting = false;
 
-        const body = document.createElement('div');
-        body.textContent = data.message;
+    chatForm.addEventListener('submit', function(e) {
+      if (isSubmitting) {
+        e.preventDefault();
+        return;
+      }
 
-        bubble.appendChild(meta);
-        bubble.appendChild(body);
-        wrapper.appendChild(bubble);
-        container.appendChild(wrapper);
+      isSubmitting = true;
+      sendButton.disabled = true;
+      sendButton.querySelector('span').textContent = 'Enviando...';
 
-        // Scroll al final
-        container.parentElement.scrollTop = container.parentElement.scrollHeight;
-      });
+      // Reset después de 3 segundos (por si falla)
+      setTimeout(() => {
+        isSubmitting = false;
+        sendButton.disabled = false;
+        sendButton.querySelector('span').textContent = 'Enviar';
+      }, 3000);
+    });
+
+    // Listener de Pusher para mensajes en tiempo real
+    if (window.Echo) {
+      window.Echo.private('chat.' + ticketId)
+        .listen('.message.sent', (data) => {
+          console.log('💬 Nuevo mensaje recibido:', data);
+
+          if (!data || !data.message || !data.user) {
+            console.error('Datos de mensaje inválidos:', data);
+            return;
+          }
+
+          const isMine = Number(data.user.id) === Number(authUserId);
+
+          // Si es mi mensaje y ya lo veo en pantalla (optimistic update), no agregarlo
+          const messages = container.querySelectorAll('.flex');
+          const lastMessage = messages[messages.length - 1];
+          if (isMine && lastMessage && lastMessage.querySelector('div div:last-child')) {
+            const lastText = lastMessage.querySelector('div div:last-child').textContent;
+            if (lastText.trim() === data.message.trim()) {
+              console.log('Mensaje ya existe (optimistic), ignorando');
+              return;
+            }
+          }
+
+          // Crear elemento del mensaje
+          const wrapper = document.createElement('div');
+          wrapper.className = 'flex ' + (isMine ? 'justify-end' : 'justify-start') + ' animate-fadeIn';
+
+          const bubble = document.createElement('div');
+          bubble.className = 'max-w-[80%] rounded-2xl px-4 py-2 text-sm shadow-sm ' +
+            (isMine ? 'bg-indigo-600 text-white' : 'bg-neutral-100 dark:bg-neutral-800 dark:text-neutral-100');
+
+          const meta = document.createElement('div');
+          meta.className = 'mb-1 text-xs opacity-75';
+
+          // Formatear fecha
+          const date = new Date(data.created_at);
+          const formatted = date.toLocaleDateString('es-AR', { day: '2-digit', month: '2-digit', year: 'numeric' }) +
+            ' ' + date.toLocaleTimeString('es-AR', { hour: '2-digit', minute: '2-digit' });
+          meta.textContent = `${data.user.name} · ${formatted}`;
+
+          const body = document.createElement('div');
+          body.className = 'whitespace-pre-wrap break-words';
+          body.textContent = data.message;
+
+          bubble.appendChild(meta);
+          bubble.appendChild(body);
+          wrapper.appendChild(bubble);
+          container.appendChild(wrapper);
+
+          // Scroll suave al nuevo mensaje
+          scrollToBottom(true);
+
+          // Reproducir sonido de notificación (opcional)
+          if (!isMine && document.hidden) {
+            // Solo si la pestaña no está visible
+            playNotificationSound();
+          }
+        });
+    }
+
+    // Sonido de notificación (opcional)
+    function playNotificationSound() {
+      try {
+        const audio = new Audio('data:audio/wav;base64,UklGRnoGAABXQVZFZm10IBAAAAABAAEAQB8AAEAfAAABAAgAZGF0YQoGAACBhYqFbF1fdJivrJBhNjVgodDbq2EcBj+a2/LDciUFLIHO8tiJNwgZaLvt559NEAxQp+PwtmMcBjiR1/LMeSwFJHfH8N2QQAoUXrTp66hVFApGn+DyvmwhBTGH0fPTgjMGHm7A7+OZURE');
+        audio.volume = 0.3;
+        audio.play().catch(() => {});
+      } catch (e) {
+        // Ignorar errores de audio
+      }
+    }
+
+    // Optimistic update: agregar mensaje inmediatamente cuando se envía
+    chatForm.addEventListener('submit', function(e) {
+      const message = messageInput.value.trim();
+      if (!message) return;
+
+      // Agregar mensaje optimista
+      const wrapper = document.createElement('div');
+      wrapper.className = 'flex justify-end animate-fadeIn opacity-75';
+      wrapper.dataset.optimistic = 'true';
+
+      const bubble = document.createElement('div');
+      bubble.className = 'max-w-[80%] rounded-2xl px-4 py-2 text-sm shadow-sm bg-indigo-600 text-white';
+
+      const meta = document.createElement('div');
+      meta.className = 'mb-1 text-xs opacity-75';
+      meta.textContent = 'Enviando...';
+
+      const body = document.createElement('div');
+      body.className = 'whitespace-pre-wrap break-words';
+      body.textContent = message;
+
+      bubble.appendChild(meta);
+      bubble.appendChild(body);
+      wrapper.appendChild(bubble);
+      container.appendChild(wrapper);
+
+      // Limpiar input y scroll
+      messageInput.value = '';
+      charCount.textContent = '0';
+      scrollToBottom(true);
+
+      // Eliminar mensaje optimista después de 5 segundos (será reemplazado por el real)
+      setTimeout(() => {
+        if (wrapper.parentNode) {
+          wrapper.remove();
+        }
+      }, 5000);
+    });
   });
 </script>
 @endpush
