@@ -19,6 +19,9 @@ class SupportMessage extends Model
         'is_read' => 'boolean',
     ];
 
+    // Appends para compatibilidad con código antiguo
+    protected $appends = ['body'];
+
     /**
      * Chat al que pertenece el mensaje
      */
@@ -28,11 +31,27 @@ class SupportMessage extends Model
     }
 
     /**
+     * Ticket (alias de chat para compatibilidad)
+     */
+    public function ticket(): BelongsTo
+    {
+        return $this->belongsTo(SupportTicket::class, 'support_chat_id');
+    }
+
+    /**
      * Usuario que envió el mensaje
      */
     public function user(): BelongsTo
     {
         return $this->belongsTo(User::class);
+    }
+
+    /**
+     * Accessor para body (compatibilidad con código antiguo)
+     */
+    public function getBodyAttribute()
+    {
+        return $this->message;
     }
 
     /**

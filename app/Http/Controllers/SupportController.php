@@ -52,9 +52,9 @@ class SupportController extends Controller
         ]);
 
         $message = SupportMessage::create([
-            'ticket_id' => $ticket->id,
-            'user_id'   => $request->user()->id,
-            'body'      => $data['message'],
+            'support_chat_id' => $ticket->id,
+            'user_id'         => $request->user()->id,
+            'message'         => $data['message'],
         ]);
 
         // Notificar a Masters sobre nuevo reclamo (para que lo vean en la campana)
@@ -87,9 +87,9 @@ class SupportController extends Controller
         $data = $request->validate(['message' => ['required','string','max:5000']]);
 
         $message = SupportMessage::create([
-            'ticket_id' => $ticket->id,
-            'user_id'   => $user->id,
-            'body'      => $data['message'],
+            'support_chat_id' => $ticket->id,
+            'user_id'         => $user->id,
+            'message'         => $data['message'],
         ]);
 
         // Notificaciones: si responde master, avisar al autor; si responde autor, avisar a masters
