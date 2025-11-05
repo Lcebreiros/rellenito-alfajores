@@ -156,6 +156,14 @@ class SupportController extends Controller
 
         // Si master responde y ticket está nuevo, pasarlo a en_proceso
 
+        // Si es petición AJAX, devolver JSON
+        if ($request->wantsJson() || $request->ajax()) {
+            return response()->json([
+                'success' => true,
+                'message' => 'Mensaje enviado correctamente',
+            ]);
+        }
+
         return back()->with('ok', 'Mensaje enviado.');
     }
 

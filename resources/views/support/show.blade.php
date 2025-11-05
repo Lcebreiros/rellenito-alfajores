@@ -166,25 +166,53 @@
       }
     });
 
-    // Prevenir doble submit
+    // Prevenir doble submit y enviar con AJAX
     let isSubmitting = false;
 
     chatForm.addEventListener('submit', function(e) {
+      e.preventDefault(); // Prevenir submit normal
+
       if (isSubmitting) {
-        e.preventDefault();
         return;
       }
+
+      const message = messageInput.value.trim();
+      if (!message) return;
 
       isSubmitting = true;
       sendButton.disabled = true;
       sendButton.querySelector('span').textContent = 'Enviando...';
 
-      // Reset después de 3 segundos (por si falla)
-      setTimeout(() => {
+      // Enviar con fetch (AJAX)
+      const formData = new FormData(chatForm);
+
+      fetch(chatForm.action, {
+        method: 'POST',
+        body: formData,
+        headers: {
+          'X-Requested-With': 'XMLHttpRequest',
+          'Accept': 'application/json',
+        }
+      })
+      .then(response => response.json())
+      .then(data => {
+        console.log('✅ Mensaje enviado correctamente');
+        // Limpiar input inmediatamente después de enviar
+        messageInput.value = '';
+        charCount.textContent = '0';
+        // El mensaje real llegará por Pusher
+      })
+      .catch(error => {
+        console.error('❌ Error al enviar mensaje:', error);
+        // Mostrar error al usuario
+        alert('Error al enviar el mensaje. Por favor, intenta de nuevo.');
+      })
+      .finally(() => {
+        // Resetear estado del botón
         isSubmitting = false;
         sendButton.disabled = false;
         sendButton.querySelector('span').textContent = 'Enviar';
-      }, 3000);
+      });
     });
 
     // Listener de Pusher para mensajes en tiempo real
@@ -199,17 +227,6 @@
           }
 
           const isMine = Number(data.user.id) === Number(authUserId);
-
-          // Si es mi mensaje y ya lo veo en pantalla (optimistic update), no agregarlo
-          const messages = container.querySelectorAll('.flex');
-          const lastMessage = messages[messages.length - 1];
-          if (isMine && lastMessage && lastMessage.querySelector('div div:last-child')) {
-            const lastText = lastMessage.querySelector('div div:last-child').textContent;
-            if (lastText.trim() === data.message.trim()) {
-              console.log('Mensaje ya existe (optimistic), ignorando');
-              return;
-            }
-          }
 
           // Crear elemento del mensaje
           const wrapper = document.createElement('div');
@@ -259,44 +276,6 @@
       }
     }
 
-    // Optimistic update: agregar mensaje inmediatamente cuando se envía
-    chatForm.addEventListener('submit', function(e) {
-      const message = messageInput.value.trim();
-      if (!message) return;
-
-      // Agregar mensaje optimista
-      const wrapper = document.createElement('div');
-      wrapper.className = 'flex justify-end animate-fadeIn opacity-75';
-      wrapper.dataset.optimistic = 'true';
-
-      const bubble = document.createElement('div');
-      bubble.className = 'max-w-[80%] rounded-2xl px-4 py-2 text-sm shadow-sm bg-indigo-600 text-white';
-
-      const meta = document.createElement('div');
-      meta.className = 'mb-1 text-xs opacity-75';
-      meta.textContent = 'Enviando...';
-
-      const body = document.createElement('div');
-      body.className = 'whitespace-pre-wrap break-words';
-      body.textContent = message;
-
-      bubble.appendChild(meta);
-      bubble.appendChild(body);
-      wrapper.appendChild(bubble);
-      container.appendChild(wrapper);
-
-      // Limpiar input y scroll
-      messageInput.value = '';
-      charCount.textContent = '0';
-      scrollToBottom(true);
-
-      // Eliminar mensaje optimista después de 5 segundos (será reemplazado por el real)
-      setTimeout(() => {
-        if (wrapper.parentNode) {
-          wrapper.remove();
-        }
-      }, 5000);
-    });
   });
 </script>
 @endpush
