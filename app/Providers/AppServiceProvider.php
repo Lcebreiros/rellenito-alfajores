@@ -3,7 +3,7 @@
 namespace App\Providers;
 
 use Illuminate\Support\ServiceProvider;
-use Illuminate\Support\URL;
+use Illuminate\Support\Facades\URL;
 use Inertia\Inertia;
 use App\Models\Product;
 use App\Models\OrderItem;
