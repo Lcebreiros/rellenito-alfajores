@@ -125,8 +125,7 @@
                                 <img
                                     src="{{ asset('images/' . $pm->getLogo()) }}"
                                     alt="{{ $pm->name }}"
-                                    class="payment-logo-img"
-                                    style="max-width: 78px; max-height: 50px; width: auto; height: auto; object-fit: contain;"
+                                    class="payment-logo-img w-full h-full object-contain px-1 py-0"
                                     loading="lazy"
                                 />
                             @else

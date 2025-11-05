@@ -167,8 +167,31 @@ class SupportController extends Controller
         $ticket->status = $data['status'];
         $ticket->save();
 
-        // Notificar al autor del ticket
+        // Notificar al autor del ticket (Laravel notifications - base de datos)
         $ticket->user?->notify(new SupportStatusChanged($ticket));
+
+        // Notificación en tiempo real para la campana (Pusher + UserNotification)
+        if ($ticket->user) {
+            $statusLabel = match ($ticket->status) {
+                'nuevo' => 'Nuevo',
+                'en_proceso' => 'En proceso',
+                'solucionado' => 'Solucionado',
+                default => ucfirst(str_replace('_',' ', $ticket->status)),
+            };
+
+            $notification = \App\Models\UserNotification::create([
+                'user_id' => $ticket->user->id,
+                'type' => 'support',
+                'title' => 'Estado de reclamo actualizado',
+                'message' => 'Tu reclamo #' . $ticket->id . ' ahora está: ' . $statusLabel,
+                'data' => [
+                    'ticket_id' => $ticket->id,
+                    'url' => route('support.show', $ticket),
+                ],
+            ]);
+
+            broadcast(new \App\Events\NewNotification($notification))->toOthers();
+        }
         return back()->with('ok', 'Estado actualizado.');
     }
 }
