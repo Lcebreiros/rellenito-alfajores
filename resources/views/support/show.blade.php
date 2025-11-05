@@ -38,7 +38,7 @@
   @endif
 
   <div class="bg-white dark:bg-neutral-900 rounded-xl shadow-sm border border-neutral-100 dark:border-neutral-800 p-4">
-    <div class="space-y-4">
+    <div id="chat-messages" class="space-y-4">
       @foreach($ticket->messages as $m)
         <div class="flex {{ $m->user_id === auth()->id() ? 'justify-end' : 'justify-start' }}">
           <div class="max-w-[80%] rounded-2xl px-4 py-2 text-sm {{ $m->user_id === auth()->id() ? 'bg-indigo-600 text-white' : 'bg-neutral-100 dark:bg-neutral-800 dark:text-neutral-100' }}">
@@ -59,3 +59,43 @@
   </div>
 </div>
 @endsection
+
+@push('scripts')
+<script>
+  document.addEventListener('DOMContentLoaded', function () {
+    if (!window.Echo) return;
+
+    const ticketId = {{ $ticket->id }};
+    const authUserId = {{ auth()->id() }};
+    const container = document.getElementById('chat-messages');
+
+    window.Echo.private('chat.' + ticketId)
+      .listen('.message.sent', (data) => {
+        if (!data || !data.message || !data.user) return;
+
+        const isMine = Number(data.user.id) === Number(authUserId);
+
+        const wrapper = document.createElement('div');
+        wrapper.className = 'flex ' + (isMine ? 'justify-end' : 'justify-start');
+
+        const bubble = document.createElement('div');
+        bubble.className = 'max-w-[80%] rounded-2xl px-4 py-2 text-sm ' + (isMine ? 'bg-indigo-600 text-white' : 'bg-neutral-100 dark:bg-neutral-800 dark:text-neutral-100');
+
+        const meta = document.createElement('div');
+        meta.className = 'mb-1 text-xs opacity-75';
+        meta.textContent = `${data.user.name} · ${new Date(data.created_at).toLocaleString()}`;
+
+        const body = document.createElement('div');
+        body.textContent = data.message;
+
+        bubble.appendChild(meta);
+        bubble.appendChild(body);
+        wrapper.appendChild(bubble);
+        container.appendChild(wrapper);
+
+        // Scroll al final
+        container.parentElement.scrollTop = container.parentElement.scrollHeight;
+      });
+  });
+</script>
+@endpush

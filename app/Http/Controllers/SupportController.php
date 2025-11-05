@@ -57,6 +57,9 @@ class SupportController extends Controller
             'message'         => $data['message'],
         ]);
 
+        // Emitir evento de chat en tiempo real
+        broadcast(new \App\Events\MessageSent($message))->toOthers();
+
         // Notificar a Masters sobre nuevo reclamo
         if (!$request->user()->isMaster()) {
             $masters = User::where('hierarchy_level', User::HIERARCHY_MASTER)->get();
@@ -106,6 +109,9 @@ class SupportController extends Controller
             'user_id'         => $user->id,
             'message'         => $data['message'],
         ]);
+
+        // Emitir evento de chat en tiempo real
+        broadcast(new \App\Events\MessageSent($message))->toOthers();
 
         // Notificaciones: si responde master, avisar al autor; si responde autor, avisar a masters
         if ($user->isMaster()) {
