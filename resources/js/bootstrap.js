@@ -13,8 +13,8 @@ window.Pusher = Pusher;
 
 window.Echo = new Echo({
     broadcaster: 'pusher',
-    key: import.meta.env.VITE_PUSHER_APP_KEY,
-    cluster: import.meta.env.VITE_PUSHER_APP_CLUSTER,
+    key: import.meta.env.VITE_PUSHER_APP_KEY || 'a58d27031ee6993506cc',
+    cluster: import.meta.env.VITE_PUSHER_APP_CLUSTER || 'sa1',
     forceTLS: true,
     encrypted: true,
     authEndpoint: '/broadcasting/auth',
