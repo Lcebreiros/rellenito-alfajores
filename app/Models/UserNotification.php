@@ -5,30 +5,26 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
-class SupportMessage extends Model
+class UserNotification extends Model
 {
     protected $fillable = [
-        'support_chat_id',
         'user_id',
+        'type',
+        'title',
         'message',
+        'data',
         'is_read',
-        'attachment_path',
+        'read_at',
     ];
 
     protected $casts = [
+        'data' => 'array',
         'is_read' => 'boolean',
+        'read_at' => 'datetime',
     ];
 
     /**
-     * Chat al que pertenece el mensaje
-     */
-    public function chat(): BelongsTo
-    {
-        return $this->belongsTo(SupportChat::class, 'support_chat_id');
-    }
-
-    /**
-     * Usuario que envió el mensaje
+     * Usuario al que pertenece la notificación
      */
     public function user(): BelongsTo
     {
@@ -36,15 +32,18 @@ class SupportMessage extends Model
     }
 
     /**
-     * Marcar como leído
+     * Marcar como leída
      */
     public function markAsRead()
     {
-        $this->update(['is_read' => true]);
+        $this->update([
+            'is_read' => true,
+            'read_at' => now(),
+        ]);
     }
 
     /**
-     * Scope para mensajes no leídos
+     * Scope para notificaciones no leídas
      */
     public function scopeUnread($query)
     {
@@ -52,11 +51,18 @@ class SupportMessage extends Model
     }
 
     /**
-     * Scope para mensajes del usuario
+     * Scope para notificaciones por tipo
      */
-    public function scopeFrom($query, $userId)
+    public function scopeOfType($query, $type)
+    {
+        return $query->where('type', $type);
+    }
+
+    /**
+     * Scope para notificaciones del usuario
+     */
+    public function scopeForUser($query, $userId)
     {
         return $query->where('user_id', $userId);
     }
 }
-

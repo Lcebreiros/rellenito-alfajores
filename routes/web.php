@@ -393,6 +393,11 @@ Route::get('/inicio', function () {
 // Clientes (CRM básico)
 Route::middleware(['auth'])->group(function () {
     Route::resource('clients', ClientController::class);
+
+    // Prueba de Pusher
+    Route::get('/test-pusher', function () {
+        return view('test-pusher');
+    })->name('test.pusher');
 });
 
 /*
