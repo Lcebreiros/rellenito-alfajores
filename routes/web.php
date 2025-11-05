@@ -273,7 +273,7 @@ Route::middleware([
     Route::put('/support/{ticket}/status', [SupportController::class, 'updateStatus'])->name('support.status');
 
     // ============ PUSHER TEST ============
-    Route::post('/test-pusher', function() {
+    Route::post('/test-notification', function() {
         $user = auth()->user();
         $notification = \App\Models\UserNotification::create([
             'user_id' => $user->id,
@@ -290,7 +290,7 @@ Route::middleware([
             'notification' => $notification,
             'message' => 'Notificación enviada. Revisa la consola del navegador para ver el evento.'
         ]);
-    })->name('test.pusher');
+    })->name('test.notification');
 });
 
 // ------------------------ MASTER: Invitations (UI) ------------------------
