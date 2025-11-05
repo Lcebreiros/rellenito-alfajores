@@ -248,10 +248,8 @@ class="relative">
               });
             }
 
-            // Opcional: Recargar la lista después de unos segundos
-            setTimeout(() => {
-              window.location.reload();
-            }, 2000);
+            // Evitar recargar la página completa; la campana ya incrementa
+            // Si querés refrescar la lista sin recargar, puedo agregar fetch dinámico
           });
       }
     });
