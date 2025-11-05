@@ -201,9 +201,16 @@ Route::middleware([
     // Configuración de notificaciones de stock
     Route::post('/stock/notifications/update', [StockController::class, 'updateNotifications'])->name('stock.notifications.update');
 
-    // Marcar notificación como leída
+    // Marcar notificación como leída (UserNotification)
     Route::post('/notifications/{id}/mark-as-read', function($id) {
-        auth()->user()->notifications()->where('id', $id)->update(['read_at' => now()]);
+        $notification = \App\Models\UserNotification::where('id', $id)
+            ->where('user_id', auth()->id())
+            ->first();
+
+        if ($notification) {
+            $notification->update(['is_read' => true]);
+        }
+
         return response()->json(['success' => true]);
     })->name('notifications.mark-as-read');
 
@@ -264,6 +271,26 @@ Route::middleware([
     Route::get('/support/{ticket}', [SupportController::class, 'show'])->name('support.show');
     Route::post('/support/{ticket}/reply', [SupportController::class, 'reply'])->name('support.reply');
     Route::put('/support/{ticket}/status', [SupportController::class, 'updateStatus'])->name('support.status');
+
+    // ============ PUSHER TEST ============
+    Route::post('/test-pusher', function() {
+        $user = auth()->user();
+        $notification = \App\Models\UserNotification::create([
+            'user_id' => $user->id,
+            'type' => 'test',
+            'title' => 'Notificación de prueba',
+            'message' => 'Esta es una notificación de prueba de Pusher - ' . now()->format('H:i:s'),
+            'data' => ['test' => true],
+        ]);
+
+        broadcast(new \App\Events\NewNotification($notification))->toOthers();
+
+        return response()->json([
+            'success' => true,
+            'notification' => $notification,
+            'message' => 'Notificación enviada. Revisa la consola del navegador para ver el evento.'
+        ]);
+    })->name('test.pusher');
 });
 
 // ------------------------ MASTER: Invitations (UI) ------------------------
