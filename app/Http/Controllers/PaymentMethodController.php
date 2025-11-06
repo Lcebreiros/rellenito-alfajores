@@ -19,17 +19,7 @@ class PaymentMethodController extends Controller
     {
         $user = auth()->user();
 
-        // Si es master, mostrar vista de gestión completa
-        if ($user->isMaster()) {
-            $paymentMethods = PaymentMethod::query()
-                ->global()
-                ->ordered()
-                ->get();
-
-            return view('payment-methods.master-index', compact('paymentMethods'));
-        }
-
-        // Para usuarios normales: vista simple de activación
+        // Vista única para todos: lista de métodos globales + activador por usuario
         $globalMethods = PaymentMethod::global()->ordered()->get();
 
         // Obtener los IDs de métodos que el usuario tiene activados

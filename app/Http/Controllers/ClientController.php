@@ -20,6 +20,7 @@ class ClientController extends Controller
         $q = trim((string) $request->get('q', ''));
 
         $clients = Client::query()
+            ->forUser(auth()->user())
             ->when($q !== '', function ($qb) use ($q) {
                 $qb->where(function ($w) use ($q) {
                     $w->where('name', 'like', "%{$q}%")
@@ -43,23 +44,31 @@ class ClientController extends Controller
     public function store(Request $request): RedirectResponse
     {
         $data = $this->validateClient($request);
+
+        // Asignar el user_id (company_id para el scope)
+        $user = auth()->user();
+        $data['user_id'] = $user->isCompany() ? $user->id : \App\Models\Order::findRootCompanyId($user);
+
         Client::create($data);
         return redirect()->route('clients.index')->with('ok', 'Cliente creado.');
     }
 
     public function show(Client $client): View
     {
+        $this->authorizeClient($client);
         $client->load(['orders' => function ($q) { $q->latest()->limit(20); }]);
         return view('clients.show', compact('client'));
     }
 
     public function edit(Client $client): View
     {
+        $this->authorizeClient($client);
         return view('clients.edit', compact('client'));
     }
 
     public function update(Request $request, Client $client): RedirectResponse
     {
+        $this->authorizeClient($client);
         $data = $this->validateClient($request, $client->id);
         $client->update($data);
         return redirect()->route('clients.show', $client)->with('ok', 'Cliente actualizado.');
