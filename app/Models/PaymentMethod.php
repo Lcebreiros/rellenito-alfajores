@@ -16,6 +16,7 @@ class PaymentMethod extends Model
         'icon',
         'description',
         'is_active',
+        'is_global',
         'requires_gateway',
         'gateway_config',
         'gateway_provider',
@@ -24,6 +25,7 @@ class PaymentMethod extends Model
 
     protected $casts = [
         'is_active' => 'boolean',
+        'is_global' => 'boolean',
         'requires_gateway' => 'boolean',
         'gateway_config' => 'array',
         'sort_order' => 'integer',
@@ -40,6 +42,16 @@ class PaymentMethod extends Model
     {
         return $this->belongsToMany(Order::class, 'order_payment_method')
             ->withPivot(['amount', 'reference', 'notes', 'gateway_response'])
+            ->withTimestamps();
+    }
+
+    /**
+     * Usuarios que han activado este método de pago global
+     */
+    public function users(): BelongsToMany
+    {
+        return $this->belongsToMany(User::class, 'user_payment_methods')
+            ->withPivot('is_active')
             ->withTimestamps();
     }
 
@@ -79,6 +91,30 @@ class PaymentMethod extends Model
     public function scopeOrdered(Builder $query): Builder
     {
         return $query->orderBy('sort_order')->orderBy('name');
+    }
+
+    public function scopeGlobal(Builder $query): Builder
+    {
+        return $query->where('is_global', true)->whereNull('user_id');
+    }
+
+    /**
+     * Obtiene métodos disponibles para un usuario (globales activados + propios)
+     */
+    public function scopeAvailableForUser(Builder $query, User $user): Builder
+    {
+        return $query->where(function($q) use ($user) {
+            // Métodos globales que el usuario ha activado
+            $q->whereHas('users', function($query) use ($user) {
+                $query->where('users.id', $user->id)
+                      ->where('user_payment_methods.is_active', true);
+            })
+            // O métodos propios del usuario
+            ->orWhere(function($query) use ($user) {
+                $query->where('user_id', $user->id)
+                      ->where('is_active', true);
+            });
+        });
     }
 
     // ---------- HELPERS ----------

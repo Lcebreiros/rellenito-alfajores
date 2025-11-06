@@ -262,6 +262,7 @@ Route::middleware([
     // ============ MÉTODOS DE PAGO ============
     Route::resource('payment-methods', PaymentMethodController::class)->except(['show']);
     Route::post('payment-methods/{paymentMethod}/toggle', [PaymentMethodController::class, 'toggleActive'])->name('payment-methods.toggle');
+    Route::post('payment-methods/{paymentMethod}/toggle-global', [PaymentMethodController::class, 'toggleGlobal'])->name('payment-methods.toggle-global');
 
     // (Revert) Recibir productos: eliminado
 

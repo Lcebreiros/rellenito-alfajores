@@ -19,12 +19,27 @@ class PaymentMethodController extends Controller
     {
         $user = auth()->user();
 
-        $paymentMethods = PaymentMethod::query()
-            ->forUser($user)
-            ->ordered()
-            ->get();
+        // Si es master, mostrar vista de gestión completa
+        if ($user->isMaster()) {
+            $paymentMethods = PaymentMethod::query()
+                ->global()
+                ->ordered()
+                ->get();
 
-        return view('payment-methods.index', compact('paymentMethods'));
+            return view('payment-methods.master-index', compact('paymentMethods'));
+        }
+
+        // Para usuarios normales: vista simple de activación
+        $globalMethods = PaymentMethod::global()->ordered()->get();
+
+        // Obtener los IDs de métodos que el usuario tiene activados
+        $activatedMethodIds = \DB::table('user_payment_methods')
+            ->where('user_id', $user->id)
+            ->where('is_active', true)
+            ->pluck('payment_method_id')
+            ->toArray();
+
+        return view('payment-methods.index', compact('globalMethods', 'activatedMethodIds'));
     }
 
     public function create(): View
@@ -91,7 +106,7 @@ class PaymentMethodController extends Controller
     }
 
     /**
-     * Toggle active status
+     * Toggle active status (para métodos propios o master)
      */
     public function toggleActive(PaymentMethod $paymentMethod): RedirectResponse
     {
@@ -104,6 +119,47 @@ class PaymentMethodController extends Controller
         $paymentMethod->update(['is_active' => !$paymentMethod->is_active]);
 
         $status = $paymentMethod->is_active ? 'activado' : 'desactivado';
+        return redirect()->route('payment-methods.index')->with('ok', "Método de pago {$status} exitosamente.");
+    }
+
+    /**
+     * Toggle método de pago global para el usuario actual (activar/desactivar)
+     */
+    public function toggleGlobal(PaymentMethod $paymentMethod): RedirectResponse
+    {
+        $user = auth()->user();
+
+        // Verificar que sea un método global
+        if (!$paymentMethod->is_global) {
+            abort(400, 'Este método no está disponible para activación.');
+        }
+
+        // Verificar si ya existe la relación
+        $pivot = \DB::table('user_payment_methods')
+            ->where('user_id', $user->id)
+            ->where('payment_method_id', $paymentMethod->id)
+            ->first();
+
+        if ($pivot) {
+            // Alternar estado
+            \DB::table('user_payment_methods')
+                ->where('user_id', $user->id)
+                ->where('payment_method_id', $paymentMethod->id)
+                ->update(['is_active' => !$pivot->is_active, 'updated_at' => now()]);
+
+            $status = !$pivot->is_active ? 'activado' : 'desactivado';
+        } else {
+            // Crear nueva relación activada
+            \DB::table('user_payment_methods')->insert([
+                'user_id' => $user->id,
+                'payment_method_id' => $paymentMethod->id,
+                'is_active' => true,
+                'created_at' => now(),
+                'updated_at' => now(),
+            ]);
+            $status = 'activado';
+        }
+
         return redirect()->route('payment-methods.index')->with('ok', "Método de pago {$status} exitosamente.");
     }
 
