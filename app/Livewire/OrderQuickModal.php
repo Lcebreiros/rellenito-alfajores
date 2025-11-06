@@ -145,9 +145,15 @@ class OrderQuickModal extends Component
 
     public function selectClient($clientId): void
     {
-        $this->client_id = $clientId;
-        $client = Client::find($clientId);
-        $this->clientSearch = $client ? $client->name : '';
+        $client = Client::forUser(auth()->user())->find($clientId);
+        if ($client) {
+            $this->client_id = $client->id;
+            $this->clientSearch = $client->name;
+        } else {
+            $this->client_id = null;
+            $this->clientSearch = '';
+            $this->addError('client_id', 'Cliente no válido para tu cuenta.');
+        }
     }
 
     public function getClientsProperty()
@@ -156,7 +162,8 @@ class OrderQuickModal extends Component
             return collect();
         }
 
-        return Client::where(function ($q) {
+        return Client::forUser(auth()->user())
+            ->where(function ($q) {
                 $q->where('name', 'like', '%' . $this->clientSearch . '%')
                   ->orWhere('email', 'like', '%' . $this->clientSearch . '%')
                   ->orWhere('phone', 'like', '%' . $this->clientSearch . '%');
@@ -208,12 +215,21 @@ class OrderQuickModal extends Component
             // Crear cliente si corresponde
             $clientId = $this->client_id;
             if ($this->showClientForm && trim($this->newClientName) !== '') {
+                $user = auth()->user();
+                $companyId = $user->isCompany() ? $user->id : \App\Models\Order::findRootCompanyId($user);
                 $client = Client::create([
+                    'user_id' => $companyId,
                     'name'  => trim($this->newClientName),
                     'email' => $this->newClientEmail ? trim($this->newClientEmail) : null,
                     'phone' => $this->newClientPhone ? trim($this->newClientPhone) : null,
                 ]);
                 $clientId = $client->id;
+            } elseif ($clientId) {
+                // Validar pertenencia del cliente seleccionado
+                $valid = Client::forUser(auth()->user())->where('id', $clientId)->exists();
+                if (!$valid) {
+                    throw new \RuntimeException('Cliente seleccionado no pertenece a tu cuenta.');
+                }
             }
 
             //  Estado según toggle y agendamiento

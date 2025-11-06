@@ -619,8 +619,10 @@ public function index(Request $request)
 
         $order->load('client', 'items.product', 'items.service');
 
-        // Pasamos también la lista de clientes para el select
-        $clients = \App\Models\Client::all();
+        // Pasamos también la lista de clientes del tenant actual
+        $clients = \App\Models\Client::forUser(auth()->user())
+            ->orderBy('name')
+            ->get();
 
         return view('orders.edit', compact('order', 'clients', 'products'));
     }

@@ -153,8 +153,13 @@ class OrderSidebar extends Component
             return;
         }
 
-        // Buscamos o creamos un cliente con ese nombre (email/teléfono pueden ir después)
-        $client = Client::firstOrCreate(['name' => $name]);
+        // Buscar o crear cliente dentro del tenant (company root)
+        $user = auth()->user();
+        $companyId = $user->isCompany() ? $user->id : Order::findRootCompanyId($user);
+        $client = Client::firstOrCreate([
+            'user_id' => $companyId,
+            'name'    => $name,
+        ]);
         $order->client()->associate($client);
         $order->save();
     }
@@ -229,7 +234,12 @@ public function finalize(): void
             // Asociar cliente si se ingresó nombre
             $name = trim((string) $this->customerName);
             if ($name !== '' && !$order->client_id) {
-                $client = Client::firstOrCreate(['name' => $name]);
+                $user = auth()->user();
+                $companyId = $user->isCompany() ? $user->id : Order::findRootCompanyId($user);
+                $client = Client::firstOrCreate([
+                    'user_id' => $companyId,
+                    'name'    => $name,
+                ]);
                 $order->client()->associate($client);
                 $order->save();
             }

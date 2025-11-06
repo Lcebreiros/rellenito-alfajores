@@ -74,6 +74,31 @@ class ClientController extends Controller
         return redirect()->route('clients.show', $client)->with('ok', 'Cliente actualizado.');
     }
 
+    /**
+     * Autoriza acceso a un cliente según el tenant actual.
+     * Solo Master (-1) puede ver todos; el resto solo su company root.
+     */
+    protected function authorizeClient(Client $client): void
+    {
+        $user = auth()->user();
+
+        // Master puede ver/editar todo
+        if ($user && method_exists($user, 'isMaster') && $user->isMaster()) {
+            return;
+        }
+
+        // Determinar company root del usuario autenticado
+        $companyId = null;
+        if ($user) {
+            $companyId = $user->isCompany()
+                ? $user->id
+                : \App\Models\Order::findRootCompanyId($user);
+        }
+
+        // Si no coincide con el owner (tenant), denegar
+        abort_unless($companyId && (int) $client->user_id === (int) $companyId, 403);
+    }
+
     protected function validateClient(Request $request, ?int $id = null): array
     {
         return $request->validate([
@@ -91,4 +116,3 @@ class ClientController extends Controller
         ]);
     }
 }
-
