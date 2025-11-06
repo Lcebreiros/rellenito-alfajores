@@ -45,9 +45,11 @@ class PaymentMethodSelector extends Component
 
     public function render()
     {
+        // Solo mostrar métodos disponibles para el usuario:
+        // - Globales activados en payment-methods.index (pivot user_payment_methods.is_active = true)
+        // - + Métodos propios del usuario activos
         $paymentMethods = PaymentMethod::query()
-            ->forUser(auth()->user())
-            ->active()
+            ->availableForUser(auth()->user())
             ->ordered()
             ->get();
 
