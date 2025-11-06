@@ -9,18 +9,23 @@
   class="md:hidden"
   aria-label="Menú rápido móvil"
 >
+  <!-- Overlay (debe ir primero en el DOM) -->
+  <div x-cloak x-show="open" class="fixed inset-0 z-40 bg-black/20" @click="open=false"></div>
+
   <!-- Botón flotante -->
   <button
     type="button"
     @click="open = !open"
     :aria-expanded="open ? 'true' : 'false'"
-    class="fixed right-4 bottom-20 z-[60] inline-flex items-center justify-center w-14 h-14 rounded-full shadow-lg border border-neutral-200 dark:border-neutral-800 bg-white dark:bg-neutral-900 text-neutral-800 dark:text-neutral-100 hover:bg-neutral-50 dark:hover:bg-neutral-800 focus:outline-none focus:ring-2 focus:ring-cyan-500"
+    class="fixed right-4 bottom-6 z-50 inline-flex items-center justify-center w-12 h-12 rounded-full shadow-lg border border-neutral-200 dark:border-neutral-800 bg-white dark:bg-neutral-900 text-neutral-800 dark:text-neutral-100 hover:bg-neutral-50 dark:hover:bg-neutral-800 focus:outline-none focus:ring-2 focus:ring-cyan-500 active:scale-95 transition-transform"
   >
-    <svg x-show="!open" class="w-6 h-6" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-      <path stroke-linecap="round" stroke-linejoin="round" d="M12 6v12m6-6H6" />
+    <!-- Ícono de apps/menú (grid 3x3) -->
+    <svg x-show="!open" class="w-5 h-5" viewBox="0 0 24 24" fill="currentColor">
+      <path d="M4 6a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H6a2 2 0 01-2-2V6zm10 0a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2V6zM4 16a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H6a2 2 0 01-2-2v-2zm10 0a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2v-2z"/>
     </svg>
-    <svg x-show="open" x-cloak class="w-6 h-6" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-      <path stroke-linecap="round" stroke-linejoin="round" d="M6 12h12" />
+    <!-- Ícono de X para cerrar -->
+    <svg x-show="open" x-cloak class="w-5 h-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+      <path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12" />
     </svg>
   </button>
 
@@ -35,7 +40,7 @@
     x-transition:leave="transition ease-in duration-100"
     x-transition:leave-start="opacity-100 translate-y-0"
     x-transition:leave-end="opacity-0 translate-y-2"
-    class="fixed right-4 bottom-40 z-[60] w-[min(92vw,22rem)] rounded-xl border border-neutral-200 dark:border-neutral-800 bg-white dark:bg-neutral-900 shadow-xl overflow-hidden"
+    class="fixed right-4 bottom-24 z-50 w-[min(92vw,22rem)] rounded-xl border border-neutral-200 dark:border-neutral-800 bg-white dark:bg-neutral-900 shadow-xl overflow-hidden"
     role="menu"
   >
     <div class="max-h-[70vh] overflow-auto p-2 space-y-1">
@@ -125,8 +130,5 @@
       </form>
     </div>
   </div>
-
-  <!-- Overlay -->
-  <div x-cloak x-show="open" class="fixed inset-0 z-50 bg-black/20" @click="open=false"></div>
 </div>
 
