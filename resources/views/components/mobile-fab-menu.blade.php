@@ -14,7 +14,8 @@
     type="button"
     id="fab-menu-button"
     aria-expanded="false"
-    class="fixed right-4 bottom-6 z-[60] inline-flex items-center justify-center w-12 h-12 rounded-full shadow-lg border border-neutral-200 dark:border-neutral-800 bg-white dark:bg-neutral-900 text-neutral-800 dark:text-neutral-100 hover:bg-neutral-50 dark:hover:bg-neutral-800 focus:outline-none focus:ring-2 focus:ring-cyan-500 active:scale-95 transition-transform"
+    style="bottom: 24px; right: 16px;"
+    class="fixed z-[60] inline-flex items-center justify-center w-12 h-12 rounded-full shadow-lg border border-neutral-200 dark:border-neutral-800 bg-white dark:bg-neutral-900 text-neutral-800 dark:text-neutral-100 hover:bg-neutral-50 dark:hover:bg-neutral-800 focus:outline-none focus:ring-2 focus:ring-cyan-500 active:scale-95 transition-transform"
   >
     <!-- Ícono de apps/menú (grid 3x3) -->
     <svg id="fab-icon-menu" class="w-5 h-5" viewBox="0 0 24 24" fill="currentColor">
@@ -29,11 +30,11 @@
   <!-- Menú emergente hacia arriba -->
   <div
     id="fab-menu-panel"
-    style="display: none; opacity: 0; transform: translateY(0.5rem);"
-    class="fixed right-4 bottom-24 z-[60] w-[min(92vw,22rem)] rounded-xl border border-neutral-200 dark:border-neutral-800 bg-white dark:bg-neutral-900 shadow-xl overflow-hidden transition-all duration-150 ease-out"
+    style="display: none; opacity: 0; transform: translateY(0.5rem); bottom: 96px; right: 16px; max-height: calc(100vh - 130px);"
+    class="fixed z-[60] w-[min(92vw,22rem)] rounded-xl border border-neutral-200 dark:border-neutral-800 bg-white dark:bg-neutral-900 shadow-xl overflow-hidden transition-all duration-150 ease-out"
     role="menu"
   >
-    <div class="max-h-[70vh] overflow-auto p-2 space-y-1">
+    <div class="overflow-auto p-2 space-y-1" style="max-height: calc(100vh - 130px);">
       <a href="{{ route('dashboard') }}" wire:navigate data-turbo="false"
          class="flex items-center gap-3 px-3 py-2 rounded-lg text-sm font-medium hover:bg-neutral-50 dark:hover:bg-neutral-800 {{ request()->routeIs('dashboard') ? 'bg-neutral-100 dark:bg-neutral-800' : '' }}"
          role="menuitem">Dashboard</a>
@@ -107,10 +108,6 @@
          role="menuitem">Soporte</a>
 
       <div class="h-px bg-neutral-200 dark:bg-neutral-800 my-2"></div>
-
-      <a href="{{ route('profile.show') }}" wire:navigate data-turbo="false"
-         class="flex items-center gap-3 px-3 py-2 rounded-lg text-sm font-medium hover:bg-neutral-50 dark:hover:bg-neutral-800 {{ request()->routeIs('profile.show') ? 'bg-neutral-100 dark:bg-neutral-800' : '' }}"
-         role="menuitem">Perfil</a>
 
       <form method="POST" action="{{ route('logout') }}" class="m-0" role="none">
         @csrf
