@@ -1,13 +1,14 @@
 @php
+  $userThreshold = (float) (auth()->user()->low_stock_threshold ?? 10);
+
   $outOfStock = $products->getCollection()->filter(function($p) {
     $stock = (float) ($p->display_stock ?? 0);
     return $stock <= 0;
   })->count();
 
-  $lowStock = $products->getCollection()->filter(function($p) {
+  $lowStock = $products->getCollection()->filter(function($p) use ($userThreshold) {
     $stock = (float) ($p->display_stock ?? 0);
-    $min = (float) ($p->min_stock ?? 0);
-    return $stock > 0 && $min > 0 && $stock <= $min;
+    return $stock > 0 && $stock <= $userThreshold;
   })->count();
 
   $stats = [

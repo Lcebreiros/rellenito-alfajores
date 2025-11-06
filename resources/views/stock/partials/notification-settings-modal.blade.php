@@ -3,6 +3,7 @@
   $notifyLowStock = $user->notify_low_stock ?? true;
   $lowStockThreshold = $user->low_stock_threshold ?? 5;
   $notifyOutOfStock = $user->notify_out_of_stock ?? true;
+  $notifyByEmail = $user->notify_by_email ?? false;
 @endphp
 
 <div id="notificationSettingsModal"
@@ -118,6 +119,35 @@
                           {{ $notifyOutOfStock ? 'bg-rose-600 border-rose-600' : 'bg-gray-200 dark:bg-neutral-700 border-gray-300 dark:border-neutral-600' }}">
                 <div class="toggle-knob absolute top-0.5 bg-white rounded-full h-5 w-5 transition-transform ease-in-out duration-200 shadow-lg"
                      style="transform: {{ $notifyOutOfStock ? 'translateX(1.875rem)' : 'translateX(0.125rem)' }}"></div>
+              </div>
+            </label>
+          </div>
+        </div>
+
+        {{-- Notificaciones por Email --}}
+        <div class="p-4 rounded-xl bg-indigo-50/50 dark:bg-indigo-900/10 border border-indigo-200 dark:border-indigo-900/30">
+          <div class="flex items-start justify-between gap-4">
+            <div class="flex-1">
+              <div class="flex items-center gap-2 mb-1.5">
+                <i class="fas fa-envelope text-indigo-600 dark:text-indigo-400" aria-hidden="true"></i>
+                <h4 class="font-semibold text-gray-900 dark:text-neutral-100">Notificaciones por Email</h4>
+              </div>
+              <p class="text-sm text-gray-600 dark:text-neutral-400">
+                Recibir notificaciones de stock por correo electrónico
+              </p>
+            </div>
+
+            {{-- Toggle switch --}}
+            <label class="relative inline-flex items-center cursor-pointer flex-shrink-0">
+              <input type="checkbox"
+                     id="notify_by_email"
+                     name="notify_by_email"
+                     {{ $notifyByEmail ? 'checked' : '' }}
+                     class="sr-only peer">
+              <div class="relative w-14 h-7 rounded-full transition-colors ease-in-out duration-200 border-2
+                          {{ $notifyByEmail ? 'bg-indigo-600 border-indigo-600' : 'bg-gray-200 dark:bg-neutral-700 border-gray-300 dark:border-neutral-600' }}">
+                <div class="toggle-knob absolute top-0.5 bg-white rounded-full h-5 w-5 transition-transform ease-in-out duration-200 shadow-lg"
+                     style="transform: {{ $notifyByEmail ? 'translateX(1.875rem)' : 'translateX(0.125rem)' }}"></div>
               </div>
             </label>
           </div>
@@ -254,6 +284,25 @@
         });
       }
 
+      // Toggle para notify_by_email
+      const emailCheckbox = document.getElementById('notify_by_email');
+      if (emailCheckbox) {
+        emailCheckbox.addEventListener('change', (e) => {
+          const track = e.target.nextElementSibling;
+          const knob = track.querySelector('.toggle-knob');
+
+          if (e.target.checked) {
+            track.classList.remove('bg-gray-200', 'dark:bg-neutral-700', 'border-gray-300', 'dark:border-neutral-600');
+            track.classList.add('bg-indigo-600', 'border-indigo-600');
+            knob.style.transform = 'translateX(1.875rem)';
+          } else {
+            track.classList.remove('bg-indigo-600', 'border-indigo-600');
+            track.classList.add('bg-gray-200', 'dark:bg-neutral-700', 'border-gray-300', 'dark:border-neutral-600');
+            knob.style.transform = 'translateX(0.125rem)';
+          }
+        });
+      }
+
       // Update threshold display
       if (this.thresholdInput) {
         this.thresholdInput.addEventListener('input', (e) => {
@@ -273,6 +322,7 @@
         notify_low_stock: formData.get('notify_low_stock') === 'on',
         low_stock_threshold: parseInt(formData.get('low_stock_threshold')) || 5,
         notify_out_of_stock: formData.get('notify_out_of_stock') === 'on',
+        notify_by_email: formData.get('notify_by_email') === 'on',
       };
 
       this.loadingOverlay.classList.remove('hidden');

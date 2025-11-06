@@ -37,7 +37,10 @@ class ProductObserver
 
             // Notificación de SIN STOCK (0 unidades)
             if ($user->notify_out_of_stock && $newStock === 0 && $oldStock > 0) {
-                $user->notify(new OutOfStockAlert($product));
+                // Enviar email solo si el usuario lo tiene activado
+                if ($user->notify_by_email) {
+                    $user->notify(new OutOfStockAlert($product));
+                }
 
                 // Notificación en vivo (campana)
                 $n = UserNotification::create([
@@ -59,7 +62,10 @@ class ProductObserver
             if ($user->notify_low_stock && $newStock > 0 && $newStock <= $user->low_stock_threshold) {
                 // Solo notificar si pasó de arriba del umbral a abajo del umbral
                 if ($oldStock > $user->low_stock_threshold) {
-                    $user->notify(new LowStockAlert($product, $newStock, $user->low_stock_threshold));
+                    // Enviar email solo si el usuario lo tiene activado
+                    if ($user->notify_by_email) {
+                        $user->notify(new LowStockAlert($product, $newStock, $user->low_stock_threshold));
+                    }
 
                     // Notificación en vivo (campana)
                     $n = UserNotification::create([
@@ -153,7 +159,10 @@ class ProductObserver
 
         foreach ($usersToNotify as $user) {
             if ($user->notify_low_stock && $stock > 0 && $stock <= $user->low_stock_threshold) {
-                $user->notify(new LowStockAlert($product, $stock, $user->low_stock_threshold));
+                // Enviar email solo si el usuario lo tiene activado
+                if ($user->notify_by_email) {
+                    $user->notify(new LowStockAlert($product, $stock, $user->low_stock_threshold));
+                }
 
                 // Notificación en vivo (campana)
                 $n = UserNotification::create([

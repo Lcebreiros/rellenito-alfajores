@@ -769,6 +769,7 @@ class StockController extends Controller
             'notify_low_stock' => 'required|boolean',
             'low_stock_threshold' => 'required|integer|min:1|max:1000',
             'notify_out_of_stock' => 'required|boolean',
+            'notify_by_email' => 'required|boolean',
         ]);
 
         $user = auth()->user();
@@ -784,6 +785,7 @@ class StockController extends Controller
             'notify_low_stock' => $validated['notify_low_stock'],
             'low_stock_threshold' => $validated['low_stock_threshold'],
             'notify_out_of_stock' => $validated['notify_out_of_stock'],
+            'notify_by_email' => $validated['notify_by_email'],
         ]);
 
         return response()->json([
