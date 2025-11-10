@@ -4,6 +4,9 @@ namespace App\Livewire\Calculator;
 
 use App\Models\Product;
 use App\Models\Supply;
+use App\Models\ProductRecipe as RecipeItem;
+use App\Models\ProductionExpense;
+use Illuminate\Support\Facades\DB;
 use App\Models\Costing;
 use Livewire\Component;
 
@@ -188,6 +191,95 @@ class ProductRecipe extends Component
         $this->dispatch('analysis-saved', id: $costing->id);
         session()->flash('ok', '¡Análisis guardado correctamente!');
         $this->resetAll();
+    }
+
+    /**
+     * Aplica la receta actual al producto seleccionado creando/actualizando items en product_recipes.
+     * No descuenta stock aquí; solo configura la receta. Los pedidos posteriores sí descontarán insumos.
+     */
+    public function applyToProduct(): void
+    {
+        if (!$this->productId) {
+            $this->addError('productId', 'Selecciona un producto.');
+            return;
+        }
+
+        $y = max(1, (int)$this->yieldUnits);
+        $rows = $this->rows ?? [];
+        if (empty($rows)) {
+            $this->addError('rows', 'Agrega al menos un ingrediente.');
+            return;
+        }
+
+        // Construir valores por unidad y persistir
+        // Calcula costo total por unidad según filas actuales
+        $unitTotal = 0.0;
+        foreach ($rows as $row) {
+            if (empty($row['supply_id']) || empty($row['base_unit'])) continue;
+            $baseQty = $this->lineBaseQty($row);
+            $perUnitBase = $y > 0 ? ($baseQty / $y) : 0;
+            $costBase = (float)($row['cost_base'] ?? 0);
+            $unitTotal += $perUnitBase * $costBase;
+        }
+
+        DB::transaction(function () use ($rows, $y, $unitTotal) {
+            $supplyIdsUsed = [];
+
+            foreach ($rows as $row) {
+                $supplyId  = (int)($row['supply_id'] ?? 0);
+                $baseUnit  = (string)($row['base_unit'] ?? '');
+                $unit      = (string)($row['unit'] ?: $baseUnit);
+                if (!$supplyId || !$baseUnit) continue;
+
+                // Cantidad por unidad en unidad base
+                $baseQty = $this->lineBaseQty($row); // total de la receta en base
+                $perUnitBase = $y > 0 ? ($baseQty / $y) : 0;
+                if ($perUnitBase <= 0) continue;
+
+                // Convertir a unidad elegida para guardar
+                $factor = $this->factorToBase($unit, $baseUnit);
+                if (!is_finite($factor) || $factor <= 0) {
+                    // fallback: guardar en base
+                    $unit = $baseUnit;
+                    $factor = 1;
+                }
+                $perUnitInUnit = $perUnitBase / $factor;
+
+                RecipeItem::updateOrCreate(
+                    ['product_id' => $this->productId, 'supply_id' => $supplyId],
+                    ['qty' => $perUnitInUnit, 'unit' => $unit, 'waste_pct' => 0]
+                );
+
+                $supplyIdsUsed[] = $supplyId;
+            }
+
+            // Eliminar recetas que no están en los renglones actuales (reemplazo total)
+            if (!empty($supplyIdsUsed)) {
+                RecipeItem::where('product_id', $this->productId)
+                    ->whereNotIn('supply_id', $supplyIdsUsed)
+                    ->delete();
+            }
+        });
+
+        // Registrar/actualizar gasto de producción por unidad para este producto
+        if ($unitTotal > 0) {
+            ProductionExpense::updateOrCreate(
+                [
+                    'product_id'   => $this->productId,
+                    'expense_name' => 'Costo de insumos (receta)',
+                ],
+                [
+                    'description'    => 'Generado desde calculadora de costos',
+                    'cost_per_unit'  => round($unitTotal, 4),
+                    'quantity'       => 1,
+                    'unit'           => 'u',
+                    'is_active'      => true,
+                ]
+            );
+        }
+
+        session()->flash('ok', 'Receta aplicada al producto y gasto de producción actualizado. Los pedidos descontarán insumos según esta configuración.');
+        $this->dispatch('analysis-saved');
     }
 
     public function render()

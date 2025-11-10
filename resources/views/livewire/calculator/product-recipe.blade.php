@@ -308,8 +308,33 @@
         </div>
       </div>
 
-      {{-- Guardar análisis --}}
+      {{-- Guardar análisis / Aplicar a producto --}}
       <div class="flex flex-col sm:flex-row sm:justify-end gap-3 mt-6 pt-6 border-t border-slate-200/60 dark:border-neutral-800/60">
+        <button type="button"
+                class="group relative rounded-xl px-6 py-3 text-sm font-semibold transition-all duration-300
+                       bg-gradient-to-r from-emerald-600 to-green-600 text-white hover:from-emerald-700 hover:to-green-700 
+                       hover:shadow-lg hover:shadow-emerald-500/25 dark:hover:shadow-emerald-400/20 hover:-translate-y-0.5 active:scale-95
+                       focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-emerald-500 focus-visible:ring-offset-2
+                       disabled:opacity-60 disabled:cursor-not-allowed disabled:transform-none disabled:shadow-none"
+                wire:click="applyToProduct"
+                wire:loading.attr="disabled"
+                wire:target="applyToProduct"
+                @disabled(!$productId)
+        >
+          <span wire:loading.remove wire:target="applyToProduct" class="flex items-center justify-center gap-2">
+            <svg class="w-4 h-4 group-hover:scale-110 transition-transform" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <path stroke-linecap="round" stroke-linejoin="round" d="M12 6v12M6 12h12"/>
+            </svg>
+            Agregar insumos al producto
+          </span>
+          <span wire:loading wire:target="applyToProduct" class="flex items-center justify-center gap-2">
+            <svg class="h-4 w-4 animate-spin" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none">
+              <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"/>
+              <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 0 1 8-8v3a5 5 0 0 0-5 5H4z"/>
+            </svg>
+            Aplicando…
+          </span>
+        </button>
         <button type="button"
                 class="group relative rounded-xl px-6 py-3 text-sm font-semibold transition-all duration-300
                        bg-gradient-to-r from-indigo-600 to-purple-600 text-white hover:from-indigo-700 hover:to-purple-700 
