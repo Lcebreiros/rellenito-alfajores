@@ -107,6 +107,12 @@ class StockController extends Controller
 
     public function index(Request $request)
     {
+        $tab = $request->input('tab', 'products'); // 'products' o 'supplies'
+
+        if ($tab === 'supplies') {
+            return $this->indexSupplies($request);
+        }
+
         [$baseQuery, $meta] = $this->buildProductsQuery($request);
 
         // Determinar contexto de visualización
@@ -145,7 +151,76 @@ class StockController extends Controller
             'isCompanyView' => $isCompanyView,
             'isMasterView' => $isMasterView,
             'branchUsesCompanyInventory' => $branchUsesCompanyInventory,
+            'tab' => $tab,
         ], $branchesData));
+    }
+
+    /**
+     * Index de insumos
+     */
+    private function indexSupplies(Request $request)
+    {
+        $user = auth()->user();
+        $q = trim((string) $request->input('q', ''));
+
+        // Query base de insumos según permisos
+        $supplies = \App\Models\Supply::query();
+
+        // Aplicar scope de usuario si no es master
+        if (!($user && method_exists($user, 'isMaster') && $user->isMaster())) {
+            $supplies->where('user_id', $user->id);
+        }
+
+        // Búsqueda
+        if ($q !== '') {
+            $supplies->where(function($query) use ($q) {
+                $query->where('name', 'like', "%{$q}%")
+                      ->orWhere('description', 'like', "%{$q}%");
+            });
+        }
+
+        // Ordenamiento
+        $orderBy = (string) $request->input('order_by', 'name');
+        $dir = strtolower((string) $request->input('dir', 'asc')) === 'desc' ? 'desc' : 'asc';
+
+        if ($orderBy === 'stock') {
+            $supplies->orderBy('stock_base_qty', $dir);
+        } elseif ($orderBy === 'value') {
+            $supplies->orderByRaw('(stock_base_qty * avg_cost_per_base) ' . $dir);
+        } else {
+            $supplies->orderBy('name', $dir);
+        }
+
+        $supplies = $supplies->paginate(24)->withQueryString();
+
+        // Calcular totales manualmente de la página actual
+        $totalUnits = 0;
+        $totalValue = 0;
+        foreach ($supplies->items() as $supply) {
+            $totalUnits += (float) $supply->stock_base_qty;
+            $totalValue += (float) $supply->stock_base_qty * (float) $supply->avg_cost_per_base;
+        }
+
+        $totals = [
+            'items' => $supplies->total(),
+            'units' => $totalUnits,
+            'value' => $totalValue,
+        ];
+
+        return view('stock.index', [
+            'supplies' => $supplies,
+            'totals' => $totals,
+            'q' => $q,
+            'orderBy' => $orderBy,
+            'dir' => $dir,
+            'tab' => 'supplies',
+            'branchId' => null,
+            'isCompanyView' => false,
+            'isMasterView' => false,
+            'branchUsesCompanyInventory' => false,
+            'availableBranches' => [],
+            'status' => '',
+        ]);
     }
 
     /**

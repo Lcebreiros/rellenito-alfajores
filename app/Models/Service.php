@@ -5,6 +5,7 @@ namespace App\Models;
 use App\Models\Concerns\BelongsToUser;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\SoftDeletes;
 
 class Service extends Model
@@ -33,6 +34,14 @@ class Service extends Model
 
     public function user() { return $this->belongsTo(User::class); }
     public function company() { return $this->belongsTo(User::class, 'company_id'); }
+
+    /**
+     * Relación con insumos usados en este servicio
+     */
+    public function supplies(): HasMany
+    {
+        return $this->hasMany(ServiceSupply::class);
+    }
 
     public function scopeActive(Builder $query): Builder
     {

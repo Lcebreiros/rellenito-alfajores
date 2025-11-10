@@ -292,12 +292,17 @@ class OrderQuickModal extends Component
                 $total += $subtotal;
             }
 
-            // Actualizar total y reforzar estado (manteniendo timestamps elegidos)
+            // Actualizar total
             $order->total = $total;
+            $order->save();
+
+            // Si debe completarse, usar markAsCompleted para descontar stock e insumos
             if ($this->completeOnSave) {
-                $order->status = OrderStatus::COMPLETED; // 🔒 refuerzo
+                $order->markAsCompleted($createdAt); // Descuenta productos e insumos
             }
-            $order->updated_at = $createdAt; // coherencia temporal
+
+            // Mantener coherencia temporal
+            $order->updated_at = $createdAt;
             $order->save();
 
             DB::commit();

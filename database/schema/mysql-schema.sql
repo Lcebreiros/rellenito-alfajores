@@ -64,6 +64,7 @@ DROP TABLE IF EXISTS `clients`;
 /*!40101 SET character_set_client = utf8mb4 */;
 CREATE TABLE `clients` (
   `id` bigint(20) unsigned NOT NULL AUTO_INCREMENT,
+  `user_id` bigint(20) unsigned NOT NULL,
   `name` varchar(255) NOT NULL,
   `email` varchar(255) DEFAULT NULL,
   `phone` varchar(255) DEFAULT NULL,
@@ -79,7 +80,9 @@ CREATE TABLE `clients` (
   `created_at` timestamp NULL DEFAULT NULL,
   `updated_at` timestamp NULL DEFAULT NULL,
   PRIMARY KEY (`id`),
-  UNIQUE KEY `clients_email_unique` (`email`)
+  UNIQUE KEY `clients_email_unique` (`email`),
+  KEY `clients_user_id_foreign` (`user_id`),
+  CONSTRAINT `clients_user_id_foreign` FOREIGN KEY (`user_id`) REFERENCES `users` (`id`) ON DELETE CASCADE
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 DROP TABLE IF EXISTS `cost_analyses`;
@@ -556,9 +559,29 @@ CREATE TABLE `order_items` (
   KEY `idx_order_items_order_id` (`order_id`),
   KEY `idx_order_items_product_id` (`product_id`),
   CONSTRAINT `order_items_order_id_foreign` FOREIGN KEY (`order_id`) REFERENCES `orders` (`id`) ON DELETE CASCADE,
-  CONSTRAINT `order_items_product_id_foreign` FOREIGN KEY (`product_id`) REFERENCES `products` (`id`),
+  CONSTRAINT `order_items_product_id_foreign` FOREIGN KEY (`product_id`) REFERENCES `products` (`id`) ON DELETE SET NULL,
   CONSTRAINT `order_items_service_id_foreign` FOREIGN KEY (`service_id`) REFERENCES `services` (`id`) ON DELETE SET NULL,
   CONSTRAINT `order_items_user_id_foreign` FOREIGN KEY (`user_id`) REFERENCES `users` (`id`) ON DELETE CASCADE
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+/*!40101 SET character_set_client = @saved_cs_client */;
+DROP TABLE IF EXISTS `order_payment_method`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!40101 SET character_set_client = utf8mb4 */;
+CREATE TABLE `order_payment_method` (
+  `id` bigint(20) unsigned NOT NULL AUTO_INCREMENT,
+  `order_id` bigint(20) unsigned NOT NULL,
+  `payment_method_id` bigint(20) unsigned NOT NULL,
+  `amount` decimal(12,2) NOT NULL DEFAULT 0.00,
+  `reference` varchar(255) DEFAULT NULL,
+  `notes` text DEFAULT NULL,
+  `gateway_response` longtext CHARACTER SET utf8mb4 COLLATE utf8mb4_bin DEFAULT NULL CHECK (json_valid(`gateway_response`)),
+  `created_at` timestamp NULL DEFAULT NULL,
+  `updated_at` timestamp NULL DEFAULT NULL,
+  PRIMARY KEY (`id`),
+  KEY `order_payment_method_payment_method_id_foreign` (`payment_method_id`),
+  KEY `order_payment_method_order_id_payment_method_id_index` (`order_id`,`payment_method_id`),
+  CONSTRAINT `order_payment_method_order_id_foreign` FOREIGN KEY (`order_id`) REFERENCES `orders` (`id`) ON DELETE CASCADE,
+  CONSTRAINT `order_payment_method_payment_method_id_foreign` FOREIGN KEY (`payment_method_id`) REFERENCES `payment_methods` (`id`) ON DELETE CASCADE
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 DROP TABLE IF EXISTS `order_sequences`;
@@ -597,7 +620,8 @@ DROP TABLE IF EXISTS `orders`;
 CREATE TABLE `orders` (
   `id` bigint(20) unsigned NOT NULL AUTO_INCREMENT,
   `user_id` bigint(20) unsigned DEFAULT NULL,
-  `status` enum('draft','completed','canceled') NOT NULL DEFAULT 'draft',
+  `status` enum('draft','pending','scheduled','completed','canceled') NOT NULL DEFAULT 'draft',
+  `is_scheduled` tinyint(1) NOT NULL DEFAULT 0,
   `cancelled_at` timestamp NULL DEFAULT NULL,
   `cancel_reason` text DEFAULT NULL,
   `order_number` varchar(50) DEFAULT NULL,
@@ -609,6 +633,8 @@ CREATE TABLE `orders` (
   `discount` decimal(10,2) NOT NULL DEFAULT 0.00,
   `tax_amount` decimal(10,2) NOT NULL DEFAULT 0.00,
   `created_at` timestamp NULL DEFAULT NULL,
+  `scheduled_for` timestamp NULL DEFAULT NULL,
+  `reminder_sent_at` timestamp NULL DEFAULT NULL,
   `updated_at` timestamp NULL DEFAULT NULL,
   `client_id` bigint(20) unsigned DEFAULT NULL,
   `branch_id` bigint(20) unsigned DEFAULT NULL,
@@ -634,6 +660,30 @@ CREATE TABLE `password_reset_tokens` (
   `token` varchar(255) NOT NULL,
   `created_at` timestamp NULL DEFAULT NULL,
   PRIMARY KEY (`email`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+/*!40101 SET character_set_client = @saved_cs_client */;
+DROP TABLE IF EXISTS `payment_methods`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!40101 SET character_set_client = utf8mb4 */;
+CREATE TABLE `payment_methods` (
+  `id` bigint(20) unsigned NOT NULL AUTO_INCREMENT,
+  `user_id` bigint(20) unsigned DEFAULT NULL,
+  `name` varchar(255) NOT NULL,
+  `slug` varchar(255) DEFAULT NULL,
+  `icon` varchar(255) DEFAULT NULL,
+  `description` text DEFAULT NULL,
+  `is_active` tinyint(1) NOT NULL DEFAULT 1,
+  `is_global` tinyint(1) NOT NULL DEFAULT 0,
+  `requires_gateway` tinyint(1) NOT NULL DEFAULT 0,
+  `gateway_config` longtext CHARACTER SET utf8mb4 COLLATE utf8mb4_bin DEFAULT NULL CHECK (json_valid(`gateway_config`)),
+  `gateway_provider` varchar(255) DEFAULT NULL,
+  `sort_order` int(11) NOT NULL DEFAULT 0,
+  `created_at` timestamp NULL DEFAULT NULL,
+  `updated_at` timestamp NULL DEFAULT NULL,
+  PRIMARY KEY (`id`),
+  UNIQUE KEY `payment_methods_user_id_slug_unique` (`user_id`,`slug`),
+  KEY `payment_methods_user_id_is_active_index` (`user_id`,`is_active`),
+  CONSTRAINT `payment_methods_user_id_foreign` FOREIGN KEY (`user_id`) REFERENCES `users` (`id`) ON DELETE CASCADE
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 DROP TABLE IF EXISTS `permissions`;
@@ -708,6 +758,29 @@ CREATE TABLE `product_recipes` (
   CONSTRAINT `product_recipes_supply_id_foreign` FOREIGN KEY (`supply_id`) REFERENCES `supplies` (`id`) ON DELETE CASCADE
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
+DROP TABLE IF EXISTS `production_expenses`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!40101 SET character_set_client = utf8mb4 */;
+CREATE TABLE `production_expenses` (
+  `id` bigint(20) unsigned NOT NULL AUTO_INCREMENT,
+  `user_id` bigint(20) unsigned NOT NULL,
+  `product_id` bigint(20) unsigned DEFAULT NULL,
+  `expense_name` varchar(255) NOT NULL,
+  `description` text DEFAULT NULL,
+  `cost_per_unit` decimal(15,2) NOT NULL,
+  `quantity` decimal(10,3) NOT NULL DEFAULT 1.000,
+  `unit` varchar(255) NOT NULL DEFAULT 'unidad',
+  `is_active` tinyint(1) NOT NULL DEFAULT 1,
+  `created_at` timestamp NULL DEFAULT NULL,
+  `updated_at` timestamp NULL DEFAULT NULL,
+  `deleted_at` timestamp NULL DEFAULT NULL,
+  PRIMARY KEY (`id`),
+  KEY `production_expenses_user_id_foreign` (`user_id`),
+  KEY `production_expenses_product_id_foreign` (`product_id`),
+  CONSTRAINT `production_expenses_product_id_foreign` FOREIGN KEY (`product_id`) REFERENCES `products` (`id`) ON DELETE SET NULL,
+  CONSTRAINT `production_expenses_user_id_foreign` FOREIGN KEY (`user_id`) REFERENCES `users` (`id`) ON DELETE CASCADE
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+/*!40101 SET character_set_client = @saved_cs_client */;
 DROP TABLE IF EXISTS `products`;
 /*!40101 SET @saved_cs_client     = @@character_set_client */;
 /*!40101 SET character_set_client = utf8mb4 */;
@@ -722,6 +795,7 @@ CREATE TABLE `products` (
   `category` varchar(100) DEFAULT NULL,
   `unit` varchar(20) NOT NULL DEFAULT 'unidad',
   `sku` varchar(255) NOT NULL,
+  `barcode` varchar(64) DEFAULT NULL,
   `image` varchar(255) DEFAULT NULL,
   `price` decimal(10,2) NOT NULL DEFAULT 0.00,
   `cost_price` decimal(10,2) NOT NULL DEFAULT 0.00,
@@ -740,6 +814,7 @@ CREATE TABLE `products` (
   KEY `idx_products_category` (`category`),
   KEY `products_branch_id_index` (`branch_id`),
   KEY `products_company_id_created_by_type_index` (`company_id`,`created_by_type`),
+  KEY `idx_products_barcode` (`barcode`),
   CONSTRAINT `products_company_id_foreign` FOREIGN KEY (`company_id`) REFERENCES `users` (`id`) ON DELETE CASCADE,
   CONSTRAINT `products_user_id_foreign` FOREIGN KEY (`user_id`) REFERENCES `users` (`id`) ON DELETE CASCADE
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
@@ -784,6 +859,47 @@ CREATE TABLE `schedules` (
   PRIMARY KEY (`id`),
   UNIQUE KEY `schedules_employee_id_weekday_starts_at_unique` (`employee_id`,`weekday`,`starts_at`),
   CONSTRAINT `schedules_employee_id_foreign` FOREIGN KEY (`employee_id`) REFERENCES `employees` (`id`) ON DELETE CASCADE
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+/*!40101 SET character_set_client = @saved_cs_client */;
+DROP TABLE IF EXISTS `service_expenses`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!40101 SET character_set_client = utf8mb4 */;
+CREATE TABLE `service_expenses` (
+  `id` bigint(20) unsigned NOT NULL AUTO_INCREMENT,
+  `user_id` bigint(20) unsigned NOT NULL,
+  `service_id` bigint(20) unsigned DEFAULT NULL,
+  `expense_name` varchar(255) NOT NULL,
+  `description` text DEFAULT NULL,
+  `cost` decimal(15,2) NOT NULL,
+  `expense_type` enum('material','mano_obra','herramienta','otro') NOT NULL DEFAULT 'otro',
+  `is_active` tinyint(1) NOT NULL DEFAULT 1,
+  `created_at` timestamp NULL DEFAULT NULL,
+  `updated_at` timestamp NULL DEFAULT NULL,
+  `deleted_at` timestamp NULL DEFAULT NULL,
+  PRIMARY KEY (`id`),
+  KEY `service_expenses_user_id_foreign` (`user_id`),
+  KEY `service_expenses_service_id_foreign` (`service_id`),
+  CONSTRAINT `service_expenses_service_id_foreign` FOREIGN KEY (`service_id`) REFERENCES `services` (`id`) ON DELETE SET NULL,
+  CONSTRAINT `service_expenses_user_id_foreign` FOREIGN KEY (`user_id`) REFERENCES `users` (`id`) ON DELETE CASCADE
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+/*!40101 SET character_set_client = @saved_cs_client */;
+DROP TABLE IF EXISTS `service_supplies`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!40101 SET character_set_client = utf8mb4 */;
+CREATE TABLE `service_supplies` (
+  `id` bigint(20) unsigned NOT NULL AUTO_INCREMENT,
+  `service_id` bigint(20) unsigned NOT NULL,
+  `supply_id` bigint(20) unsigned NOT NULL,
+  `qty` decimal(14,3) NOT NULL,
+  `unit` varchar(10) NOT NULL,
+  `waste_pct` decimal(5,2) NOT NULL DEFAULT 0.00,
+  `created_at` timestamp NULL DEFAULT NULL,
+  `updated_at` timestamp NULL DEFAULT NULL,
+  PRIMARY KEY (`id`),
+  UNIQUE KEY `service_supplies_service_id_supply_id_unique` (`service_id`,`supply_id`),
+  KEY `service_supplies_supply_id_foreign` (`supply_id`),
+  CONSTRAINT `service_supplies_service_id_foreign` FOREIGN KEY (`service_id`) REFERENCES `services` (`id`) ON DELETE CASCADE,
+  CONSTRAINT `service_supplies_supply_id_foreign` FOREIGN KEY (`supply_id`) REFERENCES `supplies` (`id`) ON DELETE CASCADE
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 DROP TABLE IF EXISTS `services`;
@@ -881,6 +997,30 @@ CREATE TABLE `stock_history` (
   CONSTRAINT `stock_history_user_id_foreign` FOREIGN KEY (`user_id`) REFERENCES `users` (`id`) ON DELETE CASCADE
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
+DROP TABLE IF EXISTS `supplier_expenses`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!40101 SET character_set_client = utf8mb4 */;
+CREATE TABLE `supplier_expenses` (
+  `id` bigint(20) unsigned NOT NULL AUTO_INCREMENT,
+  `user_id` bigint(20) unsigned NOT NULL,
+  `product_id` bigint(20) unsigned DEFAULT NULL,
+  `supplier_name` varchar(255) NOT NULL,
+  `description` text DEFAULT NULL,
+  `cost` decimal(15,2) NOT NULL,
+  `quantity` decimal(10,3) NOT NULL DEFAULT 1.000,
+  `unit` varchar(255) NOT NULL DEFAULT 'unidad',
+  `frequency` enum('unica','diaria','semanal','mensual','anual') NOT NULL DEFAULT 'mensual',
+  `is_active` tinyint(1) NOT NULL DEFAULT 1,
+  `created_at` timestamp NULL DEFAULT NULL,
+  `updated_at` timestamp NULL DEFAULT NULL,
+  `deleted_at` timestamp NULL DEFAULT NULL,
+  PRIMARY KEY (`id`),
+  KEY `supplier_expenses_user_id_foreign` (`user_id`),
+  KEY `supplier_expenses_product_id_foreign` (`product_id`),
+  CONSTRAINT `supplier_expenses_product_id_foreign` FOREIGN KEY (`product_id`) REFERENCES `products` (`id`) ON DELETE SET NULL,
+  CONSTRAINT `supplier_expenses_user_id_foreign` FOREIGN KEY (`user_id`) REFERENCES `users` (`id`) ON DELETE CASCADE
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+/*!40101 SET character_set_client = @saved_cs_client */;
 DROP TABLE IF EXISTS `supplies`;
 /*!40101 SET @saved_cs_client     = @@character_set_client */;
 /*!40101 SET character_set_client = utf8mb4 */;
@@ -888,6 +1028,7 @@ CREATE TABLE `supplies` (
   `id` bigint(20) unsigned NOT NULL AUTO_INCREMENT,
   `user_id` bigint(20) unsigned DEFAULT NULL,
   `name` varchar(255) NOT NULL,
+  `description` text DEFAULT NULL,
   `base_unit` enum('g','ml','u') NOT NULL DEFAULT 'g',
   `stock_base_qty` decimal(14,3) NOT NULL DEFAULT 0.000,
   `avg_cost_per_base` decimal(14,6) NOT NULL DEFAULT 0.000000,
@@ -919,20 +1060,42 @@ CREATE TABLE `supply_purchases` (
   CONSTRAINT `supply_purchases_user_id_foreign` FOREIGN KEY (`user_id`) REFERENCES `users` (`id`) ON DELETE SET NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
+DROP TABLE IF EXISTS `support_chats`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!40101 SET character_set_client = utf8mb4 */;
+CREATE TABLE `support_chats` (
+  `id` bigint(20) unsigned NOT NULL AUTO_INCREMENT,
+  `user_id` bigint(20) unsigned NOT NULL,
+  `support_user_id` bigint(20) unsigned DEFAULT NULL,
+  `subject` varchar(255) DEFAULT NULL,
+  `status` enum('open','in_progress','resolved','closed') NOT NULL DEFAULT 'open',
+  `priority` enum('low','medium','high','urgent') NOT NULL DEFAULT 'medium',
+  `last_message_at` timestamp NULL DEFAULT NULL,
+  `created_at` timestamp NULL DEFAULT NULL,
+  `updated_at` timestamp NULL DEFAULT NULL,
+  PRIMARY KEY (`id`),
+  KEY `support_chats_user_id_status_index` (`user_id`,`status`),
+  KEY `support_chats_support_user_id_index` (`support_user_id`),
+  CONSTRAINT `support_chats_support_user_id_foreign` FOREIGN KEY (`support_user_id`) REFERENCES `users` (`id`) ON DELETE SET NULL,
+  CONSTRAINT `support_chats_user_id_foreign` FOREIGN KEY (`user_id`) REFERENCES `users` (`id`) ON DELETE CASCADE
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+/*!40101 SET character_set_client = @saved_cs_client */;
 DROP TABLE IF EXISTS `support_messages`;
 /*!40101 SET @saved_cs_client     = @@character_set_client */;
 /*!40101 SET character_set_client = utf8mb4 */;
 CREATE TABLE `support_messages` (
   `id` bigint(20) unsigned NOT NULL AUTO_INCREMENT,
-  `ticket_id` bigint(20) unsigned NOT NULL,
+  `support_chat_id` bigint(20) unsigned NOT NULL,
   `user_id` bigint(20) unsigned NOT NULL,
-  `body` text NOT NULL,
+  `message` text NOT NULL,
+  `is_read` tinyint(1) NOT NULL DEFAULT 0,
+  `attachment_path` varchar(255) DEFAULT NULL,
   `created_at` timestamp NULL DEFAULT NULL,
   `updated_at` timestamp NULL DEFAULT NULL,
   PRIMARY KEY (`id`),
-  KEY `support_messages_ticket_id_foreign` (`ticket_id`),
   KEY `support_messages_user_id_foreign` (`user_id`),
-  CONSTRAINT `support_messages_ticket_id_foreign` FOREIGN KEY (`ticket_id`) REFERENCES `support_tickets` (`id`) ON DELETE CASCADE,
+  KEY `support_messages_support_chat_id_created_at_index` (`support_chat_id`,`created_at`),
+  CONSTRAINT `support_messages_ticket_id_foreign` FOREIGN KEY (`support_chat_id`) REFERENCES `support_tickets` (`id`) ON DELETE CASCADE,
   CONSTRAINT `support_messages_user_id_foreign` FOREIGN KEY (`user_id`) REFERENCES `users` (`id`) ON DELETE CASCADE
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
@@ -975,6 +1138,27 @@ CREATE TABLE `tasks` (
   CONSTRAINT `tasks_created_by_foreign` FOREIGN KEY (`created_by`) REFERENCES `users` (`id`) ON DELETE SET NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
+DROP TABLE IF EXISTS `third_party_services`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!40101 SET character_set_client = utf8mb4 */;
+CREATE TABLE `third_party_services` (
+  `id` bigint(20) unsigned NOT NULL AUTO_INCREMENT,
+  `user_id` bigint(20) unsigned NOT NULL,
+  `service_name` varchar(255) NOT NULL,
+  `provider_name` varchar(255) DEFAULT NULL,
+  `description` text DEFAULT NULL,
+  `cost` decimal(15,2) NOT NULL,
+  `frequency` enum('unica','diaria','semanal','mensual','anual') NOT NULL DEFAULT 'mensual',
+  `next_payment_date` date DEFAULT NULL,
+  `is_active` tinyint(1) NOT NULL DEFAULT 1,
+  `created_at` timestamp NULL DEFAULT NULL,
+  `updated_at` timestamp NULL DEFAULT NULL,
+  `deleted_at` timestamp NULL DEFAULT NULL,
+  PRIMARY KEY (`id`),
+  KEY `third_party_services_user_id_foreign` (`user_id`),
+  CONSTRAINT `third_party_services_user_id_foreign` FOREIGN KEY (`user_id`) REFERENCES `users` (`id`) ON DELETE CASCADE
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+/*!40101 SET character_set_client = @saved_cs_client */;
 DROP TABLE IF EXISTS `trainings`;
 /*!40101 SET @saved_cs_client     = @@character_set_client */;
 /*!40101 SET character_set_client = utf8mb4 */;
@@ -1007,6 +1191,42 @@ CREATE TABLE `trainings` (
   KEY `trainings_company_id_is_active_index` (`company_id`,`is_active`),
   KEY `trainings_company_id_is_mandatory_index` (`company_id`,`is_mandatory`),
   CONSTRAINT `trainings_company_id_foreign` FOREIGN KEY (`company_id`) REFERENCES `users` (`id`) ON DELETE CASCADE
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+/*!40101 SET character_set_client = @saved_cs_client */;
+DROP TABLE IF EXISTS `user_notifications`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!40101 SET character_set_client = utf8mb4 */;
+CREATE TABLE `user_notifications` (
+  `id` bigint(20) unsigned NOT NULL AUTO_INCREMENT,
+  `user_id` bigint(20) unsigned NOT NULL,
+  `type` varchar(255) NOT NULL,
+  `title` varchar(255) NOT NULL,
+  `message` text DEFAULT NULL,
+  `data` longtext CHARACTER SET utf8mb4 COLLATE utf8mb4_bin DEFAULT NULL CHECK (json_valid(`data`)),
+  `is_read` tinyint(1) NOT NULL DEFAULT 0,
+  `read_at` timestamp NULL DEFAULT NULL,
+  `created_at` timestamp NULL DEFAULT NULL,
+  `updated_at` timestamp NULL DEFAULT NULL,
+  PRIMARY KEY (`id`),
+  KEY `user_notifications_user_id_is_read_created_at_index` (`user_id`,`is_read`,`created_at`),
+  CONSTRAINT `user_notifications_user_id_foreign` FOREIGN KEY (`user_id`) REFERENCES `users` (`id`) ON DELETE CASCADE
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+/*!40101 SET character_set_client = @saved_cs_client */;
+DROP TABLE IF EXISTS `user_payment_methods`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!40101 SET character_set_client = utf8mb4 */;
+CREATE TABLE `user_payment_methods` (
+  `id` bigint(20) unsigned NOT NULL AUTO_INCREMENT,
+  `user_id` bigint(20) unsigned NOT NULL,
+  `payment_method_id` bigint(20) unsigned NOT NULL,
+  `is_active` tinyint(1) NOT NULL DEFAULT 1,
+  `created_at` timestamp NULL DEFAULT NULL,
+  `updated_at` timestamp NULL DEFAULT NULL,
+  PRIMARY KEY (`id`),
+  UNIQUE KEY `user_payment_methods_user_id_payment_method_id_unique` (`user_id`,`payment_method_id`),
+  KEY `user_payment_methods_payment_method_id_foreign` (`payment_method_id`),
+  CONSTRAINT `user_payment_methods_payment_method_id_foreign` FOREIGN KEY (`payment_method_id`) REFERENCES `payment_methods` (`id`) ON DELETE CASCADE,
+  CONSTRAINT `user_payment_methods_user_id_foreign` FOREIGN KEY (`user_id`) REFERENCES `users` (`id`) ON DELETE CASCADE
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 DROP TABLE IF EXISTS `user_work_group`;
@@ -1045,6 +1265,10 @@ CREATE TABLE `users` (
   `name` varchar(255) NOT NULL,
   `email` varchar(255) NOT NULL,
   `timezone` varchar(191) DEFAULT NULL,
+  `notify_low_stock` tinyint(1) NOT NULL DEFAULT 1,
+  `low_stock_threshold` int(11) NOT NULL DEFAULT 5,
+  `notify_out_of_stock` tinyint(1) NOT NULL DEFAULT 1,
+  `notify_by_email` tinyint(1) NOT NULL DEFAULT 0,
   `email_verified_at` timestamp NULL DEFAULT NULL,
   `password` varchar(255) NOT NULL,
   `two_factor_secret` text DEFAULT NULL,
@@ -1185,3 +1409,23 @@ INSERT INTO `migrations` (`id`, `migration`, `batch`) VALUES (85,'2025_10_24_000
 INSERT INTO `migrations` (`id`, `migration`, `batch`) VALUES (86,'2025_10_24_000002_add_service_to_order_items',33);
 INSERT INTO `migrations` (`id`, `migration`, `batch`) VALUES (87,'2025_10_24_000003_add_use_company_inventory_to_branches',34);
 INSERT INTO `migrations` (`id`, `migration`, `batch`) VALUES (88,'2025_10_24_204613_add_created_by_type_to_products',35);
+INSERT INTO `migrations` (`id`, `migration`, `batch`) VALUES (89,'2025_10_30_000001_add_barcode_to_products_table',36);
+INSERT INTO `migrations` (`id`, `migration`, `batch`) VALUES (90,'2025_10_30_125012_change_product_id_foreign_key_to_null_on_delete_in_order_items',37);
+INSERT INTO `migrations` (`id`, `migration`, `batch`) VALUES (91,'2025_10_30_131622_add_scheduled_fields_to_orders_table',38);
+INSERT INTO `migrations` (`id`, `migration`, `batch`) VALUES (92,'2025_10_30_133555_update_orders_status_enum_add_scheduled',39);
+INSERT INTO `migrations` (`id`, `migration`, `batch`) VALUES (93,'2025_10_30_182452_add_stock_notification_settings_to_users_table',40);
+INSERT INTO `migrations` (`id`, `migration`, `batch`) VALUES (94,'2025_10_30_191915_add_email_notifications_to_users_table',41);
+INSERT INTO `migrations` (`id`, `migration`, `batch`) VALUES (95,'2025_11_04_131843_create_payment_methods_table',42);
+INSERT INTO `migrations` (`id`, `migration`, `batch`) VALUES (96,'2025_11_04_131926_create_order_payment_method_table',42);
+INSERT INTO `migrations` (`id`, `migration`, `batch`) VALUES (97,'2025_11_04_194620_create_support_chats_table',43);
+INSERT INTO `migrations` (`id`, `migration`, `batch`) VALUES (98,'2025_11_05_122923_update_support_tables_structure',43);
+INSERT INTO `migrations` (`id`, `migration`, `batch`) VALUES (99,'2025_11_06_005515_add_is_global_to_payment_methods_table',43);
+INSERT INTO `migrations` (`id`, `migration`, `batch`) VALUES (100,'2025_11_06_005613_make_user_id_nullable_in_payment_methods',44);
+INSERT INTO `migrations` (`id`, `migration`, `batch`) VALUES (101,'2025_11_06_010336_add_user_id_to_clients_table',45);
+INSERT INTO `migrations` (`id`, `migration`, `batch`) VALUES (102,'2025_11_06_123407_create_personal_access_tokens_table',46);
+INSERT INTO `migrations` (`id`, `migration`, `batch`) VALUES (103,'2025_11_10_134608_create_supplier_expenses_table',47);
+INSERT INTO `migrations` (`id`, `migration`, `batch`) VALUES (104,'2025_11_10_134652_create_service_expenses_table',47);
+INSERT INTO `migrations` (`id`, `migration`, `batch`) VALUES (105,'2025_11_10_134723_create_third_party_services_table',47);
+INSERT INTO `migrations` (`id`, `migration`, `batch`) VALUES (106,'2025_11_10_134755_create_production_expenses_table',47);
+INSERT INTO `migrations` (`id`, `migration`, `batch`) VALUES (107,'2025_11_10_142926_create_service_supplies_table',48);
+INSERT INTO `migrations` (`id`, `migration`, `batch`) VALUES (108,'2025_11_10_144240_add_user_id_and_description_to_supplies_table',49);

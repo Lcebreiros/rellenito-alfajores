@@ -144,12 +144,12 @@
       </div>
     </a>
 
-    {{-- Calcular costos --}}
-    <a href="{{ route('costing.calculator') }}" class="{{ $tile }}">
+    {{-- Gastos --}}
+    <a href="{{ route('expenses.index') }}" class="{{ $tile }}">
       <div class="{{ $box }}">
-        <img src="{{ asset('images/calcular-costos.png') }}" alt="Costos" class="{{ $imgCls }}">
-        <div class="{{ $titleCls }}">Calcular costos</div>
-        <div class="{{ $descCls }}">Análisis y recetas</div>
+        <img src="{{ asset('images/calcular-costos.png') }}" alt="Gastos" class="{{ $imgCls }}">
+        <div class="{{ $titleCls }}">Gastos</div>
+        <div class="{{ $descCls }}">Gestión de gastos</div>
       </div>
     </a>
 

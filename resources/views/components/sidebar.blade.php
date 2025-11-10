@@ -469,7 +469,7 @@
       </a>
 
       <!-- Calcular costos -->
-      <a href="{{ route('costing.calculator') }}" wire:navigate data-turbo="false"
+      <a href="{{ route('expenses.index') }}"" wire:navigate data-turbo="false"
          class="nav-link {{ request()->routeIs('costs.*') ? $active : $idle }}"
          :class="collapsed ? 'justify-center flex items-center gap-3 p-3' : 'flex items-center gap-3 p-3'"
          :title="collapsed ? 'Calcular costos' : null">
@@ -477,7 +477,7 @@
           <img src="{{ asset('images/calcular-costos.png') }}" alt="Calcular costos" class="nav-icon">
         </span>
         <span x-show="!collapsed" x-transition:enter="fade-slide-enter" 
-              class="text-sm font-semibold truncate relative z-1">Calcular costos</span>
+              class="text-sm font-semibold truncate relative z-1">Costos</span>
       </a>
 
 @auth

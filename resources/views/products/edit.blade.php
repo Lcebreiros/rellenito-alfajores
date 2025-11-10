@@ -169,6 +169,9 @@
         </form>
       </div>
 
+      {{-- Gestión de Insumos --}}
+      @livewire('product-supplies-manager', ['product' => $product])
+
       {{-- Zona de peligro: eliminar --}}
       <div class="rounded-2xl bg-white dark:bg-neutral-900 ring-1 ring-neutral-200/70 dark:ring-neutral-800 shadow-sm">
         <div class="px-5 py-4 border-b border-neutral-200 dark:border-neutral-800">

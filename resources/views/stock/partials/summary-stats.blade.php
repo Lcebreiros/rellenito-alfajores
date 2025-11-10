@@ -1,26 +1,43 @@
 @php
   $userThreshold = (float) (auth()->user()->low_stock_threshold ?? 10);
+  $isSuppliesTab = ($tab ?? 'products') === 'supplies';
 
-  $outOfStock = $products->getCollection()->filter(function($p) {
-    $stock = (float) ($p->display_stock ?? 0);
-    return $stock <= 0;
-  })->count();
+  if ($isSuppliesTab && isset($supplies)) {
+    // Estadísticas para insumos
+    $outOfStock = $supplies->getCollection()->filter(function($s) {
+      return $s->stock_base_qty <= 0;
+    })->count();
 
-  $lowStock = $products->getCollection()->filter(function($p) use ($userThreshold) {
-    $stock = (float) ($p->display_stock ?? 0);
-    return $stock > 0 && $stock <= $userThreshold;
-  })->count();
+    $lowStock = $supplies->getCollection()->filter(function($s) {
+      return $s->stock_base_qty > 0 && $s->stock_base_qty < 10;
+    })->count();
+
+    $label = 'Insumos';
+  } else {
+    // Estadísticas para productos
+    $outOfStock = $products->getCollection()->filter(function($p) {
+      $stock = (float) ($p->display_stock ?? 0);
+      return $stock <= 0;
+    })->count();
+
+    $lowStock = $products->getCollection()->filter(function($p) use ($userThreshold) {
+      $stock = (float) ($p->display_stock ?? 0);
+      return $stock > 0 && $stock <= $userThreshold;
+    })->count();
+
+    $label = 'Productos';
+  }
 
   $stats = [
     [
-      'label' => 'Productos',
+      'label' => $label,
       'value' => number_format($totals['items']),
-      'icon' => 'fa-box',
+      'icon' => $isSuppliesTab ? 'fa-boxes-stacked' : 'fa-box',
       'color' => 'indigo'
     ],
     [
       'label' => 'Unidades',
-      'value' => number_format($totals['units']),
+      'value' => number_format($totals['units'], 0, ',', '.'),
       'icon' => 'fa-layer-group',
       'color' => 'blue'
     ],

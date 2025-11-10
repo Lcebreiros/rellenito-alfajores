@@ -175,7 +175,7 @@
                       <div class="w-1 h-1 bg-blue-500 rounded-full"></div>
                       <span class="text-slate-600 dark:text-neutral-400">Stock:</span>
                       <span class="font-medium text-slate-900 dark:text-neutral-100">
-                        {{ number_format((float)($s->stock_base_qty ?? 0), 2, ',', '.') }} {{ $s->base_unit }}
+                        {{ $s->formatted_stock ?? number_format((float)($s->stock_base_qty ?? 0), 0, ',', '.') }} {{ $s->base_unit }}
                       </span>
                     </div>
                     <div class="flex items-center gap-2">

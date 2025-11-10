@@ -243,23 +243,210 @@ class Order extends Model
     }
 
     /**
-     * Reduce stock de productos. Debe lanzar excepcion si algo falla para provocar rollback.
+     * Reduce stock de productos e insumos. Debe lanzar excepcion si algo falla para provocar rollback.
      */
     protected function reduceProductStock(): void
     {
         /** @var StockService $stock */
         $stock = app(StockService::class);
 
+        \Log::info('Iniciando descuento de stock para orden', [
+            'order_id' => $this->id,
+            'items_count' => $this->items->count()
+        ]);
+
         foreach ($this->items as $item) {
+            // Descontar stock del producto
             $product = $item->product;
-            if (!$product) {
-                // Línea de servicio: no ajustar stock
+            if ($product) {
+                \Log::info('Procesando item con producto', [
+                    'order_id' => $this->id,
+                    'item_id' => $item->id,
+                    'product_id' => $product->id,
+                    'product_name' => $product->name,
+                    'quantity' => $item->quantity
+                ]);
+
+                $stock->adjust($product, - (int) $item->quantity, 'venta', $this);
+
+                // Descontar insumos del producto
+                $this->reduceSuppliesForProduct($product, $item->quantity);
+            }
+
+            // Descontar insumos del servicio
+            $service = $item->service;
+            if ($service) {
+                \Log::info('Procesando item con servicio', [
+                    'order_id' => $this->id,
+                    'item_id' => $item->id,
+                    'service_id' => $service->id,
+                    'service_name' => $service->name,
+                    'quantity' => $item->quantity
+                ]);
+
+                $this->reduceSuppliesForService($service, $item->quantity);
+            }
+
+            if (!$product && !$service) {
+                \Log::warning('Item sin producto ni servicio', [
+                    'order_id' => $this->id,
+                    'item_id' => $item->id,
+                    'product_id' => $item->product_id,
+                    'service_id' => $item->service_id
+                ]);
+            }
+        }
+
+        \Log::info('Finalizado descuento de stock para orden', [
+            'order_id' => $this->id
+        ]);
+    }
+
+    /**
+     * Descuenta los insumos asociados a un producto
+     */
+    protected function reduceSuppliesForProduct(Product $product, $quantity): void
+    {
+        $recipes = ProductRecipe::where('product_id', $product->id)->get();
+
+        \Log::info('Descuento de insumos para producto', [
+            'order_id' => $this->id,
+            'product_id' => $product->id,
+            'product_name' => $product->name,
+            'quantity' => $quantity,
+            'recipes_count' => $recipes->count()
+        ]);
+
+        foreach ($recipes as $recipe) {
+            $supply = Supply::withoutGlobalScope('byUser')->find($recipe->supply_id);
+            if (!$supply) {
+                \Log::warning('Insumo no encontrado para receta', [
+                    'order_id' => $this->id,
+                    'product_id' => $product->id,
+                    'supply_id' => $recipe->supply_id,
+                    'recipe_id' => $recipe->id
+                ]);
                 continue;
             }
 
-            // El StockService valida stock negativo, etc.
-            $stock->adjust($product, - (int) $item->quantity, 'venta', $this);
+            // Calcular cuánto insumo se necesita
+            $qtyNeeded = $recipe->qty * $quantity;
+
+            // Aplicar porcentaje de desperdicio
+            if ($recipe->waste_pct > 0) {
+                $qtyNeeded *= (1 + ($recipe->waste_pct / 100));
+            }
+
+            // Convertir a unidad base del insumo
+            $qtyInBase = $this->convertToBaseUnit($qtyNeeded, $recipe->unit, $supply->base_unit);
+
+            $stockBefore = $supply->stock_base_qty;
+
+            // Descontar del stock del insumo
+            $supply->stock_base_qty -= $qtyInBase;
+            $supply->save();
+
+            \Log::info('Insumo descontado', [
+                'order_id' => $this->id,
+                'supply_id' => $supply->id,
+                'supply_name' => $supply->name,
+                'qty_needed' => $qtyNeeded,
+                'recipe_unit' => $recipe->unit,
+                'supply_base_unit' => $supply->base_unit,
+                'qty_in_base' => $qtyInBase,
+                'stock_before' => $stockBefore,
+                'stock_after' => $supply->stock_base_qty,
+                'waste_pct' => $recipe->waste_pct
+            ]);
         }
+    }
+
+    /**
+     * Descuenta los insumos asociados a un servicio
+     */
+    protected function reduceSuppliesForService(Service $service, $quantity): void
+    {
+        $serviceSupplies = ServiceSupply::where('service_id', $service->id)->get();
+
+        \Log::info('Descuento de insumos para servicio', [
+            'order_id' => $this->id,
+            'service_id' => $service->id,
+            'service_name' => $service->name,
+            'quantity' => $quantity,
+            'supplies_count' => $serviceSupplies->count()
+        ]);
+
+        foreach ($serviceSupplies as $ss) {
+            $supply = Supply::withoutGlobalScope('byUser')->find($ss->supply_id);
+            if (!$supply) {
+                \Log::warning('Insumo no encontrado para servicio', [
+                    'order_id' => $this->id,
+                    'service_id' => $service->id,
+                    'supply_id' => $ss->supply_id,
+                    'service_supply_id' => $ss->id
+                ]);
+                continue;
+            }
+
+            // Calcular cuánto insumo se necesita
+            $qtyNeeded = $ss->qty * $quantity;
+
+            // Aplicar porcentaje de desperdicio
+            if ($ss->waste_pct > 0) {
+                $qtyNeeded *= (1 + ($ss->waste_pct / 100));
+            }
+
+            // Convertir a unidad base del insumo
+            $qtyInBase = $this->convertToBaseUnit($qtyNeeded, $ss->unit, $supply->base_unit);
+
+            $stockBefore = $supply->stock_base_qty;
+
+            // Descontar del stock del insumo
+            $supply->stock_base_qty -= $qtyInBase;
+            $supply->save();
+
+            \Log::info('Insumo descontado del servicio', [
+                'order_id' => $this->id,
+                'supply_id' => $supply->id,
+                'supply_name' => $supply->name,
+                'qty_needed' => $qtyNeeded,
+                'service_supply_unit' => $ss->unit,
+                'supply_base_unit' => $supply->base_unit,
+                'qty_in_base' => $qtyInBase,
+                'stock_before' => $stockBefore,
+                'stock_after' => $supply->stock_base_qty,
+                'waste_pct' => $ss->waste_pct
+            ]);
+        }
+    }
+
+    /**
+     * Convierte cantidad de una unidad a unidad base del insumo
+     */
+    protected function convertToBaseUnit($qty, $fromUnit, $baseUnit): float
+    {
+        // Factores de conversión a unidad base
+        $conversions = [
+            // Gramos
+            'g' => ['g' => 1, 'kg' => 1000],
+            // Mililitros
+            'ml' => ['ml' => 1, 'l' => 1000, 'cm3' => 1],
+            // Unidades
+            'u' => ['u' => 1],
+        ];
+
+        if ($baseUnit === 'g' && isset($conversions['g'][$fromUnit])) {
+            return $qty * $conversions['g'][$fromUnit];
+        }
+        if ($baseUnit === 'ml' && isset($conversions['ml'][$fromUnit])) {
+            return $qty * $conversions['ml'][$fromUnit];
+        }
+        if ($baseUnit === 'u' && $fromUnit === 'u') {
+            return $qty;
+        }
+
+        // Si no hay conversión directa, retornar la cantidad original
+        return $qty;
     }
 
     /**

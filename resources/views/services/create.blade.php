@@ -149,6 +149,20 @@
 
       </div>
 
+      {{-- Nota sobre Insumos --}}
+      <div class="rounded-lg border border-blue-200 bg-blue-50 dark:border-blue-800 dark:bg-blue-900/20 p-4">
+        <div class="flex items-start gap-3">
+          <svg class="h-5 w-5 text-blue-600 dark:text-blue-400 mt-0.5 flex-shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/>
+          </svg>
+          <div class="text-sm text-blue-800 dark:text-blue-300">
+            <p class="font-medium mb-1">Insumos del Servicio</p>
+            <p>Después de crear el servicio, podrás asignarle insumos (materiales, emboltorios, etc.) desde la vista de edición.
+               Los insumos se descuentan automáticamente del stock al vender el servicio.</p>
+          </div>
+        </div>
+      </div>
+
       {{-- Botones de acción --}}
       <div class="flex flex-col-reverse sm:flex-row items-stretch sm:items-center gap-3 pt-8 mt-8 border-t-2 border-neutral-100 dark:border-neutral-700">
         <a 

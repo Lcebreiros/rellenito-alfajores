@@ -45,6 +45,12 @@
       <a href="{{ route('services.index') }}" class="ml-2 text-sm text-neutral-600 hover:underline dark:text-neutral-300">Cancelar</a>
     </div>
   </form>
+
+  {{-- Gestión de Insumos --}}
+  <div class="mt-6">
+    @livewire('service-supplies-manager', ['service' => $service])
+  </div>
+
 </div>
 @endsection
 

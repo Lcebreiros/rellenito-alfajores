@@ -92,8 +92,28 @@
     </div>
   @endif
 
-  {{-- Panel de Sucursales (solo para vista company) --}}
-  @if($isCompanyView && !empty($branchList))
+  {{-- Pestañas --}}
+  <div class="mb-6">
+    <div class="border-b border-gray-200 dark:border-neutral-700">
+      <nav class="-mb-px flex space-x-8" aria-label="Tabs">
+        <a href="{{ route('stock.index', array_merge(request()->except('tab'), ['tab' => 'products'])) }}"
+           class="@if(($tab ?? 'products') === 'products') border-indigo-500 text-indigo-600 dark:border-indigo-400 dark:text-indigo-400 @else border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300 dark:text-neutral-400 dark:hover:text-neutral-300 @endif
+                  whitespace-nowrap py-4 px-1 border-b-2 font-medium text-sm transition-colors">
+          <i class="fas fa-box mr-2"></i>
+          Productos
+        </a>
+        <a href="{{ route('stock.index', array_merge(request()->except('tab'), ['tab' => 'supplies'])) }}"
+           class="@if(($tab ?? 'products') === 'supplies') border-indigo-500 text-indigo-600 dark:border-indigo-400 dark:text-indigo-400 @else border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300 dark:text-neutral-400 dark:hover:text-neutral-300 @endif
+                  whitespace-nowrap py-4 px-1 border-b-2 font-medium text-sm transition-colors">
+          <i class="fas fa-boxes-stacked mr-2"></i>
+          Insumos
+        </a>
+      </nav>
+    </div>
+  </div>
+
+  {{-- Panel de Sucursales (solo para vista company en productos) --}}
+  @if(($tab ?? 'products') === 'products' && $isCompanyView && !empty($branchList))
     @include('stock.partials.branch-list', [
       'branchList' => $branchList,
       'branchStocks' => $branchStocks ?? [],
@@ -104,42 +124,110 @@
   {{-- Estadísticas resumen --}}
   @include('stock.partials.summary-stats', [
     'totals' => $totals ?? ['items' => 0, 'units' => 0, 'value' => 0],
-    'products' => $products
+    'products' => $products ?? null,
+    'supplies' => $supplies ?? null,
+    'tab' => $tab ?? 'products'
   ])
 
-  {{-- Filtros rápidos --}}
-  @include('stock.partials.filters', [
-    'currentStatus' => request('status', ''),
-    'currentQuery' => request('q'),
-    'currentOrderBy' => request('order_by', 'name'),
-    'currentDir' => request('dir', 'asc'),
-    'branchId' => $branchId ?? null
-  ])
+  @if(($tab ?? 'products') === 'products')
+    {{-- Filtros rápidos para productos --}}
+    @include('stock.partials.filters', [
+      'currentStatus' => request('status', ''),
+      'currentQuery' => request('q'),
+      'currentOrderBy' => request('order_by', 'name'),
+      'currentDir' => request('dir', 'asc'),
+      'branchId' => $branchId ?? null
+    ])
 
-  {{-- Grid de productos --}}
-  <div class="bg-white dark:bg-neutral-900 rounded-xl shadow-sm border border-gray-100 dark:border-neutral-700 dark:ring-1 dark:ring-indigo-500/10 p-4">
-    @if($products->count() === 0)
-      <div class="py-16 text-center">
-        <i class="fas fa-magnifying-glass text-gray-300 dark:text-neutral-600 text-5xl mb-3" aria-hidden="true"></i>
-        <div class="text-gray-600 dark:text-neutral-300">No hay productos para mostrar con los filtros actuales.</div>
-      </div>
-    @else
-      <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-3">
-        @foreach($products as $p)
-          @include('stock.partials.product-card', [
-            'product' => $p,
-            'branchId' => $branchId ?? null
-          ])
-        @endforeach
+    {{-- Grid de productos --}}
+    <div class="bg-white dark:bg-neutral-900 rounded-xl shadow-sm border border-gray-100 dark:border-neutral-700 dark:ring-1 dark:ring-indigo-500/10 p-4">
+      @if($products->count() === 0)
+        <div class="py-16 text-center">
+          <i class="fas fa-magnifying-glass text-gray-300 dark:text-neutral-600 text-5xl mb-3" aria-hidden="true"></i>
+          <div class="text-gray-600 dark:text-neutral-300">No hay productos para mostrar con los filtros actuales.</div>
+        </div>
+      @else
+        <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-3">
+          @foreach($products as $p)
+            @include('stock.partials.product-card', [
+              'product' => $p,
+              'branchId' => $branchId ?? null
+            ])
+          @endforeach
+        </div>
+      @endif
+    </div>
+
+    {{-- Paginación --}}
+    @if($products->hasPages())
+      <div class="mt-6 print:hidden">
+        {{ $products->withQueryString()->links() }}
       </div>
     @endif
-  </div>
+  @else
+    {{-- Vista de insumos --}}
+    {{-- Barra de búsqueda y ordenamiento --}}
+    <div class="mb-6 bg-white dark:bg-neutral-900 rounded-xl shadow-sm border border-gray-100 dark:border-neutral-700 p-4">
+      <form method="GET" action="{{ route('stock.index') }}" class="flex flex-col sm:flex-row gap-3">
+        <input type="hidden" name="tab" value="supplies">
 
-  {{-- Paginación --}}
-  @if($products->hasPages())
-    <div class="mt-6 print:hidden">
-      {{ $products->withQueryString()->links() }}
+        <div class="flex-1">
+          <input type="text"
+                 name="q"
+                 value="{{ request('q') }}"
+                 placeholder="Buscar insumos..."
+                 class="w-full px-4 py-2 border border-gray-300 dark:border-neutral-600 rounded-lg
+                        focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500
+                        dark:bg-neutral-800 dark:text-neutral-100">
+        </div>
+
+        <select name="order_by"
+                class="px-4 py-2 border border-gray-300 dark:border-neutral-600 rounded-lg
+                       focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500
+                       dark:bg-neutral-800 dark:text-neutral-100">
+          <option value="name" {{ request('order_by') === 'name' ? 'selected' : '' }}>Nombre</option>
+          <option value="stock" {{ request('order_by') === 'stock' ? 'selected' : '' }}>Stock</option>
+          <option value="value" {{ request('order_by') === 'value' ? 'selected' : '' }}>Valorización</option>
+        </select>
+
+        <select name="dir"
+                class="px-4 py-2 border border-gray-300 dark:border-neutral-600 rounded-lg
+                       focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500
+                       dark:bg-neutral-800 dark:text-neutral-100">
+          <option value="asc" {{ request('dir') === 'asc' ? 'selected' : '' }}>Ascendente</option>
+          <option value="desc" {{ request('dir') === 'desc' ? 'selected' : '' }}>Descendente</option>
+        </select>
+
+        <button type="submit"
+                class="px-6 py-2 bg-indigo-600 text-white rounded-lg hover:bg-indigo-700
+                       focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2 transition-colors">
+          Buscar
+        </button>
+      </form>
     </div>
+
+    {{-- Grid de insumos --}}
+    <div class="bg-white dark:bg-neutral-900 rounded-xl shadow-sm border border-gray-100 dark:border-neutral-700 dark:ring-1 dark:ring-indigo-500/10 p-4">
+      @if($supplies->count() === 0)
+        <div class="py-16 text-center">
+          <i class="fas fa-magnifying-glass text-gray-300 dark:text-neutral-600 text-5xl mb-3" aria-hidden="true"></i>
+          <div class="text-gray-600 dark:text-neutral-300">No hay insumos para mostrar.</div>
+        </div>
+      @else
+        <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-3">
+          @foreach($supplies as $supply)
+            @include('stock.partials.supply-card', ['supply' => $supply])
+          @endforeach
+        </div>
+      @endif
+    </div>
+
+    {{-- Paginación --}}
+    @if($supplies->hasPages())
+      <div class="mt-6 print:hidden">
+        {{ $supplies->withQueryString()->links() }}
+      </div>
+    @endif
   @endif
 </div>
 

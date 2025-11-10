@@ -18,6 +18,7 @@ use App\Http\Controllers\CalculatorController;
 use App\Http\Controllers\Master\InvitationController;
 use App\Http\Controllers\Master\UserController;
 use App\Http\Controllers\PaymentMethodController;
+use App\Http\Controllers\ExpenseController;
 
 // Company Controllers
 use App\Http\Controllers\Company\BranchController;
@@ -258,6 +259,39 @@ Route::middleware([
 
     // ============ SERVICIOS ============
     Route::resource('services', ServiceController::class);
+
+    // ============ GASTOS ============
+    Route::get('/expenses', [ExpenseController::class, 'index'])->name('expenses.index');
+
+    // Gastos de proveedores
+    Route::get('/expenses/suppliers', [ExpenseController::class, 'suppliers'])->name('expenses.suppliers');
+    Route::post('/expenses/suppliers', [ExpenseController::class, 'storeSupplier'])->name('expenses.suppliers.store');
+    Route::put('/expenses/suppliers/{expense}', [ExpenseController::class, 'updateSupplier'])->name('expenses.suppliers.update');
+    Route::delete('/expenses/suppliers/{expense}', [ExpenseController::class, 'destroySupplier'])->name('expenses.suppliers.destroy');
+
+    // Gastos de servicios
+    Route::get('/expenses/services', [ExpenseController::class, 'services'])->name('expenses.services');
+    Route::post('/expenses/services', [ExpenseController::class, 'storeService'])->name('expenses.services.store');
+    Route::put('/expenses/services/{expense}', [ExpenseController::class, 'updateService'])->name('expenses.services.update');
+    Route::delete('/expenses/services/{expense}', [ExpenseController::class, 'destroyService'])->name('expenses.services.destroy');
+
+    // Servicios de terceros
+    Route::get('/expenses/third-party', [ExpenseController::class, 'thirdParty'])->name('expenses.third-party');
+    Route::post('/expenses/third-party', [ExpenseController::class, 'storeThirdParty'])->name('expenses.third-party.store');
+    Route::put('/expenses/third-party/{service}', [ExpenseController::class, 'updateThirdParty'])->name('expenses.third-party.update');
+    Route::delete('/expenses/third-party/{service}', [ExpenseController::class, 'destroyThirdParty'])->name('expenses.third-party.destroy');
+
+    // Gastos de producción
+    Route::get('/expenses/production', [ExpenseController::class, 'production'])->name('expenses.production');
+    Route::post('/expenses/production', [ExpenseController::class, 'storeProduction'])->name('expenses.production.store');
+    Route::put('/expenses/production/{expense}', [ExpenseController::class, 'updateProduction'])->name('expenses.production.update');
+    Route::delete('/expenses/production/{expense}', [ExpenseController::class, 'destroyProduction'])->name('expenses.production.destroy');
+
+    // Insumos
+    Route::get('/expenses/supplies', [ExpenseController::class, 'supplies'])->name('expenses.supplies');
+    Route::post('/expenses/supplies', [ExpenseController::class, 'storeSupply'])->name('expenses.supplies.store');
+    Route::put('/expenses/supplies/{supply}', [ExpenseController::class, 'updateSupply'])->name('expenses.supplies.update');
+    Route::delete('/expenses/supplies/{supply}', [ExpenseController::class, 'destroySupply'])->name('expenses.supplies.destroy');
 
     // ============ MÉTODOS DE PAGO ============
     Route::resource('payment-methods', PaymentMethodController::class)->except(['show']);

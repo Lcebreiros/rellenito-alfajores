@@ -13,6 +13,7 @@ class Supply extends Model
     protected $fillable = [
         'user_id',
         'name',
+        'description',
         'base_unit',          // 'g' | 'ml' | 'u'
         'stock_base_qty',     // en unidad base
         'avg_cost_per_base',  // $ por unidad base
@@ -23,9 +24,27 @@ class Supply extends Model
         'avg_cost_per_base'  => 'decimal:6',
     ];
 
+    protected $appends = ['formatted_stock'];
+
     public function purchases(): HasMany
     {
         return $this->hasMany(SupplyPurchase::class);
+    }
+
+    /**
+     * Accessor: Formatea el stock eliminando decimales innecesarios
+     */
+    public function getFormattedStockAttribute(): string
+    {
+        $stock = (float) $this->stock_base_qty;
+
+        // Si el stock es entero, mostrar sin decimales
+        if ($stock == floor($stock)) {
+            return number_format($stock, 0, ',', '.');
+        }
+
+        // Si tiene decimales, mostrar máximo 2 y eliminar ceros finales
+        return rtrim(rtrim(number_format($stock, 2, ',', '.'), '0'), ',');
     }
 
     /**

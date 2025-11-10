@@ -146,7 +146,7 @@ class OrderController extends Controller
                     'product_id' => $product->id,
                     'user_id' => $auth->id,
                     'quantity' => $quantity,
-                    'price' => $price,
+                    'unit_price' => $price,
                     'subtotal' => $subtotal,
                 ]);
 
@@ -251,7 +251,7 @@ class OrderController extends Controller
             'product_id' => $product->id,
             'user_id' => $auth->id,
             'quantity' => $quantity,
-            'price' => $price,
+            'unit_price' => $price,
             'subtotal' => $subtotal,
         ]);
 
@@ -333,20 +333,12 @@ class OrderController extends Controller
         ]);
 
         return DB::transaction(function () use ($order, $validated) {
-            // Descontar stock
-            foreach ($order->items as $item) {
-                $product = $item->product;
-                if ($product) {
-                    $newStock = max(0, $product->stock - $item->quantity);
-                    $product->update(['stock' => $newStock]);
-                }
-            }
+            // Finalizar usando la misma lógica del panel (descuenta productos e insumos)
+            $order->markAsCompleted(now());
 
-            // Actualizar pedido
+            // Actualizar estado de pago
             $order->update([
-                'status' => OrderStatus::COMPLETED,
                 'payment_status' => PaymentStatus::from($validated['payment_status']),
-                'sold_at' => now(),
             ]);
 
             // Registrar método de pago si se proporciona

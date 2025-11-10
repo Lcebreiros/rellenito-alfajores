@@ -248,27 +248,15 @@ public function finalize(): void
                 throw new DomainException('El pedido está vacío.');
             }
 
-            // Verificar stock
+            // Verificar stock de productos
             foreach ($order->items as $item) {
                 if ($item->product && $item->product->stock < $item->quantity) {
                     throw new DomainException("Stock insuficiente: {$item->product->name}");
-                }
-            }
-
-            // Ajustar stock (usar adjustStock para que dispare notificaciones)
-            foreach ($order->items as $item) {
-                if ($item->product) {
-                    $item->product->adjustStock(
-                        -$item->quantity,
-                        'pedido_completado',
-                        auth()->user(),
-                        $order
-                    );
                     $affectedProductIds[] = $item->product->id;
                 }
             }
 
-            // Asociar métodos de pago seleccionados
+            // Asociar métodos de pago seleccionados ANTES de finalizar
             if (!empty($this->selectedPaymentMethods)) {
                 $pivotData = [];
                 $totalAmount = $order->total;
@@ -289,10 +277,16 @@ public function finalize(): void
                 $order->paymentMethods()->sync($pivotData);
             }
 
-            // Recalcular total y finalizar pedido
-            $order->recalcTotal();
-            $order->status = \App\Enums\OrderStatus::COMPLETED;
-            $order->save();
+            // Usar markAsCompleted() que descuenta stock de productos e insumos
+            // Este método ya hace todo: recalcTotal, ajusta stock de productos, descuenta insumos
+            $order->markAsCompleted(now());
+
+            // Recopilar IDs de productos afectados para notificar
+            foreach ($order->items as $item) {
+                if ($item->product) {
+                    $affectedProductIds[] = $item->product->id;
+                }
+            }
 
             $finishedId = (int) $order->id;
         });
