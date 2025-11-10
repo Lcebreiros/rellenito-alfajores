@@ -51,7 +51,8 @@ class ProductSuppliesManager extends Component
 
     public function loadSupplies()
     {
-        $this->supplies = Supply::where('user_id', auth()->id())
+        $user = auth()->user();
+        $this->supplies = Supply::availableFor($user)
             ->orderBy('name')
             ->get()
             ->map(function($supply) {

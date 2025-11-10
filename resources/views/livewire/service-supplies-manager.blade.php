@@ -50,6 +50,7 @@
           <option value="kg">Kilogramos (kg)</option>
           <option value="ml">Mililitros (ml)</option>
           <option value="l">Litros (l)</option>
+          <option value="cm3">Centímetros cúbicos (cm3)</option>
           <option value="u">Unidades (u)</option>
         </select>
         @error('unit') <p class="mt-1 text-xs text-rose-600">{{ $message }}</p> @enderror

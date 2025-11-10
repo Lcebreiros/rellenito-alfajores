@@ -22,7 +22,7 @@ class ServiceSuppliesManager extends Component
     protected $rules = [
         'supply_id' => 'required|exists:supplies,id',
         'qty' => 'required|numeric|min:0.001',
-        'unit' => 'required|in:g,kg,ml,l,u',
+        'unit' => 'required|in:g,kg,ml,l,cm3,u',
         'waste_pct' => 'nullable|numeric|min:0|max:100',
     ];
 
@@ -51,7 +51,8 @@ class ServiceSuppliesManager extends Component
 
     public function loadSupplies()
     {
-        $this->supplies = Supply::where('user_id', auth()->id())
+        $user = auth()->user();
+        $this->supplies = Supply::availableFor($user)
             ->orderBy('name')
             ->get()
             ->map(function($supply) {

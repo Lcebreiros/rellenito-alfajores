@@ -3,6 +3,7 @@
 namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use App\Models\Concerns\BelongsToUser;
 
@@ -29,6 +30,48 @@ class Supply extends Model
     public function purchases(): HasMany
     {
         return $this->hasMany(SupplyPurchase::class);
+    }
+
+    /**
+     * Alcance: insumos disponibles para un usuario (multi-tenant con jerarquía).
+     * - Master: todos
+     * - Company: propios (user_id = company.id)
+     * - Branch (admin): si usa inventario de empresa -> insumos de la company; si no, propios
+     * - Usuario regular: si su parent (branch) usa inventario de empresa -> insumos de la company; si no, del parent
+     */
+    public function scopeAvailableFor(Builder $query, \App\Models\User $user): Builder
+    {
+        $query = $query->withoutGlobalScope('byUser');
+
+        if (method_exists($user, 'isMaster') && $user->isMaster()) {
+            return $query;
+        }
+
+        if (method_exists($user, 'isCompany') && $user->isCompany()) {
+            return $query->where('user_id', $user->id);
+        }
+
+        if (method_exists($user, 'isAdmin') && $user->isAdmin()) {
+            $company = $user->rootCompany();
+            $branch  = $user->branch();
+            if ($branch && (bool)($branch->use_company_inventory ?? false)) {
+                return $query->where('user_id', $company?->id ?? 0);
+            }
+            return $query->where('user_id', $user->id);
+        }
+
+        // Usuario regular: derivar del parent (branch)
+        if (!empty($user->parent_id)) {
+            $parent  = $user->parent;
+            $company = $user->rootCompany();
+            $parentBranch = $parent?->branch();
+            if ($parentBranch && (bool)($parentBranch->use_company_inventory ?? false)) {
+                return $query->where('user_id', $company?->id ?? 0);
+            }
+            return $query->where('user_id', $user->parent_id);
+        }
+
+        return $query->whereRaw('1 = 0');
     }
 
     /**
