@@ -23,27 +23,24 @@ class ExpenseController extends Controller
     {
         $user = Auth::user();
 
-        // Obtener todos los gastos del usuario
-        $supplierExpenses = SupplierExpense::where('user_id', $user->id)
-            ->where('is_active', true)
+        // Obtener todos los gastos del usuario (BelongsToUser trait aplica filtro automático)
+        $supplierExpenses = SupplierExpense::where('is_active', true)
             ->with('product')
             ->get();
 
-        $serviceExpenses = ServiceExpense::where('user_id', $user->id)
-            ->where('is_active', true)
+        $serviceExpenses = ServiceExpense::where('is_active', true)
             ->with('service')
             ->get();
 
-        $thirdPartyServices = ThirdPartyService::where('user_id', $user->id)
-            ->where('is_active', true)
+        $thirdPartyServices = ThirdPartyService::where('is_active', true)
             ->get();
 
-        $productionExpenses = ProductionExpense::where('user_id', $user->id)
-            ->where('is_active', true)
+        $productionExpenses = ProductionExpense::where('is_active', true)
             ->with('product')
             ->get();
 
-        $supplies = Supply::where('user_id', $user->id)->get();
+        // Los insumos ya se filtran automáticamente por BelongsToUser trait
+        $supplies = Supply::all();
 
         // Calcular totales
         $totalSupplier = $supplierExpenses->sum(fn($e) => $e->annualized_cost);
@@ -72,8 +69,7 @@ class ExpenseController extends Controller
     public function suppliers()
     {
         $user = Auth::user();
-        $expenses = SupplierExpense::where('user_id', $user->id)
-            ->with('product')
+        $expenses = SupplierExpense::with('product')
             ->latest()
             ->get();
 
@@ -135,8 +131,7 @@ class ExpenseController extends Controller
     public function services()
     {
         $user = Auth::user();
-        $expenses = ServiceExpense::where('user_id', $user->id)
-            ->with('service')
+        $expenses = ServiceExpense::with('service')
             ->latest()
             ->get();
 
@@ -193,9 +188,7 @@ class ExpenseController extends Controller
      */
     public function thirdParty()
     {
-        $user = Auth::user();
-        $services = ThirdPartyService::where('user_id', $user->id)
-            ->latest()
+        $services = ThirdPartyService::latest()
             ->get();
 
         return view('expenses.third-party', compact('services'));
@@ -252,8 +245,7 @@ class ExpenseController extends Controller
     public function production()
     {
         $user = Auth::user();
-        $expenses = ProductionExpense::where('user_id', $user->id)
-            ->with('product')
+        $expenses = ProductionExpense::with('product')
             ->latest()
             ->get();
 
@@ -313,9 +305,8 @@ class ExpenseController extends Controller
 
     public function supplies()
     {
-        $user = Auth::user();
-        $supplies = Supply::where('user_id', $user->id)
-            ->with('purchases')
+        // BelongsToUser trait filtra automáticamente por usuario
+        $supplies = Supply::with('purchases')
             ->latest()
             ->get();
 
