@@ -7,8 +7,10 @@ use Illuminate\Support\Facades\URL;
 use Inertia\Inertia;
 use App\Models\Product;
 use App\Models\OrderItem;
+use App\Models\Order;
 use App\Observers\ProductObserver;
 use App\Observers\OrderItemObserver;
+use App\Observers\OrderObserver;
 
 class AppServiceProvider extends ServiceProvider
 {
@@ -33,5 +35,6 @@ public function boot()
     // Registrar observers
     Product::observe(ProductObserver::class);
     OrderItem::observe(OrderItemObserver::class);
+    Order::observe(OrderObserver::class);
 }
 }

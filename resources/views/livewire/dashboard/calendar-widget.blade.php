@@ -8,13 +8,34 @@
       <h3 class="text-sm font-semibold text-neutral-900 dark:text-neutral-100">Calendario</h3>
       <div class="text-xs text-neutral-500 dark:text-neutral-400 mt-0.5">{{ $currentMonth }}</div>
     </div>
-    <button @click="showCalendar = true"
-            class="p-1.5 rounded-lg hover:bg-neutral-100 dark:hover:bg-neutral-800 transition-colors"
-            title="Ver calendario completo">
-      <svg class="w-4 h-4 text-neutral-600 dark:text-neutral-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"></path>
-      </svg>
-    </button>
+    <div class="flex items-center gap-2">
+      @if(auth()->user()->google_access_token && auth()->user()->google_refresh_token)
+        {{-- Connected to Google Calendar --}}
+        <div class="flex items-center gap-1.5 px-2 py-1 bg-green-50 dark:bg-green-900/20 rounded-lg" title="Conectado con Google Calendar">
+          <svg class="w-3 h-3 text-green-600 dark:text-green-400" fill="currentColor" viewBox="0 0 20 20">
+            <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd"></path>
+          </svg>
+          <span class="text-[10px] font-medium text-green-700 dark:text-green-300">Google</span>
+        </div>
+      @else
+        {{-- Not connected - show connect button --}}
+        <a href="{{ route('google.connect') }}"
+           class="flex items-center gap-1.5 px-2 py-1 bg-blue-50 dark:bg-blue-900/20 hover:bg-blue-100 dark:hover:bg-blue-900/30 rounded-lg transition-colors"
+           title="Conectar con Google Calendar">
+          <svg class="w-3 h-3 text-blue-600 dark:text-blue-400" fill="currentColor" viewBox="0 0 24 24">
+            <path d="M12.48 10.92v3.28h7.84c-.24 1.84-.853 3.187-1.787 4.133-1.147 1.147-2.933 2.4-6.053 2.4-4.827 0-8.6-3.893-8.6-8.72s3.773-8.72 8.6-8.72c2.6 0 4.507 1.027 5.907 2.347l2.307-2.307C18.747 1.44 16.133 0 12.48 0 5.867 0 .307 5.387.307 12s5.56 12 12.173 12c3.573 0 6.267-1.173 8.373-3.36 2.16-2.16 2.84-5.213 2.84-7.667 0-.76-.053-1.467-.173-2.053H12.48z"/>
+          </svg>
+          <span class="text-[10px] font-medium text-blue-700 dark:text-blue-300">Conectar</span>
+        </a>
+      @endif
+      <button @click="showCalendar = true"
+              class="p-1.5 rounded-lg hover:bg-neutral-100 dark:hover:bg-neutral-800 transition-colors"
+              title="Ver calendario completo">
+        <svg class="w-4 h-4 text-neutral-600 dark:text-neutral-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"></path>
+        </svg>
+      </button>
+    </div>
   </div>
 
   {{-- Mini Stats --}}
@@ -192,6 +213,22 @@
           </div>
 
           <p class="text-[10px] sm:text-xs font-medium text-neutral-600 dark:text-neutral-400">{{ $currentMonth }}</p>
+
+          @if(auth()->user()->google_access_token && auth()->user()->google_refresh_token)
+            {{-- Disconnect button --}}
+            <form action="{{ route('google.disconnect') }}" method="POST" class="inline">
+              @csrf
+              <button type="submit"
+                      onclick="return confirm('¿Deseas desconectar tu cuenta de Google Calendar?')"
+                      class="flex items-center gap-1 px-2 py-1 text-[10px] sm:text-xs font-medium rounded bg-red-50 dark:bg-red-900/20 hover:bg-red-100 dark:hover:bg-red-900/30 text-red-700 dark:text-red-300 transition-colors"
+                      title="Desconectar Google Calendar">
+                <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
+                </svg>
+                <span class="hidden sm:inline">Desconectar Google</span>
+              </button>
+            </form>
+          @endif
         </div>
 
         <button @click="showCalendar = false"

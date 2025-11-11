@@ -35,6 +35,7 @@ class Order extends Model
         'scheduled_for',
         'is_scheduled',
         'reminder_sent_at',
+        'google_calendar_event_id',
     ];
 
     protected $casts = [

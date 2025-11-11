@@ -19,6 +19,7 @@ use App\Http\Controllers\Master\InvitationController;
 use App\Http\Controllers\Master\UserController;
 use App\Http\Controllers\PaymentMethodController;
 use App\Http\Controllers\ExpenseController;
+use App\Http\Controllers\GoogleCalendarController;
 
 // Company Controllers
 use App\Http\Controllers\Company\BranchController;
@@ -297,6 +298,14 @@ Route::middleware([
     Route::resource('payment-methods', PaymentMethodController::class)->except(['show']);
     Route::post('payment-methods/{paymentMethod}/toggle', [PaymentMethodController::class, 'toggleActive'])->name('payment-methods.toggle');
     Route::post('payment-methods/{paymentMethod}/toggle-global', [PaymentMethodController::class, 'toggleGlobal'])->name('payment-methods.toggle-global');
+
+    // ============ GOOGLE CALENDAR ============
+    Route::prefix('google')->name('google.')->group(function () {
+        Route::get('connect', [GoogleCalendarController::class, 'redirect'])->name('connect');
+        Route::get('callback', [GoogleCalendarController::class, 'callback'])->name('callback');
+        Route::post('disconnect', [GoogleCalendarController::class, 'disconnect'])->name('disconnect');
+        Route::get('status', [GoogleCalendarController::class, 'status'])->name('status');
+    });
 
     // (Revert) Recibir productos: eliminado
 
