@@ -685,8 +685,8 @@ function timezoneSelector({ tz = '', list = [], recommended = '' }) {
       {{-- CONECTADO --}}
       <div class="space-y-4">
         {{-- Estado --}}
-        <div class="flex items-center justify-between p-4 rounded-xl bg-green-50 dark:bg-green-900/20 border border-green-200 dark:border-green-900/30">
-          <div class="flex items-center gap-3">
+        <div class="p-4 rounded-xl bg-green-50 dark:bg-green-900/20 border border-green-200 dark:border-green-900/30">
+          <div class="flex items-center gap-3 mb-2">
             <div class="flex-shrink-0">
               <div class="w-10 h-10 rounded-full bg-green-100 dark:bg-green-900/50 flex items-center justify-center">
                 <svg class="w-5 h-5 text-green-600 dark:text-green-400" fill="currentColor" viewBox="0 0 20 20">
@@ -694,37 +694,95 @@ function timezoneSelector({ tz = '', list = [], recommended = '' }) {
                 </svg>
               </div>
             </div>
-            <div>
+            <div class="flex-1">
               <p class="font-semibold text-neutral-900 dark:text-neutral-100">Cuenta conectada</p>
-              <p class="text-sm text-neutral-600 dark:text-neutral-400">Tus pedidos se sincronizan automáticamente</p>
+              @if(auth()->user()->google_email)
+                <p class="text-sm text-neutral-600 dark:text-neutral-400">{{ auth()->user()->google_email }}</p>
+              @endif
             </div>
           </div>
         </div>
 
-        {{-- Qué se sincroniza --}}
+        {{-- Switch de sincronización --}}
         <div class="p-4 rounded-xl bg-neutral-50 dark:bg-neutral-800/50 border border-neutral-200 dark:border-neutral-700">
-          <h3 class="text-sm font-semibold text-neutral-900 dark:text-neutral-100 mb-3">Se sincroniza automáticamente:</h3>
-          <div class="space-y-2">
-            <div class="flex items-center gap-2 text-sm text-neutral-700 dark:text-neutral-300">
-              <svg class="w-4 h-4 text-green-600 dark:text-green-400" fill="currentColor" viewBox="0 0 20 20">
-                <path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd"></path>
-              </svg>
-              <span>Pedidos agendados (cuando creás o modificás un pedido con fecha)</span>
+          <div class="flex items-start justify-between gap-4">
+            <div class="flex-1">
+              <h3 class="text-sm font-semibold text-neutral-900 dark:text-neutral-100 mb-1">
+                Sincronización automática
+              </h3>
+              <p class="text-xs text-neutral-600 dark:text-neutral-400">
+                Los pedidos agendados se guardarán automáticamente en tu Google Calendar
+              </p>
             </div>
-            <div class="flex items-center gap-2 text-sm text-neutral-700 dark:text-neutral-300">
-              <svg class="w-4 h-4 text-green-600 dark:text-green-400" fill="currentColor" viewBox="0 0 20 20">
-                <path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd"></path>
-              </svg>
-              <span>Actualización automática al cambiar fechas o detalles</span>
-            </div>
-            <div class="flex items-center gap-2 text-sm text-neutral-700 dark:text-neutral-300">
-              <svg class="w-4 h-4 text-green-600 dark:text-green-400" fill="currentColor" viewBox="0 0 20 20">
-                <path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd"></path>
-              </svg>
-              <span>Eliminación automática al cancelar o eliminar pedidos</span>
+            <div class="flex-shrink-0">
+              <form action="{{ route('google.toggle-sync') }}" method="POST" id="google-sync-form">
+                @csrf
+                <label class="relative inline-flex items-center cursor-pointer">
+                  <input type="checkbox"
+                         name="sync_enabled"
+                         value="1"
+                         class="sr-only peer"
+                         {{ auth()->user()->google_calendar_sync_enabled ? 'checked' : '' }}
+                         onchange="this.form.submit()">
+                  <div class="w-11 h-6 bg-neutral-300 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-blue-300
+                              dark:peer-focus:ring-blue-800 rounded-full peer dark:bg-neutral-600
+                              peer-checked:after:translate-x-full peer-checked:after:border-white
+                              after:content-[''] after:absolute after:top-[2px] after:left-[2px]
+                              after:bg-white after:border-neutral-300 after:border after:rounded-full
+                              after:h-5 after:w-5 after:transition-all dark:border-neutral-600
+                              peer-checked:bg-blue-600"></div>
+                </label>
+              </form>
             </div>
           </div>
         </div>
+
+        @if(auth()->user()->google_calendar_sync_enabled)
+          {{-- Qué se sincroniza (solo si está habilitado) --}}
+          <div class="p-4 rounded-xl bg-blue-50 dark:bg-blue-900/20 border border-blue-200 dark:border-blue-900/30">
+            <h3 class="text-sm font-semibold text-neutral-900 dark:text-neutral-100 mb-3">
+              <span class="inline-flex items-center gap-2">
+                <svg class="w-4 h-4 text-blue-600 dark:text-blue-400" fill="currentColor" viewBox="0 0 20 20">
+                  <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd"></path>
+                </svg>
+                Se sincroniza automáticamente:
+              </span>
+            </h3>
+            <div class="space-y-2">
+              <div class="flex items-center gap-2 text-sm text-neutral-700 dark:text-neutral-300">
+                <svg class="w-4 h-4 text-green-600 dark:text-green-400" fill="currentColor" viewBox="0 0 20 20">
+                  <path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd"></path>
+                </svg>
+                <span>Pedidos agendados (cuando creás o modificás un pedido con fecha)</span>
+              </div>
+              <div class="flex items-center gap-2 text-sm text-neutral-700 dark:text-neutral-300">
+                <svg class="w-4 h-4 text-green-600 dark:text-green-400" fill="currentColor" viewBox="0 0 20 20">
+                  <path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd"></path>
+                </svg>
+                <span>Actualización automática al cambiar fechas o detalles</span>
+              </div>
+              <div class="flex items-center gap-2 text-sm text-neutral-700 dark:text-neutral-300">
+                <svg class="w-4 h-4 text-green-600 dark:text-green-400" fill="currentColor" viewBox="0 0 20 20">
+                  <path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd"></path>
+                </svg>
+                <span>Eliminación automática al cancelar o eliminar pedidos</span>
+              </div>
+            </div>
+          </div>
+        @else
+          {{-- Mensaje cuando está deshabilitado --}}
+          <div class="p-4 rounded-xl bg-yellow-50 dark:bg-yellow-900/20 border border-yellow-200 dark:border-yellow-900/30">
+            <div class="flex items-start gap-2">
+              <svg class="w-5 h-5 text-yellow-600 dark:text-yellow-400 mt-0.5 flex-shrink-0" fill="currentColor" viewBox="0 0 20 20">
+                <path fill-rule="evenodd" d="M8.257 3.099c.765-1.36 2.722-1.36 3.486 0l5.58 9.92c.75 1.334-.213 2.98-1.742 2.98H4.42c-1.53 0-2.493-1.646-1.743-2.98l5.58-9.92zM11 13a1 1 0 11-2 0 1 1 0 012 0zm-1-8a1 1 0 00-1 1v3a1 1 0 002 0V6a1 1 0 00-1-1z" clip-rule="evenodd"></path>
+              </svg>
+              <div class="text-sm text-neutral-700 dark:text-neutral-300">
+                <strong class="text-neutral-900 dark:text-neutral-100">Sincronización desactivada</strong>
+                <p class="mt-1 text-xs">Los pedidos nuevos solo se guardarán en Gestior. Activá la sincronización para ver tus pedidos en Google Calendar.</p>
+              </div>
+            </div>
+          </div>
+        @endif
 
         {{-- Información de privacidad --}}
         <div class="p-4 rounded-xl bg-blue-50 dark:bg-blue-900/20 border border-blue-200 dark:border-blue-900/30">

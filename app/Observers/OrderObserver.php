@@ -80,7 +80,8 @@ class OrderObserver
         try {
             $this->googleCalendar->forUser($order->user);
 
-            if (!$this->googleCalendar->isConnected()) {
+            // Verificar si está conectado y si la sincronización está habilitada
+            if (!$this->googleCalendar->isConnected() || !$order->user->google_calendar_sync_enabled) {
                 return;
             }
 

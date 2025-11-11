@@ -71,10 +71,16 @@ class GoogleCalendarService
             throw new \Exception('Error fetching access token: ' . ($token['error_description'] ?? $token['error']));
         }
 
+        // Get user email from token
+        $this->client->setAccessToken($token);
+        $oauth2 = new \Google_Service_Oauth2($this->client);
+        $userInfo = $oauth2->userinfo->get();
+
         return [
             'access_token' => $token,
             'refresh_token' => $token['refresh_token'] ?? null,
             'expires_at' => now()->addSeconds($token['expires_in'] ?? 3600),
+            'email' => $userInfo->email,
         ];
     }
 
@@ -99,6 +105,8 @@ class GoogleCalendarService
                 'google_refresh_token' => null,
                 'google_token_expires_at' => null,
                 'google_calendar_id' => null,
+                'google_email' => null,
+                'google_calendar_sync_enabled' => false,
             ]);
         }
     }

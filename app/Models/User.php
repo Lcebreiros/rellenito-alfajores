@@ -53,6 +53,13 @@ class User extends Authenticatable
         'low_stock_threshold',
         'notify_out_of_stock',
         'notify_by_email',
+        // Google Calendar
+        'google_access_token',
+        'google_refresh_token',
+        'google_token_expires_at',
+        'google_calendar_id',
+        'google_email',
+        'google_calendar_sync_enabled',
     ];
 
     protected $hidden = [

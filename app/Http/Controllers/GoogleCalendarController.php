@@ -47,12 +47,14 @@ class GoogleCalendarController extends Controller
                 'google_access_token' => $tokenData['access_token'],
                 'google_refresh_token' => $tokenData['refresh_token'],
                 'google_token_expires_at' => $tokenData['expires_at'],
+                'google_email' => $tokenData['email'],
+                'google_calendar_sync_enabled' => true,
             ]);
 
-            return redirect()->route('dashboard')
-                ->with('success', '¡Conectado exitosamente con Google Calendar!');
+            return redirect()->route('settings')
+                ->with('success', '¡Cuenta de Google Calendar conectada exitosamente! La sincronización automática está activa.');
         } catch (\Exception $e) {
-            return redirect()->route('dashboard')
+            return redirect()->route('settings')
                 ->with('error', 'Error al conectar: ' . $e->getMessage());
         }
     }
@@ -66,8 +68,27 @@ class GoogleCalendarController extends Controller
             ->forUser(Auth::user())
             ->disconnect();
 
-        return redirect()->route('dashboard')
-            ->with('success', 'Desconectado de Google Calendar.');
+        return redirect()->route('settings')
+            ->with('success', 'Desconectado de Google Calendar exitosamente.');
+    }
+
+    /**
+     * Toggle sync enabled/disabled
+     */
+    public function toggleSync(Request $request)
+    {
+        $user = Auth::user();
+        $syncEnabled = $request->boolean('sync_enabled');
+
+        $user->update([
+            'google_calendar_sync_enabled' => $syncEnabled,
+        ]);
+
+        $message = $syncEnabled
+            ? 'Sincronización activada. Los nuevos pedidos se agregarán automáticamente a tu Google Calendar.'
+            : 'Sincronización desactivada. Los pedidos solo se guardarán en Gestior.';
+
+        return redirect()->route('settings')->with('success', $message);
     }
 
     /**

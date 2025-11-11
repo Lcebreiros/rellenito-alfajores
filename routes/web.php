@@ -304,6 +304,7 @@ Route::middleware([
         Route::get('connect', [GoogleCalendarController::class, 'redirect'])->name('connect');
         Route::get('callback', [GoogleCalendarController::class, 'callback'])->name('callback');
         Route::post('disconnect', [GoogleCalendarController::class, 'disconnect'])->name('disconnect');
+        Route::post('toggle-sync', [GoogleCalendarController::class, 'toggleSync'])->name('toggle-sync');
         Route::get('status', [GoogleCalendarController::class, 'status'])->name('status');
     });
 
