@@ -10,12 +10,12 @@
   $minWidthPx = $minWidthPx ?? null;
 @endphp
 
-<div wire:poll.10s aria-live="polite"
+<div wire:poll.visible.15s aria-live="polite"
      @style($minWidthPx ? "min-width: {$minWidthPx}px" : '')
-     class="min-w-0 max-w-full w-auto
+     class="h-full flex flex-col justify-center
             bg-white dark:bg-neutral-900 rounded-2xl shadow-sm
-            ring-1 ring-neutral-200/70 dark:ring-neutral-800/80
-            px-3 py-4 sm:px-5 sm:py-5 overflow-hidden">
+            border border-neutral-200 dark:border-neutral-800
+            px-4 py-5 overflow-hidden">
 
   <!-- Título -->
   <div class="text-[11px] uppercase tracking-wide font-medium

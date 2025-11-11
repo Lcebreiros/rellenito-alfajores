@@ -23,15 +23,15 @@ class TopProducts extends Component
         $from = now()->subDays($this->days);
 
         $user = Auth::user();
-        $orderIds = Order::query()
+        $ordersSub = Order::query()
             ->availableFor($user)
             ->where('status', 'completed')
             ->where('created_at', '>=', $from)
-            ->pluck('id');
+            ->select('id');
 
         $rows = DB::table('order_items as oi')
             ->leftJoin('products as p', 'p.id', '=', 'oi.product_id')
-            ->whereIn('oi.order_id', $orderIds)
+            ->whereIn('oi.order_id', $ordersSub)
             ->groupBy('oi.product_id', 'p.name')
             ->orderByDesc(DB::raw('SUM(oi.quantity)'))
             ->limit($this->limit)

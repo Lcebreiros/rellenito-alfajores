@@ -1,9 +1,11 @@
-<div wire:poll.15s class="bg-white dark:bg-neutral-900 border border-neutral-200 dark:border-neutral-800 rounded-2xl shadow-sm overflow-hidden">
+<div wire:poll.visible.30s class="h-full flex flex-col
+                                   bg-white dark:bg-neutral-900 border border-neutral-200 dark:border-neutral-800
+                                   rounded-2xl shadow-sm overflow-hidden">
   <div class="px-4 sm:px-5 py-3 border-b border-neutral-200 dark:border-neutral-800 flex items-center justify-between">
     <h3 class="text-sm font-semibold text-neutral-900 dark:text-neutral-100">Últimos pedidos</h3>
     <a href="{{ route('orders.index') }}" class="text-xs text-indigo-600 dark:text-indigo-400 hover:underline">Ver todos</a>
   </div>
-  <div class="divide-y divide-neutral-200 dark:divide-neutral-800">
+  <div class="flex-1 divide-y divide-neutral-200 dark:divide-neutral-800 overflow-y-auto">
     @forelse($orders as $o)
       <div class="px-4 sm:px-5 py-3 flex items-center justify-between gap-3">
         <div class="min-w-0">
@@ -17,4 +19,3 @@
     @endforelse
   </div>
 </div>
-

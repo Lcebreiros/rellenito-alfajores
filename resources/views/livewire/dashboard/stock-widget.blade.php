@@ -1,5 +1,7 @@
-<div wire:poll.10s
-     class="bg-white dark:bg-neutral-900 border border-neutral-200/60 dark:border-neutral-800 rounded-2xl shadow-sm overflow-hidden max-w-full">
+<div wire:poll.visible.15s
+     class="h-full flex flex-col
+            bg-white dark:bg-neutral-900 border border-neutral-200 dark:border-neutral-800
+            rounded-2xl shadow-sm overflow-hidden">
 
   {{-- Header minimal --}}
   <div class="px-4 sm:px-5 py-4 border-b border-neutral-200/60 dark:border-neutral-800 flex items-center justify-between">

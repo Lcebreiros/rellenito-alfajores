@@ -70,9 +70,8 @@
         >×</button>
       @endif
 
-      {{-- Card del widget: llena toda la celda del grid y evita overflow --}}
-      <div class="h-full bg-white dark:bg-neutral-900 border border-neutral-200 dark:border-neutral-800
-                  rounded-2xl shadow-sm p-3 overflow-hidden">
+      {{-- El widget maneja sus propios estilos --}}
+      <div class="h-full">
         @if ($meta)
           <livewire:is
             :component="$meta['component']"
@@ -82,7 +81,7 @@
             :editMode="$editMode"
           />
         @else
-          <div class="h-full flex items-center justify-center text-sm text-neutral-500">
+          <div class="h-full flex items-center justify-center text-sm text-neutral-500 bg-white dark:bg-neutral-900 border border-neutral-200 dark:border-neutral-800 rounded-2xl">
             Widget no disponible ({{ $slot['key'] }})
           </div>
         @endif

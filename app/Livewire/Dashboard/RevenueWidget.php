@@ -22,16 +22,19 @@ class RevenueWidget extends Component
 
         $user = Auth::user();
 
-        // Ordenes visibles para el usuario en el período
-        $ordersQ = Order::query()
+        // Subconsulta de órdenes visibles para el usuario en el período
+        $ordersSub = Order::query()
             ->availableFor($user)
             ->where('status', 'completed')
-            ->where('created_at', '>=', $from);
+            ->where('created_at', '>=', $from)
+            ->select('id');
 
-        $orderIds = $ordersQ->clone()->pluck('id');
-
-        // Ingresos: suma de total de esas órdenes
-        $revenue = (float) $ordersQ->clone()->sum('total');
+        // Ingresos: suma de total de esas órdenes (sin traer IDs a memoria)
+        $revenue = (float) Order::query()
+            ->availableFor($user)
+            ->where('status', 'completed')
+            ->where('created_at', '>=', $from)
+            ->sum('total');
 
         // Costo estimado por ítem usando costo de calculadora si existe (costings.unit_total),
         // con fallback a products.cost_price
@@ -46,13 +49,13 @@ class RevenueWidget extends Component
                     GROUP BY product_id
                 ) c2 ON c1.product_id = c2.product_id AND c1.created_at = c2.max_created
             ) as cx'), 'cx.product_id', '=', 'oi.product_id')
-            ->whereIn('oi.order_id', $orderIds)
+            ->whereIn('oi.order_id', $ordersSub)
             ->selectRaw('COALESCE(SUM(oi.quantity * COALESCE(cx.unit_total, COALESCE(p.cost_price,0))),0) as c')
             ->value('c');
 
         // Series por día para gráfico (ingresos y costos)
         $revByDay = DB::table('orders')
-            ->whereIn('id', $orderIds)
+            ->whereIn('id', $ordersSub)
             ->selectRaw('DATE(created_at) as d, SUM(total) as s')
             ->groupBy('d')
             ->pluck('s', 'd');
@@ -69,7 +72,7 @@ class RevenueWidget extends Component
                     GROUP BY product_id
                 ) c2 ON c1.product_id = c2.product_id AND c1.created_at = c2.max_created
             ) as cx'), 'cx.product_id', '=', 'oi.product_id')
-            ->whereIn('oi.order_id', $orderIds)
+            ->whereIn('oi.order_id', $ordersSub)
             ->selectRaw('DATE(o.created_at) as d, COALESCE(SUM(oi.quantity * COALESCE(cx.unit_total, COALESCE(p.cost_price,0))),0) as s')
             ->groupBy('d')
             ->pluck('s', 'd');
