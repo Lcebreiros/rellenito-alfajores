@@ -666,6 +666,168 @@ function timezoneSelector({ tz = '', list = [], recommended = '' }) {
     </div>
   </div>
 
+  {{-- CARD: Google Calendar --}}
+  <div class="rounded-2xl border border-neutral-200 bg-white p-6 shadow
+              dark:border-neutral-800 dark:bg-neutral-900">
+    <div class="flex items-center gap-3 mb-6">
+      <div class="flex items-center justify-center w-10 h-10 rounded-xl bg-blue-100 dark:bg-blue-900/30">
+        <svg class="w-5 h-5 text-blue-600 dark:text-blue-400" fill="currentColor" viewBox="0 0 24 24">
+          <path d="M19 4h-1V2h-2v2H8V2H6v2H5C3.9 4 3 4.9 3 6v14c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2V6c0-1.1-.9-2-2-2zm0 16H5V10h14v10zm0-12H5V6h14v2z"/>
+        </svg>
+      </div>
+      <div>
+        <h2 class="text-lg font-semibold text-neutral-900 dark:text-neutral-100">Google Calendar</h2>
+        <p class="text-xs text-neutral-500 dark:text-neutral-400">Sincronización automática de eventos</p>
+      </div>
+    </div>
+
+    @if(auth()->user()->google_access_token && auth()->user()->google_refresh_token)
+      {{-- CONECTADO --}}
+      <div class="space-y-4">
+        {{-- Estado --}}
+        <div class="flex items-center justify-between p-4 rounded-xl bg-green-50 dark:bg-green-900/20 border border-green-200 dark:border-green-900/30">
+          <div class="flex items-center gap-3">
+            <div class="flex-shrink-0">
+              <div class="w-10 h-10 rounded-full bg-green-100 dark:bg-green-900/50 flex items-center justify-center">
+                <svg class="w-5 h-5 text-green-600 dark:text-green-400" fill="currentColor" viewBox="0 0 20 20">
+                  <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd"></path>
+                </svg>
+              </div>
+            </div>
+            <div>
+              <p class="font-semibold text-neutral-900 dark:text-neutral-100">Cuenta conectada</p>
+              <p class="text-sm text-neutral-600 dark:text-neutral-400">Tus pedidos se sincronizan automáticamente</p>
+            </div>
+          </div>
+        </div>
+
+        {{-- Qué se sincroniza --}}
+        <div class="p-4 rounded-xl bg-neutral-50 dark:bg-neutral-800/50 border border-neutral-200 dark:border-neutral-700">
+          <h3 class="text-sm font-semibold text-neutral-900 dark:text-neutral-100 mb-3">Se sincroniza automáticamente:</h3>
+          <div class="space-y-2">
+            <div class="flex items-center gap-2 text-sm text-neutral-700 dark:text-neutral-300">
+              <svg class="w-4 h-4 text-green-600 dark:text-green-400" fill="currentColor" viewBox="0 0 20 20">
+                <path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd"></path>
+              </svg>
+              <span>Pedidos agendados (cuando creás o modificás un pedido con fecha)</span>
+            </div>
+            <div class="flex items-center gap-2 text-sm text-neutral-700 dark:text-neutral-300">
+              <svg class="w-4 h-4 text-green-600 dark:text-green-400" fill="currentColor" viewBox="0 0 20 20">
+                <path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd"></path>
+              </svg>
+              <span>Actualización automática al cambiar fechas o detalles</span>
+            </div>
+            <div class="flex items-center gap-2 text-sm text-neutral-700 dark:text-neutral-300">
+              <svg class="w-4 h-4 text-green-600 dark:text-green-400" fill="currentColor" viewBox="0 0 20 20">
+                <path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd"></path>
+              </svg>
+              <span>Eliminación automática al cancelar o eliminar pedidos</span>
+            </div>
+          </div>
+        </div>
+
+        {{-- Información de privacidad --}}
+        <div class="p-4 rounded-xl bg-blue-50 dark:bg-blue-900/20 border border-blue-200 dark:border-blue-900/30">
+          <div class="flex items-start gap-2">
+            <svg class="w-4 h-4 text-blue-600 dark:text-blue-400 mt-0.5 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+            </svg>
+            <div class="text-xs text-neutral-700 dark:text-neutral-300">
+              <strong>Privacidad:</strong> Solo accedemos a tu calendario para crear eventos de tus pedidos. No compartimos tu información con terceros.
+              Podés desconectar tu cuenta en cualquier momento.
+            </div>
+          </div>
+        </div>
+
+        {{-- Botón desconectar --}}
+        <form action="{{ route('google.disconnect') }}" method="POST">
+          @csrf
+          <button type="submit"
+                  onclick="return confirm('¿Estás seguro de que querés desconectar tu cuenta de Google Calendar?\n\nLos eventos existentes permanecerán en tu calendario, pero no se sincronizarán nuevos pedidos.')"
+                  class="w-full px-4 py-3 rounded-xl bg-red-50 hover:bg-red-100 dark:bg-red-900/20 dark:hover:bg-red-900/30
+                         text-red-700 dark:text-red-400 font-medium text-sm transition-all duration-200
+                         border border-red-200 dark:border-red-900/30">
+            <div class="flex items-center justify-center gap-2">
+              <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
+              </svg>
+              <span>Desconectar Google Calendar</span>
+            </div>
+          </button>
+        </form>
+      </div>
+    @else
+      {{-- NO CONECTADO --}}
+      <div class="space-y-4">
+        {{-- Info qué obtendrás --}}
+        <div class="p-4 rounded-xl bg-neutral-50 dark:bg-neutral-800/50 border border-neutral-200 dark:border-neutral-700">
+          <h3 class="text-sm font-semibold text-neutral-900 dark:text-neutral-100 mb-3">Al conectar tu Google Calendar:</h3>
+          <div class="space-y-2">
+            <div class="flex items-start gap-2 text-sm text-neutral-700 dark:text-neutral-300">
+              <svg class="w-4 h-4 text-blue-600 dark:text-blue-400 mt-0.5 flex-shrink-0" fill="currentColor" viewBox="0 0 20 20">
+                <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd"></path>
+              </svg>
+              <span>Tus pedidos agendados aparecerán automáticamente en tu calendario</span>
+            </div>
+            <div class="flex items-start gap-2 text-sm text-neutral-700 dark:text-neutral-300">
+              <svg class="w-4 h-4 text-blue-600 dark:text-blue-400 mt-0.5 flex-shrink-0" fill="currentColor" viewBox="0 0 20 20">
+                <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd"></path>
+              </svg>
+              <span>Recibirás recordatorios automáticos antes de cada pedido</span>
+            </div>
+            <div class="flex items-start gap-2 text-sm text-neutral-700 dark:text-neutral-300">
+              <svg class="w-4 h-4 text-blue-600 dark:text-blue-400 mt-0.5 flex-shrink-0" fill="currentColor" viewBox="0 0 20 20">
+                <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd"></path>
+              </svg>
+              <span>Verás tus pedidos en todos tus dispositivos sincronizados</span>
+            </div>
+            <div class="flex items-start gap-2 text-sm text-neutral-700 dark:text-neutral-300">
+              <svg class="w-4 h-4 text-blue-600 dark:text-blue-400 mt-0.5 flex-shrink-0" fill="currentColor" viewBox="0 0 20 20">
+                <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd"></path>
+              </svg>
+              <span>Los cambios se actualizan en tiempo real</span>
+            </div>
+          </div>
+        </div>
+
+        {{-- Información de privacidad --}}
+        <div class="p-4 rounded-xl bg-blue-50 dark:bg-blue-900/20 border border-blue-200 dark:border-blue-900/30">
+          <div class="flex items-start gap-2">
+            <svg class="w-5 h-5 text-blue-600 dark:text-blue-400 mt-0.5 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z"></path>
+            </svg>
+            <div class="text-sm text-neutral-700 dark:text-neutral-300">
+              <strong class="text-neutral-900 dark:text-neutral-100">Tu privacidad es importante:</strong>
+              <ul class="mt-2 space-y-1 text-xs">
+                <li>• Solo accedemos a tu calendario para crear eventos de pedidos</li>
+                <li>• No leemos tus otros eventos ni información personal</li>
+                <li>• No compartimos tus datos con terceros</li>
+                <li>• Podés desconectar en cualquier momento</li>
+              </ul>
+            </div>
+          </div>
+        </div>
+
+        {{-- Botón conectar --}}
+        <a href="{{ route('google.connect') }}"
+           class="block w-full px-4 py-3 rounded-xl bg-blue-600 hover:bg-blue-700 dark:bg-blue-500 dark:hover:bg-blue-600
+                  text-white font-medium text-sm transition-all duration-200 shadow-sm hover:shadow-md
+                  text-center">
+          <div class="flex items-center justify-center gap-2">
+            <svg class="w-5 h-5" fill="currentColor" viewBox="0 0 24 24">
+              <path d="M12.48 10.92v3.28h7.84c-.24 1.84-.853 3.187-1.787 4.133-1.147 1.147-2.933 2.4-6.053 2.4-4.827 0-8.6-3.893-8.6-8.72s3.773-8.72 8.6-8.72c2.6 0 4.507 1.027 5.907 2.347l2.307-2.307C18.747 1.44 16.133 0 12.48 0 5.867 0 .307 5.387.307 12s5.56 12 12.173 12c3.573 0 6.267-1.173 8.373-3.36 2.16-2.16 2.84-5.213 2.84-7.667 0-.76-.053-1.467-.173-2.053H12.48z"/>
+            </svg>
+            <span>Conectar con Google Calendar</span>
+          </div>
+        </a>
+
+        <p class="text-xs text-center text-neutral-500 dark:text-neutral-400">
+          Serás redirigido a Google para autorizar el acceso de forma segura
+        </p>
+      </div>
+    @endif
+  </div>
+
   {{-- CARD: Logo del comprobante --}}
   <div class="rounded-2xl border border-neutral-200 bg-white p-6 shadow
               dark:border-neutral-800 dark:bg-neutral-900">
