@@ -62,10 +62,16 @@
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>
                   </svg>
                 </div>
-              @else
+              @elseif($event['type'] === 'purchase')
                 <div class="w-6 h-6 rounded-full flex items-center justify-center bg-emerald-500 dark:bg-emerald-600">
                   <svg class="w-3.5 h-3.5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 11V7a4 4 0 00-8 0v4M5 9h14l1 12H4L5 9z"></path>
+                  </svg>
+                </div>
+              @elseif($event['type'] === 'order')
+                <div class="w-6 h-6 rounded-full flex items-center justify-center {{ ($event['is_overdue'] ?? false) ? 'bg-rose-500 dark:bg-rose-600' : 'bg-indigo-500 dark:bg-indigo-600' }}">
+                  <svg class="w-3.5 h-3.5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"></path>
                   </svg>
                 </div>
               @endif
@@ -82,14 +88,18 @@
                     <div class="text-[10px] text-neutral-500 dark:text-neutral-400 truncate">
                       {{ $event['provider'] ?? '' }}
                     </div>
-                  @else
+                  @elseif($event['type'] === 'purchase')
                     <div class="text-[10px] text-neutral-500 dark:text-neutral-400">
                       {{ number_format($event['quantity'], 2) }} {{ $event['unit'] }}
+                    </div>
+                  @elseif($event['type'] === 'order')
+                    <div class="text-[10px] text-neutral-500 dark:text-neutral-400 truncate">
+                      Agendado
                     </div>
                   @endif
                 </div>
                 <div class="text-right flex-shrink-0">
-                  <div class="text-xs font-semibold {{ $event['type'] === 'payment' && $isPast ? 'text-rose-600 dark:text-rose-400' : 'text-neutral-900 dark:text-white' }} tabular-nums">
+                  <div class="text-xs font-semibold {{ ($event['type'] === 'payment' && $isPast) || ($event['type']==='order' && ($event['is_overdue'] ?? false)) ? 'text-rose-600 dark:text-rose-400' : 'text-neutral-900 dark:text-white' }} tabular-nums">
                     ${{ number_format($event['amount'], 0, ',', '.') }}
                   </div>
                 </div>
@@ -130,6 +140,10 @@
       <div class="flex items-center gap-1.5">
         <div class="w-2 h-2 rounded-full bg-emerald-500 dark:bg-emerald-600"></div>
         <span class="text-neutral-600 dark:text-neutral-400">Compras</span>
+      </div>
+      <div class="flex items-center gap-1.5">
+        <div class="w-2 h-2 rounded-full bg-indigo-500 dark:bg-indigo-600"></div>
+        <span class="text-neutral-600 dark:text-neutral-400">Agendados</span>
       </div>
       <div class="flex items-center gap-1.5">
         <div class="w-2 h-2 rounded-full bg-rose-500 dark:bg-rose-600"></div>
@@ -223,10 +237,14 @@
                   <div style="flex: 1; overflow-y: auto; overflow-x: hidden; display: flex; flex-direction: column; gap: 0.125rem;">
                     @foreach($day['events'] as $event)
                       @php
-                        $isPastPayment = $event['type'] === 'payment' && ($event['is_overdue'] ?? false);
-                        $bgColor = $isPastPayment
+                        $isOverdue = ($event['is_overdue'] ?? false) === true;
+                        $bgColor = $isOverdue
                           ? 'bg-rose-500 dark:bg-rose-600'
-                          : ($event['type'] === 'payment' ? 'bg-blue-500 dark:bg-blue-600' : 'bg-emerald-500 dark:bg-emerald-600');
+                          : ($event['type'] === 'payment'
+                              ? 'bg-blue-500 dark:bg-blue-600'
+                              : ($event['type'] === 'order'
+                                  ? 'bg-indigo-500 dark:bg-indigo-600'
+                                  : 'bg-emerald-500 dark:bg-emerald-600'));
                       @endphp
                       <div class="text-[7px] sm:text-[8px] md:text-[10px] px-0.5 sm:px-1 md:px-1.5 py-0.5 sm:py-0.5 md:py-1 rounded {{ $bgColor }} text-white cursor-pointer hover:opacity-90 transition-opacity"
                            title="{{ $event['title'] }}: ${{ number_format($event['amount'], 0, ',', '.') }}">
@@ -251,6 +269,10 @@
             <div class="flex items-center gap-1 sm:gap-1.5">
               <div class="w-2 h-2 sm:w-2.5 sm:h-2.5 rounded bg-emerald-500 dark:bg-emerald-600"></div>
               <span class="text-neutral-600 dark:text-neutral-400">Compras</span>
+            </div>
+            <div class="flex items-center gap-1 sm:gap-1.5">
+              <div class="w-2 h-2 sm:w-2.5 sm:h-2.5 rounded bg-indigo-500 dark:bg-indigo-600"></div>
+              <span class="text-neutral-600 dark:text-neutral-400">Agendados</span>
             </div>
             <div class="flex items-center gap-1 sm:gap-1.5">
               <div class="w-2 h-2 sm:w-2.5 sm:h-2.5 rounded bg-rose-500 dark:bg-rose-600"></div>

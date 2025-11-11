@@ -6,6 +6,7 @@ use Livewire\Component;
 use Illuminate\Support\Facades\Auth;
 use App\Models\ThirdPartyService;
 use App\Models\SupplyPurchase;
+use App\Models\Order;
 use Carbon\Carbon;
 
 class CalendarWidget extends Component
@@ -69,6 +70,16 @@ class CalendarWidget extends Component
             ->orderBy('created_at', 'desc')
             ->get();
 
+        // Pedidos agendados desde el inicio del mes actual en adelante (para widget)
+        $currentMonthScheduledOrders = \App\Models\Order::query()
+            ->availableFor($user)
+            ->scheduled()
+            ->with(['client:id,name'])
+            ->select(['id','order_number','client_id','scheduled_for','total','status','is_scheduled'])
+            ->where('scheduled_for', '>=', $startOfCurrentMonth)
+            ->orderBy('scheduled_for', 'asc')
+            ->get();
+
         // Para el calendario modal - obtener eventos del mes seleccionado
         $selectedMonthPayments = ThirdPartyService::query()
             ->select(['id','service_name','provider_name','cost','next_payment_date','is_active'])
@@ -83,6 +94,16 @@ class CalendarWidget extends Component
             ->select(['id','supply_id','created_at','total_cost','qty'])
             ->whereBetween('created_at', [$startOfSelectedMonth, $endOfSelectedMonth])
             ->orderBy('created_at', 'desc')
+            ->get();
+
+        // Pedidos agendados del mes seleccionado (para modal)
+        $selectedMonthScheduledOrders = \App\Models\Order::query()
+            ->availableFor($user)
+            ->scheduled()
+            ->with(['client:id,name'])
+            ->select(['id','order_number','client_id','scheduled_for','total','status','is_scheduled'])
+            ->whereBetween('scheduled_for', [$startOfSelectedMonth, $endOfSelectedMonth])
+            ->orderBy('scheduled_for', 'asc')
             ->get();
 
         // Eventos para el widget (mes actual y futuros)
@@ -112,6 +133,23 @@ class CalendarWidget extends Component
                 'amount' => $purchase->total_cost,
                 'quantity' => $purchase->qty,
                 'unit' => $purchase->supply->base_unit ?? '',
+            ];
+        }
+
+        foreach ($currentMonthScheduledOrders as $order) {
+            $date = Carbon::parse($order->scheduled_for)->format('Y-m-d');
+            if (!isset($widgetEvents[$date])) {
+                $widgetEvents[$date] = [];
+            }
+            $title = 'Pedido #'.($order->order_number ?? $order->id);
+            if ($order->client?->name) {
+                $title .= ' · '.$order->client->name;
+            }
+            $widgetEvents[$date][] = [
+                'type' => 'order',
+                'title' => $title,
+                'amount' => $order->total,
+                'is_overdue' => Carbon::parse($order->scheduled_for)->isPast(),
             ];
         }
 
@@ -156,6 +194,23 @@ class CalendarWidget extends Component
                 'amount' => $purchase->total_cost,
                 'quantity' => $purchase->qty,
                 'unit' => $purchase->supply->base_unit ?? '',
+            ];
+        }
+
+        foreach ($selectedMonthScheduledOrders as $order) {
+            $date = Carbon::parse($order->scheduled_for)->format('Y-m-d');
+            if (!isset($calendarEvents[$date])) {
+                $calendarEvents[$date] = [];
+            }
+            $title = 'Pedido #'.($order->order_number ?? $order->id);
+            if ($order->client?->name) {
+                $title .= ' · '.$order->client->name;
+            }
+            $calendarEvents[$date][] = [
+                'type' => 'order',
+                'title' => $title,
+                'amount' => $order->total,
+                'is_overdue' => Carbon::parse($order->scheduled_for)->isPast(),
             ];
         }
 
