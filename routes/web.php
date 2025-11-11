@@ -306,7 +306,23 @@ Route::middleware([
         Route::post('disconnect', [GoogleCalendarController::class, 'disconnect'])->name('disconnect');
         Route::post('toggle-sync', [GoogleCalendarController::class, 'toggleSync'])->name('toggle-sync');
         Route::get('status', [GoogleCalendarController::class, 'status'])->name('status');
+
+        // Test route - remove in production
+        Route::get('debug', function () {
+            $user = auth()->user();
+            return response()->json([
+                'user_id' => $user->id,
+                'google_access_token' => $user->google_access_token ? 'SET' : 'NULL',
+                'google_refresh_token' => $user->google_refresh_token ? 'SET' : 'NULL',
+                'google_email' => $user->google_email ?? 'NULL',
+                'google_calendar_sync_enabled' => $user->google_calendar_sync_enabled ?? false,
+                'has_tokens' => ($user->google_access_token && $user->google_refresh_token) ? 'YES' : 'NO',
+            ]);
+        })->name('debug');
     });
+
+    // Test Google Calendar - remove in production
+    Route::get('/test-google', fn () => view('test-google'))->name('test-google');
 
     // (Revert) Recibir productos: eliminado
 

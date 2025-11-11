@@ -8,6 +8,22 @@
     </div>
   @endif
 
+  {{-- AVISO SUCCESS --}}
+  @if (session('success'))
+    <div class="p-3 rounded-md bg-green-100 text-green-800
+                dark:bg-green-900 dark:text-green-200">
+      {{ session('success') }}
+    </div>
+  @endif
+
+  {{-- AVISO ERROR --}}
+  @if (session('error'))
+    <div class="p-3 rounded-md bg-red-100 text-red-800
+                dark:bg-red-900 dark:text-red-200">
+      {{ session('error') }}
+    </div>
+  @endif
+
   {{-- CARD: Información de la aplicación --}}
   <div class="rounded-2xl border border-neutral-200 bg-white p-6 shadow
               dark:border-neutral-800 dark:bg-neutral-900
