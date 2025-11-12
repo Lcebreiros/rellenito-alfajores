@@ -8,6 +8,7 @@ use Google\Service\Calendar;
 use Google\Service\Calendar\Event;
 use Google\Service\Calendar\EventDateTime;
 use Google\Service\Calendar\EventReminder;
+use Google\Service\Calendar\EventReminders;
 use Carbon\Carbon;
 use Illuminate\Support\Facades\Log;
 
@@ -150,14 +151,13 @@ class GoogleCalendarService
 
             // Set reminders
             $reminderMinutes = config('google-calendar.event_settings.default_reminder_minutes', 60);
-            $reminders = new EventReminder();
-            $event->setReminders([
-                'useDefault' => false,
-                'overrides' => [
-                    ['method' => 'popup', 'minutes' => $reminderMinutes],
-                    ['method' => 'email', 'minutes' => $reminderMinutes],
-                ],
+            $reminders = new EventReminders();
+            $reminders->setUseDefault(false);
+            $reminders->setOverrides([
+                ['method' => 'popup', 'minutes' => $reminderMinutes],
+                ['method' => 'email', 'minutes' => $reminderMinutes],
             ]);
+            $event->setReminders($reminders);
 
             // Set color based on event type
             if ($eventType && isset(config('google-calendar.event_settings.colors')[$eventType])) {
