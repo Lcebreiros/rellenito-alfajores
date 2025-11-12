@@ -136,17 +136,20 @@ class GoogleCalendarService
                 'location' => $location,
             ]);
 
+            // Usar la timezone del usuario para que Google Calendar muestre la fecha correcta
+            $userTimezone = $this->user->timezone ?? config('app.timezone', 'UTC');
+
             // Set start time
             $startDateTime = new EventDateTime();
             $startDateTime->setDateTime($start->toRfc3339String());
-            $startDateTime->setTimeZone(config('app.timezone', 'UTC'));
+            $startDateTime->setTimeZone($userTimezone);
             $event->setStart($startDateTime);
 
             // Set end time (default to 1 hour after start)
             $endTime = $end ?? $start->copy()->addHour();
             $endDateTime = new EventDateTime();
             $endDateTime->setDateTime($endTime->toRfc3339String());
-            $endDateTime->setTimeZone(config('app.timezone', 'UTC'));
+            $endDateTime->setTimeZone($userTimezone);
             $event->setEnd($endDateTime);
 
             // Set reminders
@@ -210,17 +213,20 @@ class GoogleCalendarService
                 $event->setLocation($location);
             }
 
+            // Usar la timezone del usuario
+            $userTimezone = $this->user->timezone ?? config('app.timezone', 'UTC');
+
             // Update start time
             $startDateTime = new EventDateTime();
             $startDateTime->setDateTime($start->toRfc3339String());
-            $startDateTime->setTimeZone(config('app.timezone', 'UTC'));
+            $startDateTime->setTimeZone($userTimezone);
             $event->setStart($startDateTime);
 
             // Update end time
             $endTime = $end ?? $start->copy()->addHour();
             $endDateTime = new EventDateTime();
             $endDateTime->setDateTime($endTime->toRfc3339String());
-            $endDateTime->setTimeZone(config('app.timezone', 'UTC'));
+            $endDateTime->setTimeZone($userTimezone);
             $event->setEnd($endDateTime);
 
             return $calendar->events->update($calendarId, $eventId, $event);

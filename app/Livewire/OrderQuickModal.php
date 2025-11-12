@@ -202,8 +202,11 @@ class OrderQuickModal extends Component
         $this->validate($rules);
 
         // Parsear fecha elegida por el usuario
+        // IMPORTANTE: Usar la timezone del usuario para interpretar correctamente la fecha
+        $userTimezone = auth()->user()->timezone ?? config('app.timezone', 'UTC');
+
         try {
-            $createdAt = Carbon::createFromFormat('Y-m-d\TH:i', $this->orderDate);
+            $createdAt = Carbon::createFromFormat('Y-m-d\TH:i', $this->orderDate, $userTimezone);
         } catch (\Throwable $e) {
             $this->addError('orderDate', 'Fecha/hora inválida.');
             return;
@@ -235,7 +238,8 @@ class OrderQuickModal extends Component
             //  Estado según toggle y agendamiento
             if ($this->isScheduled) {
                 $status = OrderStatus::SCHEDULED;
-                $scheduledDateTime = Carbon::createFromFormat('Y-m-d\TH:i', $this->scheduledFor);
+                // Parsear con la timezone del usuario
+                $scheduledDateTime = Carbon::createFromFormat('Y-m-d\TH:i', $this->scheduledFor, $userTimezone);
             } else {
                 $status = $this->completeOnSave ? OrderStatus::COMPLETED : OrderStatus::DRAFT;
                 $scheduledDateTime = null;
