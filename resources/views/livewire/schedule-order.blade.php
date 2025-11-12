@@ -4,7 +4,8 @@
     <label class="inline-flex items-center cursor-pointer">
       <input type="checkbox" class="sr-only peer" wire:model="enabled" x-model="on">
       <div class="w-11 h-6 bg-neutral-200 peer-focus:outline-none rounded-full peer dark:bg-neutral-700 peer-checked:bg-indigo-600 relative transition">
-        <div class="absolute top-0.5 left-0.5 w-5 h-5 bg-white rounded-full shadow transform peer-checked:translate-x-5 transition"></div>
+        <div class="absolute top-0.5 left-0.5 w-5 h-5 bg-white rounded-full shadow transform transition-transform peer-checked:translate-x-5"
+             x-bind:class="on ? 'translate-x-5' : ''"></div>
       </div>
     </label>
   </div>
