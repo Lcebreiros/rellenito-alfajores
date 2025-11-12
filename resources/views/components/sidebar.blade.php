@@ -584,47 +584,6 @@
         <span x-show="!collapsed" x-transition:enter="fade-slide-enter" class="font-medium">Contraer</span>
       </button>
     </div>
-
-    <!-- Footer -->
-    <div class="sidebar-footer flex-shrink-0 p-3 border-t">
-      <div class="flex items-center gap-3 mb-3" :class="collapsed ? 'justify-center' : ''">
-        @if (Laravel\Jetstream\Jetstream::managesProfilePhotos())
-          <img class="user-avatar w-9 h-9 rounded-full object-cover cursor-pointer"
-               src="{{ Auth::user()->profile_photo_url }}" 
-               alt="{{ Auth::user()->name }}"
-               :title="collapsed ? '{{ Auth::user()->name }}' : null">
-        @endif
-        <div class="min-w-0 overflow-hidden" x-show="!collapsed" x-transition:enter="fade-slide-enter">
-          <div class="user-info text-sm font-medium truncate">{{ Auth::user()->name }}</div>
-          <div class="user-email text-xs truncate">{{ Auth::user()->email }}</div>
-        </div>
-      </div>
-
-      <div class="grid gap-2" :class="collapsed ? 'grid-cols-1' : 'grid-cols-2'">
-        <a href="{{ route('profile.show') }}" wire:navigate data-turbo="false"
-           class="sidebar-button flex items-center justify-center gap-2 text-xs py-2 px-3 rounded-lg border"
-           :title="collapsed ? 'Ver perfil' : null">
-          <svg class="w-4 h-4" viewBox="0 0 24 24" fill="none">
-            <path d="M12 12a5 5 0 1 0-5-5 5 5 0 0 0 5 5Zm7 9a7 7 0 0 0-14 0" 
-                  stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/>
-          </svg>
-          <span x-show="!collapsed" x-transition:enter="fade-slide-enter" class="font-medium">Perfil</span>
-        </a>
-
-        <form method="POST" action="{{ route('logout') }}" class="m-0">
-          @csrf
-          <button type="submit"
-                  class="sidebar-button w-full flex items-center justify-center gap-2 text-xs py-2 px-3 rounded-lg border hover:!bg-red-50 dark:hover:!bg-red-900/20 hover:!text-red-600 dark:hover:!text-red-400 hover:!border-red-200 dark:hover:!border-red-800"
-                  :title="collapsed ? 'Cerrar sesión' : null">
-            <svg class="w-4 h-4" viewBox="0 0 24 24" fill="none">
-              <path d="M15 12H3m12 0-4-4m4 4-4 4M21 3v18" 
-                    stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/>
-            </svg>
-            <span x-show="!collapsed" x-transition:enter="fade-slide-enter" class="font-medium">Salir</span>
-          </button>
-        </form>
-      </div>
-    </div>
   </div>
 
   <!-- Overlay mobile -->
