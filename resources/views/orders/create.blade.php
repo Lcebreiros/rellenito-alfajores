@@ -77,7 +77,10 @@
     </section>
 
     {{-- DERECHA: Pedido en curso --}}
-    <aside class="lg:col-span-4">
+    <aside class="lg:col-span-4 space-y-4">
+      {{-- Agendar (arriba del sidebar) --}}
+      <livewire:schedule-order :key="'schedule-order'" />
+
       <div class="sticky top-24">
         {{-- Wrapper que iguala altura al contenedor de productos y la impone al root del componente --}}
         <div class="max-h-[calc(100svh-9rem)] h-full overflow-hidden

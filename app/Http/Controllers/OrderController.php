@@ -15,6 +15,7 @@ use Illuminate\Support\Facades\Schema;
 use Illuminate\Support\Facades\DB;
 use DomainException; // AGREGADO: Import de DomainException
 use Illuminate\Support\Str;
+use Illuminate\Validation\Rule;
 
 class OrderController extends Controller
 {
@@ -908,6 +909,65 @@ public function index(Request $request)
         } catch (\Throwable $e) {
             \Log::error('Error cancelando pedido agendado', ['order_id' => $order->id, 'msg' => $e->getMessage()]);
             return back()->with('error', 'No se pudo cancelar el pedido agendado.');
+        }
+    }
+
+    /**
+     * Actualiza el agendamiento de un pedido desde la vista (toggle + fecha/hora).
+     * Reutiliza la misma lógica de validación del modal rápido.
+     */
+    public function schedule(Request $request, Order $order)
+    {
+        // Autorización simple: owner directo de la orden
+        if ($order->user_id !== auth()->id()) {
+            abort(403);
+        }
+
+        $data = $request->validate([
+            'is_scheduled'  => ['required', Rule::in(['0','1',0,1,true,false])],
+            'scheduled_for' => ['nullable', 'date_format:Y-m-d\TH:i'],
+        ]);
+
+        $enable = filter_var($data['is_scheduled'], FILTER_VALIDATE_BOOL);
+
+        if ($enable) {
+            // No permitir agendar pedidos completados/cancelados
+            if (in_array((string)$order->status, [\App\Enums\OrderStatus::COMPLETED->value, \App\Enums\OrderStatus::CANCELED->value], true)) {
+                return back()->with('error', 'No se puede agendar un pedido completado o cancelado.');
+            }
+            // Cuando se habilita, validar fecha futura
+            $request->validate([
+                'scheduled_for' => ['required', 'date_format:Y-m-d\TH:i', 'after:now'],
+            ]);
+
+            $dt = Carbon::createFromFormat('Y-m-d\TH:i', $data['scheduled_for']);
+
+            // No tocar COMPLETED/CANCELED; en otros casos, pasar a SCHEDULED
+            $new = [
+                'is_scheduled'  => true,
+                'scheduled_for' => $dt,
+            ];
+            if (!in_array((string)$order->status, [\App\Enums\OrderStatus::COMPLETED->value, \App\Enums\OrderStatus::CANCELED->value], true)) {
+                $new['status'] = \App\Enums\OrderStatus::SCHEDULED;
+            }
+
+            $order->update($new);
+
+            return back()->with('ok', 'Pedido agendado para '.$dt->format('d/m/Y H:i'));
+
+        } else {
+            // Deshabilitar agendamiento: limpiar fecha; si estaba SCHEDULED, pasarlo a PENDING
+            $new = [
+                'is_scheduled'  => false,
+                'scheduled_for' => null,
+            ];
+
+            if ((string)$order->status === \App\Enums\OrderStatus::SCHEDULED->value) {
+                $new['status'] = \App\Enums\OrderStatus::PENDING;
+            }
+
+            $order->update($new);
+            return back()->with('ok', 'Agendamiento desactivado');
         }
     }
 }

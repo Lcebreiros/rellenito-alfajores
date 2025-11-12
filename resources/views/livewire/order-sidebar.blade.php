@@ -174,6 +174,7 @@
     {{-- Footer con total y acciones (fijo al fondo del componente) --}}
     <div class="flex-shrink-0 mt-4 space-y-4 border-t border-slate-200/60 dark:border-neutral-800/60 pt-4">
 
+
       {{-- Bloque de total --}}
       <div class="p-4 rounded-2xl bg-gradient-to-r from-slate-50 to-slate-100/80 dark:from-neutral-900/80 dark:to-neutral-800/60 border border-slate-200/60 dark:border-neutral-800/60 shadow-sm">
         <div class="flex items-center justify-between">
@@ -208,10 +209,17 @@
               </span>
             @else 
               <span class="flex items-center justify-center gap-2">
-                <svg class="w-4 h-4 group-hover:scale-110 transition-transform" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true" role="img">
-                  <path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7"/>
-                </svg>
-                Finalizar Pedido
+                @if($isScheduled)
+                  <svg class="w-4 h-4 group-hover:scale-110 transition-transform" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true" role="img">
+                    <path stroke-linecap="round" stroke-linejoin="round" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"/>
+                  </svg>
+                  Agendar Pedido
+                @else
+                  <svg class="w-4 h-4 group-hover:scale-110 transition-transform" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true" role="img">
+                    <path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7"/>
+                  </svg>
+                  Finalizar Pedido
+                @endif
               </span>
             @endif
           </span>

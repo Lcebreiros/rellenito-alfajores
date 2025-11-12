@@ -109,42 +109,31 @@
 
         {{-- Content --}}
         <main class="flex-1 grid grid-cols-1 lg:grid-cols-2 gap-0 overflow-hidden min-h-0">
-          {{-- Productos/Servicios --}}
+          {{-- Productos --}}
           <section class="flex flex-col min-h-0 border-b lg:border-b-0 lg:border-r border-gray-200 dark:border-gray-700">
             <div class="px-6 py-4 border-b border-gray-200 dark:border-gray-700">
-              {{-- Tabs --}}
-              <div class="flex items-center gap-2 mb-3">
-                <button type="button"
-                        wire:click="setTab('products')"
-                        class="px-4 py-2 text-sm font-medium rounded-lg transition-colors
-                               {{ $currentTab === 'products' ? 'bg-indigo-600 text-white' : 'text-gray-600 dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-gray-800' }}">
-                  <i class="fas fa-box mr-2"></i>Productos
-                  <span class="ml-2 px-2 py-0.5 bg-white/20 rounded text-xs">{{ $products->total() }}</span>
-                </button>
-                <button type="button"
-                        wire:click="setTab('services')"
-                        class="px-4 py-2 text-sm font-medium rounded-lg transition-colors
-                               {{ $currentTab === 'services' ? 'bg-indigo-600 text-white' : 'text-gray-600 dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-gray-800' }}">
-                  <i class="fas fa-concierge-bell mr-2"></i>Servicios
-                  <span class="ml-2 px-2 py-0.5 bg-white/20 rounded text-xs">{{ $services->total() }}</span>
-                </button>
+              <div class="flex items-center justify-between mb-3">
+                <h4 class="font-medium text-gray-900 dark:text-gray-100">Productos</h4>
+                <span class="px-2 py-1 text-xs bg-gray-100 dark:bg-gray-800 text-gray-600 dark:text-gray-400 rounded">
+                  {{ $products->total() }}
+                </span>
               </div>
 
               {{-- Buscador --}}
               <div class="relative">
-                <svg class="absolute left-3 top-1/2 transform -translate-y-1/2 w-4 h-4 text-gray-400"
+                <svg class="absolute left-3 top-1/2 transform -translate-y-1/2 w-4 h-4 text-gray-400" 
                      fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"/>
                 </svg>
                 <input type="text"
                        wire:model.live.debounce.400ms="search"
-                       placeholder="Buscar {{ $currentTab === 'products' ? 'productos' : 'servicios' }}..."
+                       placeholder="Buscar productos..."
                        class="w-full pl-10 pr-4 py-2 text-sm border border-gray-200 dark:border-gray-700 rounded
                               bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100
                               placeholder:text-gray-400 dark:placeholder:text-gray-500
                               focus:outline-none focus:ring-2 focus:ring-gray-500">
                 @if($search)
-                  <button type="button"
+                  <button type="button" 
                           wire:click="$set('search', '')"
                           class="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-400 hover:text-gray-600">
                     <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -156,9 +145,8 @@
             </div>
 
             {{-- Lista productos --}}
-            @if($currentTab === 'products')
-              <div class="flex-1 overflow-y-auto p-6">
-                @if($products->isEmpty())
+            <div class="flex-1 overflow-y-auto p-6">
+              @if($products->isEmpty())
                 <div class="flex flex-col items-center justify-center h-full text-center text-gray-500 dark:text-gray-400">
                   <div class="w-16 h-16 bg-gray-100 dark:bg-gray-800 rounded-lg flex items-center justify-center mb-4">
                     <svg class="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -194,62 +182,13 @@
                   @endforeach
                 </div>
 
-                  @if($products->hasPages())
-                    <div class="mt-6">
-                      {{ $products->onEachSide(1)->links() }}
-                    </div>
-                  @endif
-                @endif
-              </div>
-            @endif
-
-            {{-- Lista servicios --}}
-            @if($currentTab === 'services')
-              <div class="flex-1 overflow-y-auto p-6">
-                @if($services->isEmpty())
-                  <div class="flex flex-col items-center justify-center h-full text-center text-gray-500 dark:text-gray-400">
-                    <div class="w-16 h-16 bg-gray-100 dark:bg-gray-800 rounded-lg flex items-center justify-center mb-4">
-                      <svg class="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 13.255A23.931 23.931 0 0112 15c-3.183 0-6.22-.62-9-1.745M16 6V4a2 2 0 00-2-2h-4a2 2 0 00-2 2v2m4 6h.01M5 20h14a2 2 0 002-2V8a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"/>
-                      </svg>
-                    </div>
-                    <p class="font-medium">No hay servicios</p>
-                    <p class="text-sm opacity-75">Intentá con otros términos</p>
+                @if($products->hasPages())
+                  <div class="mt-6">
+                    {{ $products->onEachSide(1)->links() }}
                   </div>
-                @else
-                  <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-                    @foreach($services as $s)
-                      <div wire:key="s-{{ $s->id }}" class="border border-gray-200 dark:border-gray-700 rounded-lg p-4 hover:shadow-sm transition-shadow">
-                        <h5 class="font-medium text-gray-900 dark:text-gray-100 mb-2">{{ $s->name }}</h5>
-                        @if($s->description)
-                          <p class="text-xs text-gray-500 dark:text-gray-400 mb-3 line-clamp-2">{{ $s->description }}</p>
-                        @endif
-                        <div class="flex items-center justify-between mb-3">
-                          <span class="text-lg font-semibold text-gray-900 dark:text-gray-100">
-                            ${{ number_format((float)($s->price ?? 0), 2, ',', '.') }}
-                          </span>
-                        </div>
-                        <button type="button"
-                                wire:click="addService({{ $s->id }})"
-                                wire:loading.attr="disabled"
-                                wire:target="addService({{ $s->id }})"
-                                class="w-full px-3 py-2 text-sm font-medium bg-gradient-to-r from-indigo-600 to-purple-600 text-white rounded
-                                       hover:from-indigo-700 hover:to-purple-700 disabled:opacity-50 transition-colors">
-                          <span wire:loading.remove wire:target="addService({{ $s->id }})">Agregar</span>
-                          <span wire:loading wire:target="addService({{ $s->id }})">Agregando...</span>
-                        </button>
-                      </div>
-                    @endforeach
-                  </div>
-
-                  @if($services->hasPages())
-                    <div class="mt-6">
-                      {{ $services->onEachSide(1)->links() }}
-                    </div>
-                  @endif
                 @endif
-              </div>
-            @endif
+              @endif
+            </div>
           </section>
 
           {{-- Info y Carrito --}}
@@ -433,23 +372,15 @@
                       </svg>
                     </div>
                     <p class="font-medium">Carrito vacío</p>
-                    <p class="text-sm">Agregá productos o servicios</p>
+                    <p class="text-sm">Agregá productos</p>
                   </div>
                 @else
                   <div class="space-y-3">
                     @foreach($items as $index => $item)
-                      <div wire:key="i-{{ $item['product_id'] ?? 'service' }}-{{ $item['service_id'] ?? 'product' }}-{{ $index }}"
+                      <div wire:key="i-{{ $item['product_id'] }}-{{ $index }}" 
                            class="flex items-center gap-3 p-3 border border-gray-200 dark:border-gray-700 rounded-lg">
                         <div class="flex-1 min-w-0">
-                          <div class="flex items-center gap-2">
-                            <div class="font-medium text-gray-900 dark:text-gray-100">{{ $item['name'] }}</div>
-                            @if(isset($item['type']))
-                              <span class="text-xs px-1.5 py-0.5 rounded
-                                           {{ $item['type'] === 'service' ? 'bg-purple-100 text-purple-700 dark:bg-purple-900/30 dark:text-purple-400' : 'bg-blue-100 text-blue-700 dark:bg-blue-900/30 dark:text-blue-400' }}">
-                                {{ $item['type'] === 'service' ? 'Servicio' : 'Producto' }}
-                              </span>
-                            @endif
-                          </div>
+                          <div class="font-medium text-gray-900 dark:text-gray-100">{{ $item['name'] }}</div>
                           <div class="text-sm text-gray-500 dark:text-gray-400">
                             ${{ number_format($item['price'], 2, ',', '.') }} c/u
                           </div>
@@ -493,51 +424,6 @@
                   </div>
                 @endif
               </div>
-
-              {{-- Medios de pago --}}
-              @if(count($items) > 0 && !$isScheduled)
-                <div>
-                  <div class="flex items-center justify-between mb-4">
-                    <label class="font-medium text-gray-900 dark:text-gray-100 flex items-center gap-2">
-                      <i class="fas fa-credit-card text-green-600 dark:text-green-400"></i>
-                      Medios de pago <span class="text-sm text-gray-500 dark:text-gray-400 font-normal">(opcional)</span>
-                    </label>
-                  </div>
-
-                  @if($availablePaymentMethods->count() > 0)
-                    <div class="space-y-3">
-                      <p class="text-xs text-gray-500 dark:text-gray-400 mb-2">
-                        Seleccioná cómo se pagó el pedido
-                      </p>
-
-                      <div class="grid grid-cols-2 gap-2">
-                        @foreach($availablePaymentMethods as $pm)
-                          <button type="button"
-                                  wire:click="$set('paymentMethods.0', {payment_method_id: {{ $pm->id }}, amount: {{ $this->total }}, reference: ''})"
-                                  class="px-3 py-2 text-sm border rounded-lg transition-colors
-                                         {{ isset($paymentMethods[0]['payment_method_id']) && $paymentMethods[0]['payment_method_id'] == $pm->id
-                                            ? 'border-indigo-600 bg-indigo-50 dark:bg-indigo-900/20 text-indigo-700 dark:text-indigo-400'
-                                            : 'border-gray-200 dark:border-gray-700 hover:border-gray-300 dark:hover:border-gray-600' }}">
-                            {{ $pm->name }}
-                          </button>
-                        @endforeach
-                      </div>
-
-                      @if(isset($paymentMethods[0]['payment_method_id']))
-                        <div class="p-3 bg-green-50 dark:bg-green-900/20 border border-green-200 dark:border-green-800 rounded-lg">
-                          <p class="text-sm text-green-800 dark:text-green-200">
-                            <strong>Método seleccionado:</strong> {{ $availablePaymentMethods->firstWhere('id', $paymentMethods[0]['payment_method_id'])->name ?? 'N/A' }}
-                          </p>
-                        </div>
-                      @endif
-                    </div>
-                  @else
-                    <p class="text-sm text-gray-500 dark:text-gray-400">
-                      No hay medios de pago configurados
-                    </p>
-                  @endif
-                </div>
-              @endif
             </div>
           </section>
         </main>
@@ -547,7 +433,7 @@
           <div>
             @if(count($items))
               <div class="text-sm text-gray-600 dark:text-gray-400">
-                {{ count($items) }} {{ count($items) !== 1 ? 'items' : 'item' }} •
+                {{ count($items) }} producto{{ count($items) !== 1 ? 's' : '' }} • 
                 {{ array_sum(array_column($items, 'quantity')) }} unidad{{ array_sum(array_column($items, 'quantity')) !== 1 ? 'es' : '' }}
               </div>
               <div class="font-semibold text-lg text-gray-900 dark:text-gray-100">
@@ -555,7 +441,7 @@
               </div>
             @else
               <div class="text-sm text-gray-500 dark:text-gray-400">
-                Agregá productos o servicios para continuar
+                Agregá productos para continuar
               </div>
             @endif
           </div>

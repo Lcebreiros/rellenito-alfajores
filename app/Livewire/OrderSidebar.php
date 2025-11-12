@@ -24,12 +24,18 @@ class OrderSidebar extends Component
     // 👇 NUEVO: métodos de pago seleccionados (IDs) - recibidos desde PaymentMethodSelector
     public array $selectedPaymentMethods = [];
 
+    public bool $isScheduled = false; // legacy flag (UI moved to ScheduleOrder)
+    public string $scheduledFor = '';
+    public string $orderNotes = '';
+
     public function mount(?int $orderId = null): void
     {
         $this->orderId = $orderId ?? (int) session('draft_order_id');
         $this->ensureDraftExists();
         $this->refreshOrder();
         $this->loadCustomerFromOrder(); // 👈 cargar nombre si ya tiene cliente
+        // valor por defecto para agendar (mañana a esta hora)
+        $this->scheduledFor = now()->addDay()->format('Y-m-d\TH:i');
     }
 
     #[On('order-updated')]
@@ -198,8 +204,8 @@ class OrderSidebar extends Component
         $this->dispatch('order-updated');
     }
 
-public function finalize(): void
-{
+    public function finalize(): void
+    {
     if ($this->finishing) return;
     $this->finishing = true;
 
@@ -277,9 +283,22 @@ public function finalize(): void
                 $order->paymentMethods()->sync($pivotData);
             }
 
-            // Usar markAsCompleted() que descuenta stock de productos e insumos
-            // Este método ya hace todo: recalcTotal, ajusta stock de productos, descuenta insumos
-            $order->markAsCompleted(now());
+            // Si el borrador está marcado como agendado, guardarlo como SCHEDULED; si no, completar
+            if ((bool) ($order->is_scheduled ?? false)) {
+                $dt = $order->scheduled_for;
+                if (!$dt) {
+                    throw new DomainException('Seleccioná la fecha de agendado.');
+                }
+                if ($dt->lessThanOrEqualTo(now())) {
+                    throw new DomainException('La fecha/hora debe ser futura para agendar.');
+                }
+                $order->status = \App\Enums\OrderStatus::SCHEDULED;
+                $order->recalcTotal(true);
+                $order->save();
+            } else {
+                // Completar la orden: descuenta stock de productos e insumos
+                $order->markAsCompleted(now());
+            }
 
             // Recopilar IDs de productos afectados para notificar
             foreach ($order->items as $item) {

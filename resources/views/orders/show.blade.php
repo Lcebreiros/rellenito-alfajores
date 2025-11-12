@@ -303,6 +303,55 @@ $s = $statusMap[$statusKey] ?? [
 
     {{-- Columna derecha --}}
     <div class="lg:col-span-5 xl:col-span-4 space-y-6">
+      {{-- Agendar (mismo patrón que modal rápido) --}}
+      <div class="bg-white dark:bg-neutral-900 rounded-2xl border border-neutral-200 dark:border-neutral-800 shadow-sm">
+        <div class="px-5 sm:px-6 py-5 border-b border-neutral-100 dark:border-neutral-800/60 flex items-center justify-between">
+          <h3 class="text-base font-semibold text-neutral-900 dark:text-neutral-100">Agendar</h3>
+        </div>
+        <div class="px-5 sm:px-6 py-5">
+          <form method="POST" action="{{ route('orders.schedule', $order) }}" class="space-y-4">
+            @csrf
+            <div class="flex items-center justify-between">
+              <span class="text-sm text-neutral-700 dark:text-neutral-300">Agendado</span>
+              <label class="inline-flex items-center cursor-pointer">
+                @php $checked = old('is_scheduled', $order->is_scheduled ? '1' : '0') == '1'; @endphp
+                <input type="hidden" name="is_scheduled" value="0">
+                <input type="checkbox" name="is_scheduled" value="1" class="sr-only peer" {{ $checked ? 'checked' : '' }}>
+                <div class="w-11 h-6 bg-neutral-200 peer-focus:outline-none rounded-full peer dark:bg-neutral-700 peer-checked:bg-indigo-600 relative transition">
+                  <div class="absolute top-0.5 left-0.5 w-5 h-5 bg-white rounded-full shadow transform peer-checked:translate-x-5 transition"></div>
+                </div>
+              </label>
+            </div>
+
+            @php
+              $scheduledValue = old('scheduled_for', optional($order->scheduled_for)->format('Y-m-d\TH:i'));
+              $isOn = old('is_scheduled', $order->is_scheduled ? '1' : '0') == '1';
+            @endphp
+
+            <div data-schedule-container class="mt-2" style="display: {{ $isOn ? 'block' : 'none' }};">
+              <div class="grid gap-2">
+                <label for="scheduled_for" class="text-xs text-neutral-600 dark:text-neutral-400">Fecha y hora</label>
+                <input id="scheduled_for"
+                       name="scheduled_for"
+                       type="datetime-local"
+                       value="{{ $scheduledValue }}"
+                       class="w-full px-3 py-2 rounded-lg border border-neutral-300 dark:border-neutral-700 bg-white dark:bg-neutral-900 text-sm"
+                       step="60">
+                <p class="text-[11px] text-neutral-500 dark:text-neutral-400">Debe ser una fecha futura.</p>
+                @error('scheduled_for')
+                  <div class="text-[11px] text-rose-600">{{ $message }}</div>
+                @enderror
+              </div>
+            </div>
+
+            <div class="pt-2">
+              <button type="submit" class="w-full inline-flex items-center justify-center gap-2 px-4 py-2 rounded-lg bg-indigo-600 hover:bg-indigo-700 text-white text-sm font-semibold">
+                Guardar agendamiento
+              </button>
+            </div>
+          </form>
+        </div>
+      </div>
       {{-- Cliente --}}
       <div class="bg-white dark:bg-neutral-900 rounded-2xl border border-neutral-200 dark:border-neutral-800 shadow-sm">
         <div class="px-5 sm:px-6 py-5 border-b border-neutral-100 dark:border-neutral-800/60 flex items-center justify-between">
@@ -437,5 +486,24 @@ $s = $statusMap[$statusKey] ?? [
   .border { border-color:#e5e5e5 !important; } /* neutral-200 */
 }
 </style>
+@endpush
+@push('scripts')
+<script>
+  // Mostrar/ocultar selector según switch
+  document.addEventListener('change', function(e){
+    if (e.target && e.target.name === 'is_scheduled') {
+      const form = e.target.closest('form');
+      const box  = form ? form.querySelector('[data-schedule-container]') : null;
+      if (box) box.style.display = e.target.checked ? 'block' : 'none';
+    }
+  });
+  // Si el navegador rehidrata con back/forward, forzar estado correcto
+  window.addEventListener('pageshow', function(){
+    document.querySelectorAll('form input[name="is_scheduled"]').forEach(function(chk){
+      const box = chk.closest('form').querySelector('[data-schedule-container]');
+      if (box) box.style.display = chk.checked ? 'block' : 'none';
+    });
+  });
+</script>
 @endpush
 @endsection

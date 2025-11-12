@@ -188,6 +188,8 @@ Route::middleware([
     // Confirmar / cancelar pedidos agendados (acciones desde notificaciones)
     Route::post('orders/{order}/confirm-scheduled', [OrderController::class, 'confirmScheduled'])->name('orders.confirm-scheduled');
     Route::post('orders/{order}/cancel-scheduled', [OrderController::class, 'cancelScheduled'])->name('orders.cancel-scheduled');
+    // Actualizar agendamiento desde la vista de pedido
+    Route::post('orders/{order}/schedule', [OrderController::class, 'schedule'])->name('orders.schedule');
 
     // Index / show / edit / update / destroy
     Route::get('orders', [OrderController::class, 'index'])->name('orders.index');

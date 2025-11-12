@@ -5,9 +5,11 @@ namespace App\Livewire;
 use Livewire\Component;
 use Livewire\WithPagination;
 use App\Models\Product;
+use App\Models\Service;
 use App\Models\Order;
 use App\Models\OrderItem;
 use App\Models\Client;
+use App\Models\PaymentMethod;
 use App\Enums\OrderStatus;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
@@ -23,6 +25,7 @@ class OrderQuickModal extends Component
     public bool $open = false;
     public string $search = '';
     public array $items = [];
+    public string $currentTab = 'products'; // 'products' o 'services'
 
     // ---- Cliente
     public ?int $client_id = null;
@@ -31,6 +34,9 @@ class OrderQuickModal extends Component
     public string $newClientName = '';
     public string $newClientEmail = '';
     public string $newClientPhone = '';
+
+    // ---- Medios de pago
+    public array $paymentMethods = []; // [{payment_method_id, amount, reference}]
 
     // ---- Fecha/hora elegida por el usuario para el pedido (para created_at)
     // Formato compatible con <input type="datetime-local"> -> "Y-m-d\TH:i"
@@ -86,11 +92,22 @@ class OrderQuickModal extends Component
             'newClientPhone',
             'isScheduled',
             'orderNotes',
+            'currentTab',
+            'paymentMethods',
         ]);
+        $this->currentTab = 'products';
         $this->resetPage();
     }
 
-    // --- Lógica de productos / cliente ---
+    // --- Cambiar tab ---
+    public function setTab($tab): void
+    {
+        $this->currentTab = $tab;
+        $this->search = '';
+        $this->resetPage();
+    }
+
+    // --- Lógica de productos / servicios / cliente ---
 
     public function addProduct($productId): void
     {
@@ -98,17 +115,47 @@ class OrderQuickModal extends Component
         $product = Product::withoutGlobalScope('byUser')->find($productId);
         if (!$product) return;
 
-        $existingKey = array_search($productId, array_column($this->items, 'product_id'), true);
-        if ($existingKey !== false) {
-            $this->items[$existingKey]['quantity']++;
-        } else {
-            $this->items[] = [
-                'product_id' => $product->id,
-                'name'       => $product->name,
-                'price'      => (float) $product->price,
-                'quantity'   => 1,
-            ];
+        // Buscar si ya existe este producto en el carrito
+        foreach ($this->items as $key => $item) {
+            if (isset($item['product_id']) && $item['product_id'] === $productId) {
+                $this->items[$key]['quantity']++;
+                return;
+            }
         }
+
+        // Agregar nuevo item
+        $this->items[] = [
+            'type' => 'product',
+            'product_id' => $product->id,
+            'service_id' => null,
+            'name'       => $product->name,
+            'price'      => (float) $product->price,
+            'quantity'   => 1,
+        ];
+    }
+
+    public function addService($serviceId): void
+    {
+        $service = Service::withoutGlobalScope('byUser')->find($serviceId);
+        if (!$service) return;
+
+        // Buscar si ya existe este servicio en el carrito
+        foreach ($this->items as $key => $item) {
+            if (isset($item['service_id']) && $item['service_id'] === $serviceId) {
+                $this->items[$key]['quantity']++;
+                return;
+            }
+        }
+
+        // Agregar nuevo item
+        $this->items[] = [
+            'type' => 'service',
+            'product_id' => null,
+            'service_id' => $service->id,
+            'name'       => $service->name,
+            'price'      => (float) $service->price,
+            'quantity'   => 1,
+        ];
     }
 
     public function removeItem($index): void
@@ -282,7 +329,8 @@ class OrderQuickModal extends Component
                 $subtotal = $price * $qty;
                 $payload = [
                     'order_id'   => $order->id,
-                    'product_id' => $item['product_id'],
+                    'product_id' => $item['product_id'] ?? null,
+                    'service_id' => $item['service_id'] ?? null,
                     'quantity'   => $qty,
                 ];
 
@@ -299,6 +347,18 @@ class OrderQuickModal extends Component
             // Actualizar total
             $order->total = $total;
             $order->save();
+
+            // Guardar medios de pago
+            if (!empty($this->paymentMethods)) {
+                foreach ($this->paymentMethods as $pm) {
+                    if (!empty($pm['payment_method_id']) && !empty($pm['amount']) && $pm['amount'] > 0) {
+                        $order->paymentMethods()->attach($pm['payment_method_id'], [
+                            'amount' => $pm['amount'],
+                            'reference' => $pm['reference'] ?? null,
+                        ]);
+                    }
+                }
+            }
 
             // Si debe completarse, usar markAsCompleted para descontar stock e insumos
             if ($this->completeOnSave) {
@@ -340,13 +400,12 @@ class OrderQuickModal extends Component
     {
         $user = auth()->user();
 
-        // Construir query base
-        $query = (method_exists($user,'isMaster') && $user->isMaster())
+        // Cargar productos
+        $productQuery = (method_exists($user,'isMaster') && $user->isMaster())
             ? Product::query()
             : Product::availableFor($user);
 
-        // Aplicar filtros y búsqueda
-        $products = $query
+        $products = $productQuery
             ->when($this->search, function ($query) {
                 $query->where(function ($q) {
                     $q->where('name', 'like', '%' . $this->search . '%')
@@ -355,8 +414,31 @@ class OrderQuickModal extends Component
             })
             ->when(method_exists(Product::class, 'scopeActive'), fn ($q) => $q->active())
             ->orderBy('name')
-            ->paginate(12);
+            ->paginate(12, ['*'], 'productsPage');
 
-        return view('livewire.order-quick-modal', compact('products'));
+        // Cargar servicios
+        $serviceQuery = (method_exists($user,'isMaster') && $user->isMaster())
+            ? Service::query()
+            : Service::availableFor($user);
+
+        $services = $serviceQuery
+            ->when($this->search, function ($query) {
+                $query->where('name', 'like', '%' . $this->search . '%');
+            })
+            ->when(method_exists(Service::class, 'scopeActive'), fn ($q) => $q->active())
+            ->orderBy('name')
+            ->paginate(12, ['*'], 'servicesPage');
+
+        // Cargar medios de pago disponibles
+        $availablePaymentMethods = PaymentMethod::where('is_active', true)
+            ->where(function ($q) use ($user) {
+                $q->where('is_global', true)
+                  ->orWhere('user_id', $user->id);
+            })
+            ->orderBy('sort_order')
+            ->orderBy('name')
+            ->get();
+
+        return view('livewire.order-quick-modal', compact('products', 'services', 'availablePaymentMethods'));
     }
 }
