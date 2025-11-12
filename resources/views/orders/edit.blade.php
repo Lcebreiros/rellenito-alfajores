@@ -157,25 +157,25 @@
 
       <div>
         <label class="text-xs text-neutral-500 dark:text-neutral-400 mb-1 block">Nombre</label>
-        <input type="text" name="name" value="{{ $customerName }}" 
+        <input type="text" name="name" value="{{ $customerName }}"
                class="w-full border border-neutral-300 dark:border-neutral-700 bg-white dark:bg-neutral-800 text-neutral-900 dark:text-neutral-100 rounded px-2 py-1 focus:outline-none focus:ring-2 focus:ring-indigo-500 dark:focus:ring-indigo-400">
       </div>
 
       <div>
         <label class="text-xs text-neutral-500 dark:text-neutral-400 mb-1 block">Email</label>
-        <input type="email" name="email" value="{{ $customerEmail }}" 
+        <input type="email" name="email" value="{{ $customerEmail }}"
                class="w-full border border-neutral-300 dark:border-neutral-700 bg-white dark:bg-neutral-800 text-neutral-900 dark:text-neutral-100 rounded px-2 py-1 focus:outline-none focus:ring-2 focus:ring-indigo-500 dark:focus:ring-indigo-400">
       </div>
 
       <div>
         <label class="text-xs text-neutral-500 dark:text-neutral-400 mb-1 block">Teléfono</label>
-        <input type="text" name="phone" value="{{ $customerPhone }}" 
+        <input type="text" name="phone" value="{{ $customerPhone }}"
                class="w-full border border-neutral-300 dark:border-neutral-700 bg-white dark:bg-neutral-800 text-neutral-900 dark:text-neutral-100 rounded px-2 py-1 focus:outline-none focus:ring-2 focus:ring-indigo-500 dark:focus:ring-indigo-400">
       </div>
 
       <div>
         <label class="text-xs text-neutral-500 dark:text-neutral-400 mb-1 block">Dirección</label>
-        <input type="text" name="address" value="{{ $shippingAddr }}" 
+        <input type="text" name="address" value="{{ $shippingAddr }}"
                class="w-full border border-neutral-300 dark:border-neutral-700 bg-white dark:bg-neutral-800 text-neutral-900 dark:text-neutral-100 rounded px-2 py-1 focus:outline-none focus:ring-2 focus:ring-indigo-500 dark:focus:ring-indigo-400">
       </div>
 
@@ -184,6 +184,37 @@
         <button type="submit" class="w-full bg-indigo-600 text-white py-2 rounded hover:bg-indigo-700 dark:hover:bg-indigo-500 transition-colors">
           Guardar cambios
         </button>
+      </div>
+
+    </div>
+  </div>
+
+  {{-- Agendamiento --}}
+  <div class="bg-white dark:bg-neutral-900 rounded-2xl border border-neutral-200 dark:border-neutral-800 shadow-sm"
+       x-data="{ isScheduled: {{ $order->is_scheduled ? 'true' : 'false' }} }">
+    <div class="px-5 sm:px-6 py-5 border-b border-neutral-100 dark:border-neutral-800/60">
+      <h3 class="text-base font-semibold text-neutral-900 dark:text-neutral-100">Agendamiento</h3>
+    </div>
+    <div class="px-5 sm:px-6 py-5 space-y-4">
+
+      {{-- Toggle agendar --}}
+      <div class="flex items-center justify-between">
+        <label class="text-sm text-neutral-700 dark:text-neutral-300">Agendar pedido</label>
+        <button type="button" @click="isScheduled = !isScheduled"
+                :class="isScheduled ? 'bg-indigo-600' : 'bg-neutral-300 dark:bg-neutral-700'"
+                class="relative inline-flex h-6 w-11 items-center rounded-full transition-colors">
+          <span :class="isScheduled ? 'translate-x-6' : 'translate-x-1'"
+                class="inline-block h-4 w-4 transform rounded-full bg-white transition-transform"></span>
+        </button>
+        <input type="hidden" name="is_scheduled" :value="isScheduled ? '1' : '0'">
+      </div>
+
+      {{-- Campo de fecha/hora --}}
+      <div x-show="isScheduled" x-transition class="space-y-2">
+        <label class="text-xs text-neutral-500 dark:text-neutral-400 block">Fecha y hora</label>
+        <input type="datetime-local" name="scheduled_for"
+               value="{{ $order->scheduled_for?->format('Y-m-d\TH:i') }}"
+               class="w-full border border-neutral-300 dark:border-neutral-700 bg-white dark:bg-neutral-800 text-neutral-900 dark:text-neutral-100 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-indigo-500 dark:focus:ring-indigo-400">
       </div>
 
     </div>

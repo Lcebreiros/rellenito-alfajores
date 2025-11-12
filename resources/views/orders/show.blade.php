@@ -303,55 +303,40 @@ $s = $statusMap[$statusKey] ?? [
 
     {{-- Columna derecha --}}
     <div class="lg:col-span-5 xl:col-span-4 space-y-6">
-      {{-- Agendar (mismo patrón que modal rápido) --}}
+      {{-- Agendamiento --}}
+      @if($order->is_scheduled && $order->scheduled_for)
       <div class="bg-white dark:bg-neutral-900 rounded-2xl border border-neutral-200 dark:border-neutral-800 shadow-sm">
-        <div class="px-5 sm:px-6 py-5 border-b border-neutral-100 dark:border-neutral-800/60 flex items-center justify-between">
-          <h3 class="text-base font-semibold text-neutral-900 dark:text-neutral-100">Agendar</h3>
+        <div class="px-5 sm:px-6 py-5 border-b border-neutral-100 dark:border-neutral-800/60">
+          <h3 class="text-base font-semibold text-neutral-900 dark:text-neutral-100">Agendamiento</h3>
         </div>
         <div class="px-5 sm:px-6 py-5">
-          <form method="POST" action="{{ route('orders.schedule', $order) }}" class="space-y-4">
-            @csrf
-            <div class="flex items-center justify-between">
-              <span class="text-sm text-neutral-700 dark:text-neutral-300">Agendado</span>
-              <label class="inline-flex items-center cursor-pointer">
-                @php $checked = old('is_scheduled', $order->is_scheduled ? '1' : '0') == '1'; @endphp
-                <input type="hidden" name="is_scheduled" value="0">
-                <input type="checkbox" name="is_scheduled" value="1" class="sr-only peer" {{ $checked ? 'checked' : '' }}>
-                <div class="w-11 h-6 bg-neutral-200 peer-focus:outline-none rounded-full peer dark:bg-neutral-700 peer-checked:bg-indigo-600 relative transition">
-                  <div class="absolute top-0.5 left-0.5 w-5 h-5 bg-white rounded-full shadow transform peer-checked:translate-x-5 transition"></div>
-                </div>
-              </label>
+          <div class="flex items-start gap-3">
+            <div class="shrink-0">
+              <svg class="w-5 h-5 text-indigo-600 dark:text-indigo-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"/>
+              </svg>
             </div>
-
-            @php
-              $scheduledValue = old('scheduled_for', optional($order->scheduled_for)->format('Y-m-d\TH:i'));
-              $isOn = old('is_scheduled', $order->is_scheduled ? '1' : '0') == '1';
-            @endphp
-
-            <div data-schedule-container class="mt-2" style="display: {{ $isOn ? 'block' : 'none' }};">
-              <div class="grid gap-2">
-                <label for="scheduled_for" class="text-xs text-neutral-600 dark:text-neutral-400">Fecha y hora</label>
-                <input id="scheduled_for"
-                       name="scheduled_for"
-                       type="datetime-local"
-                       value="{{ $scheduledValue }}"
-                       class="w-full px-3 py-2 rounded-lg border border-neutral-300 dark:border-neutral-700 bg-white dark:bg-neutral-900 text-sm"
-                       step="60">
-                <p class="text-[11px] text-neutral-500 dark:text-neutral-400">Debe ser una fecha futura.</p>
-                @error('scheduled_for')
-                  <div class="text-[11px] text-rose-600">{{ $message }}</div>
-                @enderror
+            <div class="flex-1">
+              <div class="text-xs text-neutral-500 dark:text-neutral-400 mb-1">Agendado para</div>
+              <div class="font-semibold text-neutral-900 dark:text-neutral-100">
+                {{ $order->scheduled_for->format('d/m/Y') }}
+              </div>
+              <div class="text-sm text-neutral-600 dark:text-neutral-300 mt-0.5">
+                {{ $order->scheduled_for->format('H:i') }} hs
+              </div>
+              <div class="text-xs text-neutral-500 dark:text-neutral-400 mt-2">
+                {{ $order->scheduled_for->diffForHumans() }}
               </div>
             </div>
-
-            <div class="pt-2">
-              <button type="submit" class="w-full inline-flex items-center justify-center gap-2 px-4 py-2 rounded-lg bg-indigo-600 hover:bg-indigo-700 text-white text-sm font-semibold">
-                Guardar agendamiento
-              </button>
-            </div>
-          </form>
+          </div>
+          <div class="mt-4 pt-4 border-t border-neutral-100 dark:border-neutral-800/60">
+            <a href="{{ route('orders.edit', $order) }}" class="text-xs text-indigo-600 dark:text-indigo-400 hover:underline">
+              Cambiar fecha →
+            </a>
+          </div>
         </div>
       </div>
+      @endif
       {{-- Cliente --}}
       <div class="bg-white dark:bg-neutral-900 rounded-2xl border border-neutral-200 dark:border-neutral-800 shadow-sm">
         <div class="px-5 sm:px-6 py-5 border-b border-neutral-100 dark:border-neutral-800/60 flex items-center justify-between">

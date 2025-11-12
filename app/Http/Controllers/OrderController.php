@@ -642,19 +642,51 @@ public function index(Request $request)
             'phone'           => 'nullable|string|max:50',
             'address'         => 'nullable|string|max:255',
             'items_json'      => 'required|string',
+            'is_scheduled'    => ['nullable', Rule::in(['0','1',0,1,true,false])],
+            'scheduled_for'   => ['nullable', 'date_format:Y-m-d\TH:i'],
         ]);
 
-        DB::transaction(function() use (&$order, $data) {
+        DB::transaction(function() use (&$order, $data, $request) {
             // Bloquear orden e items para evitar condiciones de carrera
             $order = Order::with('items.product')->lockForUpdate()->findOrFail($order->id);
 
             // Actualizamos datos del cliente/dirección
-            $order->update([
+            $updateData = [
                 'customer_name'    => $data['name'],
                 'customer_email'   => $data['email'],
                 'customer_phone'   => $data['phone'],
                 'shipping_address' => $data['address'],
-            ]);
+            ];
+
+            // Manejar agendamiento
+            if ($request->has('is_scheduled')) {
+                $isScheduled = filter_var($data['is_scheduled'], FILTER_VALIDATE_BOOL);
+
+                if ($isScheduled && !empty($data['scheduled_for'])) {
+                    // Validar que la fecha sea futura (solo si se está habilitando)
+                    $scheduledDate = Carbon::createFromFormat('Y-m-d\TH:i', $data['scheduled_for']);
+                    if ($scheduledDate->isFuture()) {
+                        $updateData['is_scheduled'] = true;
+                        $updateData['scheduled_for'] = $scheduledDate;
+
+                        // Si no está COMPLETED/CANCELED, cambiar a SCHEDULED
+                        if (!in_array((string)$order->status, [OrderStatus::COMPLETED->value, OrderStatus::CANCELED->value], true)) {
+                            $updateData['status'] = OrderStatus::SCHEDULED;
+                        }
+                    }
+                } else {
+                    // Deshabilitar agendamiento
+                    $updateData['is_scheduled'] = false;
+                    $updateData['scheduled_for'] = null;
+
+                    // Si estaba SCHEDULED, pasarlo a PENDING
+                    if ((string)$order->status === OrderStatus::SCHEDULED->value) {
+                        $updateData['status'] = OrderStatus::PENDING;
+                    }
+                }
+            }
+
+            $order->update($updateData);
 
             // Inventario: si la orden está COMPLETED y se editan cantidades, ajustar diferencias al stock
             $newItemsArr = json_decode($data['items_json'], true) ?: [];
