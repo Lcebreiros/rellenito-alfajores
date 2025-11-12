@@ -34,11 +34,18 @@
       <svg class="h-5 w-5 text-blue-600 dark:text-blue-400 mt-0.5 flex-shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor">
         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/>
       </svg>
-      <div class="text-sm text-blue-800 dark:text-blue-300">
+      <div class="text-sm text-blue-800 dark:text-blue-300 flex-1">
         <p class="font-medium mb-1">¿Qué son los insumos?</p>
         <p>Los insumos son materiales como emboltorios, etiquetas, cajas, etc. que se utilizan al vender productos o servicios.
            Cuando realizas una venta, el sistema automáticamente descuenta los insumos del stock. Asígnalos desde las vistas de crear/editar productos o servicios.</p>
       </div>
+      <a href="{{ route('suppliers.index') }}"
+         class="flex-shrink-0 inline-flex items-center px-3 py-1.5 bg-white dark:bg-neutral-800 text-blue-700 dark:text-blue-300 rounded-lg hover:bg-blue-100 dark:hover:bg-neutral-700 transition text-xs font-medium border border-blue-300 dark:border-blue-700">
+        <svg class="w-3.5 h-3.5 mr-1.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4"/>
+        </svg>
+        Gestionar Proveedores
+      </a>
     </div>
   </div>
 
@@ -57,6 +64,18 @@
           <input type="text" name="name" required
                  class="w-full rounded-lg border border-neutral-300 px-3 py-2 text-sm dark:border-neutral-700 dark:bg-neutral-900"
                  placeholder="Ej: Emboltorio de papel">
+        </div>
+
+        <div>
+          <label class="block text-sm font-medium text-neutral-700 dark:text-neutral-300 mb-1">
+            Proveedor
+          </label>
+          <select name="supplier_id" class="w-full rounded-lg border border-neutral-300 px-3 py-2 text-sm dark:border-neutral-700 dark:bg-neutral-900">
+            <option value="">Sin proveedor</option>
+            @foreach($suppliers as $supplier)
+              <option value="{{ $supplier->id }}">{{ $supplier->name }}</option>
+            @endforeach
+          </select>
         </div>
 
         <div>
@@ -165,6 +184,9 @@
                 Nombre
               </th>
               <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-neutral-500 dark:text-neutral-400 uppercase tracking-wider">
+                Proveedor
+              </th>
+              <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-neutral-500 dark:text-neutral-400 uppercase tracking-wider">
                 Unidad Base
               </th>
               <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-neutral-500 dark:text-neutral-400 uppercase tracking-wider">
@@ -198,6 +220,9 @@
                   @endif
                 </td>
                 <td class="px-6 py-4 whitespace-nowrap text-sm text-neutral-600 dark:text-neutral-400">
+                  {{ $supply->supplier?->name ?? '-' }}
+                </td>
+                <td class="px-6 py-4 whitespace-nowrap text-sm text-neutral-600 dark:text-neutral-400">
                   {{ strtoupper($supply->base_unit) }}
                 </td>
                 <td class="px-6 py-4 whitespace-nowrap text-sm">
@@ -227,7 +252,7 @@
                 </td>
                 <td class="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
                   <div class="flex items-center justify-end gap-2">
-                    <button onclick="editSupply({{ $supply->id }}, '{{ $supply->name }}', '{{ $supply->base_unit }}', '{{ $supply->description }}')"
+                    <button onclick="editSupply({{ $supply->id }}, '{{ $supply->name }}', '{{ $supply->base_unit }}', '{{ $supply->description }}', {{ $supply->supplier_id ?? 'null' }})"
                             class="text-blue-600 hover:text-blue-800 dark:text-blue-400 dark:hover:text-blue-300">
                       <svg class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"/>
@@ -286,6 +311,17 @@
         </div>
         <div>
           <label class="block text-sm font-medium text-neutral-700 dark:text-neutral-300 mb-1">
+            Proveedor
+          </label>
+          <select id="edit_supplier_id" name="supplier_id" class="w-full rounded-lg border border-neutral-300 px-3 py-2 text-sm dark:border-neutral-700 dark:bg-neutral-900">
+            <option value="">Sin proveedor</option>
+            @foreach($suppliers as $supplier)
+              <option value="{{ $supplier->id }}">{{ $supplier->name }}</option>
+            @endforeach
+          </select>
+        </div>
+        <div>
+          <label class="block text-sm font-medium text-neutral-700 dark:text-neutral-300 mb-1">
             Unidad Base <span class="text-rose-500">*</span>
           </label>
           <select id="edit_base_unit" name="base_unit" required class="w-full rounded-lg border border-neutral-300 px-3 py-2 text-sm dark:border-neutral-700 dark:bg-neutral-900">
@@ -317,10 +353,11 @@
 </div>
 
 <script>
-function editSupply(id, name, base_unit, description) {
+function editSupply(id, name, base_unit, description, supplier_id) {
   document.getElementById('edit_name').value = name;
   document.getElementById('edit_base_unit').value = base_unit;
   document.getElementById('edit_description').value = description;
+  document.getElementById('edit_supplier_id').value = supplier_id || '';
   document.getElementById('editForm').action = `/expenses/supplies/${id}`;
   document.getElementById('editModal').classList.remove('hidden');
 }

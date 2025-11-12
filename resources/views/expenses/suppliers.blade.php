@@ -50,11 +50,17 @@
 
         <div>
           <label class="block text-sm font-medium text-neutral-700 dark:text-neutral-300 mb-1">
-            Nombre del Proveedor <span class="text-rose-500">*</span>
+            Proveedor <span class="text-rose-500">*</span>
           </label>
-          <input type="text" name="supplier_name" required
-                 class="w-full rounded-lg border border-neutral-300 px-3 py-2 text-sm dark:border-neutral-700 dark:bg-neutral-900"
-                 placeholder="Ej: Distribuidora ABC">
+          <select name="supplier_id" required class="w-full rounded-lg border border-neutral-300 px-3 py-2 text-sm dark:border-neutral-700 dark:bg-neutral-900">
+            <option value="">Seleccionar proveedor</option>
+            @foreach($suppliers as $supplier)
+              <option value="{{ $supplier->id }}">{{ $supplier->name }}</option>
+            @endforeach
+          </select>
+          <p class="mt-1 text-xs text-neutral-500 dark:text-neutral-400">
+            Si el proveedor no existe, primero créalo desde <a href="{{ route('suppliers.index') }}" class="text-indigo-600 hover:underline">Gestión de Proveedores</a>
+          </p>
         </div>
 
         <div>
@@ -142,7 +148,9 @@
           <tbody class="divide-y divide-neutral-200 dark:divide-neutral-700">
             @foreach($expenses as $expense)
               <tr class="hover:bg-neutral-50 dark:hover:bg-neutral-900/50">
-                <td class="px-6 py-4 text-sm text-neutral-900 dark:text-neutral-100">{{ $expense->supplier_name }}</td>
+                <td class="px-6 py-4 text-sm text-neutral-900 dark:text-neutral-100">
+                  {{ $expense->supplier?->name ?? '-' }}
+                </td>
                 <td class="px-6 py-4 text-sm text-neutral-600 dark:text-neutral-400">
                   {{ $expense->product ? $expense->product->name : '-' }}
                 </td>

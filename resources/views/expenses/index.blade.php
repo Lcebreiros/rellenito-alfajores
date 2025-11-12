@@ -273,18 +273,27 @@
   <div x-show="activeTab === 'suppliers'" x-cloak>
     <div class="flex justify-between items-center mb-6">
       <div>
-        <h2 class="text-xl font-semibold text-neutral-900 dark:text-neutral-100">Gastos de Proveedores</h2>
+        <h2 class="text-xl font-semibold text-neutral-900 dark:text-neutral-100">Proveedores y sus Gastos</h2>
         <p class="text-sm text-neutral-600 dark:text-neutral-400 mt-1">
           Total anualizado: <span class="font-semibold">${{ number_format($totalSupplier, 2, ',', '.') }}</span>
         </p>
       </div>
-      <a href="{{ route('expenses.suppliers') }}"
-         class="inline-flex items-center px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition">
-        <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"/>
-        </svg>
-        Nuevo Gasto
-      </a>
+      <div class="flex items-center gap-2">
+        <a href="{{ route('suppliers.index') }}"
+           class="inline-flex items-center px-4 py-2 bg-neutral-600 text-white rounded-lg hover:bg-neutral-700 transition text-sm">
+          <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4"/>
+          </svg>
+          Gestionar Proveedores
+        </a>
+        <a href="{{ route('expenses.suppliers') }}"
+           class="inline-flex items-center px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition">
+          <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"/>
+          </svg>
+          Nuevo Gasto
+        </a>
+      </div>
     </div>
 
     @include('expenses.partials.suppliers-table')
@@ -362,13 +371,22 @@
           Valor en stock: <span class="font-semibold">${{ number_format($totalSupplies, 2, ',', '.') }}</span>
         </p>
       </div>
-      <a href="{{ route('expenses.supplies') }}"
-         class="inline-flex items-center px-4 py-2 bg-amber-600 text-white rounded-lg hover:bg-amber-700 transition">
-        <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"/>
-        </svg>
-        Nuevo Insumo
-      </a>
+      <div class="flex items-center gap-2">
+        <a href="{{ route('suppliers.index') }}"
+           class="inline-flex items-center px-4 py-2 bg-neutral-600 text-white rounded-lg hover:bg-neutral-700 transition text-sm">
+          <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4"/>
+          </svg>
+          Gestionar Proveedores
+        </a>
+        <a href="{{ route('expenses.supplies') }}"
+           class="inline-flex items-center px-4 py-2 bg-amber-600 text-white rounded-lg hover:bg-amber-700 transition">
+          <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"/>
+          </svg>
+          Nuevo Insumo
+        </a>
+      </div>
     </div>
 
     @include('expenses.partials.supplies-table')

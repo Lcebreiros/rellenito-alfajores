@@ -7,6 +7,9 @@
     </h1>
 @endsection
 
+@section('header_actions')
+    @livewire('dashboard-actions')
+@endsection
 
 @section('content')
     <livewire:dashboard />

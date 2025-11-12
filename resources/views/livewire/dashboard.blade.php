@@ -1,51 +1,9 @@
 {{-- resources/views/livewire/dashboard.blade.php --}}
 <div
-  x-data="{ addOpen:false, editMode: @entangle('editMode').live }"
+  x-data="{ editMode: @entangle('editMode').live }"
   x-cloak
   class="min-h-[70vh]"
 >
-  {{-- Barra de acciones --}}
-  <div class="flex items-center justify-end gap-2 mb-3">
-    <div class="relative">
-      <button
-        type="button"
-        @click="if (!editMode) { $wire.toggleEdit(); editMode = true } ; addOpen = !addOpen"
-        class="px-3 py-2 rounded-lg bg-neutral-100 hover:bg-neutral-200 dark:bg-neutral-800 dark:hover:bg-neutral-700 text-sm font-semibold"
-        title="Añadir un widget al tablero"
-      >
-        + Añadir widget
-      </button>
-
-      <div
-        x-show="addOpen && editMode"
-        @click.outside="addOpen=false"
-        x-transition.opacity
-        class="absolute right-0 mt-2 w-56 bg-white dark:bg-neutral-900 border border-neutral-200 dark:border-neutral-800 rounded-xl shadow-lg p-2 z-10"
-      >
-        @forelse($available as $key => $meta)
-          <button
-            type="button"
-            @click="addOpen=false"
-            wire:click="addWidget('{{ $key }}')"
-            class="w-full text-left px-3 py-2 rounded-lg hover:bg-neutral-100 dark:hover:bg-neutral-800 text-sm"
-          >
-            {{ $meta['label'] ?? $key }}
-          </button>
-        @empty
-          <div class="px-3 py-2 text-sm text-neutral-500">No hay widgets detectados.</div>
-        @endforelse
-      </div>
-    </div>
-
-    <button
-      type="button"
-      wire:click="toggleEdit"
-      class="px-3 py-2 rounded-lg bg-indigo-600 hover:bg-indigo-700 text-white text-sm font-semibold"
-    >
-      {{ $editMode ? 'Salir de edición' : 'Editar' }}
-    </button>
-  </div>
-
   {{-- GRID --}}
 <div
   class="grid grid-cols-2 md:grid-cols-3 xl:grid-cols-4 gap-3 md:gap-4

@@ -90,6 +90,21 @@ class Dashboard extends Component
     public function toggleEdit(): void
     {
         $this->editMode = ! $this->editMode;
+        $this->dispatch('dashboard:editModeChanged', editMode: $this->editMode);
+    }
+
+    #[On('dashboard:toggleEdit')]
+    public function onToggleEdit(bool $editMode): void
+    {
+        $this->editMode = $editMode;
+    }
+
+    #[On('dashboard:addWidget')]
+    public function onAddWidget(string $key): void
+    {
+        if (! isset($this->available[$key])) return;
+        $this->layout[] = ['id' => uniqid('w_'), 'key' => $key];
+        $this->persist();
     }
 
     public function addWidget(string $key): void

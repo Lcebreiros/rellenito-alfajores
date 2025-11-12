@@ -223,7 +223,7 @@ class="relative">
     </div>
     @if($latest->isNotEmpty())
       <div class="px-4 py-2 border-t border-neutral-200 dark:border-neutral-800 bg-neutral-50 dark:bg-neutral-900/60 text-right">
-        <a href="{{ route('support.index') }}" class="text-xs font-medium text-indigo-600 dark:text-indigo-400 hover:underline">Ver todas</a>
+        <a href="{{ route('notifications.index') }}" class="text-xs font-medium text-indigo-600 dark:text-indigo-400 hover:underline">Ver todas</a>
       </div>
     @endif
   </div>

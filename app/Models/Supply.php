@@ -5,6 +5,7 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Relations\HasMany;
+use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use App\Models\Concerns\BelongsToUser;
 
 class Supply extends Model
@@ -13,6 +14,7 @@ class Supply extends Model
 
     protected $fillable = [
         'user_id',
+        'supplier_id',
         'name',
         'description',
         'base_unit',          // 'g' | 'ml' | 'u'
@@ -30,6 +32,14 @@ class Supply extends Model
     public function purchases(): HasMany
     {
         return $this->hasMany(SupplyPurchase::class);
+    }
+
+    /**
+     * Relación: Un insumo pertenece a un proveedor
+     */
+    public function supplier(): BelongsTo
+    {
+        return $this->belongsTo(Supplier::class);
     }
 
     /**

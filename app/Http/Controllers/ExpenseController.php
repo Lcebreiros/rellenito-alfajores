@@ -6,6 +6,7 @@ use App\Models\Product;
 use App\Models\ProductionExpense;
 use App\Models\Service;
 use App\Models\ServiceExpense;
+use App\Models\Supplier;
 use App\Models\SupplierExpense;
 use App\Models\Supply;
 use App\Models\SupplyPurchase;
@@ -25,7 +26,16 @@ class ExpenseController extends Controller
 
         // Obtener todos los gastos del usuario (BelongsToUser trait aplica filtro automático)
         $supplierExpenses = SupplierExpense::where('is_active', true)
-            ->with('product')
+            ->with(['product', 'supplier'])
+            ->get();
+
+        // Obtener todos los proveedores con sus gastos
+        $suppliers = Supplier::where('user_id', Auth::id())
+            ->with(['expenses' => function($query) {
+                $query->where('is_active', true);
+            }])
+            ->withCount(['supplies', 'expenses'])
+            ->orderBy('name')
             ->get();
 
         $serviceExpenses = ServiceExpense::where('is_active', true)
@@ -55,6 +65,7 @@ class ExpenseController extends Controller
             'thirdPartyServices',
             'productionExpenses',
             'supplies',
+            'suppliers',
             'totalSupplier',
             'totalService',
             'totalThirdParty',
@@ -69,20 +80,26 @@ class ExpenseController extends Controller
     public function suppliers()
     {
         $user = Auth::user();
-        $expenses = SupplierExpense::with('product')
+        $expenses = SupplierExpense::with(['product', 'supplier'])
             ->latest()
             ->get();
 
         $products = Product::availableFor($user)->get();
 
-        return view('expenses.suppliers', compact('expenses', 'products'));
+        // Obtener proveedores activos del usuario
+        $suppliers = Supplier::where('user_id', Auth::id())
+            ->where('is_active', true)
+            ->orderBy('name')
+            ->get();
+
+        return view('expenses.suppliers', compact('expenses', 'products', 'suppliers'));
     }
 
     public function storeSupplier(Request $request)
     {
         $validated = $request->validate([
+            'supplier_id' => 'required|exists:suppliers,id',
             'product_id' => 'nullable|exists:products,id',
-            'supplier_name' => 'required|string|max:255',
             'description' => 'nullable|string',
             'cost' => 'required|numeric|min:0',
             'quantity' => 'required|numeric|min:0.001',
@@ -101,8 +118,8 @@ class ExpenseController extends Controller
     public function updateSupplier(Request $request, SupplierExpense $expense)
     {
         $validated = $request->validate([
+            'supplier_id' => 'required|exists:suppliers,id',
             'product_id' => 'nullable|exists:products,id',
-            'supplier_name' => 'required|string|max:255',
             'description' => 'nullable|string',
             'cost' => 'required|numeric|min:0',
             'quantity' => 'required|numeric|min:0.001',
@@ -306,11 +323,17 @@ class ExpenseController extends Controller
     public function supplies()
     {
         // BelongsToUser trait filtra automáticamente por usuario
-        $supplies = Supply::with('purchases')
+        $supplies = Supply::with(['purchases', 'supplier'])
             ->latest()
             ->get();
 
-        return view('expenses.supplies', compact('supplies'));
+        // Obtener proveedores activos del usuario
+        $suppliers = Supplier::where('user_id', Auth::id())
+            ->where('is_active', true)
+            ->orderBy('name')
+            ->get();
+
+        return view('expenses.supplies', compact('supplies', 'suppliers'));
     }
 
     public function storeSupply(Request $request)
@@ -319,6 +342,7 @@ class ExpenseController extends Controller
             'name' => 'required|string|max:255',
             'description' => 'nullable|string',
             'base_unit' => 'required|in:g,ml,u',
+            'supplier_id' => 'nullable|exists:suppliers,id',
             // Campos opcionales para crear la primera compra (misma lógica que calculadora)
             'qty' => 'nullable|numeric|gt:0',
             'unit' => 'nullable|string|in:g,kg,ml,l,cm3,u',
@@ -328,6 +352,7 @@ class ExpenseController extends Controller
         // Crear insumo con stock/costo inicial en 0
         $supply = Supply::create([
             'user_id' => Auth::id(),
+            'supplier_id' => $validated['supplier_id'] ?? null,
             'name' => $validated['name'],
             'description' => $validated['description'] ?? null,
             'base_unit' => $validated['base_unit'],
@@ -368,6 +393,21 @@ class ExpenseController extends Controller
 
             // Recalcular stock y costo promedio desde TODAS las compras
             $supply->recomputeFromPurchases();
+
+            // Si el insumo tiene proveedor, registrar el gasto automáticamente
+            if ($supply->supplier_id) {
+                SupplierExpense::create([
+                    'user_id' => Auth::id(),
+                    'supplier_id' => $supply->supplier_id,
+                    'product_id' => null,
+                    'description' => 'Compra de insumo: ' . $supply->name,
+                    'cost' => (float) $validated['total_cost'],
+                    'quantity' => (float) $validated['qty'],
+                    'unit' => $unit,
+                    'frequency' => 'unica',
+                    'is_active' => true,
+                ]);
+            }
         }
 
         return redirect()->route('expenses.supplies')
@@ -380,6 +420,7 @@ class ExpenseController extends Controller
             'name' => 'required|string|max:255',
             'description' => 'nullable|string',
             'base_unit' => 'required|in:g,ml,u',
+            'supplier_id' => 'nullable|exists:suppliers,id',
         ]);
 
         $supply->update($validated);
@@ -394,5 +435,72 @@ class ExpenseController extends Controller
 
         return redirect()->route('expenses.supplies')
             ->with('success', 'Insumo eliminado exitosamente');
+    }
+
+    // =============================
+    // Gestión de Proveedores
+    // =============================
+
+    public function suppliersManagement()
+    {
+        $suppliers = Supplier::where('user_id', Auth::id())
+            ->withCount('supplies')
+            ->latest()
+            ->get();
+
+        return view('suppliers.index', compact('suppliers'));
+    }
+
+    public function storeSupplierEntity(Request $request)
+    {
+        $validated = $request->validate([
+            'name' => 'required|string|max:255',
+            'contact_name' => 'nullable|string|max:255',
+            'email' => 'nullable|email|max:255',
+            'phone' => 'nullable|string|max:50',
+            'address' => 'nullable|string',
+            'notes' => 'nullable|string',
+            'is_active' => 'nullable|boolean',
+        ]);
+
+        Supplier::create([
+            'user_id' => Auth::id(),
+            'name' => $validated['name'],
+            'contact_name' => $validated['contact_name'] ?? null,
+            'email' => $validated['email'] ?? null,
+            'phone' => $validated['phone'] ?? null,
+            'address' => $validated['address'] ?? null,
+            'notes' => $validated['notes'] ?? null,
+            'is_active' => $validated['is_active'] ?? true,
+        ]);
+
+        return redirect()->route('suppliers.index')
+            ->with('success', 'Proveedor creado exitosamente');
+    }
+
+    public function updateSupplierEntity(Request $request, Supplier $supplier)
+    {
+        $validated = $request->validate([
+            'name' => 'required|string|max:255',
+            'contact_name' => 'nullable|string|max:255',
+            'email' => 'nullable|email|max:255',
+            'phone' => 'nullable|string|max:50',
+            'address' => 'nullable|string',
+            'notes' => 'nullable|string',
+            'is_active' => 'nullable|boolean',
+        ]);
+
+        $supplier->update($validated);
+
+        return redirect()->route('suppliers.index')
+            ->with('success', 'Proveedor actualizado exitosamente');
+    }
+
+    public function destroySupplierEntity(Supplier $supplier)
+    {
+        $supplier->delete();
+
+        return redirect()->route('suppliers.index')
+            ->with('success', 'Proveedor eliminado exitosamente');
     }
 }

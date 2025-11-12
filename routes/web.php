@@ -205,6 +205,11 @@ Route::middleware([
     // Configuración de notificaciones de stock
     Route::post('/stock/notifications/update', [StockController::class, 'updateNotifications'])->name('stock.notifications.update');
 
+    // ============ NOTIFICACIONES ============
+    Route::get('/notifications', function () {
+        return view('notifications.index');
+    })->name('notifications.index');
+
     // Marcar notificación como leída (UserNotification)
     Route::post('/notifications/{id}/mark-as-read', function($id) {
         $notification = \App\Models\UserNotification::where('id', $id)
@@ -295,6 +300,12 @@ Route::middleware([
     Route::post('/expenses/supplies', [ExpenseController::class, 'storeSupply'])->name('expenses.supplies.store');
     Route::put('/expenses/supplies/{supply}', [ExpenseController::class, 'updateSupply'])->name('expenses.supplies.update');
     Route::delete('/expenses/supplies/{supply}', [ExpenseController::class, 'destroySupply'])->name('expenses.supplies.destroy');
+
+    // Gestión de Proveedores (nuevo)
+    Route::get('/suppliers', [ExpenseController::class, 'suppliersManagement'])->name('suppliers.index');
+    Route::post('/suppliers', [ExpenseController::class, 'storeSupplierEntity'])->name('suppliers.store');
+    Route::put('/suppliers/{supplier}', [ExpenseController::class, 'updateSupplierEntity'])->name('suppliers.update');
+    Route::delete('/suppliers/{supplier}', [ExpenseController::class, 'destroySupplierEntity'])->name('suppliers.destroy');
 
     // ============ MÉTODOS DE PAGO ============
     Route::resource('payment-methods', PaymentMethodController::class)->except(['show']);

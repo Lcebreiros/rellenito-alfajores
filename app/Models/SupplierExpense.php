@@ -13,8 +13,8 @@ class SupplierExpense extends Model
 
     protected $fillable = [
         'user_id',
+        'supplier_id',
         'product_id',
-        'supplier_name',
         'description',
         'cost',
         'quantity',
@@ -28,6 +28,14 @@ class SupplierExpense extends Model
         'quantity' => 'decimal:3',
         'is_active' => 'boolean',
     ];
+
+    /**
+     * Relación con el proveedor
+     */
+    public function supplier(): BelongsTo
+    {
+        return $this->belongsTo(Supplier::class);
+    }
 
     /**
      * Relación con el producto asociado
