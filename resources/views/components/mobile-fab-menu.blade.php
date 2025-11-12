@@ -63,7 +63,7 @@
          class="flex items-center gap-3 px-3 py-2 rounded-lg text-sm font-medium hover:bg-neutral-50 dark:hover:bg-neutral-800 {{ request()->fullUrlIs(route('stock.index').'#stock') ? 'bg-neutral-100 dark:bg-neutral-800' : '' }}"
          role="menuitem">Stock</a>
 
-      <a href="{{ route('costing.calculator') }}" wire:navigate data-turbo="false"
+      <a href="{{ route('expenses.index') }}" wire:navigate data-turbo="false"
          class="flex items-center gap-3 px-3 py-2 rounded-lg text-sm font-medium hover:bg-neutral-50 dark:hover:bg-neutral-800 {{ request()->routeIs('costs.*') ? 'bg-neutral-100 dark:bg-neutral-800' : '' }}"
          role="menuitem">Calcular costos</a>
 
