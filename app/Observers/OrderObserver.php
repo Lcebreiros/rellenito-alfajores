@@ -3,6 +3,7 @@
 namespace App\Observers;
 
 use App\Models\Order;
+use App\Jobs\SyncOrderToGoogleCalendar;
 use App\Services\GoogleCalendarService;
 use Illuminate\Support\Facades\Log;
 
@@ -25,7 +26,8 @@ class OrderObserver
             return;
         }
 
-        $this->syncToGoogleCalendar($order);
+        // Despachar job asíncrono
+        SyncOrderToGoogleCalendar::dispatch($order, 'sync');
     }
 
     /**
@@ -35,19 +37,19 @@ class OrderObserver
     {
         // Si el pedido fue cancelado y tenía un evento en Google Calendar, eliminarlo
         if ($order->status === \App\Enums\OrderStatus::CANCELED && $order->google_calendar_event_id) {
-            $this->deleteFromGoogleCalendar($order);
+            SyncOrderToGoogleCalendar::dispatch($order, 'delete');
             return;
         }
 
         // Si el pedido no está agendado pero tenía un evento en Google Calendar, eliminarlo
         if (!$order->is_scheduled && $order->google_calendar_event_id) {
-            $this->deleteFromGoogleCalendar($order);
+            SyncOrderToGoogleCalendar::dispatch($order, 'delete');
             return;
         }
 
         // Si está agendado, sincronizar
         if ($order->is_scheduled && $order->scheduled_for && $order->user) {
-            $this->syncToGoogleCalendar($order);
+            SyncOrderToGoogleCalendar::dispatch($order, 'sync');
         }
     }
 
@@ -56,7 +58,9 @@ class OrderObserver
      */
     public function deleted(Order $order): void
     {
-        $this->deleteFromGoogleCalendar($order);
+        if ($order->google_calendar_event_id && $order->user) {
+            SyncOrderToGoogleCalendar::dispatch($order, 'delete');
+        }
     }
 
     /**
@@ -66,7 +70,7 @@ class OrderObserver
     {
         // Si se restaura un pedido agendado, volver a crear el evento
         if ($order->is_scheduled && $order->scheduled_for && $order->user) {
-            $this->syncToGoogleCalendar($order);
+            SyncOrderToGoogleCalendar::dispatch($order, 'sync');
         }
     }
 
@@ -75,7 +79,9 @@ class OrderObserver
      */
     public function forceDeleted(Order $order): void
     {
-        $this->deleteFromGoogleCalendar($order);
+        if ($order->google_calendar_event_id && $order->user) {
+            SyncOrderToGoogleCalendar::dispatch($order, 'delete');
+        }
     }
 
     /**

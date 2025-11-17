@@ -4,6 +4,7 @@ use Illuminate\Foundation\Application;
 use Illuminate\Foundation\Configuration\Exceptions;
 use Illuminate\Foundation\Configuration\Middleware;
 use App\Http\Middleware\SetUserTimezone;
+use Illuminate\Console\Scheduling\Schedule;
 
 return Application::configure(basePath: dirname(__DIR__))
     ->withRouting(
@@ -13,16 +14,21 @@ return Application::configure(basePath: dirname(__DIR__))
         channels: __DIR__.'/../routes/channels.php',
         health: '/up',
     )
+    ->withSchedule(function (Schedule $schedule): void {
+        // Backup diario a las 2:00 AM
+        $schedule->command('backup:run')->dailyAt('02:00');
+
+        // Limpiar backups antiguos diariamente a las 3:00 AM
+        $schedule->command('backup:clean')->dailyAt('03:00');
+
+        // Monitorear estado de backups cada hora
+        $schedule->command('backup:monitor')->hourly();
+    })
     ->withMiddleware(function (Middleware $middleware): void {
         // Aplica el middleware en todas las requests
         $middleware->web(append: [
-    SetUserTimezone::class,
-]);
-
-        // 👆 si quisieras limitarlo solo a rutas web:
-        // $middleware->web(append: [
-        //     SetUserTimezone::class,
-        // ]);
+            SetUserTimezone::class,
+        ]);
     })
     ->withExceptions(function (Exceptions $exceptions): void {
         // Manejar error 419 (CSRF Token Mismatch / Sesión expirada)
@@ -42,4 +48,3 @@ return Application::configure(basePath: dirname(__DIR__))
         });
     })
     ->create();
-

@@ -47,22 +47,25 @@
   $notes         = $order->note ?? $order->notes ?? '';
 @endphp
 
-<div class="space-y-6 lg:space-y-8" 
-     x-data="orderEdit({
-        items: {{ $order->items->map(fn($i)=>[
-            'id'=>$i->product->id ?? null,
-            'name'=>$i->product->name ?? $i->name,
-            'quantity'=>$i->quantity,
-            'unit_price'=>$i->unit_price,
-        ])->toJson() }},
-        products: {{ $products->map(fn($p)=>[
-            'id'=>$p->id,
-            'name'=>$p->name,
-            'price'=>$p->price,
-        ])->toJson() }}
-     })">
+<div class="space-y-6 lg:space-y-8"
+     x-data="{
+        ...orderEdit({
+          items: {{ $order->items->map(fn($i)=>[
+              'id'=>$i->product->id ?? null,
+              'name'=>$i->product->name ?? $i->name,
+              'quantity'=>$i->quantity,
+              'unit_price'=>$i->unit_price,
+          ])->toJson() }},
+          products: {{ $products->map(fn($p)=>[
+              'id'=>$p->id,
+              'name'=>$p->name,
+              'price'=>$p->price,
+          ])->toJson() }}
+        }),
+        loading: false
+     }">
 
-  <form method="POST" action="{{ route('orders.update', $order) }}" x-ref="orderForm" @submit.prevent="submitForm()">
+  <form method="POST" action="{{ route('orders.update', $order) }}" x-ref="orderForm" @submit.prevent="loading = true; submitForm()">
     @csrf
     @method('PUT')
 
@@ -181,8 +184,17 @@
 
       {{-- Botón guardar --}}
       <div class="pt-2">
-        <button type="submit" class="w-full bg-indigo-600 text-white py-2 rounded hover:bg-indigo-700 dark:hover:bg-indigo-500 transition-colors">
-          Guardar cambios
+        <button type="submit"
+                :disabled="loading"
+                :class="{'opacity-75 cursor-not-allowed': loading}"
+                class="w-full bg-indigo-600 text-white py-2 rounded hover:bg-indigo-700 dark:hover:bg-indigo-500 transition-colors relative inline-flex items-center justify-center">
+          <!-- Loading spinner -->
+          <svg x-show="loading" class="animate-spin -ml-1 mr-3 h-4 w-4 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+            <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+            <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+          </svg>
+          <span x-show="!loading">Guardar cambios</span>
+          <span x-show="loading">Guardando...</span>
         </button>
       </div>
 

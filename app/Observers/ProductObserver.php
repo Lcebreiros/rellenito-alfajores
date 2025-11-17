@@ -4,6 +4,7 @@ namespace App\Observers;
 
 use App\Models\Product;
 use App\Models\User;
+use App\Jobs\SendStockAlertNotification;
 use App\Models\UserNotification;
 use App\Notifications\LowStockAlert;
 use App\Notifications\OutOfStockAlert;
@@ -37,24 +38,14 @@ class ProductObserver
 
             // Notificación de SIN STOCK (0 unidades)
             if ($user->notify_out_of_stock && $newStock === 0 && $oldStock > 0) {
-                // Enviar email solo si el usuario lo tiene activado
-                if ($user->notify_by_email) {
-                    $user->notify(new OutOfStockAlert($product));
-                }
-
-                // Notificación en vivo (campana)
-                $n = UserNotification::create([
-                    'user_id' => $user->id,
-                    'type' => 'out_of_stock',
-                    'title' => 'Producto sin stock',
-                    'message' => "Sin stock: {$product->name} se ha quedado sin unidades",
-                    'data' => [
-                        'product_id' => $product->id,
-                        'url' => route('stock.show', $product->id),
-                        'stock' => 0,
-                    ],
-                ]);
-                broadcast(new NewNotification($n));
+                // Despachar job asíncrono
+                SendStockAlertNotification::dispatch(
+                    $product,
+                    $user,
+                    'out_of_stock',
+                    $newStock,
+                    $oldStock
+                );
                 continue; // Si está sin stock, no enviamos la de bajo stock
             }
 
@@ -62,25 +53,15 @@ class ProductObserver
             if ($user->notify_low_stock && $newStock > 0 && $newStock <= $user->low_stock_threshold) {
                 // Solo notificar si pasó de arriba del umbral a abajo del umbral
                 if ($oldStock > $user->low_stock_threshold) {
-                    // Enviar email solo si el usuario lo tiene activado
-                    if ($user->notify_by_email) {
-                        $user->notify(new LowStockAlert($product, $newStock, $user->low_stock_threshold));
-                    }
-
-                    // Notificación en vivo (campana)
-                    $n = UserNotification::create([
-                        'user_id' => $user->id,
-                        'type' => 'low_stock',
-                        'title' => 'Stock bajo',
-                        'message' => "{$product->name} tiene {$newStock} unidades (umbral: {$user->low_stock_threshold})",
-                        'data' => [
-                            'product_id' => $product->id,
-                            'url' => route('stock.show', $product->id),
-                            'stock' => $newStock,
-                            'threshold' => $user->low_stock_threshold,
-                        ],
-                    ]);
-                    broadcast(new NewNotification($n));
+                    // Despachar job asíncrono
+                    SendStockAlertNotification::dispatch(
+                        $product,
+                        $user,
+                        'low_stock',
+                        $newStock,
+                        $oldStock,
+                        $user->low_stock_threshold
+                    );
                 }
             }
         }
@@ -159,25 +140,15 @@ class ProductObserver
 
         foreach ($usersToNotify as $user) {
             if ($user->notify_low_stock && $stock > 0 && $stock <= $user->low_stock_threshold) {
-                // Enviar email solo si el usuario lo tiene activado
-                if ($user->notify_by_email) {
-                    $user->notify(new LowStockAlert($product, $stock, $user->low_stock_threshold));
-                }
-
-                // Notificación en vivo (campana)
-                $n = UserNotification::create([
-                    'user_id' => $user->id,
-                    'type' => 'low_stock',
-                    'title' => 'Stock bajo',
-                    'message' => "{$product->name} tiene {$stock} unidades (umbral: {$user->low_stock_threshold})",
-                    'data' => [
-                        'product_id' => $product->id,
-                        'url' => route('stock.show', $product->id),
-                        'stock' => $stock,
-                        'threshold' => $user->low_stock_threshold,
-                    ],
-                ]);
-                broadcast(new NewNotification($n));
+                // Despachar job asíncrono
+                SendStockAlertNotification::dispatch(
+                    $product,
+                    $user,
+                    'low_stock',
+                    $stock,
+                    $stock, // oldStock es igual a newStock porque acabamos de crear
+                    $user->low_stock_threshold
+                );
             }
         }
     }

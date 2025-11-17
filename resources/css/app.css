@@ -7,7 +7,97 @@
 }
 
 @layer components {
-  .card-dark { @apply rounded-2xl border bg-white border-neutral-200 dark:bg-neutral-900 dark:border-neutral-800; }
-  .muted-dark { @apply text-neutral-500 dark:text-neutral-400; }
-  .divider-dark { @apply border-neutral-200 dark:border-neutral-800; }
+  /* Card components with improved dark mode */
+  .card-dark {
+    @apply rounded-2xl border bg-white border-neutral-200 shadow-sm
+           dark:bg-dark-850 dark:border-dark-border dark:shadow-dark-md;
+  }
+
+  .card-elevated {
+    @apply rounded-2xl border bg-white border-neutral-200 shadow-md
+           dark:bg-dark-elevated dark:border-dark-border dark:shadow-dark-lg;
+  }
+
+  /* Text utilities for dark mode */
+  .text-primary { @apply text-neutral-900 dark:text-neutral-100; }
+  .text-secondary { @apply text-neutral-700 dark:text-neutral-300; }
+  .text-muted { @apply text-neutral-500 dark:text-neutral-400; }
+  .text-subtle { @apply text-neutral-400 dark:text-neutral-500; }
+
+  /* Backgrounds */
+  .bg-surface { @apply bg-white dark:bg-dark-850; }
+  .bg-elevated { @apply bg-neutral-50 dark:bg-dark-elevated; }
+  .bg-base { @apply bg-neutral-50 dark:bg-dark-900; }
+
+  /* Borders */
+  .border-light { @apply border-neutral-200 dark:border-dark-border; }
+  .border-medium { @apply border-neutral-300 dark:border-neutral-700; }
+
+  /* Dividers */
+  .divider-dark { @apply border-neutral-200 dark:border-dark-border; }
+
+  /* Inputs with dark mode */
+  .input-dark {
+    @apply border-neutral-300 bg-white text-neutral-900
+           focus:border-indigo-500 focus:ring-indigo-500
+           dark:border-neutral-700 dark:bg-dark-elevated dark:text-neutral-100
+           dark:focus:border-primary-400 dark:focus:ring-primary-400
+           dark:placeholder-neutral-500;
+  }
+
+  /* Buttons with improved dark mode */
+  .btn-primary {
+    @apply bg-indigo-600 text-white hover:bg-indigo-700 focus:ring-indigo-500
+           dark:bg-primary-500 dark:hover:bg-primary-600 dark:focus:ring-primary-400
+           shadow-sm dark:shadow-dark-sm;
+  }
+
+  .btn-secondary {
+    @apply bg-neutral-100 text-neutral-700 hover:bg-neutral-200
+           dark:bg-dark-elevated dark:text-neutral-200 dark:hover:bg-neutral-700
+           dark:border dark:border-dark-border;
+  }
+
+  /* Loading skeleton pulse animation optimized for dark mode */
+  .skeleton {
+    @apply animate-pulse bg-neutral-200 dark:bg-neutral-700 rounded;
+  }
+
+  .skeleton-text {
+    @apply h-4 bg-neutral-200 dark:bg-neutral-700 rounded;
+  }
+
+  /* Smooth transitions for dark mode toggle */
+  .dark-transition {
+    @apply transition-colors duration-200 ease-in-out;
+  }
+}
+
+@layer utilities {
+  /* Smooth scrollbar for dark mode */
+  .scrollbar-thin {
+    scrollbar-width: thin;
+    scrollbar-color: rgb(163 163 163 / 0.3) transparent;
+  }
+
+  .dark .scrollbar-thin {
+    scrollbar-color: rgb(115 115 115 / 0.4) transparent;
+  }
+
+  .scrollbar-thin::-webkit-scrollbar {
+    width: 6px;
+    height: 6px;
+  }
+
+  .scrollbar-thin::-webkit-scrollbar-track {
+    @apply bg-transparent;
+  }
+
+  .scrollbar-thin::-webkit-scrollbar-thumb {
+    @apply bg-neutral-300 dark:bg-neutral-600 rounded-full;
+  }
+
+  .scrollbar-thin::-webkit-scrollbar-thumb:hover {
+    @apply bg-neutral-400 dark:bg-neutral-500;
+  }
 }

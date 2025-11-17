@@ -16,6 +16,7 @@ use Illuminate\Database\Eloquent\Relations\MorphTo;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Str;
 
 class User extends Authenticatable
@@ -245,7 +246,21 @@ class User extends Authenticatable
         static::updated(function (User $user) {
             if ($user->wasChanged('parent_id')) {
                 $user->updateHierarchyPath();
+                // Invalidar caché de jerarquía
+                Cache::forget("user.{$user->id}.root_company");
             }
+
+            if ($user->wasChanged(['parent_id', 'hierarchy_level'])) {
+                // Invalidar caché también para hijos (por si afecta su jerarquía)
+                $user->children()->each(function ($child) {
+                    Cache::forget("user.{$child->id}.root_company");
+                });
+            }
+        });
+
+        static::deleted(function (User $user) {
+            // Limpiar caché al eliminar
+            Cache::forget("user.{$user->id}.root_company");
         });
     }
 
@@ -273,39 +288,46 @@ class User extends Authenticatable
     }
     public function rootCompany(): ?self
 {
-    // si ya es company
-    if (method_exists($this, 'isCompany') && $this->isCompany()) {
-        return $this;
-    }
+    // Usar caché para evitar queries repetidas (60 minutos)
+    return Cache::remember(
+        "user.{$this->id}.root_company",
+        3600,
+        function () {
+            // si ya es company
+            if (method_exists($this, 'isCompany') && $this->isCompany()) {
+                return $this;
+            }
 
-    // Si tiene relación parent, recorrerla (evita queries innecesarias en bucle)
-    $current = $this->parent ?? $this;
-    $visited = [];
+            // Si tiene relación parent, recorrerla (evita queries innecesarias en bucle)
+            $current = $this->parent ?? $this;
+            $visited = [];
 
-    while ($current) {
-        // evitar loops
-        if (in_array($current->id, $visited, true)) break;
-        $visited[] = $current->id;
+            while ($current) {
+                // evitar loops
+                if (in_array($current->id, $visited, true)) break;
+                $visited[] = $current->id;
 
-        if (method_exists($current, 'isCompany') && $current->isCompany()) {
-            return $current;
+                if (method_exists($current, 'isCompany') && $current->isCompany()) {
+                    return $current;
+                }
+
+                // subir por el parent relation si existe
+                if ($current->parent) {
+                    $current = $current->parent;
+                    continue;
+                }
+
+                // fallback a parent_id (por si parent no es relación cargada)
+                if (!empty($current->parent_id)) {
+                    $current = self::find($current->parent_id);
+                    continue;
+                }
+
+                $current = null;
+            }
+
+            return null;
         }
-
-        // subir por el parent relation si existe
-        if ($current->parent) {
-            $current = $current->parent;
-            continue;
-        }
-
-        // fallback a parent_id (por si parent no es relación cargada)
-        if (!empty($current->parent_id)) {
-            $current = self::find($current->parent_id);
-            continue;
-        }
-
-        $current = null;
-    }
-
-    return null;
+    );
 }
 }

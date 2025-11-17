@@ -72,11 +72,23 @@ class ProductController extends Controller
         ])
         ->when($request->filled('q'), function ($q) use ($request) {
             $term = trim((string)$request->input('q'));
-            $lc = mb_strtolower($term, 'UTF-8');
-            $q->where(function($w) use ($lc) {
-                $w->whereRaw('LOWER(name) LIKE ?', ["%{$lc}%"]) 
-                  ->orWhereRaw('LOWER(sku) LIKE ?', ["%{$lc}%"]);
-            });
+
+            // Usar FULLTEXT search para búsquedas más rápidas (requiere MySQL 5.6+)
+            // Fallback a LIKE si el término es muy corto o contiene caracteres especiales
+            if (strlen($term) >= 3 && preg_match('/^[\p{L}\p{N}\s]+$/u', $term)) {
+                // FULLTEXT search (mucho más rápido con índice)
+                $q->where(function($w) use ($term) {
+                    $w->whereRaw('MATCH(name) AGAINST(? IN BOOLEAN MODE)', ["{$term}*"])
+                      ->orWhere('sku', 'LIKE', "%{$term}%");
+                });
+            } else {
+                // Fallback a LIKE para búsquedas cortas o especiales
+                $lc = mb_strtolower($term, 'UTF-8');
+                $q->where(function($w) use ($lc) {
+                    $w->whereRaw('LOWER(name) LIKE ?', ["%{$lc}%"])
+                      ->orWhereRaw('LOWER(sku) LIKE ?', ["%{$lc}%"]);
+                });
+            }
         });
 
     if ($auth->isMaster() && $request->filled('user_id')) {
