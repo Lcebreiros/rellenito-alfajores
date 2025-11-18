@@ -154,12 +154,18 @@ class GoogleCalendarService
 
             // Set reminders
             $reminderMinutes = config('google-calendar.event_settings.default_reminder_minutes', 60);
+
+            $popupReminder = new EventReminder();
+            $popupReminder->setMethod('popup');
+            $popupReminder->setMinutes($reminderMinutes);
+
+            $emailReminder = new EventReminder();
+            $emailReminder->setMethod('email');
+            $emailReminder->setMinutes($reminderMinutes);
+
             $reminders = new EventReminders();
             $reminders->setUseDefault(false);
-            $reminders->setOverrides([
-                ['method' => 'popup', 'minutes' => $reminderMinutes],
-                ['method' => 'email', 'minutes' => $reminderMinutes],
-            ]);
+            $reminders->setOverrides([$popupReminder, $emailReminder]);
             $event->setReminders($reminders);
 
             // Set color based on event type
