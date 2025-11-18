@@ -33,10 +33,8 @@
         @if ($meta)
           <livewire:is
             :component="$meta['component']"
-            :wire:key="'w-'.$slot['id']"
-            lazy
+            wire:key="w-{{ $slot['id'] }}"
             :compact="true"
-            :editMode="$editMode"
           />
         @else
           <div class="h-full flex items-center justify-center text-sm text-neutral-500 bg-white dark:bg-neutral-900 border border-neutral-200 dark:border-neutral-800 rounded-2xl">
