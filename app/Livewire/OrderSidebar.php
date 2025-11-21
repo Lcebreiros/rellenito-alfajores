@@ -199,9 +199,48 @@ class OrderSidebar extends Component
     {
         $orders = app(OrderService::class);
         $this->guardDraft();
-        $orders->removeItem($this->orderId, $itemId);
+
+        try {
+            $orders->removeItem($this->orderId, $itemId);
+        } catch (\Throwable $e) {
+            if (!($e instanceof DomainException)) {
+                report($e);
+            }
+            $msg = $e instanceof DomainException ? $e->getMessage() : 'No se pudo eliminar el producto.';
+            $this->dispatch('notify', type: 'error', message: $msg);
+            return;
+        }
+
         $this->refreshOrder();
         $this->dispatch('order-updated');
+        $this->dispatch('notify', type: 'info', message: 'Producto eliminado del pedido.');
+    }
+
+    public function updateQty(int $itemId, $value): void
+    {
+        $orders = app(OrderService::class);
+        $this->guardDraft();
+
+        $qty = (int) filter_var($value, FILTER_SANITIZE_NUMBER_INT);
+        if ($qty < 0) $qty = 0;
+
+        try {
+            $orders->setItemQuantity($this->orderId, $itemId, $qty);
+        } catch (\Throwable $e) {
+            if (!($e instanceof DomainException)) {
+                report($e);
+            }
+            $msg = $e instanceof DomainException ? $e->getMessage() : 'No se pudo actualizar la cantidad.';
+            $this->dispatch('notify', type: 'error', message: $msg);
+            return;
+        }
+
+        $this->refreshOrder();
+        $this->dispatch('order-updated');
+
+        if ($qty <= 0) {
+            $this->dispatch('notify', type: 'info', message: 'Producto eliminado del pedido.');
+        }
     }
 
     public function finalize(): void

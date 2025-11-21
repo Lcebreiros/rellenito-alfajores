@@ -1,4 +1,4 @@
-<div class="bg-white dark:bg-neutral-950 rounded-3xl shadow-xl shadow-slate-200/20 dark:shadow-black/40 ring-1 ring-slate-200/50 dark:ring-neutral-800/60 overflow-hidden backdrop-blur-sm max-h-[100dvh] md:max-h-screen flex flex-col">
+<div class="bg-white dark:bg-neutral-950 rounded-3xl shadow-xl shadow-slate-200/20 dark:shadow-black/40 ring-1 ring-slate-200/50 dark:ring-neutral-800/60 overflow-hidden backdrop-blur-sm max-h-[100dvh] md:max-h-screen flex flex-col w-full max-w-full min-w-0">
 
   {{-- Header --}}
   <div class="px-6 py-4 bg-gradient-to-r from-slate-50 to-slate-100/50 dark:from-neutral-900 dark:to-neutral-900/80 border-b border-slate-200/60 dark:border-neutral-800/60">
@@ -55,7 +55,7 @@
         <div class="md:hidden space-y-2">
           @foreach($items as $it)
             <div class="group p-3 rounded-xl bg-white dark:bg-neutral-800/80 border border-slate-200/60 dark:border-neutral-800/60 hover:shadow-md hover:shadow-slate-200/20 dark:hover:shadow-black/20 transition-all duration-200">
-              <div class="flex items-center justify-between gap-3">
+              <div class="flex flex-wrap items-center gap-3">
                 <div class="min-w-0 flex-1">
                   <div class="font-medium text-slate-900 dark:text-neutral-50 text-sm leading-tight truncate">{{ $it['name'] }}</div>
                   <div class="text-xs text-slate-500 dark:text-neutral-400">
@@ -63,7 +63,7 @@
                   </div>
                 </div>
 
-                <div class="flex items-center gap-2">
+                <div class="flex items-center gap-2 flex-wrap justify-end w-full">
                   <div class="flex items-center bg-slate-50 dark:bg-neutral-700 rounded-lg border border-slate-200 dark:border-neutral-600">
                     <button wire:click="sub({{ $it['id'] }})" wire:loading.attr="disabled"
                       class="h-7 w-7 flex items-center justify-center rounded-l-lg hover:bg-slate-100 dark:hover:bg-neutral-600
@@ -73,9 +73,16 @@
                         <path stroke-linecap="round" stroke-linejoin="round" d="M5 12h14"/>
                       </svg>
                     </button>
-                    <div class="h-7 min-w-[2rem] flex items-center justify-center px-2 text-slate-900 dark:text-neutral-100 text-xs font-semibold border-x border-slate-200 dark:border-neutral-500">
-                      {{ $it['qty'] }}
-                    </div>
+                    <input
+                      type="text"
+                      inputmode="numeric"
+                      pattern="[0-9]*"
+                      value="{{ $it['qty'] }}"
+                      wire:change="updateQty({{ $it['id'] }}, $event.target.value)"
+                      wire:keydown.enter.prevent="$wire.updateQty({{ $it['id'] }}, $event.target.value)"
+                      class="h-7 w-10 text-center bg-transparent text-slate-900 dark:text-neutral-100 text-xs font-semibold border-x border-slate-200 dark:border-neutral-500 focus:outline-none focus:ring-1 focus:ring-indigo-500/70"
+                      aria-label="Cantidad"
+                    />
                     <button wire:click="add({{ $it['id'] }})" wire:loading.attr="disabled"
                       class="h-7 w-7 flex items-center justify-center rounded-r-lg hover:bg-slate-100 dark:hover:bg-neutral-600
                              text-slate-700 dark:text-neutral-200 transition-colors duration-200"
@@ -124,8 +131,18 @@
                     <div class="text-xs text-slate-500 dark:text-neutral-400">$ {{ number_format($it['price'],2,',','.') }}</div>
                   </td>
                   <td class="py-3 px-3 text-center">
-                    <span class="inline-flex items-center justify-center h-6 min-w-[2rem] px-2 rounded bg-slate-100 
-                                 dark:bg-neutral-700 text-slate-900 dark:text-neutral-100 text-xs font-semibold">{{ $it['qty'] }}</span>
+                    <div class="inline-flex items-center gap-1 justify-center">
+                      <input
+                        type="text"
+                        inputmode="numeric"
+                        pattern="[0-9]*"
+                        value="{{ $it['qty'] }}"
+                        wire:change="updateQty({{ $it['id'] }}, $event.target.value)"
+                        wire:keydown.enter.prevent="$wire.updateQty({{ $it['id'] }}, $event.target.value)"
+                        class="h-8 w-12 text-center rounded-lg border border-slate-200 dark:border-neutral-700 bg-slate-50 dark:bg-neutral-800 text-slate-900 dark:text-neutral-100 text-sm font-semibold focus:outline-none focus:ring-1 focus:ring-indigo-500/70"
+                        aria-label="Cantidad"
+                      />
+                    </div>
                   </td>
                   <td class="py-3 px-3 text-right">
                     <span class="text-sm font-semibold text-slate-900 dark:text-neutral-100">$ {{ number_format($it['subtotal'],2,',','.') }}</span>

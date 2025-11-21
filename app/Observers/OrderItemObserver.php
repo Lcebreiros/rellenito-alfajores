@@ -62,10 +62,9 @@ class OrderItemObserver
     {
         $order = $orderItem->order;
 
-        // No restaurar stock si el pedido ya está completado o entregado
-        if ($order && in_array($order->status, [OrderStatus::COMPLETED, OrderStatus::DELIVERED])) {
-            return;
-        }
+        // Solo restaurar stock si la orden ya había descontado stock (completada).
+        // En borradores/pedidos pendientes todavía no se descuenta, así que no hay nada que revertir.
+        if (!$order || $order->status !== OrderStatus::COMPLETED) return;
 
         $product = $orderItem->product;
 

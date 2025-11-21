@@ -34,10 +34,10 @@
   </div>
 
   {{-- Layout responsive: IZQ productos (8/12) + DER pedido (4/12) --}}
-  <div class="grid grid-cols-1 lg:grid-cols-12 gap-6 items-start">
+  <div class="grid grid-cols-1 lg:grid-cols-12 gap-6 items-start min-w-0">
 
     {{-- IZQUIERDA: Productos y Servicios --}}
-    <section class="lg:col-span-8">
+    <section class="lg:col-span-8 min-w-0">
       <div class="rounded-xl border border-slate-200 bg-white p-3 dark:border-neutral-700 dark:bg-neutral-900
                   min-h-[calc(100svh-9rem)]">
         @if($products->isEmpty() && ($services->isEmpty() ?? true))
@@ -77,14 +77,14 @@
     </section>
 
     {{-- DERECHA: Pedido en curso --}}
-    <aside class="lg:col-span-4 space-y-4">
+    <aside class="lg:col-span-4 space-y-4 min-w-0">
       {{-- Agendar (arriba del sidebar) --}}
       <livewire:schedule-order :key="'schedule-order'" />
 
-      <div class="sticky top-24">
+      <div class="sticky top-24 min-w-0">
         {{-- Wrapper que iguala altura al contenedor de productos y la impone al root del componente --}}
-        <div class="max-h-[calc(100svh-9rem)] h-full overflow-hidden
-                    [&>*]:max-h-[calc(100svh-9rem)] [&>*]:h-full">
+        <div class="max-h-[calc(100svh-9rem)] h-full overflow-hidden w-full min-w-0
+                    [&>*]:max-h-[calc(100svh-9rem)] [&>*]:h-full [&>*]:w-full">
           {{-- OrderSidebar usa el draft de sesión --}}
           <livewire:order-sidebar :key="'order-sidebar'" />
         </div>

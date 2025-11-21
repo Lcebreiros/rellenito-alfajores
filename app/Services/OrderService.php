@@ -150,13 +150,64 @@ class OrderService
     {
         DB::transaction(function () use ($orderId, $itemId) {
             $order = Order::lockForUpdate()->findOrFail($orderId);
-            $item  = OrderItem::lockForUpdate()->findOrFail($itemId);
+            if ($order->status !== \App\Enums\OrderStatus::DRAFT) {
+                throw new DomainException('Solo se pueden editar pedidos en borrador.');
+            }
 
-            if ((int)$item->order_id !== (int)$order->id) {
+            // Buscar por ID de ítem y, como fallback defensivo, por product_id (por si algún caller envía product_id)
+            $item = $order->items()
+                ->withoutGlobalScope('byUser')
+                ->where(function ($q) use ($itemId) {
+                    $q->whereKey($itemId)
+                      ->orWhere('product_id', $itemId);
+                })
+                ->lockForUpdate()
+                ->first();
+
+            if (!$item) {
                 throw new DomainException('Ítem no pertenece al pedido.');
             }
 
             $item->delete();
+
+            $order->recalcTotal();
+            $order->save();
+        });
+    }
+
+    /**
+     * Ajusta la cantidad de una línea a un valor específico (<=0 elimina la línea).
+     */
+    public function setItemQuantity(int $orderId, int $itemId, int $qty): void
+    {
+        $qty = max(0, $qty);
+
+        DB::transaction(function () use ($orderId, $itemId, $qty) {
+            $order = Order::lockForUpdate()->findOrFail($orderId);
+            if ($order->status !== \App\Enums\OrderStatus::DRAFT) {
+                throw new DomainException('Solo se pueden editar pedidos en borrador.');
+            }
+
+            $item = $order->items()
+                ->withoutGlobalScope('byUser')
+                ->where(function ($q) use ($itemId) {
+                    $q->whereKey($itemId)
+                      ->orWhere('product_id', $itemId);
+                })
+                ->lockForUpdate()
+                ->first();
+
+            if (!$item) {
+                throw new DomainException('Ítem no pertenece al pedido.');
+            }
+
+            if ($qty <= 0) {
+                $item->delete();
+            } else {
+                $item->quantity = $qty;
+                $item->subtotal = $qty * $item->unit_price;
+                $item->save();
+            }
 
             $order->recalcTotal();
             $order->save();
