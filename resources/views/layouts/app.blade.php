@@ -129,6 +129,7 @@
                 </div>
               </div>
               @endif
+              <x-server-status />
               <x-notifications-bell />
             </div>
           </div>
@@ -170,6 +171,7 @@
                   </div>
                 </div>
                 @endif
+                <x-server-status />
                 <x-notifications-bell />
               </div>
             </div>
@@ -238,6 +240,9 @@
       document.documentElement.classList.toggle('dark', theme === 'dark');
     });
   </script>
+
+  {{-- Global search (Ctrl/Cmd + K) --}}
+  <x-global-search />
 
   {{-- Toast notifications container --}}
   <x-toast-container />

@@ -112,6 +112,88 @@ Route::prefix('v1')->middleware(['auth:sanctum', 'throttle:api'])->group(functio
     });
 });
 
+// ============ BÚSQUEDA GLOBAL ============
+Route::middleware(['auth:sanctum', 'throttle:api-read'])->group(function () {
+    Route::get('/search', function (Request $request) {
+        $query = $request->input('q', '');
+
+        if (strlen($query) < 2) {
+            return response()->json(['results' => []]);
+        }
+
+        $user = $request->user();
+        $results = [];
+
+        // Buscar productos
+        $products = \App\Models\Product::query()
+            ->where('user_id', $user->id)
+            ->where(function($q) use ($query) {
+                $q->where('name', 'LIKE', "%{$query}%")
+                  ->orWhere('sku', 'LIKE', "%{$query}%");
+            })
+            ->limit(5)
+            ->get();
+
+        foreach ($products as $product) {
+            $results[] = [
+                'id' => 'product-' . $product->id,
+                'type' => 'producto',
+                'title' => $product->name,
+                'subtitle' => 'SKU: ' . ($product->sku ?? 'N/A') . ' • Stock: ' . ($product->stock ?? 0),
+                'url' => route('products.edit', $product),
+            ];
+        }
+
+        // Buscar pedidos
+        $orders = \App\Models\Order::query()
+            ->where('user_id', $user->id)
+            ->where('order_number', 'LIKE', "%{$query}%")
+            ->limit(5)
+            ->get();
+
+        foreach ($orders as $order) {
+            $results[] = [
+                'id' => 'order-' . $order->id,
+                'type' => 'pedido',
+                'title' => 'Pedido #' . $order->order_number,
+                'subtitle' => 'Total: $' . number_format($order->total, 2),
+                'url' => route('orders.show', $order),
+            ];
+        }
+
+        // Buscar clientes
+        $clients = \App\Models\Client::query()
+            ->where('user_id', $user->id)
+            ->where(function($q) use ($query) {
+                $q->where('name', 'LIKE', "%{$query}%")
+                  ->orWhere('email', 'LIKE', "%{$query}%")
+                  ->orWhere('phone', 'LIKE', "%{$query}%");
+            })
+            ->limit(5)
+            ->get();
+
+        foreach ($clients as $client) {
+            $results[] = [
+                'id' => 'client-' . $client->id,
+                'type' => 'cliente',
+                'title' => $client->name,
+                'subtitle' => $client->email ?? $client->phone ?? 'Sin contacto',
+                'url' => route('clients.show', $client),
+            ];
+        }
+
+        return response()->json(['results' => $results]);
+    });
+});
+
+// ============ HEALTH CHECK ============
+Route::get('/health', function () {
+    return response()->json([
+        'status' => 'ok',
+        'timestamp' => now()->toIso8601String(),
+    ]);
+});
+
 // Ruta legacy (mantener compatibilidad)
 Route::get('/user', function (Request $request) {
     return $request->user();
