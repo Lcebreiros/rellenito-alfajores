@@ -27,7 +27,7 @@
         <div class="bg-white dark:bg-neutral-900 rounded-2xl shadow-2xl border border-neutral-200 dark:border-neutral-800 overflow-hidden">
             {{-- Search Input --}}
             <div class="flex items-center gap-3 p-4 border-b border-neutral-200 dark:border-neutral-800">
-                <x-icon name="search" size="5" class="text-neutral-400" />
+                <x-svg-icon name="search" size="5" class="text-neutral-400" />
                 <input x-ref="searchInput"
                        x-model="query"
                        @keydown.escape="open = false"
@@ -53,7 +53,7 @@
 
                 <template x-if="!loading && query.length > 0 && results.length === 0">
                     <div class="p-8 text-center">
-                        <x-icon name="search" size="12" class="mx-auto text-neutral-300 dark:text-neutral-700 mb-3" />
+                        <x-svg-icon name="search" size="12" class="mx-auto text-neutral-300 dark:text-neutral-700 mb-3" />
                         <p class="text-sm font-medium text-neutral-900 dark:text-neutral-100">No se encontraron resultados</p>
                         <p class="text-xs text-neutral-500 dark:text-neutral-400 mt-1">Intenta con otros términos de búsqueda</p>
                     </div>
@@ -91,7 +91,7 @@
 
                 <template x-if="!loading && query.length === 0">
                     <div class="p-8 text-center">
-                        <x-icon name="search" size="12" class="mx-auto text-neutral-300 dark:text-neutral-700 mb-3" />
+                        <x-svg-icon name="search" size="12" class="mx-auto text-neutral-300 dark:text-neutral-700 mb-3" />
                         <p class="text-sm font-medium text-neutral-900 dark:text-neutral-100">Búsqueda rápida</p>
                         <p class="text-xs text-neutral-500 dark:text-neutral-400 mt-1">Escribe para buscar productos, pedidos o clientes</p>
                     </div>

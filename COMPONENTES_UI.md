@@ -6,15 +6,15 @@ Documentación completa de los componentes UI mejorados para Gestior.
 
 ## 📦 Componentes Disponibles
 
-### 1. **x-icon** - Sistema de Íconos SVG
+### 1. **x-svg-icon** - Sistema de Íconos SVG
 
 Iconos SVG optimizados y consistentes en todo el proyecto.
 
 #### Uso Básico:
 ```blade
-<x-icon name="search" size="5" />
-<x-icon name="user" size="6" class="text-indigo-600" />
-<x-icon name="check" size="4" stroke="2" />
+<x-svg-icon name="search" size="5" />
+<x-svg-icon name="user" size="6" class="text-indigo-600" />
+<x-svg-icon name="check" size="4" stroke="2" />
 ```
 
 #### Parámetros:
@@ -42,14 +42,14 @@ Iconos SVG optimizados y consistentes en todo el proyecto.
 ```blade
 {{-- Botón con ícono --}}
 <button class="btn-primary">
-  <x-icon name="user-plus" size="5" />
+  <x-svg-icon name="user-plus" size="5" />
   Nuevo Cliente
 </button>
 
 {{-- Input con ícono --}}
 <div class="relative">
   <div class="absolute left-3 top-1/2 -translate-y-1/2">
-    <x-icon name="search" size="5" class="text-neutral-400" />
+    <x-svg-icon name="search" size="5" class="text-neutral-400" />
   </div>
   <input class="pl-10 ..." />
 </div>
@@ -157,7 +157,7 @@ Tooltips para ayudar a entender campos o funcionalidades complejas.
 #### Uso Básico:
 ```blade
 <x-tooltip text="Se enviará alerta cuando el stock llegue a este nivel" position="top">
-  <x-icon name="question" size="4" class="text-neutral-400 cursor-help" />
+  <x-svg-icon name="question" size="4" class="text-neutral-400 cursor-help" />
 </x-tooltip>
 ```
 
@@ -170,7 +170,7 @@ Tooltips para ayudar a entender campos o funcionalidades complejas.
 <label class="flex items-center gap-2">
   Stock mínimo
   <x-tooltip text="Cantidad mínima antes de recibir alertas" position="right">
-    <x-icon name="info" size="4" class="text-neutral-400" />
+    <x-svg-icon name="info" size="4" class="text-neutral-400" />
   </x-tooltip>
 </label>
 <input type="number" name="min_stock" ... />
@@ -357,7 +357,7 @@ $this->dispatch('toast', [
       <label class="flex items-center gap-2">
         Precio de venta
         <x-tooltip text="Precio sin IVA incluido" position="right">
-          <x-icon name="info" size="4" class="text-neutral-400" />
+          <x-svg-icon name="info" size="4" class="text-neutral-400" />
         </x-tooltip>
       </label>
       <input type="number" name="price" class="input-dark input-focus" />
@@ -365,7 +365,7 @@ $this->dispatch('toast', [
 
     <div class="flex gap-2">
       <button type="submit" class="btn-primary">
-        <x-icon name="check" size="5" />
+        <x-svg-icon name="check" size="5" />
         Guardar
       </button>
       <a href="{{ route('products.index') }}" class="btn-secondary">
@@ -394,7 +394,7 @@ $this->dispatch('toast', [
 <button
   @click="$dispatch('open-modal-delete-order-{{ $order->id }}')"
   class="btn-danger">
-  <x-icon name="trash" size="4" />
+  <x-svg-icon name="trash" size="4" />
   Eliminar
 </button>
 ```
@@ -483,7 +483,7 @@ $wire.on('client-error', () => {
 
 Si tienes vistas existentes que quieres actualizar:
 
-- [ ] Reemplazar Font Awesome con `<x-icon>`
+- [ ] Reemplazar Font Awesome con `<x-svg-icon>`
 - [ ] Reemplazar estados vacíos simples con `<x-empty-state>`
 - [ ] Agregar animaciones a botones (`btn-primary`, etc.)
 - [ ] Agregar tooltips en campos complejos

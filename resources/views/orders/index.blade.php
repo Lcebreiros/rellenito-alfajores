@@ -3,8 +3,8 @@
 @section('header')
 <div class="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
   <div class="flex items-center gap-3">
-    <h1 class="text-2xl font-bold text-neutral-900 dark:text-neutral-100 flex items-center">
-      <i class="fas fa-history text-indigo-600 mr-3"></i> Historial de Pedidos
+    <h1 class="text-2xl font-bold text-neutral-900 dark:text-neutral-100 flex items-center gap-3">
+      <x-svg-icon name="document" size="6" class="text-indigo-600" /> Historial de Pedidos
     </h1>
   </div>
 
@@ -17,8 +17,8 @@
     {{-- Importar CSV --}}
     <form method="POST" action="{{ route('orders.import-csv') }}" enctype="multipart/form-data" class="inline-flex">
       @csrf
-      <label class="inline-flex items-center gap-2 px-3 py-2 rounded-lg border border-neutral-300 dark:border-neutral-700 bg-white dark:bg-neutral-900 text-neutral-700 dark:text-neutral-200 hover:bg-neutral-50 dark:hover:bg-neutral-800 cursor-pointer">
-        <i class="fa-solid fa-file-csv"></i>
+      <label class="inline-flex items-center gap-2 px-3 py-2 rounded-lg border border-neutral-300 dark:border-neutral-700 bg-white dark:bg-neutral-900 text-neutral-700 dark:text-neutral-200 hover:bg-neutral-50 dark:hover:bg-neutral-800 cursor-pointer transition-colors">
+        <x-svg-icon name="document" size="5" />
         <span class="hidden sm:inline">Importar CSV</span>
         <input type="file" name="csv" accept=".csv,text/csv" class="hidden" onchange="this.form.submit()" />
       </label>
@@ -26,17 +26,17 @@
 
     {{-- Descargar Reporte --}}
     <button data-modal-open="downloadModal" id="downloadReportBtn" type="button"
-      class="inline-flex items-center gap-2 px-3 py-2 rounded-lg shadow-sm bg-green-600 text-white font-semibold hover:bg-green-700 transition-colors">
-      <i class="fa-solid fa-download"></i>
+      class="inline-flex items-center gap-2 px-3 py-2 rounded-lg shadow-sm bg-green-600 text-white font-semibold hover:bg-green-700 transition-all duration-150 active:scale-[0.98]">
+      <x-svg-icon name="download" size="5" />
       <span class="hidden sm:inline">Descargar</span>
     </button>
 
     {{-- Mostrar/Ocultar Filtros --}}
     <button id="toggleFilters" type="button"
-            class="inline-flex items-center gap-2 px-3 py-2 rounded-lg border border-neutral-300 dark:border-neutral-700 bg-white dark:bg-neutral-900 text-neutral-700 dark:text-neutral-200 hover:bg-neutral-50 dark:hover:bg-neutral-800">
-      <i class="fas fa-filter text-sm"></i>
+            class="inline-flex items-center gap-2 px-3 py-2 rounded-lg border border-neutral-300 dark:border-neutral-700 bg-white dark:bg-neutral-900 text-neutral-700 dark:text-neutral-200 hover:bg-neutral-50 dark:hover:bg-neutral-800 transition-colors">
+      <x-svg-icon name="filter" size="4" />
       <span class="hidden sm:inline filter-text">Mostrar Filtros</span>
-      <i class="fas fa-chevron-down text-xs transition-transform duration-200" id="filterChevron"></i>
+      <x-svg-icon name="chevron-down" size="3" class="transition-transform duration-200" id="filterChevron" />
     </button>
   </div>
 </div>
@@ -47,17 +47,17 @@
 
   {{-- Mensajes --}}
   @if(session('ok'))
-    <div class="mb-6 rounded-xl bg-green-50 text-green-800 px-4 py-3 flex items-center border border-green-200
+    <div class="mb-6 rounded-xl bg-green-50 text-green-800 px-4 py-3 flex items-center gap-3 border border-green-200
                 dark:bg-emerald-900/30 dark:text-emerald-200 dark:border-emerald-800">
-      <i class="fas fa-check-circle mr-3"></i>
+      <x-svg-icon name="check" size="5" class="text-emerald-600 dark:text-emerald-400 flex-shrink-0" />
       <span>{{ session('ok') }}</span>
     </div>
   @endif
   @if($errors->any())
     <div class="mb-6 rounded-xl bg-red-50 text-red-800 px-4 py-3 border border-red-200
                 dark:bg-rose-900/30 dark:text-rose-200 dark:border-rose-800">
-      <div class="flex items-center">
-        <i class="fas fa-exclamation-circle mr-3"></i>
+      <div class="flex items-center gap-3">
+        <x-svg-icon name="exclamation" size="5" class="text-rose-600 dark:text-rose-400 flex-shrink-0" />
         <div>@foreach($errors->all() as $e) <div>{{ $e }}</div> @endforeach</div>
       </div>
     </div>
@@ -76,8 +76,8 @@
   {{-- Filtros rápidos --}}
   <div class="bg-white dark:bg-neutral-900 rounded-xl shadow-sm p-4 mb-6 border border-neutral-100 dark:border-neutral-800">
     <div class="flex flex-wrap gap-2 mb-2">
-      <span class="text-sm font-medium text-neutral-700 dark:text-neutral-300 flex items-center py-2">
-        <i class="fas fa-clock text-neutral-500 dark:text-neutral-400 mr-2"></i> Período:
+      <span class="text-sm font-medium text-neutral-700 dark:text-neutral-300 flex items-center gap-2 py-2">
+        <x-svg-icon name="calendar" size="4" class="text-neutral-400" /> Período:
       </span>
       @php
         $currentPeriod = request('period','');
@@ -103,15 +103,17 @@
       <div class="flex-1">
         <form method="GET" class="flex gap-2">
           <div class="flex-1 relative">
-            <i class="fas fa-search absolute left-3 top-1/2 -translate-y-1/2 text-neutral-400 text-sm"></i>
+            <div class="absolute left-3 top-1/2 -translate-y-1/2 text-neutral-400">
+              <x-svg-icon name="search" size="5" />
+            </div>
             <input type="text" name="q" value="{{ request('q') }}" placeholder="Buscar por ID, cliente, notas…"
-                   class="w-full pl-10 pr-4 py-2.5 rounded-lg border-neutral-300 dark:border-neutral-700 bg-white dark:bg-neutral-900 text-neutral-900 dark:text-neutral-100 focus:border-indigo-500 focus:ring-indigo-500 transition-colors">
+                   class="w-full pl-10 pr-4 py-2.5 rounded-lg border-neutral-300 dark:border-neutral-700 bg-white dark:bg-neutral-900 text-neutral-900 dark:text-neutral-100 focus:border-indigo-500 focus:ring-indigo-500 transition-all duration-150">
           </div>
           @foreach(['status','period','from','to','client','client_id'] as $keep)
             @if(request($keep)) <input type="hidden" name="{{ $keep }}" value="{{ request($keep) }}"> @endif
           @endforeach
-          <button type="submit" class="px-4 py-2.5 bg-indigo-600 text-white rounded-lg hover:bg-indigo-700 transition-colors">
-            <i class="fas fa-search"></i>
+          <button type="submit" class="px-4 py-2.5 bg-indigo-600 text-white rounded-lg hover:bg-indigo-700 transition-all duration-150 active:scale-[0.98]">
+            <x-svg-icon name="search" size="5" />
           </button>
         </form>
       </div>
@@ -122,15 +124,17 @@
           <span class="text-xs text-neutral-500 dark:text-neutral-400">Filtros activos:</span>
           @foreach(['status'=>'Estado','period'=>'Período','from'=>'Desde','to'=>'Hasta','client'=>'Cliente','client_id'=>'Cliente ID'] as $key=>$label)
             @if(request($key))
-              <span class="inline-flex items-center px-2 py-1 rounded-full text-xs bg-neutral-100 dark:bg-neutral-800 text-neutral-700 dark:text-neutral-200">
+              <span class="inline-flex items-center gap-1 px-2 py-1 rounded-full text-xs bg-neutral-100 dark:bg-neutral-800 text-neutral-700 dark:text-neutral-200">
                 {{ $label }}: {{ $key==='period' ? ($periods[request('period')] ?? request('period')) : request($key) }}
-                <a href="{{ request()->fullUrlWithQuery([$key=>null]) }}" class="ml-1 hover:opacity-70"><i class="fas fa-times text-xs"></i></a>
+                <a href="{{ request()->fullUrlWithQuery([$key=>null]) }}" class="hover:opacity-70">
+                  <x-svg-icon name="x" size="3" />
+                </a>
               </span>
             @endif
           @endforeach
           <a href="{{ route('orders.index') }}"
-             class="inline-flex items-center px-2 py-1 rounded-full text-xs bg-neutral-100 text-neutral-700 hover:bg-neutral-200 dark:bg-neutral-800 dark:text-neutral-200 dark:hover:bg-neutral-700">
-            <i class="fas fa-times mr-1"></i> Limpiar todo
+             class="inline-flex items-center gap-1 px-2 py-1 rounded-full text-xs bg-neutral-100 text-neutral-700 hover:bg-neutral-200 dark:bg-neutral-800 dark:text-neutral-200 dark:hover:bg-neutral-700 transition-colors">
+            <x-svg-icon name="x" size="3" /> Limpiar todo
           </a>
         </div>
       @endif
@@ -141,8 +145,8 @@
   <div id="filtersPanel" class="hidden bg-white dark:bg-neutral-900 rounded-xl shadow-sm p-5 mb-6 border border-neutral-100 dark:border-neutral-800 transition-all duration-300"
        aria-hidden="true">
     <div class="mb-4 pb-3 border-b border-neutral-100 dark:border-neutral-800">
-      <h3 class="text-lg font-semibold text-neutral-800 dark:text-neutral-100 flex items-center">
-        <i class="fas fa-sliders-h text-indigo-600 mr-2"></i> Filtros Avanzados
+      <h3 class="text-lg font-semibold text-neutral-800 dark:text-neutral-100 flex items-center gap-2">
+        <x-svg-icon name="filter" size="5" class="text-indigo-600" /> Filtros Avanzados
       </h3>
     </div>
     <form method="GET" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 items-end">
@@ -172,12 +176,12 @@
                class="w-full rounded-lg border-neutral-300 dark:border-neutral-700 bg-white dark:bg-neutral-900 text-neutral-900 dark:text-neutral-100 focus:border-indigo-500 focus:ring-indigo-500 px-4 py-2.5 transition-colors">
       </div>
       <div class="md:col-span-2 lg:col-span-4 flex gap-2">
-        <button type="submit" class="flex-1 bg-indigo-600 text-white px-4 py-2.5 rounded-lg hover:bg-indigo-700 transition-colors flex items-center justify-center">
-          <i class="fas fa-search mr-2"></i> Aplicar
+        <button type="submit" class="flex-1 bg-indigo-600 text-white px-4 py-2.5 rounded-lg hover:bg-indigo-700 transition-all duration-150 active:scale-[0.98] flex items-center justify-center gap-2">
+          <x-svg-icon name="search" size="4" /> Aplicar
         </button>
         <a href="{{ route('orders.index') }}"
-           class="flex-1 text-center border border-neutral-300 dark:border-neutral-700 px-4 py-2.5 text-neutral-700 dark:text-neutral-200 rounded-lg hover:bg-neutral-50 dark:hover:bg-neutral-800 transition-colors flex items-center justify-center">
-          <i class="fas fa-eraser mr-2"></i> Reset
+           class="flex-1 text-center border border-neutral-300 dark:border-neutral-700 px-4 py-2.5 text-neutral-700 dark:text-neutral-200 rounded-lg hover:bg-neutral-50 dark:hover:bg-neutral-800 transition-colors flex items-center justify-center gap-2">
+          <x-svg-icon name="trash" size="4" /> Reset
         </a>
       </div>
     </form>
@@ -189,7 +193,7 @@
   
   {{-- Información de items --}}
   <div class="flex items-center gap-2 bg-blue-50 dark:bg-neutral-800/40 text-blue-600 dark:text-blue-300 rounded-lg px-3 py-1.5">
-    <i class="fas fa-info-circle text-xs"></i>
+    <x-svg-icon name="info" size="4" />
     <span>{{ $orders->firstItem() }}–{{ $orders->lastItem() }} de {{ $orders->total() }}</span>
   </div>
 
@@ -229,9 +233,9 @@
 {{-- Botón para eliminar múltiples (más profesional y pequeño) --}}
 <div class="mb-3 flex justify-end">
     <button id="deleteSelected"
-            class="inline-flex items-center gap-1.5 px-3 py-1.5 text-xs font-medium text-white bg-rose-600 rounded-md hover:bg-rose-700 transition-colors shadow-sm disabled:opacity-50 disabled:cursor-not-allowed"
+            class="inline-flex items-center gap-1.5 px-3 py-1.5 text-xs font-medium text-white bg-rose-600 rounded-md hover:bg-rose-700 transition-all duration-150 active:scale-[0.98] shadow-sm disabled:opacity-50 disabled:cursor-not-allowed"
             disabled>
-        <i class="fas fa-trash-alt text-sm"></i> Eliminar
+        <x-svg-icon name="trash" size="4" /> Eliminar
     </button>
 </div>
 
@@ -329,12 +333,12 @@
                         </td>
                         <td class="px-4 py-3">
                             <div class="flex items-center justify-end gap-2">
-                                <a href="{{ route('orders.show',$o) }}" class="inline-flex items-center gap-2 px-3 py-1.5 rounded-lg text-xs font-medium bg-indigo-50 text-indigo-700 hover:bg-indigo-100 dark:bg-indigo-900/30 dark:text-indigo-300 dark:hover:bg-indigo-900/50">
-                                    <i class="far fa-eye"></i> Ver
+                                <a href="{{ route('orders.show',$o) }}" class="inline-flex items-center gap-2 px-3 py-1.5 rounded-lg text-xs font-medium bg-indigo-50 text-indigo-700 hover:bg-indigo-100 dark:bg-indigo-900/30 dark:text-indigo-300 dark:hover:bg-indigo-900/50 transition-colors">
+                                    <x-svg-icon name="eye" size="4" /> Ver
                                 </a>
                                 <a href="{{ $receiptRoute ? route('orders.ticket',$o) : '#' }}" @if(!$receiptRoute) aria-disabled="true" @endif
-                                   class="inline-flex items-center gap-2 px-3 py-1.5 rounded-lg text-xs font-medium bg-emerald-50 text-emerald-700 hover:bg-emerald-100 dark:bg-emerald-900/30 dark:text-emerald-300 dark:hover:bg-emerald-900/50 {{ $receiptRoute ? '' : 'opacity-50 cursor-not-allowed' }}">
-                                    <i class="far fa-file-alt"></i> Comprobante
+                                   class="inline-flex items-center gap-2 px-3 py-1.5 rounded-lg text-xs font-medium bg-emerald-50 text-emerald-700 hover:bg-emerald-100 dark:bg-emerald-900/30 dark:text-emerald-300 dark:hover:bg-emerald-900/50 transition-colors {{ $receiptRoute ? '' : 'opacity-50 cursor-not-allowed' }}">
+                                    <x-svg-icon name="document" size="4" /> Comprobante
                                 </a>
                             </div>
                         </td>
@@ -342,16 +346,18 @@
                 @empty
                     <tr>
                         <td colspan="{{ (!empty($isCompany) ? 10 : 9) + (!empty($isMaster) ? 1 : 0) }}" class="px-6 py-16 text-center text-neutral-500 dark:text-neutral-400">
-                            <i class="fas fa-search text-neutral-300 dark:text-neutral-600 text-5xl mb-3"></i>
-                            <div class="text-lg font-medium">No se encontraron pedidos</div>
-                            <p class="text-neutral-500 dark:text-neutral-400">Ajustá los filtros para ver resultados.</p>
-                            <div class="mt-4 flex justify-center gap-2">
-                                <a href="{{ route('orders.index') }}" class="inline-flex items-center px-3 py-2 text-sm text-neutral-700 dark:text-neutral-200 bg-neutral-100 dark:bg-neutral-800 rounded-lg hover:bg-neutral-200 dark:hover:bg-neutral-700">
-                                    <i class="fas fa-broom mr-2"></i> Limpiar filtros
-                                </a>
-                                <a href="{{ route('orders.create') }}" class="inline-flex items-center px-3 py-2 text-sm text-white bg-indigo-600 rounded-lg hover:bg-indigo-700">
-                                    <i class="fas fa-plus-circle mr-2"></i> Crear pedido
-                                </a>
+                            <div class="flex flex-col items-center">
+                                <x-svg-icon name="search" size="12" class="text-neutral-300 dark:text-neutral-600 mb-3" />
+                                <div class="text-lg font-medium">No se encontraron pedidos</div>
+                                <p class="text-neutral-500 dark:text-neutral-400">Ajustá los filtros para ver resultados.</p>
+                                <div class="mt-4 flex justify-center gap-2">
+                                    <a href="{{ route('orders.index') }}" class="inline-flex items-center gap-2 px-3 py-2 text-sm text-neutral-700 dark:text-neutral-200 bg-neutral-100 dark:bg-neutral-800 rounded-lg hover:bg-neutral-200 dark:hover:bg-neutral-700 transition-colors">
+                                        <x-svg-icon name="x" size="4" /> Limpiar filtros
+                                    </a>
+                                    <a href="{{ route('orders.create') }}" class="inline-flex items-center gap-2 px-3 py-2 text-sm text-white bg-indigo-600 rounded-lg hover:bg-indigo-700 transition-all duration-150 active:scale-[0.98]">
+                                        <x-svg-icon name="plus" size="4" /> Crear pedido
+                                    </a>
+                                </div>
                             </div>
                         </td>
                     </tr>
@@ -371,40 +377,40 @@
 <div id="downloadModal" class="fixed inset-0 bg-black/50 hidden items-center justify-center z-50" role="dialog" aria-modal="true" aria-labelledby="downloadTitle">
   <div class="bg-white dark:bg-neutral-900 rounded-xl p-6 max-w-md w-full mx-4 border border-neutral-100 dark:border-neutral-800" role="document">
     <div class="flex items-center justify-between mb-4">
-      <h3 id="downloadTitle" class="text-lg font-semibold text-neutral-900 dark:text-neutral-100 flex items-center">
-        <i class="fas fa-download text-emerald-600 mr-2"></i> Descargar Reporte
+      <h3 id="downloadTitle" class="text-lg font-semibold text-neutral-900 dark:text-neutral-100 flex items-center gap-2">
+        <x-svg-icon name="download" size="5" class="text-emerald-600" /> Descargar Reporte
       </h3>
-      <button id="closeModal" type="button" class="text-neutral-400 hover:text-neutral-600 dark:hover:text-neutral-300" aria-label="Cerrar">
-        <i class="fas fa-times"></i>
+      <button id="closeModal" type="button" class="text-neutral-400 hover:text-neutral-600 dark:hover:text-neutral-300 transition-colors" aria-label="Cerrar">
+        <x-svg-icon name="x" size="5" />
       </button>
     </div>
     <p class="text-neutral-600 dark:text-neutral-300 mb-4">Seleccioná el formato del reporte:</p>
     <div class="space-y-3">
       <a href="{{ route('orders.download-report', array_merge(request()->query(), ['format'=>'csv'])) }}"
-         class="w-full flex items-center justify-between p-3 border border-neutral-300 dark:border-neutral-700 rounded-lg hover:bg-neutral-50 dark:hover:bg-neutral-800 transition-colors">
-        <div class="flex items-center">
-          <div class="bg-green-100 dark:bg-emerald-900/30 p-2 rounded-lg mr-3">
-            <i class="fas fa-file-csv text-green-600 dark:text-emerald-300"></i>
+         class="w-full flex items-center justify-between p-3 border border-neutral-300 dark:border-neutral-700 rounded-lg hover:bg-neutral-50 dark:hover:bg-neutral-800 transition-all duration-150 hover:scale-[1.02]">
+        <div class="flex items-center gap-3">
+          <div class="bg-green-100 dark:bg-emerald-900/30 p-2 rounded-lg">
+            <x-svg-icon name="document" size="5" class="text-green-600 dark:text-emerald-300" />
           </div>
           <div>
             <div class="font-medium text-neutral-900 dark:text-neutral-100">CSV (Excel)</div>
             <div class="text-sm text-neutral-500 dark:text-neutral-400">UTF-8 con separador ;</div>
           </div>
         </div>
-        <i class="fas fa-download text-neutral-400"></i>
+        <x-svg-icon name="download" size="4" class="text-neutral-400" />
       </a>
       <a href="{{ route('orders.download-report', array_merge(request()->query(), ['format'=>'excel'])) }}"
-         class="w-full flex items-center justify-between p-3 border border-neutral-300 dark:border-neutral-700 rounded-lg hover:bg-neutral-50 dark:hover:bg-neutral-800 transition-colors">
-        <div class="flex items-center">
-          <div class="bg-blue-100 dark:bg-blue-900/30 p-2 rounded-lg mr-3">
-            <i class="fas fa-file-excel text-blue-600 dark:text-blue-300"></i>
+         class="w-full flex items-center justify-between p-3 border border-neutral-300 dark:border-neutral-700 rounded-lg hover:bg-neutral-50 dark:hover:bg-neutral-800 transition-all duration-150 hover:scale-[1.02]">
+        <div class="flex items-center gap-3">
+          <div class="bg-blue-100 dark:bg-blue-900/30 p-2 rounded-lg">
+            <x-svg-icon name="document" size="5" class="text-blue-600 dark:text-blue-300" />
           </div>
           <div>
             <div class="font-medium text-neutral-900 dark:text-neutral-100">Excel (XLS)</div>
             <div class="text-sm text-neutral-500 dark:text-neutral-400">Tabla HTML compatible</div>
           </div>
         </div>
-        <i class="fas fa-download text-neutral-400"></i>
+        <x-svg-icon name="download" size="4" class="text-neutral-400" />
       </a>
     </div>
     <div class="mt-4 p-3 bg-blue-50 dark:bg-neutral-800/40 rounded-lg text-sm text-blue-700 dark:text-neutral-200">
@@ -412,8 +418,6 @@
     </div>
   </div>
 </div>
-
-<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
 
 <style>
   #filtersPanel{transform:translateY(-10px);opacity:0}

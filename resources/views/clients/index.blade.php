@@ -6,7 +6,7 @@
 
 @section('header_actions')
   <a href="{{ route('clients.create') }}" class="inline-flex items-center gap-2 px-4 py-2 rounded-lg bg-indigo-600 text-white text-sm font-medium hover:bg-indigo-700 transition-all duration-150 active:scale-[0.98]">
-    <x-icon name="user-plus" size="5" /> Nuevo cliente
+    <x-svg-icon name="user-plus" size="5" /> Nuevo cliente
   </a>
 @endsection
 
@@ -15,7 +15,7 @@
   {{-- Success message --}}
   @if(session('ok'))
     <div class="mb-4 rounded-lg border border-emerald-200 bg-emerald-50 text-emerald-800 px-3 py-2 text-sm dark:border-emerald-800 dark:bg-emerald-900/20 dark:text-emerald-300 flex items-center gap-2">
-      <x-icon name="check" size="5" class="text-emerald-600 dark:text-emerald-400" />
+      <x-svg-icon name="check" size="5" class="text-emerald-600 dark:text-emerald-400" />
       {{ session('ok') }}
     </div>
   @endif
@@ -25,7 +25,7 @@
     <form method="GET" class="flex gap-2 items-center">
       <div class="relative flex-1">
         <div class="absolute left-3 top-1/2 -translate-y-1/2 text-neutral-400">
-          <x-icon name="search" size="5" />
+          <x-svg-icon name="search" size="5" />
         </div>
         <input type="text"
                name="q"
@@ -74,12 +74,12 @@
                   <div class="flex items-center gap-2">
                     <a href="{{ route('clients.show', $c) }}"
                        class="inline-flex items-center gap-1.5 rounded-lg border border-neutral-300 px-2.5 py-1.5 text-xs text-neutral-700 hover:bg-neutral-50 dark:border-neutral-700 dark:text-neutral-200 dark:hover:bg-neutral-800 transition-colors">
-                      <x-icon name="eye" size="4" />
+                      <x-svg-icon name="eye" size="4" />
                       Ver
                     </a>
                     <a href="{{ route('clients.edit', $c) }}"
                        class="inline-flex items-center gap-1.5 rounded-lg border border-neutral-300 px-2.5 py-1.5 text-xs text-neutral-700 hover:bg-neutral-50 dark:border-neutral-700 dark:text-neutral-200 dark:hover:bg-neutral-800 transition-colors">
-                      <x-icon name="edit" size="4" />
+                      <x-svg-icon name="edit" size="4" />
                       Editar
                     </a>
                   </div>

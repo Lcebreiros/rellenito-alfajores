@@ -59,7 +59,7 @@ $buttonColorClass = $buttonColors[$type] ?? $buttonColors['danger'];
         <div class="p-6">
             {{-- Ícono --}}
             <div class="flex items-center justify-center w-12 h-12 rounded-full {{ $iconColorClass }} mb-4">
-                <x-icon :name="$icon" size="6" />
+                <x-svg-icon :name="$icon" size="6" />
             </div>
 
             {{-- Título --}}

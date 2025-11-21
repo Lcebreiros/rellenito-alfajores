@@ -54,7 +54,7 @@
                         placeholder:text-neutral-400 focus:border-indigo-500 focus:ring-indigo-500
                         dark:border-neutral-700 dark:bg-neutral-900 dark:text-neutral-200" />
         @endif
-        <button class="rounded-lg bg-indigo-600 px-3 py-2 text-sm font-medium text-white hover:bg-indigo-700">
+        <button class="rounded-lg bg-indigo-600 px-3 py-2 text-sm font-medium text-white hover:bg-indigo-700 transition-all duration-150 active:scale-[0.98]">
           Buscar
         </button>
       </form>
@@ -62,7 +62,7 @@
       
 
       <a href="{{ route('products.create') }}"
-         class="inline-flex items-center gap-2 rounded-lg bg-indigo-600 px-4 py-2 text-sm font-medium text-white hover:bg-indigo-700">
+         class="inline-flex items-center gap-2 rounded-lg bg-indigo-600 px-4 py-2 text-sm font-medium text-white hover:bg-indigo-700 transition-all duration-150 active:scale-[0.98]">
         <svg class="h-4 w-4" viewBox="0 0 24 24" fill="none">
           <path d="M12 5v14M5 12h14" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
         </svg>
@@ -167,7 +167,7 @@
         {{-- Botón Editar --}}
         <a href="{{ route('products.edit', $product) }}"
            class="inline-flex items-center gap-2 rounded-lg border border-neutral-300 px-3 py-1.5 text-sm font-medium text-neutral-700 hover:bg-neutral-50
-                  dark:border-neutral-700 dark:text-neutral-200 dark:hover:bg-neutral-800 whitespace-nowrap">
+                  dark:border-neutral-700 dark:text-neutral-200 dark:hover:bg-neutral-800 transition-colors whitespace-nowrap">
           <svg class="h-4 w-4" viewBox="0 0 24 24" fill="none">
             <path d="M16.5 3.5a2.121 2.121 0 1 1 3 3L8 18l-4 1 1-4 11.5-11.5Z"
                   stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
@@ -178,7 +178,7 @@
         {{-- Botón Detalles --}}
         <a href="{{ route('products.show', $product) }}"
            class="inline-flex items-center gap-2 rounded-lg border border-neutral-300 px-3 py-1.5 text-sm font-medium text-neutral-700 hover:bg-neutral-50
-                  dark:border-neutral-700 dark:text-neutral-200 dark:hover:bg-neutral-800 whitespace-nowrap">
+                  dark:border-neutral-700 dark:text-neutral-200 dark:hover:bg-neutral-800 transition-colors whitespace-nowrap">
           <svg class="h-4 w-4" viewBox="0 0 24 24" fill="none">
             <circle cx="12" cy="12" r="10" stroke="currentColor" stroke-width="2"/>
             <path d="M12 8v4l3 3" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
@@ -198,13 +198,14 @@
       {{ $products->withQueryString()->links() }}
     </div>
   @else
-    <div class="text-center py-16">
-      <svg class="mx-auto h-12 w-12 text-neutral-300 dark:text-neutral-600" viewBox="0 0 24 24" fill="none">
-        <circle cx="12" cy="12" r="9" stroke="currentColor" stroke-width="1.5"/>
-        <path d="M8 12h8" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/>
-      </svg>
-      <p class="mt-3 text-neutral-600 dark:text-neutral-400">Aún no hay productos.</p>
-    </div>
+    <x-empty-state
+      icon="box"
+      title="No hay productos aún"
+      description="Comienza agregando tu primer producto al inventario para gestionar tus ventas."
+      :action-url="route('products.create')"
+      action-text="Crear primer producto"
+      action-icon="plus"
+    />
   @endif
 </div>
 @endsection

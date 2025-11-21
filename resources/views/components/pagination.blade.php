@@ -43,12 +43,12 @@
                     @if ($paginator->onFirstPage())
                         <span aria-disabled="true" aria-label="Anterior">
                             <span class="relative inline-flex items-center px-2 py-2 text-sm font-medium text-neutral-500 bg-white dark:bg-neutral-900 border border-neutral-300 dark:border-neutral-700 cursor-default rounded-l-lg leading-5" aria-hidden="true">
-                                <x-icon name="chevron-left" size="5" />
+                                <x-svg-icon name="chevron-left" size="5" />
                             </span>
                         </span>
                     @else
                         <a href="{{ $paginator->previousPageUrl() }}" rel="prev" class="relative inline-flex items-center px-2 py-2 text-sm font-medium text-neutral-500 bg-white dark:bg-neutral-900 border border-neutral-300 dark:border-neutral-700 rounded-l-lg leading-5 hover:bg-neutral-50 dark:hover:bg-neutral-800 transition-colors" aria-label="Anterior">
-                            <x-icon name="chevron-left" size="5" />
+                            <x-svg-icon name="chevron-left" size="5" />
                         </a>
                     @endif
 
@@ -70,12 +70,12 @@
                     {{-- Next Page Link --}}
                     @if ($paginator->hasMorePages())
                         <a href="{{ $paginator->nextPageUrl() }}" rel="next" class="relative inline-flex items-center px-2 py-2 -ml-px text-sm font-medium text-neutral-500 bg-white dark:bg-neutral-900 border border-neutral-300 dark:border-neutral-700 rounded-r-lg leading-5 hover:bg-neutral-50 dark:hover:bg-neutral-800 transition-colors" aria-label="Siguiente">
-                            <x-icon name="chevron-right" size="5" />
+                            <x-svg-icon name="chevron-right" size="5" />
                         </a>
                     @else
                         <span aria-disabled="true" aria-label="Siguiente">
                             <span class="relative inline-flex items-center px-2 py-2 -ml-px text-sm font-medium text-neutral-500 bg-white dark:bg-neutral-900 border border-neutral-300 dark:border-neutral-700 cursor-default rounded-r-lg leading-5" aria-hidden="true">
-                                <x-icon name="chevron-right" size="5" />
+                                <x-svg-icon name="chevron-right" size="5" />
                             </span>
                         </span>
                     @endif

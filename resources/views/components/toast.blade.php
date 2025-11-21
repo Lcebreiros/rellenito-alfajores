@@ -59,7 +59,7 @@ $styles = $typeStyles[$type] ?? $typeStyles['info'];
         {{-- Ícono --}}
         <div class="flex-shrink-0">
             <div class="flex items-center justify-center w-8 h-8 rounded-full {{ $styles['icon'] }}">
-                <x-icon :name="$styles['iconName']" size="5" />
+                <x-svg-icon :name="$styles['iconName']" size="5" />
             </div>
         </div>
 
@@ -87,7 +87,7 @@ $styles = $typeStyles[$type] ?? $typeStyles['info'];
         {{-- Botón cerrar --}}
         <button @click="show = false"
                 class="flex-shrink-0 text-neutral-400 hover:text-neutral-600 dark:hover:text-neutral-200 transition-colors">
-            <x-icon name="x" size="5" />
+            <x-svg-icon name="x" size="5" />
         </button>
     </div>
 </div>
