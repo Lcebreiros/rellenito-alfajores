@@ -228,7 +228,7 @@
           <div class="rounded-xl border border-gray-200 dark:border-neutral-700 p-3 hover:shadow-sm hover:border-indigo-300 dark:hover:border-indigo-600 transition-all bg-white dark:bg-neutral-900">
             <div class="flex items-start gap-3 mb-3">
               <div class="relative flex-shrink-0">
-                <img src="{{ $employee->photo_url ?? asset('images/default-avatar.png') }}"
+                <img src="{{ $employee->photo_url }}"
                      alt="{{ $employee->first_name }} {{ $employee->last_name }}"
                      class="w-14 h-14 rounded-full object-cover ring-2 ring-gray-100 dark:ring-neutral-800">
                 @if($employee->has_computer)

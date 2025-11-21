@@ -5,6 +5,7 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
+use Illuminate\Support\Facades\Storage;
 
 class Employee extends Model
 {
@@ -65,5 +66,18 @@ class Employee extends Model
     public function documents()
     {
         return $this->morphMany(Document::class, 'attachable');
+    }
+
+    // =======================
+    // ACCESORS
+    // =======================
+
+    public function getPhotoUrlAttribute(): string
+    {
+        if ($this->photo_path && Storage::disk('public')->exists($this->photo_path)) {
+            return Storage::disk('public')->url($this->photo_path);
+        }
+
+        return asset('images/default-avatar.png');
     }
 }

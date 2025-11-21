@@ -121,10 +121,8 @@
           <label for="photo"
                  class="block cursor-pointer rounded-lg border-2 border-dashed border-neutral-300 p-5 text-center hover:border-indigo-400 transition-colors dark:border-neutral-700 dark:hover:border-indigo-500">
             <div class="flex flex-col items-center gap-2">
-              <svg class="w-7 h-7 text-neutral-400 dark:text-neutral-300" viewBox="0 0 24 24" fill="none">
-                <path d="M4 7a2 2 0 0 1 2-2h2l1-1h6l1 1h2a2 2 0 0 1 2 2v10a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V7Z" stroke="currentColor" stroke-width="1.6"/>
-                <path d="M12 9a3.5 3.5 0 1 0 0 7a3.5 3.5 0 0 0 0-7Z" stroke="currentColor" stroke-width="1.6"/>
-              </svg>
+              <img id="photoPreview" src="{{ asset('images/default-avatar.png') }}" alt="Previsualización"
+                   class="w-20 h-20 rounded-full object-cover ring-2 ring-neutral-200 dark:ring-neutral-700">
               <div class="text-sm"><span class="font-medium text-indigo-600 dark:text-indigo-400">Subir foto</span></div>
               <p class="text-xs text-neutral-500 dark:text-neutral-400">PNG, JPG (hasta 2MB)</p>
             </div>
@@ -192,4 +190,26 @@
     </div>
   </form>
 </div>
+
+@push('scripts')
+<script>
+  document.addEventListener('DOMContentLoaded', () => {
+    const input = document.getElementById('photo');
+    const preview = document.getElementById('photoPreview');
+    if (!input || !preview) return;
+
+    input.addEventListener('change', (e) => {
+      const file = e.target.files?.[0];
+      if (!file) return;
+      const reader = new FileReader();
+      reader.onload = (ev) => {
+        if (ev.target?.result) {
+          preview.src = ev.target.result;
+        }
+      };
+      reader.readAsDataURL(file);
+    });
+  });
+</script>
+@endpush
 @endsection
