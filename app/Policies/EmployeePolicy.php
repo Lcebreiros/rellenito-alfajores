@@ -12,6 +12,7 @@ class EmployeePolicy
      */
     public function viewAny(User $user): bool
     {
+        if (method_exists($user, 'isMaster') && $user->isMaster()) return true;
         return true; // listado ya está scopeado por company en el controller
     }
 
@@ -20,6 +21,7 @@ class EmployeePolicy
      */
     public function view(User $user, Employee $employee): bool
     {
+        if (method_exists($user, 'isMaster') && $user->isMaster()) return true;
         $companyId = $user->rootCompany()?->id ?? $user->id;
         return (int) $employee->company_id === (int) $companyId;
     }
@@ -29,6 +31,7 @@ class EmployeePolicy
      */
     public function create(User $user): bool
     {
+        if (method_exists($user, 'isMaster') && $user->isMaster()) return true;
         return method_exists($user, 'isCompany') && $user->isCompany();
     }
 
@@ -37,6 +40,7 @@ class EmployeePolicy
      */
     public function update(User $user, Employee $employee): bool
     {
+        if (method_exists($user, 'isMaster') && $user->isMaster()) return true;
         $companyId = $user->rootCompany()?->id ?? $user->id;
         return (int) $employee->company_id === (int) $companyId;
     }
@@ -46,8 +50,8 @@ class EmployeePolicy
      */
     public function delete(User $user, Employee $employee): bool
     {
+        if (method_exists($user, 'isMaster') && $user->isMaster()) return true;
         $companyId = $user->rootCompany()?->id ?? $user->id;
         return (int) $employee->company_id === (int) $companyId;
     }
 }
-

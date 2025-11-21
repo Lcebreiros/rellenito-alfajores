@@ -4,12 +4,14 @@ namespace App\Http\Controllers\Company;
 
 use App\Http\Controllers\Controller;
 use App\Models\Employee;
+use App\Models\Branch;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Validation\Rule;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\View\View;
+use Illuminate\Support\Str;
 
 class EmployeeController extends Controller
 {
@@ -76,6 +78,7 @@ class EmployeeController extends Controller
         $this->authorize('create', Employee::class);
 
         $companyId = auth()->user()->rootCompany()?->id ?? auth()->id();
+        $company   = auth()->user()->rootCompany() ?? auth()->user();
 
         // Normalizar JSON opcional (textareas *_json)
         foreach ([
@@ -96,6 +99,7 @@ class EmployeeController extends Controller
         $data = $this->validateEmployee($request);
 
         $data['company_id'] = $companyId;
+        $data['branch_id']  = $this->resolveBranchId($companyId, $data['branch_id'] ?? null, $company);
 
         // archivos
         if ($request->hasFile('photo')) {
@@ -202,6 +206,10 @@ class EmployeeController extends Controller
         }
 
         $data = $this->validateEmployee($request, $employee->id);
+        $companyId = auth()->user()->rootCompany()?->id ?? auth()->id();
+        $company   = auth()->user()->rootCompany() ?? auth()->user();
+
+        $data['branch_id'] = $this->resolveBranchId($companyId, $data['branch_id'] ?? $employee->branch_id, $company);
 
         // archivos: reemplazo seguro
         if ($request->hasFile('photo')) {
@@ -304,5 +312,33 @@ class EmployeeController extends Controller
         ];
 
         return $request->validate($rules);
+    }
+
+    /**
+     * Asegura que branch_id no quede nulo; si no hay sucursal se crea una por defecto.
+     */
+    protected function resolveBranchId(int $companyId, ?int $branchId, $companyUser): int
+    {
+        if ($branchId) {
+            return $branchId;
+        }
+
+        // Buscar la primera sucursal existente de la empresa.
+        $existing = Branch::where('company_id', $companyId)->value('id');
+        if ($existing) {
+            return (int) $existing;
+        }
+
+        // Crear sucursal por defecto (empresa sin sucursales).
+        $name = $companyUser->business_name ?? $companyUser->name ?? 'Casa Central';
+
+        $branch = Branch::create([
+            'company_id' => $companyId,
+            'name'       => $name,
+            'slug'       => Str::slug($name) . '-' . Str::random(6),
+            'is_active'  => true,
+        ]);
+
+        return (int) $branch->id;
     }
 }
