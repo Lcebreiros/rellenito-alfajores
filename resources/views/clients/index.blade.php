@@ -5,32 +5,47 @@
 @endsection
 
 @section('header_actions')
-  <a href="{{ route('clients.create') }}" class="inline-flex items-center gap-2 px-4 py-2 rounded-lg bg-indigo-600 text-white text-sm font-medium hover:bg-indigo-700">
-    <i class="fas fa-user-plus"></i> Nuevo cliente
+  <a href="{{ route('clients.create') }}" class="inline-flex items-center gap-2 px-4 py-2 rounded-lg bg-indigo-600 text-white text-sm font-medium hover:bg-indigo-700 transition-all duration-150 active:scale-[0.98]">
+    <x-icon name="user-plus" size="5" /> Nuevo cliente
   </a>
-  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
 @endsection
 
 @section('content')
 <div class="max-w-screen-2xl mx-auto px-3 sm:px-6">
+  {{-- Success message --}}
   @if(session('ok'))
-    <div class="mb-4 rounded-lg border border-emerald-200 bg-emerald-50 text-emerald-800 px-3 py-2 text-sm dark:border-emerald-800 dark:bg-emerald-900/20 dark:text-emerald-300">{{ session('ok') }}</div>
+    <div class="mb-4 rounded-lg border border-emerald-200 bg-emerald-50 text-emerald-800 px-3 py-2 text-sm dark:border-emerald-800 dark:bg-emerald-900/20 dark:text-emerald-300 flex items-center gap-2">
+      <x-icon name="check" size="5" class="text-emerald-600 dark:text-emerald-400" />
+      {{ session('ok') }}
+    </div>
   @endif
 
+  {{-- Search form --}}
   <div class="bg-white dark:bg-neutral-900 rounded-xl shadow-sm border border-neutral-100 dark:border-neutral-800 p-4 mb-4">
     <form method="GET" class="flex gap-2 items-center">
       <div class="relative flex-1">
-        <i class="fas fa-search absolute left-3 top-1/2 -translate-y-1/2 text-neutral-400 text-sm"></i>
-        <input type="text" name="q" value="{{ $q }}" placeholder="Buscar por nombre, email, teléfono, DNI…"
-               class="w-full pl-9 pr-4 py-2.5 rounded-lg border-neutral-300 dark:border-neutral-700 bg-white dark:bg-neutral-900 text-neutral-900 dark:text-neutral-100 focus:border-indigo-500 focus:ring-indigo-500">
+        <div class="absolute left-3 top-1/2 -translate-y-1/2 text-neutral-400">
+          <x-icon name="search" size="5" />
+        </div>
+        <input type="text"
+               name="q"
+               value="{{ $q }}"
+               placeholder="Buscar por nombre, email, teléfono, DNI…"
+               class="w-full pl-10 pr-4 py-2.5 rounded-lg border-neutral-300 dark:border-neutral-700 bg-white dark:bg-neutral-900 text-neutral-900 dark:text-neutral-100 focus:border-indigo-500 focus:ring-indigo-500 transition-all duration-150">
       </div>
-      <button class="px-4 py-2.5 bg-indigo-600 text-white rounded-lg hover:bg-indigo-700">Buscar</button>
+      <button type="submit" class="px-4 py-2.5 bg-indigo-600 text-white rounded-lg hover:bg-indigo-700 transition-all duration-150 active:scale-[0.98]">
+        Buscar
+      </button>
       @if($q !== '')
-        <a href="{{ route('clients.index') }}" class="px-3 py-2 rounded-lg border border-neutral-300 dark:border-neutral-700 text-neutral-700 dark:text-neutral-200">Limpiar</a>
+        <a href="{{ route('clients.index') }}"
+           class="px-3 py-2 rounded-lg border border-neutral-300 dark:border-neutral-700 text-neutral-700 dark:text-neutral-200 hover:bg-neutral-50 dark:hover:bg-neutral-800 transition-colors">
+          Limpiar
+        </a>
       @endif
     </form>
   </div>
 
+  {{-- Clients table or empty state --}}
   @if($clients->count())
     <div class="bg-white dark:bg-neutral-900 rounded-xl shadow-sm border border-neutral-100 dark:border-neutral-800 overflow-hidden">
       <div class="overflow-x-auto">
@@ -49,23 +64,44 @@
             @foreach($clients as $c)
               <tr class="hover:bg-neutral-50 dark:hover:bg-neutral-800/40 transition-colors">
                 <td class="px-3 py-3 font-medium text-neutral-900 dark:text-neutral-100">{{ $c->name }}</td>
-                <td class="px-3 py-3">{{ $c->email ?: '—' }}</td>
-                <td class="px-3 py-3">{{ $c->phone ?: '—' }}</td>
-                <td class="px-3 py-3">{{ $c->document_number ?: '—' }}</td>
-                <td class="px-3 py-3">$ {{ number_format((float)($c->balance ?? 0), 2, ',', '.') }}</td>
+                <td class="px-3 py-3 text-neutral-700 dark:text-neutral-300">{{ $c->email ?: '—' }}</td>
+                <td class="px-3 py-3 text-neutral-700 dark:text-neutral-300">{{ $c->phone ?: '—' }}</td>
+                <td class="px-3 py-3 text-neutral-700 dark:text-neutral-300">{{ $c->document_number ?: '—' }}</td>
+                <td class="px-3 py-3 text-neutral-900 dark:text-neutral-100 font-medium tabular-nums">
+                  $ {{ number_format((float)($c->balance ?? 0), 2, ',', '.') }}
+                </td>
                 <td class="px-3 py-3">
-                  <a href="{{ route('clients.show', $c) }}" class="inline-flex items-center gap-1.5 rounded border border-neutral-300 px-2.5 py-1.5 text-xs text-neutral-700 hover:bg-neutral-50 dark:border-neutral-700 dark:text-neutral-200 dark:hover:bg-neutral-800"><i class="fas fa-eye"></i> Ver</a>
-                  <a href="{{ route('clients.edit', $c) }}" class="inline-flex items-center gap-1.5 rounded border border-neutral-300 px-2.5 py-1.5 text-xs text-neutral-700 hover:bg-neutral-50 dark:border-neutral-700 dark:text-neutral-200 dark:hover:bg-neutral-800"><i class="fas fa-pen"></i> Editar</a>
+                  <div class="flex items-center gap-2">
+                    <a href="{{ route('clients.show', $c) }}"
+                       class="inline-flex items-center gap-1.5 rounded-lg border border-neutral-300 px-2.5 py-1.5 text-xs text-neutral-700 hover:bg-neutral-50 dark:border-neutral-700 dark:text-neutral-200 dark:hover:bg-neutral-800 transition-colors">
+                      <x-icon name="eye" size="4" />
+                      Ver
+                    </a>
+                    <a href="{{ route('clients.edit', $c) }}"
+                       class="inline-flex items-center gap-1.5 rounded-lg border border-neutral-300 px-2.5 py-1.5 text-xs text-neutral-700 hover:bg-neutral-50 dark:border-neutral-700 dark:text-neutral-200 dark:hover:bg-neutral-800 transition-colors">
+                      <x-icon name="edit" size="4" />
+                      Editar
+                    </a>
+                  </div>
                 </td>
               </tr>
             @endforeach
           </tbody>
         </table>
       </div>
-      <div class="p-3">{{ $clients->links() }}</div>
+      <div class="p-3 border-t border-neutral-200 dark:border-neutral-800">
+        {{ $clients->links() }}
+      </div>
     </div>
   @else
-    <div class="text-center py-16 text-neutral-600 dark:text-neutral-300">No hay clientes.</div>
+    <x-empty-state
+      icon="user"
+      title="No hay clientes aún"
+      description="Comienza agregando tu primer cliente para gestionar tus ventas y relaciones comerciales."
+      :action-url="route('clients.create')"
+      action-text="Crear primer cliente"
+      action-icon="user-plus"
+    />
   @endif
-  </div>
+</div>
 @endsection

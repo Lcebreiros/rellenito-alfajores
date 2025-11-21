@@ -6,6 +6,36 @@
     display: none;
 }
 
+/* Keyframe animations */
+@keyframes shimmer {
+  0% {
+    transform: translateX(-100%);
+  }
+  100% {
+    transform: translateX(100%);
+  }
+}
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+@keyframes slideUp {
+  from {
+    transform: translateY(10px);
+    opacity: 0;
+  }
+  to {
+    transform: translateY(0);
+    opacity: 1;
+  }
+}
+
 @layer components {
   /* Card components with improved dark mode */
   .card-dark {
@@ -45,31 +75,90 @@
            dark:placeholder-neutral-500;
   }
 
-  /* Buttons with improved dark mode */
+  /* Buttons with improved dark mode and micro-interactions */
   .btn-primary {
     @apply bg-indigo-600 text-white hover:bg-indigo-700 focus:ring-indigo-500
            dark:bg-primary-500 dark:hover:bg-primary-600 dark:focus:ring-primary-400
-           shadow-sm dark:shadow-dark-sm;
+           shadow-sm dark:shadow-dark-sm
+           transition-all duration-150 ease-out
+           active:scale-[0.98] active:shadow-none;
   }
 
   .btn-secondary {
     @apply bg-neutral-100 text-neutral-700 hover:bg-neutral-200
            dark:bg-dark-elevated dark:text-neutral-200 dark:hover:bg-neutral-700
-           dark:border dark:border-dark-border;
+           dark:border dark:border-dark-border
+           transition-all duration-150 ease-out
+           active:scale-[0.98];
   }
 
-  /* Loading skeleton pulse animation optimized for dark mode */
+  .btn-danger {
+    @apply bg-rose-600 text-white hover:bg-rose-700 focus:ring-rose-500
+           dark:bg-rose-500 dark:hover:bg-rose-600
+           shadow-sm dark:shadow-dark-sm
+           transition-all duration-150 ease-out
+           active:scale-[0.98] active:shadow-none;
+  }
+
+  /* Loading skeleton with shimmer animation */
   .skeleton {
-    @apply animate-pulse bg-neutral-200 dark:bg-neutral-700 rounded;
+    @apply bg-neutral-200 dark:bg-neutral-700 rounded overflow-hidden relative;
+  }
+
+  .skeleton::before {
+    content: '';
+    @apply absolute inset-0 -translate-x-full;
+    background: linear-gradient(
+      90deg,
+      transparent,
+      rgba(255, 255, 255, 0.2),
+      transparent
+    );
+    animation: shimmer 1.5s infinite;
+  }
+
+  .dark .skeleton::before {
+    background: linear-gradient(
+      90deg,
+      transparent,
+      rgba(255, 255, 255, 0.05),
+      transparent
+    );
   }
 
   .skeleton-text {
-    @apply h-4 bg-neutral-200 dark:bg-neutral-700 rounded;
+    @apply h-4 bg-neutral-200 dark:bg-neutral-700 rounded skeleton;
   }
 
   /* Smooth transitions for dark mode toggle */
   .dark-transition {
     @apply transition-colors duration-200 ease-in-out;
+  }
+
+  /* Links with consistent styling */
+  .link {
+    @apply text-indigo-600 dark:text-indigo-400 hover:text-indigo-700 dark:hover:text-indigo-300
+           transition-colors duration-150 ease-out
+           hover:underline decoration-2 underline-offset-2;
+  }
+
+  .link-muted {
+    @apply text-neutral-600 dark:text-neutral-400 hover:text-neutral-900 dark:hover:text-neutral-100
+           transition-colors duration-150 ease-out;
+  }
+
+  /* Card hover effect */
+  .card-hover {
+    @apply transition-all duration-200 ease-out
+           hover:shadow-lg dark:hover:shadow-dark-lg
+           hover:-translate-y-0.5;
+  }
+
+  /* Input focus effect */
+  .input-focus {
+    @apply transition-all duration-150 ease-out
+           focus:ring-2 focus:ring-offset-2
+           focus:scale-[1.01];
   }
 }
 

@@ -239,6 +239,9 @@
     });
   </script>
 
+  {{-- Toast notifications container --}}
+  <x-toast-container />
+
   {{-- Menú flotante móvil (reemplaza la bottom bar) --}}
   @if (!request()->routeIs(['inicio','login','register']))
     <x-mobile-fab-menu />
