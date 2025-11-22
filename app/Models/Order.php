@@ -188,7 +188,7 @@ class Order extends Model
             // recalc y persistir antes de stock para asegurar montos correctos
             $this->sold_at = $soldAt ?? now();
             $this->recalcTotal(true);
-            $this->status = OrderStatus::COMPLETED;
+            $this->status = OrderStatus::COMPLETED->value;
             $this->save();
 
             // delegar la lógica de stock a StockService (debe lanzar excepcion si falla)
@@ -202,7 +202,7 @@ class Order extends Model
      */
     public function confirmScheduled(): void
     {
-        if ($this->status !== OrderStatus::SCHEDULED) {
+        if ($this->status !== OrderStatus::SCHEDULED->value) {
             throw new DomainException("Solo se pueden confirmar pedidos agendados. Estado actual: {$this->status->value}");
         }
 
@@ -220,7 +220,7 @@ class Order extends Model
     public function isScheduledForToday(): bool
     {
         return $this->is_scheduled
-            && $this->status === OrderStatus::SCHEDULED
+            && $this->status === OrderStatus::SCHEDULED->value
             && $this->scheduled_for?->isToday();
     }
 
@@ -230,7 +230,7 @@ class Order extends Model
     public function isOverdue(): bool
     {
         return $this->is_scheduled
-            && $this->status === OrderStatus::SCHEDULED
+            && $this->status === OrderStatus::SCHEDULED->value
             && $this->scheduled_for?->isPast();
     }
 
@@ -242,7 +242,7 @@ class Order extends Model
         $notes = trim($this->notes ?? '');
         $notes .= $reason ? ("\nCancelada: {$reason}") : "\nCancelada";
         $this->update([
-            'status' => OrderStatus::CANCELED,
+            'status' => OrderStatus::CANCELED->value,
             'notes' => $notes,
         ]);
     }
@@ -462,7 +462,7 @@ class Order extends Model
     {
         if ($user->isMaster()) return true;
 
-        if ($this->status !== OrderStatus::DRAFT) return false;
+        if ($this->status !== OrderStatus::DRAFT->value) return false;
 
         if ($this->user_id === $user->id) return true;
 

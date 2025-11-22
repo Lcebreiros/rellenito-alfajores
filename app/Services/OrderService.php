@@ -37,7 +37,7 @@ class OrderService
         if (!$draftId || $draftId !== (int)$order->id) {
             throw new UnauthorizedException('Pedido no pertenece a tu sesión.');
         }
-        if ($order->status !== \App\Enums\OrderStatus::DRAFT) {
+        if ($order->status !== \App\Enums\OrderStatus::DRAFT->value) {
             throw new DomainException('Pedido no editable.');
         }
     }
