@@ -931,7 +931,7 @@ public function index(Request $request)
             $notes = trim($order->notes ?? '');
             $notes .= ($notes ? "\n" : '') . 'Cancelado: ' . $reason;
             $order->update([
-                'status' => \App\Enums\OrderStatus::CANCELED,
+                'status' => \App\Enums\OrderStatus::CANCELED->value,
                 'notes' => $notes,
             ]);
 
@@ -980,7 +980,7 @@ public function index(Request $request)
                 'scheduled_for' => $dt,
             ];
             if (!in_array((string)$order->status, [\App\Enums\OrderStatus::COMPLETED->value, \App\Enums\OrderStatus::CANCELED->value], true)) {
-                $new['status'] = \App\Enums\OrderStatus::SCHEDULED;
+                $new['status'] = \App\Enums\OrderStatus::SCHEDULED->value;
             }
 
             $order->update($new);
@@ -995,7 +995,7 @@ public function index(Request $request)
             ];
 
             if ((string)$order->status === \App\Enums\OrderStatus::SCHEDULED->value) {
-                $new['status'] = \App\Enums\OrderStatus::PENDING;
+                $new['status'] = \App\Enums\OrderStatus::PENDING->value;
             }
 
             $order->update($new);
