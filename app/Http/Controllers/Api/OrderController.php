@@ -119,8 +119,8 @@ class OrderController extends Controller
                 'tax_amount' => $validated['tax_amount'] ?? 0,
                 'scheduled_for' => $validated['scheduled_for'] ?? null,
                 'is_scheduled' => $validated['is_scheduled'] ?? false,
-                'status' => OrderStatus::DRAFT,
-                'payment_status' => PaymentStatus::PENDING,
+                'status' => OrderStatus::DRAFT->value,
+                'payment_status' => PaymentStatus::PENDING->value,
                 'total' => 0,
             ]);
 
@@ -182,7 +182,7 @@ class OrderController extends Controller
         }
 
         // Solo se puede editar si está en draft
-        if ($order->status !== OrderStatus::DRAFT) {
+        if ($order->status !== OrderStatus::DRAFT->value) {
             return response()->json([
                 'success' => false,
                 'message' => 'Solo se pueden editar pedidos en estado borrador',
@@ -221,7 +221,7 @@ class OrderController extends Controller
             ], 403);
         }
 
-        if ($order->status !== OrderStatus::DRAFT) {
+        if ($order->status !== OrderStatus::DRAFT->value) {
             return response()->json([
                 'success' => false,
                 'message' => 'Solo se pueden agregar items a pedidos en borrador',
@@ -279,7 +279,7 @@ class OrderController extends Controller
             ], 403);
         }
 
-        if ($order->status !== OrderStatus::DRAFT) {
+        if ($order->status !== OrderStatus::DRAFT->value) {
             return response()->json([
                 'success' => false,
                 'message' => 'Solo se pueden eliminar items de pedidos en borrador',
@@ -320,7 +320,7 @@ class OrderController extends Controller
             ], 403);
         }
 
-        if ($order->status !== OrderStatus::DRAFT) {
+        if ($order->status !== OrderStatus::DRAFT->value) {
             return response()->json([
                 'success' => false,
                 'message' => 'Este pedido ya fue procesado',
@@ -370,7 +370,7 @@ class OrderController extends Controller
             ], 403);
         }
 
-        $order->update(['status' => OrderStatus::CANCELLED]);
+        $order->update(['status' => OrderStatus::CANCELLED->value]);
 
         return response()->json([
             'success' => true,

@@ -46,7 +46,7 @@ class ProcessScheduledOrders extends Command
         foreach ($orders as $order) {
             try {
                 // Cambiar estado de SCHEDULED a PENDING
-                $order->status = OrderStatus::PENDING;
+                $order->status = OrderStatus::PENDING->value;
                 $order->save();
 
                 $this->line("✅ Pedido #{$order->id} movido a PENDING - Cliente: " . ($order->client?->name ?? 'Sin cliente'));

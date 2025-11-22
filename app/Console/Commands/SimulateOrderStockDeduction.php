@@ -81,7 +81,7 @@ class SimulateOrderStockDeduction extends Command
                 'user_id' => $user->id,
                 'company_id' => $user->id,
                 'branch_id' => $user->id,
-                'status' => OrderStatus::DRAFT,
+                'status' => OrderStatus::DRAFT->value,
                 'total' => $product->price * $quantity,
             ]);
 

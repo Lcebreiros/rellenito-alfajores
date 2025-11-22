@@ -26,7 +26,7 @@ class OrderItemObserver
 
         // Solo descontar stock si el pedido se crea directamente como COMPLETED
         // (flujo OrderQuickModal con completeOnSave = true)
-        if ($order->status !== OrderStatus::COMPLETED) {
+        if ($order->status !== OrderStatus::COMPLETED->value) {
             return;
         }
 
@@ -64,7 +64,7 @@ class OrderItemObserver
 
         // Solo restaurar stock si la orden ya había descontado stock (completada).
         // En borradores/pedidos pendientes todavía no se descuenta, así que no hay nada que revertir.
-        if (!$order || $order->status !== OrderStatus::COMPLETED) return;
+        if (!$order || $order->status !== OrderStatus::COMPLETED->value) return;
 
         $product = $orderItem->product;
 
