@@ -719,7 +719,17 @@ public function index(Request $request)
                     // Ajuste: si delta < 0 (reducción), devolver stock (+); si delta > 0, descontar más (-)
                     $product = \App\Models\Product::withoutGlobalScope('byUser')->find($pid);
                     if ($product) {
+                        // Ajustar stock del producto
                         $stock->adjust($product, -$delta, 'order_edit', $order);
+
+                        // IMPORTANTE: También ajustar insumos del producto
+                        if ($delta > 0) {
+                            // Se agregaron productos, descontar insumos
+                            $order->reduceSuppliesForProduct($product, $delta);
+                        } else if ($delta < 0) {
+                            // Se quitaron productos, devolver insumos
+                            $order->restoreSuppliesForProduct($product, abs($delta));
+                        }
                     }
                 }
             }

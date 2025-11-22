@@ -310,7 +310,7 @@ class Order extends Model
     /**
      * Descuenta los insumos asociados a un producto
      */
-    protected function reduceSuppliesForProduct(Product $product, $quantity): void
+    public function reduceSuppliesForProduct(Product $product, $quantity): void
     {
         $recipes = ProductRecipe::where('product_id', $product->id)->get();
 
@@ -356,6 +356,65 @@ class Order extends Model
                 'supply_id' => $supply->id,
                 'supply_name' => $supply->name,
                 'qty_needed' => $qtyNeeded,
+                'recipe_unit' => $recipe->unit,
+                'supply_base_unit' => $supply->base_unit,
+                'qty_in_base' => $qtyInBase,
+                'stock_before' => $stockBefore,
+                'stock_after' => $supply->stock_base_qty,
+                'waste_pct' => $recipe->waste_pct
+            ]);
+        }
+    }
+
+    /**
+     * Restaura los insumos asociados a un producto (cuando se cancela o reduce cantidad)
+     */
+    public function restoreSuppliesForProduct(Product $product, $quantity): void
+    {
+        $recipes = ProductRecipe::where('product_id', $product->id)->get();
+
+        \Log::info('Restauración de insumos para producto', [
+            'order_id' => $this->id,
+            'product_id' => $product->id,
+            'product_name' => $product->name,
+            'quantity' => $quantity,
+            'recipes_count' => $recipes->count()
+        ]);
+
+        foreach ($recipes as $recipe) {
+            $supply = Supply::withoutGlobalScope('byUser')->find($recipe->supply_id);
+            if (!$supply) {
+                \Log::warning('Insumo no encontrado para receta (restauración)', [
+                    'order_id' => $this->id,
+                    'product_id' => $product->id,
+                    'supply_id' => $recipe->supply_id,
+                    'recipe_id' => $recipe->id
+                ]);
+                continue;
+            }
+
+            // Calcular cuánto insumo se restaura
+            $qtyNeeded = $recipe->qty * $quantity;
+
+            // Aplicar porcentaje de desperdicio
+            if ($recipe->waste_pct > 0) {
+                $qtyNeeded *= (1 + ($recipe->waste_pct / 100));
+            }
+
+            // Convertir a unidad base del insumo
+            $qtyInBase = $this->convertToBaseUnit($qtyNeeded, $recipe->unit, $supply->base_unit);
+
+            $stockBefore = $supply->stock_base_qty;
+
+            // RESTAURAR al stock del insumo (sumar en lugar de restar)
+            $supply->stock_base_qty += $qtyInBase;
+            $supply->save();
+
+            \Log::info('Insumo restaurado', [
+                'order_id' => $this->id,
+                'supply_id' => $supply->id,
+                'supply_name' => $supply->name,
+                'qty_restored' => $qtyNeeded,
                 'recipe_unit' => $recipe->unit,
                 'supply_base_unit' => $supply->base_unit,
                 'qty_in_base' => $qtyInBase,
