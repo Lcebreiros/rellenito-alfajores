@@ -670,7 +670,7 @@ public function index(Request $request)
                         $updateData['scheduled_for'] = $scheduledDate;
 
                         // Si no está COMPLETED/CANCELED, cambiar a SCHEDULED
-                        if (!in_array((string)$order->status, [OrderStatus::COMPLETED->value, OrderStatus::CANCELED->value], true)) {
+                        if (!in_array($order->status, [OrderStatus::COMPLETED->value, OrderStatus::CANCELED->value], true)) {
                             $updateData['status'] = OrderStatus::SCHEDULED->value;
                         }
                     }
@@ -680,7 +680,7 @@ public function index(Request $request)
                     $updateData['scheduled_for'] = null;
 
                     // Si estaba SCHEDULED, pasarlo a PENDING
-                    if ((string)$order->status === OrderStatus::SCHEDULED->value) {
+                    if ($order->status === OrderStatus::SCHEDULED->value) {
                         $updateData['status'] = OrderStatus::PENDING->value;
                     }
                 }
@@ -964,7 +964,7 @@ public function index(Request $request)
 
         if ($enable) {
             // No permitir agendar pedidos completados/cancelados
-            if (in_array((string)$order->status, [\App\Enums\OrderStatus::COMPLETED->value, \App\Enums\OrderStatus::CANCELED->value], true)) {
+            if (in_array($order->status, [\App\Enums\OrderStatus::COMPLETED->value, \App\Enums\OrderStatus::CANCELED->value], true)) {
                 return back()->with('error', 'No se puede agendar un pedido completado o cancelado.');
             }
             // Cuando se habilita, validar fecha futura
@@ -979,7 +979,7 @@ public function index(Request $request)
                 'is_scheduled'  => true,
                 'scheduled_for' => $dt,
             ];
-            if (!in_array((string)$order->status, [\App\Enums\OrderStatus::COMPLETED->value, \App\Enums\OrderStatus::CANCELED->value], true)) {
+            if (!in_array($order->status, [\App\Enums\OrderStatus::COMPLETED->value, \App\Enums\OrderStatus::CANCELED->value], true)) {
                 $new['status'] = \App\Enums\OrderStatus::SCHEDULED->value;
             }
 
@@ -994,7 +994,7 @@ public function index(Request $request)
                 'scheduled_for' => null,
             ];
 
-            if ((string)$order->status === \App\Enums\OrderStatus::SCHEDULED->value) {
+            if ($order->status === \App\Enums\OrderStatus::SCHEDULED->value) {
                 $new['status'] = \App\Enums\OrderStatus::PENDING->value;
             }
 
