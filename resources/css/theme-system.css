@@ -104,75 +104,75 @@
    UTILIDADES DE MÓDULO
    ================================ */
 
-/* Background del módulo con gradientes más saturados */
+/* Background del módulo con gradientes sutiles mezclando color con blanco */
 .module-bg-orders {
   background: linear-gradient(135deg,
-    rgb(237 233 254) 0%,    /* violet-100 */
-    rgb(221 214 254) 50%,   /* violet-200 */
-    rgb(196 181 253) 100%); /* violet-300 */
+    rgb(255 255 255) 0%,      /* white */
+    rgb(245 243 255) 40%,     /* violet-50 */
+    rgb(237 233 254) 100%);   /* violet-100 */
 }
 
 .module-bg-products {
   background: linear-gradient(135deg,
-    rgb(224 242 254) 0%,    /* sky-100 */
-    rgb(186 230 253) 50%,   /* sky-200 */
-    rgb(125 211 252) 100%); /* sky-300 */
+    rgb(255 255 255) 0%,      /* white */
+    rgb(240 249 255) 40%,     /* sky-50 */
+    rgb(224 242 254) 100%);   /* sky-100 */
 }
 
 .module-bg-clients {
   background: linear-gradient(135deg,
-    rgb(209 250 229) 0%,    /* emerald-100 */
-    rgb(167 243 208) 50%,   /* emerald-200 */
-    rgb(110 231 183) 100%); /* emerald-300 */
+    rgb(255 255 255) 0%,      /* white */
+    rgb(236 253 245) 40%,     /* emerald-50 */
+    rgb(209 250 229) 100%);   /* emerald-100 */
 }
 
 .module-bg-dashboard {
   background: linear-gradient(135deg,
-    rgb(224 231 255) 0%,    /* indigo-100 */
-    rgb(199 210 254) 50%,   /* indigo-200 */
-    rgb(165 180 252) 100%); /* indigo-300 */
+    rgb(255 255 255) 0%,      /* white */
+    rgb(238 242 255) 40%,     /* indigo-50 */
+    rgb(224 231 255) 100%);   /* indigo-100 */
 }
 
 .module-bg-expenses {
   background: linear-gradient(135deg,
-    rgb(254 243 199) 0%,    /* amber-100 */
-    rgb(253 230 138) 50%,   /* amber-200 */
-    rgb(252 211 77) 100%);  /* amber-300 */
+    rgb(255 255 255) 0%,      /* white */
+    rgb(255 251 235) 40%,     /* amber-50 */
+    rgb(254 243 199) 100%);   /* amber-100 */
 }
 
 .module-bg-company {
   background: linear-gradient(135deg,
-    rgb(241 245 249) 0%,    /* slate-100 */
-    rgb(226 232 240) 50%,   /* slate-200 */
-    rgb(203 213 225) 100%); /* slate-300 */
+    rgb(255 255 255) 0%,      /* white */
+    rgb(248 250 252) 40%,     /* slate-50 */
+    rgb(241 245 249) 100%);   /* slate-100 */
 }
 
 .module-bg-employees {
   background: linear-gradient(135deg,
-    rgb(204 251 241) 0%,    /* teal-100 */
-    rgb(153 246 228) 50%,   /* teal-200 */
-    rgb(94 234 212) 100%);  /* teal-300 */
+    rgb(255 255 255) 0%,      /* white */
+    rgb(240 253 250) 40%,     /* teal-50 */
+    rgb(204 251 241) 100%);   /* teal-100 */
 }
 
 .module-bg-services {
   background: linear-gradient(135deg,
-    rgb(252 231 243) 0%,    /* pink-100 */
-    rgb(251 207 232) 50%,   /* pink-200 */
-    rgb(249 168 212) 100%); /* pink-300 */
+    rgb(255 255 255) 0%,      /* white */
+    rgb(253 242 248) 40%,     /* pink-50 */
+    rgb(252 231 243) 100%);   /* pink-100 */
 }
 
 .module-bg-stock {
   background: linear-gradient(135deg,
-    rgb(207 250 254) 0%,    /* cyan-100 */
-    rgb(165 243 252) 50%,   /* cyan-200 */
-    rgb(103 232 249) 100%); /* cyan-300 */
+    rgb(255 255 255) 0%,      /* white */
+    rgb(236 254 255) 40%,     /* cyan-50 */
+    rgb(207 250 254) 100%);   /* cyan-100 */
 }
 
 .module-bg-payment {
   background: linear-gradient(135deg,
-    rgb(254 249 195) 0%,    /* yellow-100 */
-    rgb(254 240 138) 50%,   /* yellow-200 */
-    rgb(253 224 71) 100%);  /* yellow-300 */
+    rgb(255 255 255) 0%,      /* white */
+    rgb(254 252 232) 40%,     /* yellow-50 */
+    rgb(254 249 195) 100%);   /* yellow-100 */
 }
 
 /* Fallback neutral */
@@ -183,75 +183,75 @@
     rgb(var(--theme-bg-to) / 0.9) 100%);
 }
 
-/* Modo oscuro - gradientes oscuros estilo botón (indigo-purple) */
+/* Modo oscuro - gradientes mezclando color con negro */
 .dark .module-bg-orders {
   background: linear-gradient(135deg,
-    rgb(30 27 75) 0%,      /* indigo-950 */
-    rgb(59 7 100) 50%,     /* purple-950 */
-    rgb(46 16 101) 100%);  /* violet-950 */
+    rgb(23 23 23) 0%,       /* neutral-900 (casi negro) */
+    rgb(30 27 75) 40%,      /* indigo-950 */
+    rgb(46 16 101) 100%);   /* violet-950 */
 }
 
 .dark .module-bg-products {
   background: linear-gradient(135deg,
-    rgb(8 47 73) 0%,       /* blue-950 */
-    rgb(8 51 68) 50%,      /* sky-950 */
-    rgb(8 51 68) 100%);    /* cyan-950 */
+    rgb(23 23 23) 0%,       /* neutral-900 */
+    rgb(8 47 73) 40%,       /* blue-950 */
+    rgb(8 51 68) 100%);     /* sky-950 */
 }
 
 .dark .module-bg-clients {
   background: linear-gradient(135deg,
-    rgb(2 44 34) 0%,       /* emerald-950 */
-    rgb(4 47 46) 50%,      /* teal-950 */
-    rgb(5 46 22) 100%);    /* green-950 */
+    rgb(23 23 23) 0%,       /* neutral-900 */
+    rgb(2 44 34) 40%,       /* emerald-950 */
+    rgb(4 47 46) 100%);     /* teal-950 */
 }
 
 .dark .module-bg-dashboard {
   background: linear-gradient(135deg,
-    rgb(30 27 75) 0%,      /* indigo-950 */
-    rgb(35 25 66) 50%,     /* indigo-950/violet-950 */
-    rgb(46 16 101) 100%);  /* violet-950 */
+    rgb(23 23 23) 0%,       /* neutral-900 */
+    rgb(30 27 75) 40%,      /* indigo-950 */
+    rgb(35 25 66) 100%);    /* indigo-950/violet mix */
 }
 
 .dark .module-bg-expenses {
   background: linear-gradient(135deg,
-    rgb(69 26 3) 0%,       /* orange-950 */
-    rgb(67 20 7) 50%,      /* amber-950 */
-    rgb(66 32 6) 100%);    /* yellow-950 */
+    rgb(23 23 23) 0%,       /* neutral-900 */
+    rgb(69 26 3) 40%,       /* orange-950 */
+    rgb(67 20 7) 100%);     /* amber-950 */
 }
 
 .dark .module-bg-company {
   background: linear-gradient(135deg,
-    rgb(15 23 42) 0%,      /* slate-950 */
-    rgb(24 24 27) 50%,     /* zinc-950 */
-    rgb(23 23 23) 100%);   /* neutral-900 */
+    rgb(23 23 23) 0%,       /* neutral-900 */
+    rgb(15 23 42) 40%,      /* slate-950 */
+    rgb(24 24 27) 100%);    /* zinc-950 */
 }
 
 .dark .module-bg-employees {
   background: linear-gradient(135deg,
-    rgb(4 47 46) 0%,       /* teal-950 */
-    rgb(8 51 68) 50%,      /* cyan-950 */
-    rgb(2 44 34) 100%);    /* emerald-950 */
+    rgb(23 23 23) 0%,       /* neutral-900 */
+    rgb(4 47 46) 40%,       /* teal-950 */
+    rgb(8 51 68) 100%);     /* cyan-950 */
 }
 
 .dark .module-bg-services {
   background: linear-gradient(135deg,
-    rgb(80 7 36) 0%,       /* rose-950 */
-    rgb(76 5 25) 50%,      /* pink-950 */
-    rgb(59 7 100) 100%);   /* purple-950 */
+    rgb(23 23 23) 0%,       /* neutral-900 */
+    rgb(80 7 36) 40%,       /* rose-950 */
+    rgb(76 5 25) 100%);     /* pink-950 */
 }
 
 .dark .module-bg-stock {
   background: linear-gradient(135deg,
-    rgb(8 51 68) 0%,       /* cyan-950 */
-    rgb(4 47 46) 50%,      /* teal-950 */
-    rgb(8 47 73) 100%);    /* blue-950 */
+    rgb(23 23 23) 0%,       /* neutral-900 */
+    rgb(8 51 68) 40%,       /* cyan-950 */
+    rgb(4 47 46) 100%);     /* teal-950 */
 }
 
 .dark .module-bg-payment {
   background: linear-gradient(135deg,
-    rgb(66 32 6) 0%,       /* yellow-950 */
-    rgb(67 20 7) 50%,      /* amber-950 */
-    rgb(69 26 3) 100%);    /* orange-950 */
+    rgb(23 23 23) 0%,       /* neutral-900 */
+    rgb(66 32 6) 40%,       /* yellow-950 */
+    rgb(67 20 7) 100%);     /* amber-950 */
 }
 
 .dark .module-bg-neutral {

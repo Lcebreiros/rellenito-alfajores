@@ -57,12 +57,11 @@
   @endif
 
   @php
-    // Contenedor centrado; hover sobre caja semitransparente con animación estándar (sin clases arbitrarias)
+    // Contenedor centrado; hover sobre caja blanca con animación estándar (sin clases arbitrarias)
     $tile     = 'group block p-1';
-    $box      = 'relative rounded-2xl px-6 py-7 bg-transparent text-center flex flex-col items-center '
-              . 'transition-all duration-200 ease-out transform tile-enter '
-              . 'hover:bg-neutral-500/10 dark:hover:bg-white/10 hover:shadow-lg hover:ring-1 '
-              . 'hover:ring-indigo-200/40 dark:hover:ring-indigo-800/30 hover:-translate-y-0.5 hover:scale-105';
+    $box      = 'relative rounded-2xl px-6 py-7 bg-white dark:bg-neutral-900 border border-neutral-200 dark:border-neutral-800 text-center flex flex-col items-center '
+              . 'transition-all duration-200 ease-out transform tile-enter shadow-sm '
+              . 'hover:shadow-lg hover:ring-2 hover:ring-indigo-200/60 dark:hover:ring-indigo-700/40 hover:-translate-y-0.5 hover:scale-105';
     $imgCls   = 'icon-enter w-16 h-16 md:w-20 md:h-20 object-contain dark:invert '
               . 'transition-transform duration-200 ease-out group-hover:scale-110 mx-auto';
     $titleCls = 'mt-2 text-base md:text-lg font-semibold text-neutral-900 dark:text-neutral-100 '
