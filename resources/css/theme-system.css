@@ -108,70 +108,90 @@
 .module-bg-orders {
   background: linear-gradient(135deg,
     rgb(255 255 255) 0%,      /* white */
-    rgb(237 233 254) 40%,     /* violet-100 */
+    rgb(250 245 255) 20%,     /* violet-50 */
+    rgb(243 232 255) 50%,     /* violet-100 */
+    rgb(237 233 254) 70%,     /* violet-100 ligeramente saturado */
     rgb(221 214 254) 100%);   /* violet-200 */
 }
 
 .module-bg-products {
   background: linear-gradient(135deg,
     rgb(255 255 255) 0%,      /* white */
-    rgb(224 242 254) 40%,     /* sky-100 */
+    rgb(240 249 255) 20%,     /* sky-50 */
+    rgb(224 242 254) 50%,     /* sky-100 */
+    rgb(207 239 253) 70%,     /* sky-150 blend */
     rgb(186 230 253) 100%);   /* sky-200 */
 }
 
 .module-bg-clients {
   background: linear-gradient(135deg,
     rgb(255 255 255) 0%,      /* white */
-    rgb(209 250 229) 40%,     /* emerald-100 */
+    rgb(236 253 245) 20%,     /* emerald-50 */
+    rgb(209 250 229) 50%,     /* emerald-100 */
+    rgb(188 246 218) 70%,     /* emerald-150 blend */
     rgb(167 243 208) 100%);   /* emerald-200 */
 }
 
 .module-bg-dashboard {
   background: linear-gradient(135deg,
     rgb(255 255 255) 0%,      /* white */
-    rgb(224 231 255) 40%,     /* indigo-100 */
+    rgb(238 242 255) 20%,     /* indigo-50 */
+    rgb(224 231 255) 50%,     /* indigo-100 */
+    rgb(211 220 254) 70%,     /* indigo-150 blend */
     rgb(199 210 254) 100%);   /* indigo-200 */
 }
 
 .module-bg-expenses {
   background: linear-gradient(135deg,
     rgb(255 255 255) 0%,      /* white */
-    rgb(254 243 199) 40%,     /* amber-100 */
+    rgb(255 247 237) 20%,     /* amber-50 */
+    rgb(254 243 199) 50%,     /* amber-100 */
+    rgb(253 236 168) 70%,     /* amber-150 blend */
     rgb(253 230 138) 100%);   /* amber-200 */
 }
 
 .module-bg-company {
   background: linear-gradient(135deg,
     rgb(255 255 255) 0%,      /* white */
-    rgb(241 245 249) 40%,     /* slate-100 */
+    rgb(248 250 252) 20%,     /* slate-50 */
+    rgb(241 245 249) 50%,     /* slate-100 */
+    rgb(233 238 244) 70%,     /* slate-150 blend */
     rgb(226 232 240) 100%);   /* slate-200 */
 }
 
 .module-bg-employees {
   background: linear-gradient(135deg,
     rgb(255 255 255) 0%,      /* white */
-    rgb(204 251 241) 40%,     /* teal-100 */
+    rgb(240 253 250) 20%,     /* teal-50 */
+    rgb(204 251 241) 50%,     /* teal-100 */
+    rgb(178 248 234) 70%,     /* teal-150 blend */
     rgb(153 246 228) 100%);   /* teal-200 */
 }
 
 .module-bg-services {
   background: linear-gradient(135deg,
     rgb(255 255 255) 0%,      /* white */
-    rgb(252 231 243) 40%,     /* pink-100 */
+    rgb(253 242 248) 20%,     /* pink-50 */
+    rgb(252 231 243) 50%,     /* pink-100 */
+    rgb(251 219 237) 70%,     /* pink-150 blend */
     rgb(251 207 232) 100%);   /* pink-200 */
 }
 
 .module-bg-stock {
   background: linear-gradient(135deg,
     rgb(255 255 255) 0%,      /* white */
-    rgb(207 250 254) 40%,     /* cyan-100 */
+    rgb(236 254 255) 20%,     /* cyan-50 */
+    rgb(207 250 254) 50%,     /* cyan-100 */
+    rgb(186 246 253) 70%,     /* cyan-150 blend */
     rgb(165 243 252) 100%);   /* cyan-200 */
 }
 
 .module-bg-payment {
   background: linear-gradient(135deg,
     rgb(255 255 255) 0%,      /* white */
-    rgb(254 249 195) 40%,     /* yellow-100 */
+    rgb(254 252 232) 20%,     /* yellow-50 */
+    rgb(254 249 195) 50%,     /* yellow-100 */
+    rgb(254 244 166) 70%,     /* yellow-150 blend */
     rgb(254 240 138) 100%);   /* yellow-200 */
 }
 
@@ -187,70 +207,90 @@
 .dark .module-bg-orders {
   background: linear-gradient(135deg,
     rgb(23 23 23) 0%,       /* neutral-900 (casi negro) */
-    rgb(49 46 129) 40%,     /* indigo-900 */
+    rgb(30 27 52) 20%,      /* transición suave */
+    rgb(49 46 129) 50%,     /* indigo-900 */
+    rgb(62 37 139) 70%,     /* violet-blend */
     rgb(76 29 149) 100%);   /* violet-900 */
 }
 
 .dark .module-bg-products {
   background: linear-gradient(135deg,
     rgb(23 23 23) 0%,       /* neutral-900 */
-    rgb(12 74 110) 40%,     /* sky-900 */
+    rgb(18 48 66) 20%,      /* transición suave */
+    rgb(12 74 110) 50%,     /* sky-900 */
+    rgb(9 81 121) 70%,      /* sky-blend */
     rgb(7 89 133) 100%);    /* sky-800 */
 }
 
 .dark .module-bg-clients {
   background: linear-gradient(135deg,
     rgb(23 23 23) 0%,       /* neutral-900 */
-    rgb(6 78 59) 40%,       /* emerald-900 */
+    rgb(14 50 41) 20%,      /* transición suave */
+    rgb(6 78 59) 50%,       /* emerald-900 */
+    rgb(12 78 66) 70%,      /* emerald-blend */
     rgb(19 78 74) 100%);    /* teal-900 */
 }
 
 .dark .module-bg-dashboard {
   background: linear-gradient(135deg,
     rgb(23 23 23) 0%,       /* neutral-900 */
-    rgb(49 46 129) 40%,     /* indigo-900 */
+    rgb(36 34 76) 20%,      /* transición suave */
+    rgb(49 46 129) 50%,     /* indigo-900 */
+    rgb(52 47 146) 70%,     /* indigo-blend */
     rgb(55 48 163) 100%);   /* indigo-800 */
 }
 
 .dark .module-bg-expenses {
   background: linear-gradient(135deg,
     rgb(23 23 23) 0%,       /* neutral-900 */
-    rgb(154 52 18) 40%,     /* orange-900 */
+    rgb(88 37 20) 20%,      /* transición suave */
+    rgb(154 52 18) 50%,     /* orange-900 */
+    rgb(137 52 16) 70%,     /* orange-blend */
     rgb(120 53 15) 100%);   /* amber-900 */
 }
 
 .dark .module-bg-company {
   background: linear-gradient(135deg,
     rgb(23 23 23) 0%,       /* neutral-900 */
-    rgb(15 23 42) 40%,      /* slate-950 */
+    rgb(19 23 32) 20%,      /* transición suave */
+    rgb(15 23 42) 50%,      /* slate-950 */
+    rgb(22 32 50) 70%,      /* slate-blend */
     rgb(30 41 59) 100%);    /* slate-900 */
 }
 
 .dark .module-bg-employees {
   background: linear-gradient(135deg,
     rgb(23 23 23) 0%,       /* neutral-900 */
-    rgb(19 78 74) 40%,      /* teal-900 */
+    rgb(21 50 48) 20%,      /* transición suave */
+    rgb(19 78 74) 50%,      /* teal-900 */
+    rgb(20 78 86) 70%,      /* teal-blend */
     rgb(22 78 99) 100%);    /* cyan-900 */
 }
 
 .dark .module-bg-services {
   background: linear-gradient(135deg,
     rgb(23 23 23) 0%,       /* neutral-900 */
-    rgb(136 19 55) 40%,     /* rose-900 */
+    rgb(79 21 39) 20%,      /* transición suave */
+    rgb(136 19 55) 50%,     /* rose-900 */
+    rgb(133 21 61) 70%,     /* rose-blend */
     rgb(131 24 67) 100%);   /* pink-900 */
 }
 
 .dark .module-bg-stock {
   background: linear-gradient(135deg,
     rgb(23 23 23) 0%,       /* neutral-900 */
-    rgb(22 78 99) 40%,      /* cyan-900 */
+    rgb(22 50 61) 20%,      /* transición suave */
+    rgb(22 78 99) 50%,      /* cyan-900 */
+    rgb(21 86 108) 70%,     /* cyan-blend */
     rgb(21 94 117) 100%);   /* cyan-800 */
 }
 
 .dark .module-bg-payment {
   background: linear-gradient(135deg,
     rgb(23 23 23) 0%,       /* neutral-900 */
-    rgb(113 63 18) 40%,     /* yellow-900 */
+    rgb(68 43 20) 20%,      /* transición suave */
+    rgb(113 63 18) 50%,     /* yellow-900 */
+    rgb(129 63 16) 70%,     /* yellow-blend */
     rgb(146 64 14) 100%);   /* yellow-800 */
 }
 

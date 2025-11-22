@@ -3,6 +3,7 @@
 namespace App\Livewire;
 
 use Livewire\Component;
+use App\Enums\OrderStatus;
 use App\Models\Order;
 use App\Models\Client;
 use Illuminate\Support\Facades\DB;
@@ -76,7 +77,7 @@ class ScheduleOrder extends Component
         try {
             DB::transaction(function () use ($enabled) {
                 $order = Order::lockForUpdate()->findOrFail($this->orderId);
-                if ($order->status !== \App\Enums\OrderStatus::DRAFT->value) return;
+                if ($order->status !== OrderStatus::DRAFT) return;
                 $order->is_scheduled = $enabled;
                 if (!$enabled) {
                     $order->scheduled_for = null;
@@ -105,7 +106,7 @@ class ScheduleOrder extends Component
         try {
             DB::transaction(function () use ($dt) {
                 $order = Order::lockForUpdate()->findOrFail($this->orderId);
-                if ($order->status !== \App\Enums\OrderStatus::DRAFT->value) return;
+                if ($order->status !== OrderStatus::DRAFT) return;
                 if (!$order->is_scheduled) return;
                 $order->scheduled_for = $dt;
                 $order->save();
@@ -119,7 +120,7 @@ class ScheduleOrder extends Component
     {
         DB::transaction(function () {
             $order = Order::with(['items'])->lockForUpdate()->findOrFail($this->orderId);
-            if ($order->status !== \App\Enums\OrderStatus::DRAFT->value) {
+            if ($order->status !== OrderStatus::DRAFT) {
                 throw new DomainException('El pedido ya fue procesado.');
             }
             if ($order->items->isEmpty()) {

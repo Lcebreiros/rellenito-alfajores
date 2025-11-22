@@ -4,6 +4,7 @@ namespace App\Livewire;
 
 use Livewire\Attributes\On;
 use Livewire\Component;
+use App\Enums\OrderStatus;
 use App\Services\OrderService;
 use App\Services\StockService;
 use App\Models\Order;
@@ -139,7 +140,7 @@ class OrderSidebar extends Component
     private function guardDraft(): void
     {
         $order = Order::find($this->orderId);
-        if (!$order || $order->status !== \App\Enums\OrderStatus::DRAFT->value) {
+        if (!$order || $order->status !== OrderStatus::DRAFT) {
             $this->ensureDraftExists();
         }
     }
@@ -150,7 +151,7 @@ class OrderSidebar extends Component
         $name = trim((string) $value);
 
         $order = Order::find($this->orderId);
-        if (!$order || $order->status !== \App\Enums\OrderStatus::DRAFT) return;
+        if (!$order || $order->status !== OrderStatus::DRAFT) return;
 
         if ($name === '') {
             // Si se borró el nombre, desvinculamos el cliente
@@ -272,7 +273,7 @@ class OrderSidebar extends Component
                 ->lockForUpdate()
                 ->findOrFail($this->orderId);
 
-            if ($order->status !== \App\Enums\OrderStatus::DRAFT->value) {
+            if ($order->status !== OrderStatus::DRAFT) {
                 throw new DomainException('El pedido ya fue procesado.');
             }
 
@@ -388,7 +389,7 @@ class OrderSidebar extends Component
 
         DB::transaction(function () {
             $order = Order::lockForUpdate()->findOrFail($this->orderId);
-            if ($order->status === \App\Enums\OrderStatus::DRAFT->value) {
+            if ($order->status === OrderStatus::DRAFT) {
                 $order->status = \App\Enums\OrderStatus::CANCELED->value;
                 $order->save();
             }

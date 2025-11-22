@@ -202,7 +202,7 @@ class Order extends Model
      */
     public function confirmScheduled(): void
     {
-        if ($this->status !== OrderStatus::SCHEDULED->value) {
+        if ($this->status !== OrderStatus::SCHEDULED) {
             throw new DomainException("Solo se pueden confirmar pedidos agendados. Estado actual: {$this->status->value}");
         }
 
@@ -220,7 +220,7 @@ class Order extends Model
     public function isScheduledForToday(): bool
     {
         return $this->is_scheduled
-            && $this->status === OrderStatus::SCHEDULED->value
+            && $this->status === OrderStatus::SCHEDULED
             && $this->scheduled_for?->isToday();
     }
 
@@ -230,7 +230,7 @@ class Order extends Model
     public function isOverdue(): bool
     {
         return $this->is_scheduled
-            && $this->status === OrderStatus::SCHEDULED->value
+            && $this->status === OrderStatus::SCHEDULED
             && $this->scheduled_for?->isPast();
     }
 
@@ -521,7 +521,7 @@ class Order extends Model
     {
         if ($user->isMaster()) return true;
 
-        if ($this->status !== OrderStatus::DRAFT->value) return false;
+        if ($this->status !== OrderStatus::DRAFT) return false;
 
         if ($this->user_id === $user->id) return true;
 

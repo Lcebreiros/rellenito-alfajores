@@ -2,6 +2,7 @@
 
 namespace App\Services;
 
+use App\Enums\OrderStatus;
 use App\Models\Order;
 use App\Models\OrderItem;
 use App\Models\Product;
@@ -20,7 +21,7 @@ class OrderService
         $orderId = $request->session()->get('draft_order_id');
         $order   = $orderId ? Order::find($orderId) : null;
 
-        if (!$order || $order->status !== \App\Enums\OrderStatus::DRAFT->value) {
+        if (!$order || $order->status !== OrderStatus::DRAFT) {
             $order = Order::create(); // por defecto status = draft
             $request->session()->put('draft_order_id', $order->id);
         }
@@ -37,7 +38,7 @@ class OrderService
         if (!$draftId || $draftId !== (int)$order->id) {
             throw new UnauthorizedException('Pedido no pertenece a tu sesión.');
         }
-        if ($order->status !== \App\Enums\OrderStatus::DRAFT->value) {
+        if ($order->status !== OrderStatus::DRAFT) {
             throw new DomainException('Pedido no editable.');
         }
     }
@@ -150,7 +151,7 @@ class OrderService
     {
         DB::transaction(function () use ($orderId, $itemId) {
             $order = Order::lockForUpdate()->findOrFail($orderId);
-            if ($order->status !== \App\Enums\OrderStatus::DRAFT->value) {
+            if ($order->status !== OrderStatus::DRAFT) {
                 throw new DomainException('Solo se pueden editar pedidos en borrador.');
             }
 
@@ -184,7 +185,7 @@ class OrderService
 
         DB::transaction(function () use ($orderId, $itemId, $qty) {
             $order = Order::lockForUpdate()->findOrFail($orderId);
-            if ($order->status !== \App\Enums\OrderStatus::DRAFT->value) {
+            if ($order->status !== OrderStatus::DRAFT) {
                 throw new DomainException('Solo se pueden editar pedidos en borrador.');
             }
 

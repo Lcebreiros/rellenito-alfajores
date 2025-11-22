@@ -182,7 +182,7 @@ class OrderController extends Controller
         }
 
         // Solo se puede editar si está en draft
-        if ($order->status !== OrderStatus::DRAFT->value) {
+        if ($order->status !== OrderStatus::DRAFT) {
             return response()->json([
                 'success' => false,
                 'message' => 'Solo se pueden editar pedidos en estado borrador',
@@ -221,7 +221,7 @@ class OrderController extends Controller
             ], 403);
         }
 
-        if ($order->status !== OrderStatus::DRAFT->value) {
+        if ($order->status !== OrderStatus::DRAFT) {
             return response()->json([
                 'success' => false,
                 'message' => 'Solo se pueden agregar items a pedidos en borrador',
@@ -279,7 +279,7 @@ class OrderController extends Controller
             ], 403);
         }
 
-        if ($order->status !== OrderStatus::DRAFT->value) {
+        if ($order->status !== OrderStatus::DRAFT) {
             return response()->json([
                 'success' => false,
                 'message' => 'Solo se pueden eliminar items de pedidos en borrador',
@@ -320,7 +320,7 @@ class OrderController extends Controller
             ], 403);
         }
 
-        if ($order->status !== OrderStatus::DRAFT->value) {
+        if ($order->status !== OrderStatus::DRAFT) {
             return response()->json([
                 'success' => false,
                 'message' => 'Este pedido ya fue procesado',

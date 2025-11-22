@@ -574,7 +574,7 @@ public function index(Request $request)
         $order   = $orderId ? Order::with('client')->find($orderId) : null;
 
         // Usar enum striktamente en comparación (modelo castea a enum)
-        if (!$order || $order->status !== OrderStatus::DRAFT->value) {
+        if (!$order || $order->status !== OrderStatus::DRAFT) {
             $order = Order::create(); // STATUS_DRAFT por defecto
             $request->session()->put('draft_order_id', $order->id);
         }
@@ -670,7 +670,7 @@ public function index(Request $request)
                         $updateData['scheduled_for'] = $scheduledDate;
 
                         // Si no está COMPLETED/CANCELED, cambiar a SCHEDULED
-                        if (!in_array($order->status, [OrderStatus::COMPLETED->value, OrderStatus::CANCELED->value], true)) {
+                        if (!in_array($order->status, [OrderStatus::COMPLETED, OrderStatus::CANCELED], true)) {
                             $updateData['status'] = OrderStatus::SCHEDULED->value;
                         }
                     }
@@ -680,7 +680,7 @@ public function index(Request $request)
                     $updateData['scheduled_for'] = null;
 
                     // Si estaba SCHEDULED, pasarlo a PENDING
-                    if ($order->status === OrderStatus::SCHEDULED->value) {
+                    if ($order->status === OrderStatus::SCHEDULED) {
                         $updateData['status'] = OrderStatus::PENDING->value;
                     }
                 }
@@ -706,7 +706,7 @@ public function index(Request $request)
                 }
             }
 
-            if ($order->status === \App\Enums\OrderStatus::COMPLETED->value) {
+            if ($order->status === OrderStatus::COMPLETED) {
                 $stock = app(\App\Services\StockService::class);
                 // Para cada producto afectado, calcular delta y ajustar stock
                 $allPids = array_unique(array_merge(array_keys($oldMap), array_keys($newMap)));
@@ -792,7 +792,7 @@ public function index(Request $request)
             $order = Order::with('items.product')->lockForUpdate()->findOrFail($orderId);
 
             // Comparar con enum directamente
-            if ($order->status !== OrderStatus::COMPLETED->value) {
+            if ($order->status !== OrderStatus::COMPLETED) {
                 throw new DomainException('Solo se pueden cancelar pedidos completados.');
             }
 
@@ -820,7 +820,7 @@ public function index(Request $request)
                 $order = \App\Models\Order::with('items.product')->lockForUpdate()->findOrFail($orderId);
 
                 // Comparar con enum directamente
-                if ($order->status !== OrderStatus::COMPLETED->value) {
+                if ($order->status !== OrderStatus::COMPLETED) {
                     throw new DomainException('Solo se pueden cancelar pedidos completados.');
                 }
 
@@ -857,7 +857,7 @@ public function index(Request $request)
     public function finalize(Request $request, Order $order): RedirectResponse
     {
         try {
-            if ($order->status !== OrderStatus::DRAFT->value) {
+            if ($order->status !== OrderStatus::DRAFT) {
                 throw new DomainException('El pedido no está en estado borrador.');
             }
 
@@ -882,7 +882,7 @@ public function index(Request $request)
             DB::transaction(function () use ($order) {
                 $order = Order::with('items.product')->lockForUpdate()->findOrFail($order->id);
 
-                if ($order->status !== OrderStatus::COMPLETED->value) {
+                if ($order->status !== OrderStatus::COMPLETED) {
                     throw new DomainException('Solo se pueden cancelar pedidos completados.');
                 }
 
@@ -933,7 +933,7 @@ public function index(Request $request)
     public function cancelScheduled(Order $order, Request $request)
     {
         try {
-            if ($order->status !== \App\Enums\OrderStatus::SCHEDULED->value || !$order->is_scheduled) {
+            if ($order->status !== OrderStatus::SCHEDULED || !$order->is_scheduled) {
                 throw new DomainException('Solo se pueden cancelar pedidos agendados.');
             }
 
@@ -974,7 +974,7 @@ public function index(Request $request)
 
         if ($enable) {
             // No permitir agendar pedidos completados/cancelados
-            if (in_array($order->status, [\App\Enums\OrderStatus::COMPLETED->value, \App\Enums\OrderStatus::CANCELED->value], true)) {
+            if (in_array($order->status, [OrderStatus::COMPLETED, OrderStatus::CANCELED], true)) {
                 return back()->with('error', 'No se puede agendar un pedido completado o cancelado.');
             }
             // Cuando se habilita, validar fecha futura
@@ -989,7 +989,7 @@ public function index(Request $request)
                 'is_scheduled'  => true,
                 'scheduled_for' => $dt,
             ];
-            if (!in_array($order->status, [\App\Enums\OrderStatus::COMPLETED->value, \App\Enums\OrderStatus::CANCELED->value], true)) {
+            if (!in_array($order->status, [OrderStatus::COMPLETED, OrderStatus::CANCELED], true)) {
                 $new['status'] = \App\Enums\OrderStatus::SCHEDULED->value;
             }
 
@@ -1004,7 +1004,7 @@ public function index(Request $request)
                 'scheduled_for' => null,
             ];
 
-            if ($order->status === \App\Enums\OrderStatus::SCHEDULED->value) {
+            if ($order->status === OrderStatus::SCHEDULED) {
                 $new['status'] = \App\Enums\OrderStatus::PENDING->value;
             }
 
