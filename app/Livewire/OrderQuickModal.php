@@ -284,11 +284,11 @@ class OrderQuickModal extends Component
 
             //  Estado según toggle y agendamiento
             if ($this->isScheduled) {
-                $status = OrderStatus::SCHEDULED;
+                $status = OrderStatus::SCHEDULED->value;
                 // Parsear con la timezone del usuario
                 $scheduledDateTime = Carbon::createFromFormat('Y-m-d\TH:i', $this->scheduledFor, $userTimezone);
             } else {
-                $status = $this->completeOnSave ? OrderStatus::COMPLETED : OrderStatus::DRAFT;
+                $status = $this->completeOnSave ? OrderStatus::COMPLETED->value : OrderStatus::DRAFT->value;
                 $scheduledDateTime = null;
             }
 

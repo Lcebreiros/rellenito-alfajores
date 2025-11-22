@@ -36,7 +36,7 @@ class OrderObserver
     public function updated(Order $order): void
     {
         // Si el pedido fue cancelado y tenía un evento en Google Calendar, eliminarlo
-        if ($order->status === \App\Enums\OrderStatus::CANCELED && $order->google_calendar_event_id) {
+        if ($order->status === \App\Enums\OrderStatus::CANCELED->value && $order->google_calendar_event_id) {
             SyncOrderToGoogleCalendar::dispatch($order, 'delete');
             return;
         }

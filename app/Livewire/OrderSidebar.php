@@ -139,7 +139,7 @@ class OrderSidebar extends Component
     private function guardDraft(): void
     {
         $order = Order::find($this->orderId);
-        if (!$order || $order->status !== \App\Enums\OrderStatus::DRAFT) {
+        if (!$order || $order->status !== \App\Enums\OrderStatus::DRAFT->value) {
             $this->ensureDraftExists();
         }
     }
@@ -272,7 +272,7 @@ class OrderSidebar extends Component
                 ->lockForUpdate()
                 ->findOrFail($this->orderId);
 
-            if ($order->status !== \App\Enums\OrderStatus::DRAFT) {
+            if ($order->status !== \App\Enums\OrderStatus::DRAFT->value) {
                 throw new DomainException('El pedido ya fue procesado.');
             }
 
@@ -331,7 +331,7 @@ class OrderSidebar extends Component
                 if ($dt->lessThanOrEqualTo(now())) {
                     throw new DomainException('La fecha/hora debe ser futura para agendar.');
                 }
-                $order->status = \App\Enums\OrderStatus::SCHEDULED;
+                $order->status = \App\Enums\OrderStatus::SCHEDULED->value;
                 $order->recalcTotal(true);
                 $order->save();
             } else {
@@ -388,8 +388,8 @@ class OrderSidebar extends Component
 
         DB::transaction(function () {
             $order = Order::lockForUpdate()->findOrFail($this->orderId);
-            if ($order->status === \App\Enums\OrderStatus::DRAFT) {
-                $order->status = \App\Enums\OrderStatus::CANCELED;
+            if ($order->status === \App\Enums\OrderStatus::DRAFT->value) {
+                $order->status = \App\Enums\OrderStatus::CANCELED->value;
                 $order->save();
             }
         });
