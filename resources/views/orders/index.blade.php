@@ -74,7 +74,7 @@
   @endif
 
   {{-- Filtros rápidos --}}
-  <div class="bg-white dark:bg-neutral-900 rounded-xl shadow-sm p-4 mb-6 border border-neutral-100 dark:border-neutral-800">
+  <div class="panel-glass shadow-sm p-4 mb-6">
     <div class="flex flex-wrap gap-2 mb-2">
       <span class="text-sm font-medium text-neutral-700 dark:text-neutral-300 flex items-center gap-2 py-2">
         <x-svg-icon name="calendar" size="4" class="text-neutral-400" /> Período:
@@ -98,7 +98,7 @@
   </div>
 
   {{-- Búsqueda + filtros avanzados --}}
-  <div class="bg-white dark:bg-neutral-900 rounded-xl shadow-sm p-4 mb-6 border border-neutral-100 dark:border-neutral-800">
+  <div class="panel-glass shadow-sm p-4 mb-6">
     <div class="flex flex-col sm:flex-row gap-3">
       <div class="flex-1">
         <form method="GET" class="flex gap-2">
@@ -107,7 +107,7 @@
               <x-svg-icon name="search" size="5" />
             </div>
             <input type="text" name="q" value="{{ request('q') }}" placeholder="Buscar por ID, cliente, notas…"
-                   class="w-full pl-10 pr-4 py-2.5 rounded-lg border-neutral-300 dark:border-neutral-700 bg-white dark:bg-neutral-900 text-neutral-900 dark:text-neutral-100 focus:border-indigo-500 focus:ring-indigo-500 transition-all duration-150">
+                   class="input-enhanced w-full pl-10 pr-4 py-2.5">
           </div>
           @foreach(['status','period','from','to','client','client_id'] as $keep)
             @if(request($keep)) <input type="hidden" name="{{ $keep }}" value="{{ request($keep) }}"> @endif
@@ -142,9 +142,9 @@
   </div>
 
   {{-- Panel de Filtros Avanzados (colapsable) --}}
-  <div id="filtersPanel" class="hidden bg-white dark:bg-neutral-900 rounded-xl shadow-sm p-5 mb-6 border border-neutral-100 dark:border-neutral-800 transition-all duration-300"
+  <div id="filtersPanel" class="hidden container-glass shadow-sm p-5 mb-6 transition-all duration-300"
        aria-hidden="true">
-    <div class="mb-4 pb-3 border-b border-neutral-100 dark:border-neutral-800">
+    <div class="mb-4 pb-3 border-b border-neutral-200/50 dark:border-neutral-700/50">
       <h3 class="text-lg font-semibold text-neutral-800 dark:text-neutral-100 flex items-center gap-2">
         <x-svg-icon name="filter" size="5" class="text-indigo-600" /> Filtros Avanzados
       </h3>
@@ -153,7 +153,7 @@
       @if(request('q')) <input type="hidden" name="q" value="{{ request('q') }}"> @endif
       <div>
         <label class="block text-sm font-medium text-neutral-700 dark:text-neutral-300 mb-2">Estado</label>
-        <select name="status" class="w-full rounded-lg border-neutral-300 dark:border-neutral-700 bg-white dark:bg-neutral-900 text-neutral-900 dark:text-neutral-100 focus:border-indigo-500 focus:ring-indigo-500 px-4 py-2.5 transition-colors">
+        <select name="status" class="input-enhanced w-full px-4 py-2.5">
           <option value="">Todos</option>
           <option value="completed" {{ request('status')==='completed'?'selected':'' }}>Completado</option>
           <option value="draft"     {{ request('status')==='draft'?'selected':'' }}>Borrador</option>
@@ -163,17 +163,17 @@
       <div>
         <label class="block text-sm font-medium text-neutral-700 dark:text-neutral-300 mb-2">Fecha Desde</label>
         <input type="date" name="from" value="{{ request('from') }}"
-               class="w-full rounded-lg border-neutral-300 dark:border-neutral-700 bg-white dark:bg-neutral-900 text-neutral-900 dark:text-neutral-100 focus:border-indigo-500 focus:ring-indigo-500 px-4 py-2.5 transition-colors">
+               class="input-enhanced w-full px-4 py-2.5">
       </div>
       <div>
         <label class="block text-sm font-medium text-neutral-700 dark:text-neutral-300 mb-2">Fecha Hasta</label>
         <input type="date" name="to" value="{{ request('to') }}"
-               class="w-full rounded-lg border-neutral-300 dark:border-neutral-700 bg-white dark:bg-neutral-900 text-neutral-900 dark:text-neutral-100 focus:border-indigo-500 focus:ring-indigo-500 px-4 py-2.5 transition-colors">
+               class="input-enhanced w-full px-4 py-2.5">
       </div>
       <div>
         <label class="block text-sm font-medium text-neutral-700 dark:text-neutral-300 mb-2">Cliente (texto)</label>
         <input type="text" name="client" value="{{ request('client') }}" placeholder="Nombre del cliente"
-               class="w-full rounded-lg border-neutral-300 dark:border-neutral-700 bg-white dark:bg-neutral-900 text-neutral-900 dark:text-neutral-100 focus:border-indigo-500 focus:ring-indigo-500 px-4 py-2.5 transition-colors">
+               class="input-enhanced w-full px-4 py-2.5">
       </div>
       <div class="md:col-span-2 lg:col-span-4 flex gap-2">
         <button type="submit" class="flex-1 bg-indigo-600 text-white px-4 py-2.5 rounded-lg hover:bg-indigo-700 transition-all duration-150 active:scale-[0.98] flex items-center justify-center gap-2">

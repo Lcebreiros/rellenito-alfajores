@@ -21,7 +21,7 @@
   @endif
 
   {{-- Search form --}}
-  <div class="bg-white dark:bg-neutral-900 rounded-xl shadow-sm border border-neutral-100 dark:border-neutral-800 p-4 mb-4">
+  <div class="panel-glass shadow-sm p-4 mb-4">
     <form method="GET" class="flex gap-2 items-center">
       <div class="relative flex-1">
         <div class="absolute left-3 top-1/2 -translate-y-1/2 text-neutral-400">
@@ -31,7 +31,7 @@
                name="q"
                value="{{ $q }}"
                placeholder="Buscar por nombre, email, teléfono, DNI…"
-               class="w-full pl-10 pr-4 py-2.5 rounded-lg border-neutral-300 dark:border-neutral-700 bg-white dark:bg-neutral-900 text-neutral-900 dark:text-neutral-100 focus:border-indigo-500 focus:ring-indigo-500 transition-all duration-150">
+               class="input-enhanced w-full pl-10 pr-4 py-2.5">
       </div>
       <button type="submit" class="px-4 py-2.5 bg-indigo-600 text-white rounded-lg hover:bg-indigo-700 transition-all duration-150 active:scale-[0.98]">
         Buscar
@@ -47,9 +47,9 @@
 
   {{-- Clients table or empty state --}}
   @if($clients->count())
-    <div class="bg-white dark:bg-neutral-900 rounded-xl shadow-sm border border-neutral-100 dark:border-neutral-800 overflow-hidden">
+    <div class="container-glass shadow-sm overflow-hidden">
       <div class="overflow-x-auto">
-        <table class="w-full min-w-[880px] text-sm">
+        <table class="table-enhanced w-full min-w-[880px] text-sm">
           <thead class="bg-neutral-100/70 dark:bg-neutral-800/60">
             <tr class="text-xs uppercase tracking-wide text-neutral-600 dark:text-neutral-300">
               <th class="px-3 py-3 text-left">Nombre</th>
