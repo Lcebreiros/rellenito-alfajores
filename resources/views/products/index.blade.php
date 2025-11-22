@@ -26,8 +26,7 @@
   {{-- Barra de acciones --}}
   <div class="mb-4 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
     <div class="flex items-center gap-2 text-sm">
-      <span class="inline-flex items-center rounded-lg border border-neutral-200 bg-white px-2.5 py-1.5 text-neutral-600
-                    dark:border-neutral-800 dark:bg-neutral-900 dark:text-neutral-300">
+      <span class="card-glass inline-flex items-center px-2.5 py-1.5 text-neutral-600 dark:text-neutral-300">
         Mostrando {{ $products->firstItem() }}–{{ $products->lastItem() }} de {{ $products->total() }}
       </span>
     </div>
@@ -44,15 +43,11 @@
             <path d="M21 21l-3.5-3.5" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
           </svg>
           <input name="q" value="{{ request('q') }}" placeholder="Buscar producto / SKU…"
-                 class="w-60 rounded-lg border border-neutral-300 bg-white pl-9 pr-3 py-2 text-sm text-neutral-700
-                        placeholder:text-neutral-400 focus:border-indigo-500 focus:ring-indigo-500
-                        dark:border-neutral-700 dark:bg-neutral-900 dark:text-neutral-200 dark:placeholder:text-neutral-400">
+                 class="input-enhanced w-60 pl-9">
         </div>
         @if(isset($authUser) && method_exists($authUser,'isMaster') && $authUser->isMaster())
           <input type="number" name="user_id" value="{{ request('user_id') }}" min="1" placeholder="User ID"
-                 class="w-32 rounded-lg border border-neutral-300 bg-white px-3 py-2 text-sm text-neutral-700
-                        placeholder:text-neutral-400 focus:border-indigo-500 focus:ring-indigo-500
-                        dark:border-neutral-700 dark:bg-neutral-900 dark:text-neutral-200" />
+                 class="input-enhanced w-32" />
         @endif
         <button class="rounded-lg bg-indigo-600 px-3 py-2 text-sm font-medium text-white hover:bg-indigo-700 transition-all duration-150 active:scale-[0.98]">
           Buscar
@@ -89,9 +84,9 @@
         @endphp
 
 
-        <div class="group overflow-hidden rounded-2xl border border-neutral-200 bg-white shadow-sm
-                    hover:shadow-md hover:border-indigo-200 transition
-                    dark:border-neutral-800 dark:bg-neutral-900 dark:hover:border-indigo-500/50">
+        <div class="group overflow-hidden container-glass shadow-sm
+                    hover:shadow-md hover:border-indigo-200/60 transition
+                    dark:hover:border-indigo-500/30">
 
           {{-- Imagen --}}
           <div class="relative aspect-[4/3] bg-neutral-100 dark:bg-neutral-800">

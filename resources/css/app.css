@@ -317,6 +317,57 @@
   .text-muted { @apply text-neutral-500 dark:text-neutral-400; }
   .text-subtle { @apply text-neutral-400 dark:text-neutral-500; }
 
+  /* ================================
+     CONTENEDORES CON GLASS EFFECT
+     ================================ */
+
+  /* Contenedor principal - glass morphism sutil */
+  .container-glass {
+    @apply rounded-2xl border;
+    background: rgb(255 255 255 / 0.95);
+    border-color: rgb(255 255 255 / 0.4);
+    backdrop-filter: blur(8px);
+    -webkit-backdrop-filter: blur(8px);
+    /* Borde superior claro para simular reflejo de luz */
+    box-shadow: inset 0 1px 0 0 rgb(255 255 255 / 0.6);
+  }
+
+  .dark .container-glass {
+    background: rgb(23 23 23 / 0.85);
+    border-color: rgb(115 115 115 / 0.2);
+    box-shadow: inset 0 1px 0 0 rgb(255 255 255 / 0.05);
+  }
+
+  /* Panel de contenido - más ligero */
+  .panel-glass {
+    @apply rounded-xl border;
+    background: rgb(255 255 255 / 0.90);
+    border-color: rgb(212 212 216 / 0.5);
+    backdrop-filter: blur(6px);
+    -webkit-backdrop-filter: blur(6px);
+    box-shadow: inset 0 1px 0 0 rgb(255 255 255 / 0.5);
+  }
+
+  .dark .panel-glass {
+    background: rgb(38 38 38 / 0.8);
+    border-color: rgb(115 115 115 / 0.3);
+    box-shadow: inset 0 1px 0 0 rgb(255 255 255 / 0.08);
+  }
+
+  /* Card compacta */
+  .card-glass {
+    @apply rounded-lg border;
+    background: rgb(255 255 255 / 0.85);
+    border-color: rgb(228 228 231 / 0.6);
+    backdrop-filter: blur(4px);
+    -webkit-backdrop-filter: blur(4px);
+  }
+
+  .dark .card-glass {
+    background: rgb(38 38 38 / 0.7);
+    border-color: rgb(115 115 115 / 0.25);
+  }
+
   /* Backgrounds with glass effect */
   .bg-surface {
     @apply bg-white/75 dark:bg-neutral-900/50;
@@ -348,6 +399,35 @@
            dark:border-neutral-700 dark:bg-dark-elevated dark:text-neutral-100
            dark:focus:border-primary-400 dark:focus:ring-primary-400
            dark:placeholder-neutral-500;
+  }
+
+  /* Input mejorado con mejor contraste y sombra interna */
+  .input-enhanced {
+    @apply rounded-lg border px-3 py-2 text-sm transition-all duration-150;
+    background: rgb(255 255 255);
+    border-color: rgb(212 212 216);
+    color: rgb(23 23 23);
+    box-shadow: inset 0 1px 2px rgb(0 0 0 / 0.05);
+  }
+
+  .input-enhanced:focus {
+    @apply outline-none ring-2;
+    border-color: rgb(99 102 241);
+    ring-color: rgb(99 102 241 / 0.2);
+    box-shadow: inset 0 1px 2px rgb(0 0 0 / 0.05), 0 0 0 3px rgb(99 102 241 / 0.1);
+  }
+
+  .dark .input-enhanced {
+    background: rgb(38 38 38);
+    border-color: rgb(82 82 91);
+    color: rgb(250 250 250);
+    box-shadow: inset 0 1px 2px rgb(0 0 0 / 0.3);
+  }
+
+  .dark .input-enhanced:focus {
+    border-color: rgb(129 140 248);
+    ring-color: rgb(129 140 248 / 0.3);
+    box-shadow: inset 0 1px 2px rgb(0 0 0 / 0.3), 0 0 0 3px rgb(129 140 248 / 0.15);
   }
 
   /* Buttons with improved dark mode and micro-interactions */
@@ -408,6 +488,111 @@
   /* Smooth transitions for dark mode toggle */
   .dark-transition {
     @apply transition-colors duration-200 ease-in-out;
+  }
+
+  /* ================================
+     TABLAS CON INTEGRACIÓN AL TEMA
+     ================================ */
+
+  /* Tabla con zebra striping sutil */
+  .table-enhanced tbody tr:nth-child(even) {
+    background: rgb(250 250 250 / 0.3);
+  }
+
+  .dark .table-enhanced tbody tr:nth-child(even) {
+    background: rgb(38 38 38 / 0.3);
+  }
+
+  /* Hover en filas de tabla con color del módulo muy sutil */
+  .module-bg-orders .table-enhanced tbody tr:hover {
+    background: rgb(var(--module-orders-50) / 0.15);
+  }
+
+  .module-bg-products .table-enhanced tbody tr:hover {
+    background: rgb(var(--module-products-50) / 0.15);
+  }
+
+  .module-bg-clients .table-enhanced tbody tr:hover {
+    background: rgb(var(--module-clients-50) / 0.15);
+  }
+
+  .module-bg-dashboard .table-enhanced tbody tr:hover {
+    background: rgb(var(--module-dashboard-50) / 0.15);
+  }
+
+  .module-bg-expenses .table-enhanced tbody tr:hover {
+    background: rgb(var(--module-expenses-50) / 0.15);
+  }
+
+  .module-bg-company .table-enhanced tbody tr:hover {
+    background: rgb(var(--module-company-50) / 0.15);
+  }
+
+  .module-bg-employees .table-enhanced tbody tr:hover {
+    background: rgb(var(--module-employees-50) / 0.15);
+  }
+
+  .module-bg-services .table-enhanced tbody tr:hover {
+    background: rgb(var(--module-services-50) / 0.15);
+  }
+
+  .module-bg-stock .table-enhanced tbody tr:hover {
+    background: rgb(var(--module-stock-50) / 0.15);
+  }
+
+  .module-bg-payment .table-enhanced tbody tr:hover {
+    background: rgb(var(--module-payment-50) / 0.15);
+  }
+
+  /* Modo oscuro - hover más sutil */
+  .dark.module-bg-orders .table-enhanced tbody tr:hover,
+  .dark .module-bg-orders .table-enhanced tbody tr:hover {
+    background: rgb(var(--module-orders-500) / 0.08);
+  }
+
+  .dark.module-bg-products .table-enhanced tbody tr:hover,
+  .dark .module-bg-products .table-enhanced tbody tr:hover {
+    background: rgb(var(--module-products-500) / 0.08);
+  }
+
+  .dark.module-bg-clients .table-enhanced tbody tr:hover,
+  .dark .module-bg-clients .table-enhanced tbody tr:hover {
+    background: rgb(var(--module-clients-500) / 0.08);
+  }
+
+  .dark.module-bg-dashboard .table-enhanced tbody tr:hover,
+  .dark .module-bg-dashboard .table-enhanced tbody tr:hover {
+    background: rgb(var(--module-dashboard-500) / 0.08);
+  }
+
+  .dark.module-bg-expenses .table-enhanced tbody tr:hover,
+  .dark .module-bg-expenses .table-enhanced tbody tr:hover {
+    background: rgb(var(--module-expenses-500) / 0.08);
+  }
+
+  .dark.module-bg-company .table-enhanced tbody tr:hover,
+  .dark .module-bg-company .table-enhanced tbody tr:hover {
+    background: rgb(var(--module-company-500) / 0.08);
+  }
+
+  .dark.module-bg-employees .table-enhanced tbody tr:hover,
+  .dark .module-bg-employees .table-enhanced tbody tr:hover {
+    background: rgb(var(--module-employees-500) / 0.08);
+  }
+
+  .dark.module-bg-services .table-enhanced tbody tr:hover,
+  .dark .module-bg-services .table-enhanced tbody tr:hover {
+    background: rgb(var(--module-services-500) / 0.08);
+  }
+
+  .dark.module-bg-stock .table-enhanced tbody tr:hover,
+  .dark .module-bg-stock .table-enhanced tbody tr:hover {
+    background: rgb(var(--module-stock-500) / 0.08);
+  }
+
+  .dark.module-bg-payment .table-enhanced tbody tr:hover,
+  .dark .module-bg-payment .table-enhanced tbody tr:hover {
+    background: rgb(var(--module-payment-500) / 0.08);
   }
 
   /* Links with consistent styling */
