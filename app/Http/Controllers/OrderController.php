@@ -671,7 +671,7 @@ public function index(Request $request)
 
                         // Si no está COMPLETED/CANCELED, cambiar a SCHEDULED
                         if (!in_array((string)$order->status, [OrderStatus::COMPLETED->value, OrderStatus::CANCELED->value], true)) {
-                            $updateData['status'] = OrderStatus::SCHEDULED;
+                            $updateData['status'] = OrderStatus::SCHEDULED->value;
                         }
                     }
                 } else {
@@ -681,7 +681,7 @@ public function index(Request $request)
 
                     // Si estaba SCHEDULED, pasarlo a PENDING
                     if ((string)$order->status === OrderStatus::SCHEDULED->value) {
-                        $updateData['status'] = OrderStatus::PENDING;
+                        $updateData['status'] = OrderStatus::PENDING->value;
                     }
                 }
             }
