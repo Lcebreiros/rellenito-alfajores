@@ -125,7 +125,7 @@
         {{-- Botones --}}
         <div class="flex justify-end gap-3">
             <a href="{{ route('company.branches.index') }}" class="px-4 py-2 bg-gray-200 dark:bg-neutral-800 text-neutral-900 dark:text-neutral-200 rounded-lg hover:bg-gray-300 dark:hover:bg-neutral-700">Cancelar</a>
-            <button type="submit" class="px-4 py-2 bg-indigo-600 text-white rounded-lg hover:bg-indigo-700">Guardar cambios</button>
+            <button type="submit" class="px-4 py-2 bg-gradient-to-r from-indigo-600 to-purple-600 text-white rounded-lg hover:from-indigo-700 hover:to-purple-700 hover:shadow-lg hover:shadow-indigo-500/25 dark:hover:shadow-indigo-400/20 hover:-translate-y-0.5 active:scale-95 transition-all duration-200">Guardar cambios</button>
         </div>
     </form>
 </div>

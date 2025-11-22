@@ -414,7 +414,7 @@ public function index(Request $request)
                         'user_id' => $actor->id,
                         'branch_id' => $owner->id,
                         'company_id' => $companyId,
-                        'status' => OrderStatus::DRAFT,
+                        'status' => OrderStatus::DRAFT->value,
                         'sold_at' => $dateStr . ' 12:00:00',
                     ]);
 
@@ -432,7 +432,7 @@ public function index(Request $request)
 
                     // Marcar como completado SIN afectar stock
                     $order->sold_at = \Carbon\Carbon::parse($dateStr);
-                    $order->status = OrderStatus::COMPLETED;
+                    $order->status = OrderStatus::COMPLETED->value;
                     $order->recalcTotal(true);
                     $order->save();
                 }, 3);
@@ -574,7 +574,7 @@ public function index(Request $request)
         $order   = $orderId ? Order::with('client')->find($orderId) : null;
 
         // Usar enum striktamente en comparación (modelo castea a enum)
-        if (!$order || $order->status !== OrderStatus::DRAFT) {
+        if (!$order || $order->status !== OrderStatus::DRAFT->value) {
             $order = Order::create(); // STATUS_DRAFT por defecto
             $request->session()->put('draft_order_id', $order->id);
         }
@@ -706,7 +706,7 @@ public function index(Request $request)
                 }
             }
 
-            if ($order->status === \App\Enums\OrderStatus::COMPLETED) {
+            if ($order->status === \App\Enums\OrderStatus::COMPLETED->value) {
                 $stock = app(\App\Services\StockService::class);
                 // Para cada producto afectado, calcular delta y ajustar stock
                 $allPids = array_unique(array_merge(array_keys($oldMap), array_keys($newMap)));
@@ -782,7 +782,7 @@ public function index(Request $request)
             $order = Order::with('items.product')->lockForUpdate()->findOrFail($orderId);
 
             // Comparar con enum directamente
-            if ($order->status !== OrderStatus::COMPLETED) {
+            if ($order->status !== OrderStatus::COMPLETED->value) {
                 throw new DomainException('Solo se pueden cancelar pedidos completados.');
             }
 
@@ -796,7 +796,7 @@ public function index(Request $request)
             }
 
             // Asignar enum directamente
-            $order->status = OrderStatus::CANCELED;
+            $order->status = OrderStatus::CANCELED->value;
             $order->save();
         });
 
@@ -810,7 +810,7 @@ public function index(Request $request)
                 $order = \App\Models\Order::with('items.product')->lockForUpdate()->findOrFail($orderId);
 
                 // Comparar con enum directamente
-                if ($order->status !== OrderStatus::COMPLETED) {
+                if ($order->status !== OrderStatus::COMPLETED->value) {
                     throw new DomainException('Solo se pueden cancelar pedidos completados.');
                 }
 
@@ -824,7 +824,7 @@ public function index(Request $request)
                 }
 
                 // Asignar enum directamente
-                $order->status = OrderStatus::CANCELED;
+                $order->status = OrderStatus::CANCELED->value;
                 $order->save();
             });
 
@@ -847,7 +847,7 @@ public function index(Request $request)
     public function finalize(Request $request, Order $order): RedirectResponse
     {
         try {
-            if ($order->status !== OrderStatus::DRAFT) {
+            if ($order->status !== OrderStatus::DRAFT->value) {
                 throw new DomainException('El pedido no está en estado borrador.');
             }
 
@@ -872,7 +872,7 @@ public function index(Request $request)
             DB::transaction(function () use ($order) {
                 $order = Order::with('items.product')->lockForUpdate()->findOrFail($order->id);
 
-                if ($order->status !== OrderStatus::COMPLETED) {
+                if ($order->status !== OrderStatus::COMPLETED->value) {
                     throw new DomainException('Solo se pueden cancelar pedidos completados.');
                 }
 
@@ -884,7 +884,7 @@ public function index(Request $request)
                     }
                 }
 
-                $order->status = OrderStatus::CANCELED;
+                $order->status = OrderStatus::CANCELED->value;
                 $order->save();
             });
 
@@ -923,7 +923,7 @@ public function index(Request $request)
     public function cancelScheduled(Order $order, Request $request)
     {
         try {
-            if ($order->status !== \App\Enums\OrderStatus::SCHEDULED || !$order->is_scheduled) {
+            if ($order->status !== \App\Enums\OrderStatus::SCHEDULED->value || !$order->is_scheduled) {
                 throw new DomainException('Solo se pueden cancelar pedidos agendados.');
             }
 

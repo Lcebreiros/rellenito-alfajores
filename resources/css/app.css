@@ -1,3 +1,6 @@
+/* Sistema de temas y colores por módulo */
+@import './theme-system.css';
+
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
@@ -37,15 +40,21 @@
 }
 
 @layer components {
-  /* Card components with improved dark mode */
+  /* Card components with improved dark mode and glass effect */
   .card-dark {
-    @apply rounded-2xl border bg-white border-neutral-200 shadow-sm
-           dark:bg-dark-850 dark:border-dark-border dark:shadow-dark-md;
+    @apply rounded-2xl border shadow-sm
+           bg-white/80 border-white/60
+           dark:bg-neutral-900/60 dark:border-neutral-700/40 dark:shadow-dark-md;
+    backdrop-filter: blur(12px);
+    -webkit-backdrop-filter: blur(12px);
   }
 
   .card-elevated {
-    @apply rounded-2xl border bg-white border-neutral-200 shadow-md
-           dark:bg-dark-elevated dark:border-dark-border dark:shadow-dark-lg;
+    @apply rounded-2xl border shadow-md
+           bg-white/85 border-white/70
+           dark:bg-neutral-800/60 dark:border-neutral-700/50 dark:shadow-dark-lg;
+    backdrop-filter: blur(16px);
+    -webkit-backdrop-filter: blur(16px);
   }
 
   /* Text utilities for dark mode */
@@ -54,10 +63,22 @@
   .text-muted { @apply text-neutral-500 dark:text-neutral-400; }
   .text-subtle { @apply text-neutral-400 dark:text-neutral-500; }
 
-  /* Backgrounds */
-  .bg-surface { @apply bg-white dark:bg-dark-850; }
-  .bg-elevated { @apply bg-neutral-50 dark:bg-dark-elevated; }
-  .bg-base { @apply bg-neutral-50 dark:bg-dark-900; }
+  /* Backgrounds with glass effect */
+  .bg-surface {
+    @apply bg-white/75 dark:bg-neutral-900/50;
+    backdrop-filter: blur(10px);
+    -webkit-backdrop-filter: blur(10px);
+  }
+  .bg-elevated {
+    @apply bg-white/80 dark:bg-neutral-800/50;
+    backdrop-filter: blur(12px);
+    -webkit-backdrop-filter: blur(12px);
+  }
+  .bg-base {
+    @apply bg-neutral-50/60 dark:bg-neutral-900/40;
+    backdrop-filter: blur(8px);
+    -webkit-backdrop-filter: blur(8px);
+  }
 
   /* Borders */
   .border-light { @apply border-neutral-200 dark:border-dark-border; }

@@ -41,7 +41,7 @@
     </div>
 
     <div class="pt-2">
-      <button class="rounded-lg bg-indigo-600 px-4 py-2 text-sm font-medium text-white hover:bg-indigo-700">Guardar</button>
+      <button class="rounded-lg bg-gradient-to-r from-indigo-600 to-purple-600 px-4 py-2 text-sm font-medium text-white hover:from-indigo-700 hover:to-purple-700 hover:shadow-lg hover:shadow-indigo-500/25 dark:hover:shadow-indigo-400/20 hover:-translate-y-0.5 active:scale-95 transition-all duration-200">Guardar</button>
       <a href="{{ route('services.index') }}" class="ml-2 text-sm text-neutral-600 hover:underline dark:text-neutral-300">Cancelar</a>
     </div>
   </form>

@@ -43,7 +43,7 @@
   @stack('styles')
 </head>
 
-<body class="font-sans antialiased bg-gray-100 dark:bg-neutral-950 dark:text-neutral-100"
+<body class="font-sans antialiased dark:text-neutral-100"
       x-data
       x-init="
         window.addEventListener('sidebar:toggle', e => {
@@ -90,12 +90,12 @@
   @endif
 
   {{-- Contenido principal --}}
-  <div class="app-main min-h-screen flex flex-col">
+  <div class="app-main min-h-screen flex flex-col {{ module_bg() }}">
     <x-mobile-header />
 
     {{-- HEADER: slot Jetstream o sección Blade --}}
     @if (isset($header))
-      <header class="bg-white border-b border-neutral-200 dark:bg-neutral-900 dark:border-neutral-800 @if(request()->routeIs('inicio')) hidden md:block @endif">
+      <header class="bg-white/80 backdrop-blur-md border-b border-white/60 dark:bg-neutral-900/60 dark:border-neutral-700/40 @if(request()->routeIs('inicio')) hidden md:block @endif">
         <div class="w-full py-4 px-4 sm:px-6 lg:px-8">
           <div class="flex items-center justify-between gap-4">
             <div class="min-w-0">{{ $header }}</div>
@@ -137,7 +137,7 @@
       </header>
     @else
       @hasSection('header')
-        <header class="bg-white border-b border-neutral-200 dark:bg-neutral-900 dark:border-neutral-800 @if(request()->routeIs('inicio')) hidden md:block @endif">
+        <header class="bg-white/80 backdrop-blur-md border-b border-white/60 dark:bg-neutral-900/60 dark:border-neutral-700/40 @if(request()->routeIs('inicio')) hidden md:block @endif">
           <div class="w-full py-4 px-4 sm:px-6 lg:px-8">
             <div class="flex items-center justify-between gap-4">
               <div class="min-w-0">@yield('header')</div>

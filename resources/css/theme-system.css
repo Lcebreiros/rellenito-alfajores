@@ -1,0 +1,393 @@
+/**
+ * Sistema de Temas Gestior
+ *
+ * Paleta de colores por módulo con aplicación sutil y profesional
+ */
+
+:root {
+  /* ================================
+     TEMA DEFAULT: Violet Rose Blue
+     ================================ */
+
+  /* Background gradientes sutiles */
+  --theme-bg-from: 249 250 251; /* neutral-50 */
+  --theme-bg-via: 243 244 246;  /* neutral-100 */
+  --theme-bg-to: 248 250 252;   /* slate-50 */
+
+  /* ================================
+     COLORES POR MÓDULO
+     ================================ */
+
+  /* 🛒 Pedidos/Órdenes - Violeta/Púrpura */
+  --module-orders-50: 250 245 255;
+  --module-orders-100: 243 232 255;
+  --module-orders-500: 139 92 246;
+  --module-orders-600: 124 58 237;
+  --module-orders-700: 109 40 217;
+
+  /* 📦 Productos - Azul cielo */
+  --module-products-50: 240 249 255;
+  --module-products-100: 224 242 254;
+  --module-products-500: 14 165 233;
+  --module-products-600: 2 132 199;
+  --module-products-700: 3 105 161;
+
+  /* 👥 Clientes - Verde esmeralda */
+  --module-clients-50: 236 253 245;
+  --module-clients-100: 209 250 229;
+  --module-clients-500: 16 185 129;
+  --module-clients-600: 5 150 105;
+  --module-clients-700: 4 120 87;
+
+  /* 📊 Dashboard/Reportes - Índigo oscuro */
+  --module-dashboard-50: 238 242 255;
+  --module-dashboard-100: 224 231 255;
+  --module-dashboard-500: 99 102 241;
+  --module-dashboard-600: 79 70 229;
+  --module-dashboard-700: 67 56 202;
+
+  /* 💰 Gastos/Finanzas - Naranja/Ámbar */
+  --module-expenses-50: 255 247 237;
+  --module-expenses-100: 254 243 199;
+  --module-expenses-500: 251 146 60;
+  --module-expenses-600: 234 88 12;
+  --module-expenses-700: 194 65 12;
+
+  /* 🏢 Empresa/Configuración - Gris/Slate */
+  --module-company-50: 248 250 252;
+  --module-company-100: 241 245 249;
+  --module-company-500: 100 116 139;
+  --module-company-600: 71 85 105;
+  --module-company-700: 51 65 85;
+
+  /* 👤 Empleados/Personal - Turquesa */
+  --module-employees-50: 240 253 250;
+  --module-employees-100: 204 251 241;
+  --module-employees-500: 20 184 166;
+  --module-employees-600: 13 148 136;
+  --module-employees-700: 15 118 110;
+
+  /* 🔧 Servicios - Rosa suave */
+  --module-services-50: 253 242 248;
+  --module-services-100: 252 231 243;
+  --module-services-500: 236 72 153;
+  --module-services-600: 219 39 119;
+  --module-services-700: 190 24 93;
+
+  /* 📦 Stock - Cyan */
+  --module-stock-50: 236 254 255;
+  --module-stock-100: 207 250 254;
+  --module-stock-500: 6 182 212;
+  --module-stock-600: 8 145 178;
+  --module-stock-700: 14 116 144;
+
+  /* 💳 Métodos de Pago - Amarillo */
+  --module-payment-50: 254 252 232;
+  --module-payment-100: 254 249 195;
+  --module-payment-500: 234 179 8;
+  --module-payment-600: 202 138 4;
+  --module-payment-700: 161 98 7;
+}
+
+/* ================================
+   MODO OSCURO
+   ================================ */
+
+.dark {
+  /* Background gradientes oscuros */
+  --theme-bg-from: 10 10 11;    /* neutral-950 */
+  --theme-bg-via: 23 23 23;     /* neutral-900 */
+  --theme-bg-to: 15 15 18;      /* zinc-950 */
+}
+
+/* ================================
+   UTILIDADES DE MÓDULO
+   ================================ */
+
+/* Background del módulo con gradientes más saturados */
+.module-bg-orders {
+  background: linear-gradient(135deg,
+    rgb(237 233 254) 0%,    /* violet-100 */
+    rgb(221 214 254) 50%,   /* violet-200 */
+    rgb(196 181 253) 100%); /* violet-300 */
+}
+
+.module-bg-products {
+  background: linear-gradient(135deg,
+    rgb(224 242 254) 0%,    /* sky-100 */
+    rgb(186 230 253) 50%,   /* sky-200 */
+    rgb(125 211 252) 100%); /* sky-300 */
+}
+
+.module-bg-clients {
+  background: linear-gradient(135deg,
+    rgb(209 250 229) 0%,    /* emerald-100 */
+    rgb(167 243 208) 50%,   /* emerald-200 */
+    rgb(110 231 183) 100%); /* emerald-300 */
+}
+
+.module-bg-dashboard {
+  background: linear-gradient(135deg,
+    rgb(224 231 255) 0%,    /* indigo-100 */
+    rgb(199 210 254) 50%,   /* indigo-200 */
+    rgb(165 180 252) 100%); /* indigo-300 */
+}
+
+.module-bg-expenses {
+  background: linear-gradient(135deg,
+    rgb(254 243 199) 0%,    /* amber-100 */
+    rgb(253 230 138) 50%,   /* amber-200 */
+    rgb(252 211 77) 100%);  /* amber-300 */
+}
+
+.module-bg-company {
+  background: linear-gradient(135deg,
+    rgb(241 245 249) 0%,    /* slate-100 */
+    rgb(226 232 240) 50%,   /* slate-200 */
+    rgb(203 213 225) 100%); /* slate-300 */
+}
+
+.module-bg-employees {
+  background: linear-gradient(135deg,
+    rgb(204 251 241) 0%,    /* teal-100 */
+    rgb(153 246 228) 50%,   /* teal-200 */
+    rgb(94 234 212) 100%);  /* teal-300 */
+}
+
+.module-bg-services {
+  background: linear-gradient(135deg,
+    rgb(252 231 243) 0%,    /* pink-100 */
+    rgb(251 207 232) 50%,   /* pink-200 */
+    rgb(249 168 212) 100%); /* pink-300 */
+}
+
+.module-bg-stock {
+  background: linear-gradient(135deg,
+    rgb(207 250 254) 0%,    /* cyan-100 */
+    rgb(165 243 252) 50%,   /* cyan-200 */
+    rgb(103 232 249) 100%); /* cyan-300 */
+}
+
+.module-bg-payment {
+  background: linear-gradient(135deg,
+    rgb(254 249 195) 0%,    /* yellow-100 */
+    rgb(254 240 138) 50%,   /* yellow-200 */
+    rgb(253 224 71) 100%);  /* yellow-300 */
+}
+
+/* Fallback neutral */
+.module-bg-neutral {
+  background: linear-gradient(135deg,
+    rgb(var(--theme-bg-from) / 1) 0%,
+    rgb(var(--theme-bg-via) / 0.95) 35%,
+    rgb(var(--theme-bg-to) / 0.9) 100%);
+}
+
+/* Modo oscuro - gradientes oscuros estilo botón (indigo-purple) */
+.dark .module-bg-orders {
+  background: linear-gradient(135deg,
+    rgb(30 27 75) 0%,      /* indigo-950 */
+    rgb(59 7 100) 50%,     /* purple-950 */
+    rgb(46 16 101) 100%);  /* violet-950 */
+}
+
+.dark .module-bg-products {
+  background: linear-gradient(135deg,
+    rgb(8 47 73) 0%,       /* blue-950 */
+    rgb(8 51 68) 50%,      /* sky-950 */
+    rgb(8 51 68) 100%);    /* cyan-950 */
+}
+
+.dark .module-bg-clients {
+  background: linear-gradient(135deg,
+    rgb(2 44 34) 0%,       /* emerald-950 */
+    rgb(4 47 46) 50%,      /* teal-950 */
+    rgb(5 46 22) 100%);    /* green-950 */
+}
+
+.dark .module-bg-dashboard {
+  background: linear-gradient(135deg,
+    rgb(30 27 75) 0%,      /* indigo-950 */
+    rgb(35 25 66) 50%,     /* indigo-950/violet-950 */
+    rgb(46 16 101) 100%);  /* violet-950 */
+}
+
+.dark .module-bg-expenses {
+  background: linear-gradient(135deg,
+    rgb(69 26 3) 0%,       /* orange-950 */
+    rgb(67 20 7) 50%,      /* amber-950 */
+    rgb(66 32 6) 100%);    /* yellow-950 */
+}
+
+.dark .module-bg-company {
+  background: linear-gradient(135deg,
+    rgb(15 23 42) 0%,      /* slate-950 */
+    rgb(24 24 27) 50%,     /* zinc-950 */
+    rgb(23 23 23) 100%);   /* neutral-900 */
+}
+
+.dark .module-bg-employees {
+  background: linear-gradient(135deg,
+    rgb(4 47 46) 0%,       /* teal-950 */
+    rgb(8 51 68) 50%,      /* cyan-950 */
+    rgb(2 44 34) 100%);    /* emerald-950 */
+}
+
+.dark .module-bg-services {
+  background: linear-gradient(135deg,
+    rgb(80 7 36) 0%,       /* rose-950 */
+    rgb(76 5 25) 50%,      /* pink-950 */
+    rgb(59 7 100) 100%);   /* purple-950 */
+}
+
+.dark .module-bg-stock {
+  background: linear-gradient(135deg,
+    rgb(8 51 68) 0%,       /* cyan-950 */
+    rgb(4 47 46) 50%,      /* teal-950 */
+    rgb(8 47 73) 100%);    /* blue-950 */
+}
+
+.dark .module-bg-payment {
+  background: linear-gradient(135deg,
+    rgb(66 32 6) 0%,       /* yellow-950 */
+    rgb(67 20 7) 50%,      /* amber-950 */
+    rgb(69 26 3) 100%);    /* orange-950 */
+}
+
+.dark .module-bg-neutral {
+  background: linear-gradient(135deg,
+    rgb(var(--theme-bg-via) / 0.9) 0%,
+    rgb(var(--theme-bg-from) / 0.9) 50%,
+    rgb(var(--theme-bg-to) / 0.9) 100%);
+}
+
+/* ================================
+   HOVER STATES PARA SIDEBAR
+   ================================ */
+
+/* Hover sutil con tinte del color del módulo */
+.nav-link[data-module="orders"]:hover {
+  background-color: rgb(var(--module-orders-50) / 0.4);
+  border-left: 3px solid rgb(var(--module-orders-500));
+}
+
+.nav-link[data-module="products"]:hover {
+  background-color: rgb(var(--module-products-50) / 0.4);
+  border-left: 3px solid rgb(var(--module-products-500));
+}
+
+.nav-link[data-module="clients"]:hover {
+  background-color: rgb(var(--module-clients-50) / 0.4);
+  border-left: 3px solid rgb(var(--module-clients-500));
+}
+
+.nav-link[data-module="dashboard"]:hover {
+  background-color: rgb(var(--module-dashboard-50) / 0.4);
+  border-left: 3px solid rgb(var(--module-dashboard-500));
+}
+
+.nav-link[data-module="expenses"]:hover {
+  background-color: rgb(var(--module-expenses-50) / 0.4);
+  border-left: 3px solid rgb(var(--module-expenses-500));
+}
+
+.nav-link[data-module="company"]:hover {
+  background-color: rgb(var(--module-company-50) / 0.4);
+  border-left: 3px solid rgb(var(--module-company-500));
+}
+
+.nav-link[data-module="employees"]:hover {
+  background-color: rgb(var(--module-employees-50) / 0.4);
+  border-left: 3px solid rgb(var(--module-employees-500));
+}
+
+.nav-link[data-module="services"]:hover {
+  background-color: rgb(var(--module-services-50) / 0.4);
+  border-left: 3px solid rgb(var(--module-services-500));
+}
+
+.nav-link[data-module="stock"]:hover {
+  background-color: rgb(var(--module-stock-50) / 0.4);
+  border-left: 3px solid rgb(var(--module-stock-500));
+}
+
+.nav-link[data-module="payment"]:hover {
+  background-color: rgb(var(--module-payment-50) / 0.4);
+  border-left: 3px solid rgb(var(--module-payment-500));
+}
+
+/* Dark mode - hovers más sutiles */
+.dark .nav-link[data-module="orders"]:hover {
+  background-color: rgb(var(--module-orders-500) / 0.12);
+  border-left-color: rgb(var(--module-orders-400));
+}
+
+.dark .nav-link[data-module="products"]:hover {
+  background-color: rgb(var(--module-products-500) / 0.12);
+  border-left-color: rgb(var(--module-products-400));
+}
+
+.dark .nav-link[data-module="clients"]:hover {
+  background-color: rgb(var(--module-clients-500) / 0.12);
+  border-left-color: rgb(var(--module-clients-400));
+}
+
+.dark .nav-link[data-module="dashboard"]:hover {
+  background-color: rgb(var(--module-dashboard-500) / 0.12);
+  border-left-color: rgb(var(--module-dashboard-400));
+}
+
+.dark .nav-link[data-module="expenses"]:hover {
+  background-color: rgb(var(--module-expenses-500) / 0.12);
+  border-left-color: rgb(var(--module-expenses-400));
+}
+
+.dark .nav-link[data-module="company"]:hover {
+  background-color: rgb(var(--module-company-500) / 0.12);
+  border-left-color: rgb(var(--module-company-400));
+}
+
+.dark .nav-link[data-module="employees"]:hover {
+  background-color: rgb(var(--module-employees-500) / 0.12);
+  border-left-color: rgb(var(--module-employees-400));
+}
+
+.dark .nav-link[data-module="services"]:hover {
+  background-color: rgb(var(--module-services-500) / 0.12);
+  border-left-color: rgb(var(--module-services-400));
+}
+
+.dark .nav-link[data-module="stock"]:hover {
+  background-color: rgb(var(--module-stock-500) / 0.12);
+  border-left-color: rgb(var(--module-stock-400));
+}
+
+.dark .nav-link[data-module="payment"]:hover {
+  background-color: rgb(var(--module-payment-500) / 0.12);
+  border-left-color: rgb(var(--module-payment-400));
+}
+
+/* ================================
+   BACKGROUND GRADIENTE GENERAL
+   ================================ */
+
+.theme-gradient-bg {
+  background: linear-gradient(
+    135deg,
+    rgb(var(--theme-bg-from)) 0%,
+    rgb(var(--theme-bg-via)) 40%,
+    rgb(var(--theme-bg-to)) 100%
+  );
+  background-attachment: fixed;
+  background-size: 400% 400%;
+  animation: gradientShift 15s ease infinite;
+}
+
+@keyframes gradientShift {
+  0%, 100% {
+    background-position: 0% 50%;
+  }
+  50% {
+    background-position: 100% 50%;
+  }
+}

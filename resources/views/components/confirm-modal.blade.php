@@ -18,7 +18,7 @@ $iconColors = [
 $buttonColors = [
     'danger' => 'bg-rose-600 hover:bg-rose-700 focus:ring-rose-500',
     'warning' => 'bg-yellow-600 hover:bg-yellow-700 focus:ring-yellow-500',
-    'info' => 'bg-indigo-600 hover:bg-indigo-700 focus:ring-indigo-500',
+    'info' => 'bg-gradient-to-r from-indigo-600 to-purple-600 hover:from-indigo-700 hover:to-purple-700 hover:shadow-lg hover:shadow-indigo-500/25 dark:hover:shadow-indigo-400/20 hover:-translate-y-0.5 active:scale-95 focus:ring-indigo-500',
 ];
 
 $iconColorClass = $iconColors[$type] ?? $iconColors['danger'];

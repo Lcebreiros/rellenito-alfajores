@@ -48,7 +48,7 @@
       </div>
 
       <div class="mt-6 flex items-center gap-3">
-        <button type="submit" class="px-4 py-2 bg-indigo-600 text-white rounded">Guardar</button>
+        <button type="submit" class="px-4 py-2 bg-gradient-to-r from-indigo-600 to-purple-600 text-white rounded hover:from-indigo-700 hover:to-purple-700 hover:shadow-lg hover:shadow-indigo-500/25 dark:hover:shadow-indigo-400/20 hover:-translate-y-0.5 active:scale-95 transition-all duration-200">Guardar</button>
         <a href="{{ route('branch.users.index') }}" class="px-4 py-2 border border-gray-300 dark:border-neutral-800 rounded">Cancelar</a>
       </div>
     </form>

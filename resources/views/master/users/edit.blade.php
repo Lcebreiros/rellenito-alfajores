@@ -37,7 +37,7 @@
       </div>
 
       <div class="flex gap-2">
-        <button class="px-4 py-2 bg-indigo-600 text-white rounded" type="submit">Guardar</button>
+        <button class="px-4 py-2 bg-gradient-to-r from-indigo-600 to-purple-600 text-white rounded hover:from-indigo-700 hover:to-purple-700 hover:shadow-lg hover:shadow-indigo-500/25 dark:hover:shadow-indigo-400/20 hover:-translate-y-0.5 active:scale-95 transition-all duration-200" type="submit">Guardar</button>
         <a href="{{ route('master.users.show', $user) }}" class="px-4 py-2 bg-gray-200 rounded">Cancelar</a>
       </div>
     </form>
