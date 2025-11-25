@@ -271,10 +271,13 @@
   background: transparent;
 }
 
-/* Bordes neón en tarjetas y contenedores */
+/* Tarjetas y contenedores con efecto glass y bordes neón */
 .theme-neon .rounded-2xl,
 .theme-neon .rounded-xl,
 .theme-neon .rounded-lg {
+  background: rgb(0 0 0 / 0.3) !important;
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
   border: 1px solid rgb(138 0 255 / 0.5);
   box-shadow: 0 0 15px rgb(138 0 255 / 0.2), 0 0 20px rgb(0 0 0 / 0.5);
 }
@@ -283,16 +286,20 @@
 .theme-neon .rounded-2xl:hover,
 .theme-neon .rounded-xl:hover,
 .theme-neon .rounded-lg:hover {
+  background: rgb(0 0 0 / 0.4) !important;
   border-color: rgb(138 0 255 / 0.8);
   box-shadow: 0 0 20px rgb(138 0 255 / 0.3), 0 0 25px rgb(0 0 0 / 0.5);
   transform: translateY(-1px);
   transition: all 0.2s ease;
 }
 
-/* Bordes neón específicos por módulo en sus vistas */
+/* Bordes neón específicos por módulo en sus vistas con efecto glass */
 .theme-neon .module-bg-orders .rounded-2xl,
 .theme-neon .module-bg-orders .rounded-xl,
 .theme-neon .module-bg-orders .rounded-lg {
+  background: rgb(0 0 0 / 0.3) !important;
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
   border-color: rgb(var(--module-orders-500) / 0.5);
   box-shadow: 0 0 15px rgb(var(--module-orders-500) / 0.2), 0 0 20px rgb(0 0 0 / 0.5);
 }
@@ -300,6 +307,7 @@
 .theme-neon .module-bg-orders .rounded-2xl:hover,
 .theme-neon .module-bg-orders .rounded-xl:hover,
 .theme-neon .module-bg-orders .rounded-lg:hover {
+  background: rgb(0 0 0 / 0.4) !important;
   border-color: rgb(var(--module-orders-500) / 0.8);
   box-shadow: 0 0 20px rgb(var(--module-orders-500) / 0.3), 0 0 25px rgb(0 0 0 / 0.5);
 }
@@ -307,6 +315,9 @@
 .theme-neon .module-bg-products .rounded-2xl,
 .theme-neon .module-bg-products .rounded-xl,
 .theme-neon .module-bg-products .rounded-lg {
+  background: rgb(0 0 0 / 0.3) !important;
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
   border-color: rgb(var(--module-products-500) / 0.5);
   box-shadow: 0 0 15px rgb(var(--module-products-500) / 0.2), 0 0 20px rgb(0 0 0 / 0.5);
 }
@@ -314,6 +325,7 @@
 .theme-neon .module-bg-products .rounded-2xl:hover,
 .theme-neon .module-bg-products .rounded-xl:hover,
 .theme-neon .module-bg-products .rounded-lg:hover {
+  background: rgb(0 0 0 / 0.4) !important;
   border-color: rgb(var(--module-products-500) / 0.8);
   box-shadow: 0 0 20px rgb(var(--module-products-500) / 0.3), 0 0 25px rgb(0 0 0 / 0.5);
 }
@@ -321,6 +333,9 @@
 .theme-neon .module-bg-clients .rounded-2xl,
 .theme-neon .module-bg-clients .rounded-xl,
 .theme-neon .module-bg-clients .rounded-lg {
+  background: rgb(0 0 0 / 0.3) !important;
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
   border-color: rgb(var(--module-clients-500) / 0.5);
   box-shadow: 0 0 15px rgb(var(--module-clients-500) / 0.2), 0 0 20px rgb(0 0 0 / 0.5);
 }
@@ -328,6 +343,7 @@
 .theme-neon .module-bg-clients .rounded-2xl:hover,
 .theme-neon .module-bg-clients .rounded-xl:hover,
 .theme-neon .module-bg-clients .rounded-lg:hover {
+  background: rgb(0 0 0 / 0.4) !important;
   border-color: rgb(var(--module-clients-500) / 0.8);
   box-shadow: 0 0 20px rgb(var(--module-clients-500) / 0.3), 0 0 25px rgb(0 0 0 / 0.5);
 }
@@ -335,6 +351,9 @@
 .theme-neon .module-bg-dashboard .rounded-2xl,
 .theme-neon .module-bg-dashboard .rounded-xl,
 .theme-neon .module-bg-dashboard .rounded-lg {
+  background: rgb(0 0 0 / 0.3) !important;
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
   border-color: rgb(var(--module-dashboard-500) / 0.5);
   box-shadow: 0 0 15px rgb(var(--module-dashboard-500) / 0.2), 0 0 20px rgb(0 0 0 / 0.5);
 }
@@ -342,6 +361,7 @@
 .theme-neon .module-bg-dashboard .rounded-2xl:hover,
 .theme-neon .module-bg-dashboard .rounded-xl:hover,
 .theme-neon .module-bg-dashboard .rounded-lg:hover {
+  background: rgb(0 0 0 / 0.4) !important;
   border-color: rgb(var(--module-dashboard-500) / 0.8);
   box-shadow: 0 0 20px rgb(var(--module-dashboard-500) / 0.3), 0 0 25px rgb(0 0 0 / 0.5);
 }
@@ -349,6 +369,9 @@
 .theme-neon .module-bg-expenses .rounded-2xl,
 .theme-neon .module-bg-expenses .rounded-xl,
 .theme-neon .module-bg-expenses .rounded-lg {
+  background: rgb(0 0 0 / 0.3) !important;
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
   border-color: rgb(var(--module-expenses-500) / 0.5);
   box-shadow: 0 0 15px rgb(var(--module-expenses-500) / 0.2), 0 0 20px rgb(0 0 0 / 0.5);
 }
@@ -356,6 +379,7 @@
 .theme-neon .module-bg-expenses .rounded-2xl:hover,
 .theme-neon .module-bg-expenses .rounded-xl:hover,
 .theme-neon .module-bg-expenses .rounded-lg:hover {
+  background: rgb(0 0 0 / 0.4) !important;
   border-color: rgb(var(--module-expenses-500) / 0.8);
   box-shadow: 0 0 20px rgb(var(--module-expenses-500) / 0.3), 0 0 25px rgb(0 0 0 / 0.5);
 }
@@ -363,6 +387,9 @@
 .theme-neon .module-bg-stock .rounded-2xl,
 .theme-neon .module-bg-stock .rounded-xl,
 .theme-neon .module-bg-stock .rounded-lg {
+  background: rgb(0 0 0 / 0.3) !important;
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
   border-color: rgb(var(--module-stock-500) / 0.5);
   box-shadow: 0 0 15px rgb(var(--module-stock-500) / 0.2), 0 0 20px rgb(0 0 0 / 0.5);
 }
@@ -370,6 +397,7 @@
 .theme-neon .module-bg-stock .rounded-2xl:hover,
 .theme-neon .module-bg-stock .rounded-xl:hover,
 .theme-neon .module-bg-stock .rounded-lg:hover {
+  background: rgb(0 0 0 / 0.4) !important;
   border-color: rgb(var(--module-stock-500) / 0.8);
   box-shadow: 0 0 20px rgb(var(--module-stock-500) / 0.3), 0 0 25px rgb(0 0 0 / 0.5);
 }
