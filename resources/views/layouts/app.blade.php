@@ -1,6 +1,15 @@
+@php
+    $theme = \App\Models\Setting::get('theme', 'light');
+    $themeClass = '';
+    if ($theme === 'dark') {
+        $themeClass = 'dark';
+    } elseif ($theme !== 'light') {
+        $themeClass = 'theme-' . $theme;
+    }
+@endphp
 <!DOCTYPE html>
 <html lang="{{ str_replace('_', '-', app()->getLocale()) }}"
-      class="{{ \App\Models\Setting::get('theme', 'light') === 'dark' ? 'dark' : '' }}">
+      class="{{ $themeClass }}">
 
 <head>
   <meta charset="utf-8">
@@ -237,7 +246,20 @@
   <script>
     window.addEventListener('theme-updated', (e) => {
       const theme = e.detail?.theme || 'light';
-      document.documentElement.classList.toggle('dark', theme === 'dark');
+
+      // Remover todas las clases de tema
+      document.documentElement.classList.remove(
+        'dark', 'theme-neon', 'theme-cyberpunk', 'theme-ocean',
+        'theme-sunset', 'theme-forest', 'theme-midnight',
+        'theme-rose', 'theme-monochrome'
+      );
+
+      // Agregar la clase del nuevo tema
+      if (theme === 'dark') {
+        document.documentElement.classList.add('dark');
+      } else if (theme !== 'light') {
+        document.documentElement.classList.add('theme-' + theme);
+      }
     });
   </script>
 

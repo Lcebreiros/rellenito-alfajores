@@ -19,6 +19,7 @@ class SettingsPanel extends Component
     public ?string $timezone = null;
 
     public array $timezones = [];
+    public array $availableThemes = [];
 
     // Logo del comprobante (per-user)
     public $receipt_logo;            // archivo temporal (Livewire)
@@ -43,6 +44,80 @@ class SettingsPanel extends Component
         $this->notify_low_stock = $user?->notify_low_stock ?? true;
         $this->low_stock_threshold = $user?->low_stock_threshold ?? 5;
         $this->notify_out_of_stock = $user?->notify_out_of_stock ?? true;
+
+        // Temas disponibles con sus configuraciones visuales
+        $this->availableThemes = [
+            [
+                'id' => 'light',
+                'name' => 'Claro',
+                'description' => 'Tema clásico con fondo blanco',
+                'icon' => '☀️',
+                'gradient' => 'from-white to-neutral-100',
+            ],
+            [
+                'id' => 'dark',
+                'name' => 'Oscuro',
+                'description' => 'Tema oscuro elegante',
+                'icon' => '🌙',
+                'gradient' => 'from-neutral-900 to-neutral-950',
+            ],
+            [
+                'id' => 'neon',
+                'name' => 'Neón',
+                'description' => 'Colores vibrantes fluorescentes',
+                'icon' => '⚡',
+                'gradient' => 'from-purple-900 via-pink-600 to-cyan-500',
+            ],
+            [
+                'id' => 'cyberpunk',
+                'name' => 'Cyberpunk',
+                'description' => 'Estilo futurista oscuro',
+                'icon' => '🤖',
+                'gradient' => 'from-black via-purple-900 to-cyan-600',
+            ],
+            [
+                'id' => 'ocean',
+                'name' => 'Océano',
+                'description' => 'Azules profundos y verdes agua',
+                'icon' => '🌊',
+                'gradient' => 'from-blue-900 via-teal-600 to-cyan-400',
+            ],
+            [
+                'id' => 'sunset',
+                'name' => 'Atardecer',
+                'description' => 'Tonos cálidos de atardecer',
+                'icon' => '🌅',
+                'gradient' => 'from-orange-500 via-pink-500 to-purple-600',
+            ],
+            [
+                'id' => 'forest',
+                'name' => 'Bosque',
+                'description' => 'Verdes naturales y tierra',
+                'icon' => '🌲',
+                'gradient' => 'from-green-900 via-green-700 to-emerald-500',
+            ],
+            [
+                'id' => 'midnight',
+                'name' => 'Medianoche',
+                'description' => 'Azul profundo con acentos plateados',
+                'icon' => '✨',
+                'gradient' => 'from-slate-950 via-blue-950 to-slate-800',
+            ],
+            [
+                'id' => 'rose',
+                'name' => 'Rosa',
+                'description' => 'Tonos rosas suaves y elegantes',
+                'icon' => '🌸',
+                'gradient' => 'from-rose-100 via-pink-200 to-rose-300',
+            ],
+            [
+                'id' => 'monochrome',
+                'name' => 'Monocromo',
+                'description' => 'Escala de grises moderna',
+                'icon' => '⚫',
+                'gradient' => 'from-neutral-200 via-neutral-400 to-neutral-600',
+            ],
+        ];
 
         $this->refreshReceiptLogoUrl();
     }
