@@ -190,15 +190,26 @@
       </div>
     </div>
 
-    {{-- Footer: Call to action --}}
-    <div class="flex items-center justify-between pt-3 border-t border-gray-200 dark:border-neutral-700">
-      <span class="text-xs text-gray-500 dark:text-neutral-400 font-medium">
-        Ver detalles completos
-      </span>
+    {{-- Footer: Botones de acción --}}
+    <div class="flex items-center justify-between gap-2 pt-3 border-t border-gray-200 dark:border-neutral-700">
       <div class="flex items-center gap-1 text-indigo-600 dark:text-indigo-400 opacity-0 group-hover:opacity-100 transition-opacity duration-200">
-        <span class="text-xs font-semibold">Abrir</span>
+        <span class="text-xs font-semibold">Ver detalles</span>
         <i class="fas fa-arrow-right text-[10px]" aria-hidden="true"></i>
       </div>
+
+      @if($displayStock > 0)
+        <button type="button"
+                onclick="event.stopPropagation(); event.preventDefault(); Livewire.dispatch('openDiscountModal', { productId: {{ $product->id }} })"
+                class="inline-flex items-center gap-1.5 px-3 py-1.5 text-xs font-semibold
+                       bg-gradient-to-r from-rose-600 to-rose-700
+                       hover:from-rose-700 hover:to-rose-800
+                       text-white rounded-lg shadow-md hover:shadow-lg
+                       focus:ring-2 focus:ring-rose-500 focus:ring-offset-2
+                       transform hover:-translate-y-0.5 transition-all">
+          <i class="fas fa-minus-circle text-xs"></i>
+          <span>Descontar</span>
+        </button>
+      @endif
     </div>
   </a>
 

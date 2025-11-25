@@ -240,6 +240,9 @@
 {{-- Modal de Configuración de Notificaciones --}}
 @include('stock.partials.notification-settings-modal')
 
+{{-- Modal de Descuento de Stock --}}
+@livewire('stock-discount-modal')
+
 {{-- Iconos --}}
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" crossorigin="anonymous">
 
@@ -311,6 +314,15 @@
     modal.init();
   }
 })();
+
+// Recargar página cuando se actualiza el stock
+document.addEventListener('livewire:init', () => {
+  Livewire.on('refresh-page', () => {
+    setTimeout(() => {
+      window.location.reload();
+    }, 1500);
+  });
+});
 </script>
 @endpush
 @endsection

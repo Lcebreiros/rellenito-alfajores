@@ -104,141 +104,678 @@
    TEMAS ADICIONALES
    ================================ */
 
-/* NEON - Colores fluorescentes vibrantes */
+/* NEON - Colores fluorescentes vibrantes sobre fondo oscuro */
 .theme-neon {
-  --theme-bg-from: 10 10 30;    /* Azul oscuro profundo */
-  --theme-bg-via: 30 10 40;     /* Púrpura oscuro */
-  --theme-bg-to: 40 10 50;      /* Púrpura más intenso */
+  /* Heredar backgrounds oscuros del tema dark */
+  --theme-bg-from: 10 10 11;    /* neutral-950 como dark */
+  --theme-bg-via: 23 23 23;     /* neutral-900 como dark */
+  --theme-bg-to: 15 15 18;      /* zinc-950 como dark */
 
-  /* Sobrescribir colores de módulos con tonos neón */
-  --module-orders-500: 216 27 96;      /* pink neón */
-  --module-products-500: 6 182 212;    /* cyan neón */
-  --module-clients-500: 34 197 94;     /* green neón */
-  --module-dashboard-500: 147 51 234;  /* purple neón */
-  --module-expenses-500: 251 146 60;   /* orange neón */
+  /* Colores neón ultra vibrantes para los módulos */
+  --module-orders-50: 45 5 25;         /* Pink oscuro para hover */
+  --module-orders-100: 60 10 35;
+  --module-orders-500: 255 0 128;      /* Pink neón brillante */
+  --module-orders-600: 255 20 147;
+  --module-orders-700: 255 40 167;
+
+  --module-products-50: 0 25 35;       /* Cyan oscuro para hover */
+  --module-products-100: 0 35 45;
+  --module-products-500: 0 255 255;    /* Cyan neón brillante */
+  --module-products-600: 20 255 255;
+  --module-products-700: 40 255 255;
+
+  --module-clients-50: 0 35 15;        /* Green oscuro para hover */
+  --module-clients-100: 0 45 20;
+  --module-clients-500: 57 255 20;     /* Green neón brillante */
+  --module-clients-600: 77 255 40;
+  --module-clients-700: 97 255 60;
+
+  --module-dashboard-50: 25 0 45;      /* Purple oscuro para hover */
+  --module-dashboard-100: 35 0 60;
+  --module-dashboard-500: 191 0 255;   /* Purple neón brillante */
+  --module-dashboard-600: 201 20 255;
+  --module-dashboard-700: 211 40 255;
+
+  --module-expenses-50: 40 15 0;       /* Orange oscuro para hover */
+  --module-expenses-100: 50 20 0;
+  --module-expenses-500: 255 128 0;    /* Orange neón brillante */
+  --module-expenses-600: 255 148 20;
+  --module-expenses-700: 255 168 40;
+
+  --module-company-50: 15 15 25;
+  --module-company-100: 20 20 30;
+  --module-company-500: 180 180 255;   /* Azul claro neón */
+  --module-company-600: 190 190 255;
+  --module-company-700: 200 200 255;
+
+  --module-employees-50: 0 30 30;
+  --module-employees-100: 0 40 40;
+  --module-employees-500: 0 255 200;   /* Turquesa neón */
+  --module-employees-600: 20 255 210;
+  --module-employees-700: 40 255 220;
+
+  --module-services-50: 35 0 20;
+  --module-services-100: 45 0 30;
+  --module-services-500: 255 20 147;   /* Magenta neón */
+  --module-services-600: 255 40 167;
+  --module-services-700: 255 60 187;
+
+  --module-stock-50: 0 30 40;
+  --module-stock-100: 0 40 50;
+  --module-stock-500: 0 242 255;       /* Cyan claro neón */
+  --module-stock-600: 20 245 255;
+  --module-stock-700: 40 248 255;
+
+  --module-payment-50: 40 35 0;
+  --module-payment-100: 50 45 0;
+  --module-payment-500: 255 255 0;     /* Amarillo neón brillante */
+  --module-payment-600: 255 255 51;
+  --module-payment-700: 255 255 102;
 }
 
+/* Backgrounds negro puro sin gradientes */
+.theme-neon .module-bg-orders,
+.dark.theme-neon .module-bg-orders {
+  background: rgb(0 0 0) !important;
+}
+
+.theme-neon .module-bg-products,
+.dark.theme-neon .module-bg-products {
+  background: rgb(0 0 0) !important;
+}
+
+.theme-neon .module-bg-clients,
+.dark.theme-neon .module-bg-clients {
+  background: rgb(0 0 0) !important;
+}
+
+.theme-neon .module-bg-dashboard,
+.dark.theme-neon .module-bg-dashboard {
+  background: rgb(0 0 0) !important;
+}
+
+.theme-neon .module-bg-expenses,
+.dark.theme-neon .module-bg-expenses {
+  background: rgb(0 0 0) !important;
+}
+
+.theme-neon .module-bg-company,
+.dark.theme-neon .module-bg-company {
+  background: rgb(0 0 0) !important;
+}
+
+.theme-neon .module-bg-employees,
+.dark.theme-neon .module-bg-employees {
+  background: rgb(0 0 0) !important;
+}
+
+.theme-neon .module-bg-services,
+.dark.theme-neon .module-bg-services {
+  background: rgb(0 0 0) !important;
+}
+
+.theme-neon .module-bg-stock,
+.dark.theme-neon .module-bg-stock {
+  background: rgb(0 0 0) !important;
+}
+
+.theme-neon .module-bg-payment,
+.dark.theme-neon .module-bg-payment {
+  background: rgb(0 0 0) !important;
+}
+
+/* Background general neutral negro puro */
+.theme-neon .module-bg-neutral,
+.dark.theme-neon .module-bg-neutral {
+  background: rgb(0 0 0) !important;
+}
+
+/* Bordes neón para nav links activos - solo línea, sin glow */
+.theme-neon .nav-link[data-module="orders"].sidebar-nav-active {
+  border-left-color: rgb(var(--module-orders-500));
+  border-left-width: 3px;
+}
+
+.theme-neon .nav-link[data-module="products"].sidebar-nav-active {
+  border-left-color: rgb(var(--module-products-500));
+  border-left-width: 3px;
+}
+
+.theme-neon .nav-link[data-module="clients"].sidebar-nav-active {
+  border-left-color: rgb(var(--module-clients-500));
+  border-left-width: 3px;
+}
+
+.theme-neon .nav-link[data-module="dashboard"].sidebar-nav-active {
+  border-left-color: rgb(var(--module-dashboard-500));
+  border-left-width: 3px;
+}
+
+.theme-neon .nav-link[data-module="expenses"].sidebar-nav-active {
+  border-left-color: rgb(var(--module-expenses-500));
+  border-left-width: 3px;
+}
+
+/* ==========================================
+   EFECTOS ADICIONALES NEON
+   El tema dark ya maneja backgrounds/colores base
+   ========================================== */
+
+/* Background general del body negro puro */
 .theme-neon body {
-  color: rgb(250 250 250);
+  background: rgb(0 0 0);
+  background-attachment: fixed;
 }
 
-/* CYBERPUNK - Estilo futurista oscuro */
-.theme-cyberpunk {
-  --theme-bg-from: 0 0 0;       /* Negro puro */
-  --theme-bg-via: 15 0 30;      /* Púrpura muy oscuro */
-  --theme-bg-to: 0 15 30;       /* Cyan muy oscuro */
-
-  --module-orders-500: 168 85 247;     /* Púrpura cyberpunk */
-  --module-products-500: 34 211 238;   /* Cyan eléctrico */
-  --module-clients-500: 244 63 94;     /* Rosa neón */
-  --module-dashboard-500: 139 92 246;  /* Violeta */
-  --module-expenses-500: 251 191 36;   /* Amarillo neón */
+.theme-neon .app-main {
+  background: transparent;
 }
 
-.theme-cyberpunk body {
-  color: rgb(6 182 212);
+/* Bordes neón en tarjetas y contenedores */
+.theme-neon .rounded-2xl,
+.theme-neon .rounded-xl,
+.theme-neon .rounded-lg {
+  border: 1px solid rgb(138 0 255 / 0.5);
+  box-shadow: 0 0 15px rgb(138 0 255 / 0.2), 0 0 20px rgb(0 0 0 / 0.5);
 }
 
-/* OCEAN - Azules profundos y verdes agua */
-.theme-ocean {
-  --theme-bg-from: 15 23 42;    /* Slate 950 */
-  --theme-bg-via: 12 74 110;    /* Sky 900 */
-  --theme-bg-to: 19 78 74;      /* Teal 900 */
-
-  --module-orders-500: 56 189 248;     /* Sky 400 */
-  --module-products-500: 34 211 238;   /* Cyan 400 */
-  --module-clients-500: 45 212 191;    /* Teal 400 */
-  --module-dashboard-500: 96 165 250;  /* Blue 400 */
-  --module-expenses-500: 52 211 153;   /* Emerald 400 */
+/* Borde más visible en hover */
+.theme-neon .rounded-2xl:hover,
+.theme-neon .rounded-xl:hover,
+.theme-neon .rounded-lg:hover {
+  border-color: rgb(138 0 255 / 0.8);
+  box-shadow: 0 0 20px rgb(138 0 255 / 0.3), 0 0 25px rgb(0 0 0 / 0.5);
+  transform: translateY(-1px);
+  transition: all 0.2s ease;
 }
 
-.theme-ocean body {
-  color: rgb(241 245 249);
+/* Bordes neón específicos por módulo en sus vistas */
+.theme-neon .module-bg-orders .rounded-2xl,
+.theme-neon .module-bg-orders .rounded-xl,
+.theme-neon .module-bg-orders .rounded-lg {
+  border-color: rgb(var(--module-orders-500) / 0.5);
+  box-shadow: 0 0 15px rgb(var(--module-orders-500) / 0.2), 0 0 20px rgb(0 0 0 / 0.5);
 }
 
-/* SUNSET - Tonos cálidos de atardecer */
-.theme-sunset {
-  --theme-bg-from: 254 252 232;  /* Yellow 50 */
-  --theme-bg-via: 254 215 170;   /* Orange 200 */
-  --theme-bg-to: 251 207 232;    /* Pink 200 */
-
-  --module-orders-500: 236 72 153;     /* Pink 500 */
-  --module-products-500: 168 85 247;   /* Purple 500 */
-  --module-clients-500: 251 146 60;    /* Orange 500 */
-  --module-dashboard-500: 244 114 182; /* Pink 400 */
-  --module-expenses-500: 249 115 22;   /* Orange 600 */
+.theme-neon .module-bg-orders .rounded-2xl:hover,
+.theme-neon .module-bg-orders .rounded-xl:hover,
+.theme-neon .module-bg-orders .rounded-lg:hover {
+  border-color: rgb(var(--module-orders-500) / 0.8);
+  box-shadow: 0 0 20px rgb(var(--module-orders-500) / 0.3), 0 0 25px rgb(0 0 0 / 0.5);
 }
 
-.theme-sunset body {
-  color: rgb(120 53 15);
+.theme-neon .module-bg-products .rounded-2xl,
+.theme-neon .module-bg-products .rounded-xl,
+.theme-neon .module-bg-products .rounded-lg {
+  border-color: rgb(var(--module-products-500) / 0.5);
+  box-shadow: 0 0 15px rgb(var(--module-products-500) / 0.2), 0 0 20px rgb(0 0 0 / 0.5);
 }
 
-/* FOREST - Verdes naturales y tierra */
-.theme-forest {
-  --theme-bg-from: 20 83 45;     /* Green 900 */
-  --theme-bg-via: 21 128 61;     /* Green 700 */
-  --theme-bg-to: 22 163 74;      /* Green 600 */
-
-  --module-orders-500: 134 239 172;    /* Green 300 */
-  --module-products-500: 52 211 153;   /* Emerald 400 */
-  --module-clients-500: 74 222 128;    /* Green 400 */
-  --module-dashboard-500: 45 212 191;  /* Teal 400 */
-  --module-expenses-500: 163 230 53;   /* Lime 400 */
+.theme-neon .module-bg-products .rounded-2xl:hover,
+.theme-neon .module-bg-products .rounded-xl:hover,
+.theme-neon .module-bg-products .rounded-lg:hover {
+  border-color: rgb(var(--module-products-500) / 0.8);
+  box-shadow: 0 0 20px rgb(var(--module-products-500) / 0.3), 0 0 25px rgb(0 0 0 / 0.5);
 }
 
-.theme-forest body {
-  color: rgb(220 252 231);
+.theme-neon .module-bg-clients .rounded-2xl,
+.theme-neon .module-bg-clients .rounded-xl,
+.theme-neon .module-bg-clients .rounded-lg {
+  border-color: rgb(var(--module-clients-500) / 0.5);
+  box-shadow: 0 0 15px rgb(var(--module-clients-500) / 0.2), 0 0 20px rgb(0 0 0 / 0.5);
 }
 
-/* MIDNIGHT - Azul profundo con acentos plateados */
-.theme-midnight {
-  --theme-bg-from: 2 6 23;       /* Slate 950 */
-  --theme-bg-via: 15 23 42;      /* Slate 950 */
-  --theme-bg-to: 30 41 59;       /* Slate 800 */
-
-  --module-orders-500: 148 163 184;    /* Slate 400 */
-  --module-products-500: 96 165 250;   /* Blue 400 */
-  --module-clients-500: 129 140 248;   /* Indigo 400 */
-  --module-dashboard-500: 156 163 175; /* Slate 400 */
-  --module-expenses-500: 167 139 250;  /* Violet 400 */
+.theme-neon .module-bg-clients .rounded-2xl:hover,
+.theme-neon .module-bg-clients .rounded-xl:hover,
+.theme-neon .module-bg-clients .rounded-lg:hover {
+  border-color: rgb(var(--module-clients-500) / 0.8);
+  box-shadow: 0 0 20px rgb(var(--module-clients-500) / 0.3), 0 0 25px rgb(0 0 0 / 0.5);
 }
 
-.theme-midnight body {
-  color: rgb(226 232 240);
+.theme-neon .module-bg-dashboard .rounded-2xl,
+.theme-neon .module-bg-dashboard .rounded-xl,
+.theme-neon .module-bg-dashboard .rounded-lg {
+  border-color: rgb(var(--module-dashboard-500) / 0.5);
+  box-shadow: 0 0 15px rgb(var(--module-dashboard-500) / 0.2), 0 0 20px rgb(0 0 0 / 0.5);
 }
 
-/* ROSE - Tonos rosas suaves y elegantes */
-.theme-rose {
-  --theme-bg-from: 255 241 242;  /* Rose 50 */
-  --theme-bg-via: 252 231 243;   /* Pink 100 */
-  --theme-bg-to: 254 205 211;    /* Rose 200 */
-
-  --module-orders-500: 244 63 94;      /* Rose 500 */
-  --module-products-500: 236 72 153;   /* Pink 500 */
-  --module-clients-500: 219 39 119;    /* Pink 600 */
-  --module-dashboard-500: 244 114 182; /* Pink 400 */
-  --module-expenses-500: 251 113 133;  /* Rose 400 */
+.theme-neon .module-bg-dashboard .rounded-2xl:hover,
+.theme-neon .module-bg-dashboard .rounded-xl:hover,
+.theme-neon .module-bg-dashboard .rounded-lg:hover {
+  border-color: rgb(var(--module-dashboard-500) / 0.8);
+  box-shadow: 0 0 20px rgb(var(--module-dashboard-500) / 0.3), 0 0 25px rgb(0 0 0 / 0.5);
 }
 
-.theme-rose body {
-  color: rgb(136 19 55);
+.theme-neon .module-bg-expenses .rounded-2xl,
+.theme-neon .module-bg-expenses .rounded-xl,
+.theme-neon .module-bg-expenses .rounded-lg {
+  border-color: rgb(var(--module-expenses-500) / 0.5);
+  box-shadow: 0 0 15px rgb(var(--module-expenses-500) / 0.2), 0 0 20px rgb(0 0 0 / 0.5);
 }
 
-/* MONOCHROME - Escala de grises moderna */
-.theme-monochrome {
-  --theme-bg-from: 245 245 245;  /* neutral-100 */
-  --theme-bg-via: 212 212 216;   /* neutral-300 */
-  --theme-bg-to: 228 228 231;    /* neutral-200 */
-
-  --module-orders-500: 82 82 91;       /* neutral-600 */
-  --module-products-500: 113 113 122;  /* neutral-500 */
-  --module-clients-500: 63 63 70;      /* neutral-700 */
-  --module-dashboard-500: 82 82 91;    /* neutral-600 */
-  --module-expenses-500: 113 113 122;  /* neutral-500 */
+.theme-neon .module-bg-expenses .rounded-2xl:hover,
+.theme-neon .module-bg-expenses .rounded-xl:hover,
+.theme-neon .module-bg-expenses .rounded-lg:hover {
+  border-color: rgb(var(--module-expenses-500) / 0.8);
+  box-shadow: 0 0 20px rgb(var(--module-expenses-500) / 0.3), 0 0 25px rgb(0 0 0 / 0.5);
 }
 
-.theme-monochrome body {
-  color: rgb(9 9 11);
+.theme-neon .module-bg-stock .rounded-2xl,
+.theme-neon .module-bg-stock .rounded-xl,
+.theme-neon .module-bg-stock .rounded-lg {
+  border-color: rgb(var(--module-stock-500) / 0.5);
+  box-shadow: 0 0 15px rgb(var(--module-stock-500) / 0.2), 0 0 20px rgb(0 0 0 / 0.5);
+}
+
+.theme-neon .module-bg-stock .rounded-2xl:hover,
+.theme-neon .module-bg-stock .rounded-xl:hover,
+.theme-neon .module-bg-stock .rounded-lg:hover {
+  border-color: rgb(var(--module-stock-500) / 0.8);
+  box-shadow: 0 0 20px rgb(var(--module-stock-500) / 0.3), 0 0 25px rgb(0 0 0 / 0.5);
+}
+
+/* Texto con sutil glow neón */
+.theme-neon h1,
+.theme-neon h2,
+.theme-neon h3 {
+  text-shadow: 0 0 15px rgb(138 0 255 / 0.3);
+}
+
+/* Sidebar semitransparente con fondo negro */
+.theme-neon .sidebar-container {
+  background: rgb(0 0 0 / 0.7);
+  backdrop-filter: blur(10px);
+  border-right: none;
+}
+
+/* Hovers con línea neón en nav links - sin glow */
+.theme-neon .nav-link[data-module="orders"]:hover {
+  background-color: rgb(var(--module-orders-50) / 0.2);
+  border-left: 3px solid rgb(var(--module-orders-500));
+}
+
+.theme-neon .nav-link[data-module="products"]:hover {
+  background-color: rgb(var(--module-products-50) / 0.2);
+  border-left: 3px solid rgb(var(--module-products-500));
+}
+
+.theme-neon .nav-link[data-module="clients"]:hover {
+  background-color: rgb(var(--module-clients-50) / 0.2);
+  border-left: 3px solid rgb(var(--module-clients-500));
+}
+
+.theme-neon .nav-link[data-module="dashboard"]:hover {
+  background-color: rgb(var(--module-dashboard-50) / 0.2);
+  border-left: 3px solid rgb(var(--module-dashboard-500));
+}
+
+.theme-neon .nav-link[data-module="expenses"]:hover {
+  background-color: rgb(var(--module-expenses-50) / 0.2);
+  border-left: 3px solid rgb(var(--module-expenses-500));
+}
+
+/* Header semitransparente con fondo negro */
+.theme-neon .header-glass {
+  background: rgb(0 0 0 / 0.7);
+  backdrop-filter: blur(10px);
+  border-bottom: 1px solid rgb(138 0 255 / 0.3);
+}
+
+/* Botones transparentes con borde neón */
+.theme-neon button.bg-indigo-600,
+.theme-neon .bg-indigo-600 {
+  background: transparent;
+  border: 2px solid rgb(138 0 255);
+  box-shadow: 0 0 15px rgb(138 0 255 / 0.4),
+              0 4px 6px rgb(0 0 0 / 0.3);
+}
+
+.theme-neon button.bg-indigo-600:hover,
+.theme-neon .bg-indigo-600:hover {
+  background: rgb(138 0 255 / 0.1);
+  box-shadow: 0 0 20px rgb(138 0 255 / 0.6),
+              0 0 30px rgb(138 0 255 / 0.4),
+              0 4px 8px rgb(0 0 0 / 0.4);
+  transform: translateY(-2px);
+}
+
+/* Botones específicos por módulo con borde neón del color correspondiente */
+.theme-neon .module-bg-orders button.bg-indigo-600,
+.theme-neon .module-bg-orders .bg-indigo-600 {
+  background: transparent;
+  border: 2px solid rgb(var(--module-orders-500));
+  box-shadow: 0 0 15px rgb(var(--module-orders-500) / 0.4),
+              0 4px 6px rgb(0 0 0 / 0.3);
+}
+
+.theme-neon .module-bg-orders button.bg-indigo-600:hover,
+.theme-neon .module-bg-orders .bg-indigo-600:hover {
+  background: rgb(var(--module-orders-500) / 0.1);
+  box-shadow: 0 0 20px rgb(var(--module-orders-500) / 0.6),
+              0 0 30px rgb(var(--module-orders-500) / 0.4),
+              0 4px 8px rgb(0 0 0 / 0.4);
+}
+
+.theme-neon .module-bg-products button.bg-indigo-600,
+.theme-neon .module-bg-products .bg-indigo-600 {
+  background: transparent;
+  border: 2px solid rgb(var(--module-products-500));
+  box-shadow: 0 0 15px rgb(var(--module-products-500) / 0.4),
+              0 4px 6px rgb(0 0 0 / 0.3);
+}
+
+.theme-neon .module-bg-products button.bg-indigo-600:hover,
+.theme-neon .module-bg-products .bg-indigo-600:hover {
+  background: rgb(var(--module-products-500) / 0.1);
+  box-shadow: 0 0 20px rgb(var(--module-products-500) / 0.6),
+              0 0 30px rgb(var(--module-products-500) / 0.4),
+              0 4px 8px rgb(0 0 0 / 0.4);
+}
+
+.theme-neon .module-bg-clients button.bg-indigo-600,
+.theme-neon .module-bg-clients .bg-indigo-600 {
+  background: transparent;
+  border: 2px solid rgb(var(--module-clients-500));
+  box-shadow: 0 0 15px rgb(var(--module-clients-500) / 0.4),
+              0 4px 6px rgb(0 0 0 / 0.3);
+}
+
+.theme-neon .module-bg-clients button.bg-indigo-600:hover,
+.theme-neon .module-bg-clients .bg-indigo-600:hover {
+  background: rgb(var(--module-clients-500) / 0.1);
+  box-shadow: 0 0 20px rgb(var(--module-clients-500) / 0.6),
+              0 0 30px rgb(var(--module-clients-500) / 0.4),
+              0 4px 8px rgb(0 0 0 / 0.4);
+}
+
+.theme-neon .module-bg-dashboard button.bg-indigo-600,
+.theme-neon .module-bg-dashboard .bg-indigo-600 {
+  background: transparent;
+  border: 2px solid rgb(var(--module-dashboard-500));
+  box-shadow: 0 0 15px rgb(var(--module-dashboard-500) / 0.4),
+              0 4px 6px rgb(0 0 0 / 0.3);
+}
+
+.theme-neon .module-bg-dashboard button.bg-indigo-600:hover,
+.theme-neon .module-bg-dashboard .bg-indigo-600:hover {
+  background: rgb(var(--module-dashboard-500) / 0.1);
+  box-shadow: 0 0 20px rgb(var(--module-dashboard-500) / 0.6),
+              0 0 30px rgb(var(--module-dashboard-500) / 0.4),
+              0 4px 8px rgb(0 0 0 / 0.4);
+}
+
+.theme-neon .module-bg-expenses button.bg-indigo-600,
+.theme-neon .module-bg-expenses .bg-indigo-600 {
+  background: transparent;
+  border: 2px solid rgb(var(--module-expenses-500));
+  box-shadow: 0 0 15px rgb(var(--module-expenses-500) / 0.4),
+              0 4px 6px rgb(0 0 0 / 0.3);
+}
+
+.theme-neon .module-bg-expenses button.bg-indigo-600:hover,
+.theme-neon .module-bg-expenses .bg-indigo-600:hover {
+  background: rgb(var(--module-expenses-500) / 0.1);
+  box-shadow: 0 0 20px rgb(var(--module-expenses-500) / 0.6),
+              0 0 30px rgb(var(--module-expenses-500) / 0.4),
+              0 4px 8px rgb(0 0 0 / 0.4);
+}
+
+.theme-neon .module-bg-stock button.bg-indigo-600,
+.theme-neon .module-bg-stock .bg-indigo-600 {
+  background: transparent;
+  border: 2px solid rgb(var(--module-stock-500));
+  box-shadow: 0 0 15px rgb(var(--module-stock-500) / 0.4),
+              0 4px 6px rgb(0 0 0 / 0.3);
+}
+
+.theme-neon .module-bg-stock button.bg-indigo-600:hover,
+.theme-neon .module-bg-stock .bg-indigo-600:hover {
+  background: rgb(var(--module-stock-500) / 0.1);
+  box-shadow: 0 0 20px rgb(var(--module-stock-500) / 0.6),
+              0 0 30px rgb(var(--module-stock-500) / 0.4),
+              0 4px 8px rgb(0 0 0 / 0.4);
+}
+
+/* Bordes neón en inputs y formularios */
+.theme-neon input:focus,
+.theme-neon textarea:focus,
+.theme-neon select:focus {
+  border-color: rgb(138 0 255);
+  box-shadow: 0 0 0 3px rgb(138 0 255 / 0.1),
+              0 0 15px rgb(138 0 255 / 0.3);
+}
+
+/* Inputs específicos por módulo con colores neón */
+.theme-neon .module-bg-orders input:focus,
+.theme-neon .module-bg-orders textarea:focus,
+.theme-neon .module-bg-orders select:focus {
+  border-color: rgb(var(--module-orders-500));
+  box-shadow: 0 0 0 3px rgb(var(--module-orders-500) / 0.1),
+              0 0 15px rgb(var(--module-orders-500) / 0.3);
+}
+
+.theme-neon .module-bg-products input:focus,
+.theme-neon .module-bg-products textarea:focus,
+.theme-neon .module-bg-products select:focus {
+  border-color: rgb(var(--module-products-500));
+  box-shadow: 0 0 0 3px rgb(var(--module-products-500) / 0.1),
+              0 0 15px rgb(var(--module-products-500) / 0.3);
+}
+
+.theme-neon .module-bg-clients input:focus,
+.theme-neon .module-bg-clients textarea:focus,
+.theme-neon .module-bg-clients select:focus {
+  border-color: rgb(var(--module-clients-500));
+  box-shadow: 0 0 0 3px rgb(var(--module-clients-500) / 0.1),
+              0 0 15px rgb(var(--module-clients-500) / 0.3);
+}
+
+.theme-neon .module-bg-dashboard input:focus,
+.theme-neon .module-bg-dashboard textarea:focus,
+.theme-neon .module-bg-dashboard select:focus {
+  border-color: rgb(var(--module-dashboard-500));
+  box-shadow: 0 0 0 3px rgb(var(--module-dashboard-500) / 0.1),
+              0 0 15px rgb(var(--module-dashboard-500) / 0.3);
+}
+
+.theme-neon .module-bg-expenses input:focus,
+.theme-neon .module-bg-expenses textarea:focus,
+.theme-neon .module-bg-expenses select:focus {
+  border-color: rgb(var(--module-expenses-500));
+  box-shadow: 0 0 0 3px rgb(var(--module-expenses-500) / 0.1),
+              0 0 15px rgb(var(--module-expenses-500) / 0.3);
+}
+
+.theme-neon .module-bg-stock input:focus,
+.theme-neon .module-bg-stock textarea:focus,
+.theme-neon .module-bg-stock select:focus {
+  border-color: rgb(var(--module-stock-500));
+  box-shadow: 0 0 0 3px rgb(var(--module-stock-500) / 0.1),
+              0 0 15px rgb(var(--module-stock-500) / 0.3);
+}
+
+/* CUSTOM - Color personalizado por el usuario */
+.theme-custom {
+  /* El color se aplica dinámicamente mediante JavaScript */
+  /* usando la variable --custom-color-rgb */
+
+  /* Usamos el color personalizado para TODOS los módulos */
+  --module-orders-500: var(--custom-color-rgb, 99 102 241);
+  --module-products-500: var(--custom-color-rgb, 99 102 241);
+  --module-clients-500: var(--custom-color-rgb, 99 102 241);
+  --module-dashboard-500: var(--custom-color-rgb, 99 102 241);
+  --module-expenses-500: var(--custom-color-rgb, 99 102 241);
+  --module-company-500: var(--custom-color-rgb, 99 102 241);
+  --module-employees-500: var(--custom-color-rgb, 99 102 241);
+  --module-services-500: var(--custom-color-rgb, 99 102 241);
+  --module-stock-500: var(--custom-color-rgb, 99 102 241);
+  --module-payment-500: var(--custom-color-rgb, 99 102 241);
+}
+
+/* Backgrounds de todas las vistas con el color personalizado */
+.theme-custom .module-bg-orders,
+.theme-custom .module-bg-products,
+.theme-custom .module-bg-clients,
+.theme-custom .module-bg-dashboard,
+.theme-custom .module-bg-expenses,
+.theme-custom .module-bg-company,
+.theme-custom .module-bg-employees,
+.theme-custom .module-bg-services,
+.theme-custom .module-bg-stock,
+.theme-custom .module-bg-payment,
+.theme-custom .module-bg-neutral {
+  background: linear-gradient(135deg,
+    rgb(255 255 255) 0%,
+    rgb(var(--custom-color-rgb) / 0.05) 20%,
+    rgb(var(--custom-color-rgb) / 0.1) 50%,
+    rgb(var(--custom-color-rgb) / 0.15) 70%,
+    rgb(var(--custom-color-rgb) / 0.2) 100%);
+}
+
+/* Sidebar con borde del color personalizado */
+.theme-custom .sidebar-container {
+  border-right-color: rgb(var(--custom-color-rgb) / 0.3);
+  box-shadow: 0 0 20px rgb(var(--custom-color-rgb) / 0.1);
+}
+
+/* Nav links activos con el color personalizado */
+.theme-custom .sidebar-nav-active {
+  border-left-color: rgb(var(--custom-color-rgb)) !important;
+  background-color: rgb(var(--custom-color-rgb) / 0.1) !important;
+  box-shadow: -3px 0 12px rgb(var(--custom-color-rgb) / 0.4);
+}
+
+.theme-custom .nav-link:hover {
+  background-color: rgb(var(--custom-color-rgb) / 0.08);
+  border-left: 3px solid rgb(var(--custom-color-rgb));
+}
+
+/* Header con el color personalizado */
+.theme-custom .header-glass {
+  border-color: rgb(var(--custom-color-rgb) / 0.2);
+  box-shadow: 0 0 20px rgb(var(--custom-color-rgb) / 0.05),
+              inset 0 1px 0 0 rgb(var(--custom-color-rgb) / 0.1);
+}
+
+/* Todos los botones de submit con el color personalizado */
+.theme-custom button[type="submit"],
+.theme-custom button.bg-indigo-600,
+.theme-custom .bg-indigo-600,
+.theme-custom button:not([type="button"]):not([type="reset"]),
+.theme-custom a.bg-indigo-600 {
+  background: linear-gradient(135deg,
+    rgb(var(--custom-color-rgb)) 0%,
+    rgb(var(--custom-color-rgb) / 0.85) 100%) !important;
+  border-color: rgb(var(--custom-color-rgb)) !important;
+  color: white !important;
+  box-shadow: 0 0 15px rgb(var(--custom-color-rgb) / 0.3),
+              0 4px 6px rgb(0 0 0 / 0.1);
+}
+
+.theme-custom button[type="submit"]:hover,
+.theme-custom button.bg-indigo-600:hover,
+.theme-custom .bg-indigo-600:hover {
+  background: linear-gradient(135deg,
+    rgb(var(--custom-color-rgb) / 0.9) 0%,
+    rgb(var(--custom-color-rgb) / 0.75) 100%) !important;
+  box-shadow: 0 0 20px rgb(var(--custom-color-rgb) / 0.5),
+              0 4px 6px rgb(0 0 0 / 0.1);
+  transform: translateY(-1px);
+}
+
+/* Selects, inputs y textareas con el color personalizado */
+.theme-custom select:focus,
+.theme-custom input:focus,
+.theme-custom textarea:focus {
+  border-color: rgb(var(--custom-color-rgb)) !important;
+  box-shadow: 0 0 0 3px rgb(var(--custom-color-rgb) / 0.1),
+              0 0 10px rgb(var(--custom-color-rgb) / 0.2) !important;
+  outline: none;
+}
+
+/* Checkboxes y radios con el color personalizado */
+.theme-custom input[type="checkbox"]:checked,
+.theme-custom input[type="radio"]:checked {
+  background-color: rgb(var(--custom-color-rgb)) !important;
+  border-color: rgb(var(--custom-color-rgb)) !important;
+}
+
+/* Links con el color personalizado */
+.theme-custom a:not(.nav-link):not([class*="bg-"]) {
+  color: rgb(var(--custom-color-rgb));
+}
+
+.theme-custom a:not(.nav-link):not([class*="bg-"]):hover {
+  color: rgb(var(--custom-color-rgb) / 0.8);
+}
+
+/* Badges y etiquetas con el color personalizado */
+.theme-custom .badge,
+.theme-custom .inline-flex.items-center.px-2 {
+  background-color: rgb(var(--custom-color-rgb) / 0.1);
+  color: rgb(var(--custom-color-rgb));
+  border: 1px solid rgb(var(--custom-color-rgb) / 0.3);
+}
+
+/* Tablas - headers con el color personalizado */
+.theme-custom thead th {
+  background-color: rgb(var(--custom-color-rgb) / 0.1) !important;
+  border-bottom: 2px solid rgb(var(--custom-color-rgb)) !important;
+}
+
+.theme-custom tr:hover td {
+  background-color: rgb(var(--custom-color-rgb) / 0.05) !important;
+}
+
+/* Bordes activos y focus con el color personalizado */
+.theme-custom .border-indigo-500,
+.theme-custom .border-indigo-600 {
+  border-color: rgb(var(--custom-color-rgb)) !important;
+}
+
+/* Textos con el color personalizado */
+.theme-custom .text-indigo-500,
+.theme-custom .text-indigo-600,
+.theme-custom .text-indigo-700 {
+  color: rgb(var(--custom-color-rgb)) !important;
+}
+
+/* Backgrounds de tarjetas y contenedores */
+.theme-custom .rounded-2xl,
+.theme-custom .rounded-xl,
+.theme-custom .rounded-lg {
+  border: 1px solid rgb(var(--custom-color-rgb) / 0.1);
+  box-shadow: 0 0 20px rgb(var(--custom-color-rgb) / 0.05);
+}
+
+.theme-custom .rounded-2xl:hover,
+.theme-custom .rounded-xl:hover,
+.theme-custom .rounded-lg:hover {
+  border-color: rgb(var(--custom-color-rgb) / 0.3);
+  box-shadow: 0 0 30px rgb(var(--custom-color-rgb) / 0.15);
+}
+
+/* Divisores con el color personalizado */
+.theme-custom hr,
+.theme-custom .border-t,
+.theme-custom .border-b {
+  border-color: rgb(var(--custom-color-rgb) / 0.2) !important;
+}
+
+/* Pills, tabs y navegación con el color personalizado */
+.theme-custom [aria-selected="true"],
+.theme-custom .active {
+  background-color: rgb(var(--custom-color-rgb)) !important;
+  color: white !important;
+}
+
+/* Scrollbars con el color personalizado */
+.theme-custom ::-webkit-scrollbar-thumb {
+  background-color: rgb(var(--custom-color-rgb) / 0.3);
+}
+
+.theme-custom ::-webkit-scrollbar-thumb:hover {
+  background-color: rgb(var(--custom-color-rgb) / 0.5);
 }
 
 /* ================================

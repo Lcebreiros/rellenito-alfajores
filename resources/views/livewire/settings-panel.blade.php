@@ -74,42 +74,47 @@
         applyThemeImmediate(theme) {
             // Remover todas las clases de tema
             document.documentElement.classList.remove(
-                'dark', 'theme-neon', 'theme-cyberpunk', 'theme-ocean',
-                'theme-sunset', 'theme-forest', 'theme-midnight',
-                'theme-rose', 'theme-monochrome'
+                'dark', 'theme-neon', 'theme-custom'
             );
 
             // Agregar la clase del nuevo tema
             if (theme === 'dark') {
                 document.documentElement.classList.add('dark');
+            } else if (theme === 'neon') {
+                // Neon hereda dark + agrega efectos neón
+                document.documentElement.classList.add('dark', 'theme-neon');
+            } else if (theme === 'custom') {
+                document.documentElement.classList.add('theme-custom');
+                // Aplicar el color personalizado guardado
+                if (window.applyCustomColor) {
+                    window.applyCustomColor('{{ $custom_color }}');
+                }
             } else if (theme !== 'light') {
                 document.documentElement.classList.add('theme-' + theme);
             }
         }
-    }" class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-3">
+    }" class="space-y-6">
 
+      {{-- Grid de temas --}}
+      <div class="grid grid-cols-2 md:grid-cols-4 gap-4">
         @foreach($availableThemes as $themeItem)
         <button type="button"
                 @click="selectTheme('{{ $themeItem['id'] }}')"
                 :disabled="isChanging"
-                class="group relative rounded-xl p-4 border-2 transition-all duration-200
-                       hover:scale-105 hover:shadow-lg disabled:opacity-50 disabled:cursor-not-allowed
+                class="relative rounded-xl p-5 border-2 transition-all duration-200
+                       bg-white dark:bg-neutral-900
+                       hover:shadow-md disabled:opacity-50 disabled:cursor-not-allowed
                        focus:outline-none focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:ring-indigo-500"
                 :class="t === '{{ $themeItem['id'] }}'
-                    ? 'border-indigo-500 ring-2 ring-indigo-200 dark:ring-indigo-900'
-                    : 'border-neutral-200 dark:border-neutral-700 hover:border-indigo-300'">
-
-            {{-- Gradiente de fondo --}}
-            <div class="absolute inset-0 rounded-xl bg-gradient-to-br {{ $themeItem['gradient'] }} opacity-20
-                        group-hover:opacity-30 transition-opacity"></div>
+                    ? 'border-indigo-600 shadow-sm'
+                    : 'border-neutral-200 dark:border-neutral-700 hover:border-neutral-300 dark:hover:border-neutral-600'">
 
             {{-- Contenido --}}
-            <div class="relative flex flex-col items-center gap-2">
-                <span class="text-3xl">{{ $themeItem['icon'] }}</span>
-                <span class="text-sm font-semibold text-neutral-900 dark:text-neutral-100">
+            <div class="flex flex-col items-center gap-3 text-center">
+                <span class="text-base font-semibold text-neutral-900 dark:text-neutral-100">
                     {{ $themeItem['name'] }}
                 </span>
-                <span class="text-xs text-neutral-600 dark:text-neutral-400 text-center">
+                <span class="text-xs text-neutral-600 dark:text-neutral-400">
                     {{ $themeItem['description'] }}
                 </span>
             </div>
@@ -119,7 +124,7 @@
                  x-transition:enter="transition ease-out duration-200"
                  x-transition:enter-start="opacity-0 scale-50"
                  x-transition:enter-end="opacity-100 scale-100"
-                 class="absolute top-2 right-2 w-5 h-5 rounded-full bg-indigo-500
+                 class="absolute top-3 right-3 w-5 h-5 rounded-full bg-indigo-600
                         flex items-center justify-center text-white">
                 <svg class="w-3 h-3" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M5 13l4 4L19 7" />
@@ -127,12 +132,55 @@
             </div>
         </button>
         @endforeach
+      </div>
 
+      {{-- Color picker para tema personalizado --}}
+      <div x-show="t === 'custom'"
+           x-transition:enter="transition ease-out duration-200"
+           x-transition:enter-start="opacity-0 -translate-y-2"
+           x-transition:enter-end="opacity-100 translate-y-0"
+           class="p-5 rounded-xl bg-neutral-50 dark:bg-neutral-800/50 border border-neutral-200 dark:border-neutral-700">
+        <label class="block text-sm font-medium text-neutral-700 dark:text-neutral-300 mb-3">
+          Seleccioná tu color personalizado
+        </label>
+        <div class="flex items-center gap-3">
+          <div class="relative flex-1">
+            <input type="color"
+                   wire:model.defer="custom_color"
+                   class="w-20 h-12 rounded-lg border-2 border-neutral-300 dark:border-neutral-600
+                          cursor-pointer transition-all hover:border-indigo-400">
+            <input type="text"
+                   wire:model.defer="custom_color"
+                   placeholder="#6366f1"
+                   class="absolute left-24 top-0 h-12 flex-1 rounded-lg px-4 py-2
+                          border-neutral-300 dark:border-neutral-600
+                          dark:bg-neutral-900 dark:text-neutral-100
+                          focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500
+                          font-mono text-sm">
+          </div>
+          <button wire:click="saveCustomColor"
+                  wire:loading.attr="disabled"
+                  wire:loading.class="opacity-50 cursor-not-allowed"
+                  class="px-5 py-3 rounded-lg bg-indigo-600 hover:bg-indigo-700
+                         text-white font-medium text-sm transition-all duration-200 shadow-sm hover:shadow-md
+                         disabled:opacity-60 disabled:cursor-not-allowed
+                         dark:bg-indigo-500 dark:hover:bg-indigo-600">
+            <span wire:loading.remove>Guardar Color</span>
+            <span wire:loading>Guardando...</span>
+          </button>
+        </div>
+        @error('custom_color')
+          <p class="mt-2 text-sm text-rose-600 dark:text-rose-400">{{ $message }}</p>
+        @enderror
+        <p class="mt-3 text-xs text-neutral-600 dark:text-neutral-400">
+          Ingresá un código hexadecimal válido (ejemplo: #6366f1) o usá el selector de color.
+        </p>
+      </div>
+
+      <p class="text-xs text-neutral-600 dark:text-neutral-400">
+        Los cambios se aplican instantáneamente sin recargar la página.
+      </p>
     </div>
-
-    <p class="mt-4 text-xs text-neutral-600 dark:text-neutral-400">
-      Los cambios se aplican instantáneamente sin recargar la página.
-    </p>
   </div>
 
 {{-- CARD: Zona horaria (mejorada y optimizada para solapes) --}}

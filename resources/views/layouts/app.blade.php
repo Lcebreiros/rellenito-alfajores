@@ -3,9 +3,13 @@
     $themeClass = '';
     if ($theme === 'dark') {
         $themeClass = 'dark';
+    } elseif ($theme === 'neon') {
+        // Neon hereda dark + agrega efectos neón
+        $themeClass = 'dark theme-neon';
     } elseif ($theme !== 'light') {
         $themeClass = 'theme-' . $theme;
     }
+    $customColor = \App\Models\Setting::get('custom_color', '#6366f1');
 @endphp
 <!DOCTYPE html>
 <html lang="{{ str_replace('_', '-', app()->getLocale()) }}"
@@ -30,6 +34,16 @@
     (function () {
       const collapsed = localStorage.getItem('sidebar:collapsed') === '1';
       document.documentElement.classList.toggle('sb-collapsed', collapsed);
+
+      // Aplicar color personalizado si el tema custom está activo
+      @if($theme === 'custom')
+        const customColor = '{{ $customColor }}';
+        const hex = customColor.replace('#', '');
+        const r = parseInt(hex.substring(0, 2), 16);
+        const g = parseInt(hex.substring(2, 4), 16);
+        const b = parseInt(hex.substring(4, 6), 16);
+        document.documentElement.style.setProperty('--custom-color-rgb', `${r} ${g} ${b}`);
+      @endif
     })();
   </script>
 
@@ -249,18 +263,48 @@
 
       // Remover todas las clases de tema
       document.documentElement.classList.remove(
-        'dark', 'theme-neon', 'theme-cyberpunk', 'theme-ocean',
-        'theme-sunset', 'theme-forest', 'theme-midnight',
-        'theme-rose', 'theme-monochrome'
+        'dark', 'theme-neon', 'theme-custom'
       );
 
       // Agregar la clase del nuevo tema
       if (theme === 'dark') {
         document.documentElement.classList.add('dark');
+      } else if (theme === 'neon') {
+        // Neon hereda dark + agrega efectos neón
+        document.documentElement.classList.add('dark', 'theme-neon');
       } else if (theme !== 'light') {
         document.documentElement.classList.add('theme-' + theme);
       }
     });
+
+    // Escuchar cambios en el color personalizado
+    window.addEventListener('custom-color-updated', (e) => {
+      const color = e.detail?.color || '#6366f1';
+      window.applyCustomColor(color);
+
+      // Asegurarse de que el tema custom esté activo
+      if (!document.documentElement.classList.contains('theme-custom')) {
+        document.documentElement.classList.remove('dark', 'theme-neon');
+        document.documentElement.classList.add('theme-custom');
+      }
+    });
+
+    // Función global para aplicar color personalizado
+    window.applyCustomColor = function(hexColor) {
+      // Convertir hex a RGB
+      const hex = hexColor.replace('#', '');
+      const r = parseInt(hex.substring(0, 2), 16);
+      const g = parseInt(hex.substring(2, 4), 16);
+      const b = parseInt(hex.substring(4, 6), 16);
+
+      // Aplicar el color como CSS variable
+      document.documentElement.style.setProperty('--custom-color-rgb', `${r} ${g} ${b}`);
+    }
+
+    // Aplicar el color personalizado al cargar la página si el tema es custom
+    @if($theme === 'custom')
+      window.applyCustomColor('{{ $customColor }}');
+    @endif
   </script>
 
   {{-- Global search (Ctrl/Cmd + K) --}}

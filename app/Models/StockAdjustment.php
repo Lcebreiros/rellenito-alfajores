@@ -20,6 +20,7 @@ class StockAdjustment extends Model
         'reference_type',    // Tipo polimórfico
         'notes',             // Notas adicionales
         'branch_id',         // Sucursal donde ocurrió el ajuste
+        'created_at',        // Permitir actualizar la fecha del ajuste
     ];
 
     protected $casts = [
