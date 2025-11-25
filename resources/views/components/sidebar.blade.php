@@ -7,9 +7,9 @@
     $firstName = $fullName !== '' ? preg_split('/\s+/', $fullName)[0] : null;
     $panelText = $firstName ? ($firstName.' Panel') : 'Panel';
 
-    // Estados activo/inactivo (neutral/zinc, sin tinte azul)
-    $active = 'text-neutral-900 dark:text-white font-semibold bg-neutral-100 dark:bg-neutral-800';
-    $idle   = 'text-neutral-600 dark:text-neutral-300 hover:text-neutral-900 dark:hover:text-white hover:bg-neutral-50 dark:hover:bg-neutral-800/70';
+    // Estados activo/inactivo - integrados con sistema de temas
+    $active = 'text-neutral-900 dark:text-white font-semibold sidebar-nav-active';
+    $idle   = 'text-neutral-600 dark:text-neutral-300 hover:text-neutral-900 dark:hover:text-white sidebar-nav-idle';
 @endphp
 
 <style>
@@ -231,7 +231,7 @@
   .fade-slide-enter {
     animation: fadeSlideIn .3s cubic-bezier(.34,1.56,.64,1) forwards;
   }
-  
+
   @keyframes fadeSlideIn {
     from {
       opacity: 0;
@@ -241,6 +241,232 @@
       opacity: 1;
       transform: translateX(0);
     }
+  }
+
+  /* Glass morphism en sidebar */
+  .sidebar-container {
+    background: linear-gradient(
+      180deg,
+      rgb(250 250 250 / 0.85) 0%,
+      rgb(250 250 250 / 0.90) 100%
+    );
+    backdrop-filter: blur(16px) saturate(120%);
+    -webkit-backdrop-filter: blur(16px) saturate(120%);
+  }
+
+  .dark .sidebar-container {
+    background: linear-gradient(
+      180deg,
+      rgb(10 10 11 / 0.85) 0%,
+      rgb(10 10 11 / 0.90) 100%
+    );
+  }
+
+  /* Estados del nav con integración de temas */
+  .sidebar-nav-idle {
+    position: relative;
+  }
+
+  .sidebar-nav-idle:hover {
+    background: rgb(var(--sidebar-hover-bg));
+  }
+
+  .sidebar-nav-active {
+    position: relative;
+    background: rgb(var(--sidebar-active-bg));
+    border-left: 3px solid transparent;
+  }
+
+  /* Borde de color del módulo activo */
+  .nav-link[data-module="orders"].sidebar-nav-active {
+    border-left-color: rgb(var(--module-orders-500));
+    background: linear-gradient(
+      90deg,
+      rgb(var(--module-orders-50) / 0.5) 0%,
+      rgb(var(--module-orders-50) / 0.2) 50%,
+      transparent 100%
+    );
+  }
+
+  .nav-link[data-module="products"].sidebar-nav-active {
+    border-left-color: rgb(var(--module-products-500));
+    background: linear-gradient(
+      90deg,
+      rgb(var(--module-products-50) / 0.5) 0%,
+      rgb(var(--module-products-50) / 0.2) 50%,
+      transparent 100%
+    );
+  }
+
+  .nav-link[data-module="clients"].sidebar-nav-active {
+    border-left-color: rgb(var(--module-clients-500));
+    background: linear-gradient(
+      90deg,
+      rgb(var(--module-clients-50) / 0.5) 0%,
+      rgb(var(--module-clients-50) / 0.2) 50%,
+      transparent 100%
+    );
+  }
+
+  .nav-link[data-module="dashboard"].sidebar-nav-active {
+    border-left-color: rgb(var(--module-dashboard-500));
+    background: linear-gradient(
+      90deg,
+      rgb(var(--module-dashboard-50) / 0.5) 0%,
+      rgb(var(--module-dashboard-50) / 0.2) 50%,
+      transparent 100%
+    );
+  }
+
+  .nav-link[data-module="expenses"].sidebar-nav-active {
+    border-left-color: rgb(var(--module-expenses-500));
+    background: linear-gradient(
+      90deg,
+      rgb(var(--module-expenses-50) / 0.5) 0%,
+      rgb(var(--module-expenses-50) / 0.2) 50%,
+      transparent 100%
+    );
+  }
+
+  .nav-link[data-module="company"].sidebar-nav-active {
+    border-left-color: rgb(var(--module-company-500));
+    background: linear-gradient(
+      90deg,
+      rgb(var(--module-company-50) / 0.5) 0%,
+      rgb(var(--module-company-50) / 0.2) 50%,
+      transparent 100%
+    );
+  }
+
+  .nav-link[data-module="employees"].sidebar-nav-active {
+    border-left-color: rgb(var(--module-employees-500));
+    background: linear-gradient(
+      90deg,
+      rgb(var(--module-employees-50) / 0.5) 0%,
+      rgb(var(--module-employees-50) / 0.2) 50%,
+      transparent 100%
+    );
+  }
+
+  .nav-link[data-module="services"].sidebar-nav-active {
+    border-left-color: rgb(var(--module-services-500));
+    background: linear-gradient(
+      90deg,
+      rgb(var(--module-services-50) / 0.5) 0%,
+      rgb(var(--module-services-50) / 0.2) 50%,
+      transparent 100%
+    );
+  }
+
+  .nav-link[data-module="stock"].sidebar-nav-active {
+    border-left-color: rgb(var(--module-stock-500));
+    background: linear-gradient(
+      90deg,
+      rgb(var(--module-stock-50) / 0.5) 0%,
+      rgb(var(--module-stock-50) / 0.2) 50%,
+      transparent 100%
+    );
+  }
+
+  .nav-link[data-module="payment"].sidebar-nav-active {
+    border-left-color: rgb(var(--module-payment-500));
+    background: linear-gradient(
+      90deg,
+      rgb(var(--module-payment-50) / 0.5) 0%,
+      rgb(var(--module-payment-50) / 0.2) 50%,
+      transparent 100%
+    );
+  }
+
+  /* Modo oscuro - gradientes más sutiles */
+  .dark .nav-link[data-module="orders"].sidebar-nav-active {
+    background: linear-gradient(
+      90deg,
+      rgb(var(--module-orders-500) / 0.15) 0%,
+      rgb(var(--module-orders-500) / 0.08) 50%,
+      transparent 100%
+    );
+  }
+
+  .dark .nav-link[data-module="products"].sidebar-nav-active {
+    background: linear-gradient(
+      90deg,
+      rgb(var(--module-products-500) / 0.15) 0%,
+      rgb(var(--module-products-500) / 0.08) 50%,
+      transparent 100%
+    );
+  }
+
+  .dark .nav-link[data-module="clients"].sidebar-nav-active {
+    background: linear-gradient(
+      90deg,
+      rgb(var(--module-clients-500) / 0.15) 0%,
+      rgb(var(--module-clients-500) / 0.08) 50%,
+      transparent 100%
+    );
+  }
+
+  .dark .nav-link[data-module="dashboard"].sidebar-nav-active {
+    background: linear-gradient(
+      90deg,
+      rgb(var(--module-dashboard-500) / 0.15) 0%,
+      rgb(var(--module-dashboard-500) / 0.08) 50%,
+      transparent 100%
+    );
+  }
+
+  .dark .nav-link[data-module="expenses"].sidebar-nav-active {
+    background: linear-gradient(
+      90deg,
+      rgb(var(--module-expenses-500) / 0.15) 0%,
+      rgb(var(--module-expenses-500) / 0.08) 50%,
+      transparent 100%
+    );
+  }
+
+  .dark .nav-link[data-module="company"].sidebar-nav-active {
+    background: linear-gradient(
+      90deg,
+      rgb(var(--module-company-500) / 0.15) 0%,
+      rgb(var(--module-company-500) / 0.08) 50%,
+      transparent 100%
+    );
+  }
+
+  .dark .nav-link[data-module="employees"].sidebar-nav-active {
+    background: linear-gradient(
+      90deg,
+      rgb(var(--module-employees-500) / 0.15) 0%,
+      rgb(var(--module-employees-500) / 0.08) 50%,
+      transparent 100%
+    );
+  }
+
+  .dark .nav-link[data-module="services"].sidebar-nav-active {
+    background: linear-gradient(
+      90deg,
+      rgb(var(--module-services-500) / 0.15) 0%,
+      rgb(var(--module-services-500) / 0.08) 50%,
+      transparent 100%
+    );
+  }
+
+  .dark .nav-link[data-module="stock"].sidebar-nav-active {
+    background: linear-gradient(
+      90deg,
+      rgb(var(--module-stock-500) / 0.15) 0%,
+      rgb(var(--module-stock-500) / 0.08) 50%,
+      transparent 100%
+    );
+  }
+
+  .dark .nav-link[data-module="payment"].sidebar-nav-active {
+    background: linear-gradient(
+      90deg,
+      rgb(var(--module-payment-500) / 0.15) 0%,
+      rgb(var(--module-payment-500) / 0.08) 50%,
+      transparent 100%
+    );
   }
 </style>
 
