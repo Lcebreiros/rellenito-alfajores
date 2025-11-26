@@ -5,11 +5,24 @@
   $latest = \App\Models\UserNotification::forUser($user?->id)->latest()->take(10)->get();
 @endphp
 
+<style>
+  [x-cloak] { display: none !important; }
+</style>
+
 <div x-data="{
   open: false,
   unreadCount: {{ $unread }},
   dropdownStyle: '',
   closeDropdown() { this.open = false; },
+  cleanupTeleports() {
+    document.querySelectorAll('.notifications-dropdown').forEach(el => {
+      if (!el.closest('[x-data]')) {
+        el.remove();
+      } else {
+        el.style.display = 'none';
+      }
+    });
+  },
   updatePosition() {
     if (!this.$refs || !this.$refs.bellBtn) return;
     const btn = this.$refs.bellBtn;
@@ -35,18 +48,22 @@
   }
 }"
 x-init="
-  setTimeout(() => updatePosition(), 0);
+  open = false;
+  cleanupTeleports();
+  requestAnimationFrame(() => { open = false; updatePosition(); });
   window.addEventListener('resize', () => updatePosition());
   window.addEventListener('scroll', () => updatePosition(), { passive: true });
   // Siempre cerrar al navegar o volver
   const close = () => { open = false; };
+  window.addEventListener('livewire:navigating', close);
   window.addEventListener('livewire:navigated', close);
   window.addEventListener('popstate', close);
   window.addEventListener('pageshow', close);
+  window.addEventListener('beforeunload', close);
 "
 @notification-received.window="unreadCount++"
 class="relative">
-  <button x-ref="bellBtn" @click="open = !open; updatePosition()" @keydown.escape.window="open=false"
+  <button x-ref="bellBtn" @click="open = !open; if(open){ updatePosition(); } else { closeDropdown(); }" @keydown.escape.window="open=false"
           class="relative inline-flex items-center justify-center w-10 h-10 rounded-full border border-neutral-300 dark:border-neutral-700 bg-white dark:bg-neutral-900 hover:bg-neutral-50 dark:hover:bg-neutral-800 transition focus:outline-none focus-visible:ring-2 focus-visible:ring-indigo-500">
     <svg class="w-5 h-5 text-neutral-700 dark:text-neutral-200" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true">
       <path d="M15 17h5l-1.4-1.4A2 2 0 0 1 18 14.2V11a6 6 0 1 0-12 0v3.2c0 .5-.2 1-.6 1.4L4 17h5" stroke-linecap="round" stroke-linejoin="round"/>
@@ -61,8 +78,10 @@ class="relative">
   </button>
 
   <template x-teleport="body">
-    <div x-cloak x-show="open" @click.outside="open=false"
+    <div x-cloak x-show="open" x-ref="dropdown" x-effect="$refs.dropdown && ($refs.dropdown.style.display = open ? 'block' : 'none')"
+         @click.outside="open=false"
          class="notifications-dropdown fixed w-80 max-w-[90vw] rounded-xl border border-neutral-200 dark:border-neutral-800 bg-white dark:bg-neutral-900 shadow-lg z-[2147483647] overflow-hidden"
+         style="display:none"
          :style="dropdownStyle">
       <div class="notifications-header px-4 py-3 border-b border-neutral-200 dark:border-neutral-800 flex items-center justify-between bg-neutral-50 dark:bg-neutral-900">
         <div class="text-sm font-semibold text-neutral-800 dark:text-neutral-100">Notificaciones</div>
