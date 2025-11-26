@@ -521,3 +521,8 @@ Route::middleware(['auth'])->group(function () {
             Route::get('/{branch}/users', [ApiBranchController::class, 'users'])->name('users');
         });
     });*/
+
+Route::get('/trial-requests', function () {
+    return view('trial-requests');
+})->name('trial-requests');
+

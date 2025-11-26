@@ -776,6 +776,23 @@
 @endif
 @endauth
 
+      <!-- Solicitudes de Prueba (solo Master) -->
+      @auth
+        @if(auth()->user()->isMaster())
+          <a href="{{ route('trial-requests') }}" wire:navigate data-turbo="false"
+             class="nav-link {{ request()->routeIs('trial-requests') ? $active : $idle }}"
+             :class="collapsed ? 'justify-center flex items-center gap-3 p-3' : 'flex items-center gap-3 p-3'"
+             :title="collapsed ? 'Solicitudes de Prueba' : null">
+            <span class="shrink-0 flex items-center justify-center w-7 h-7">
+              <svg class="w-6 h-6 text-neutral-600 dark:text-neutral-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/>
+              </svg>
+            </span>
+            <span x-show="!collapsed" x-transition:enter="fade-slide-enter"
+                  class="text-sm font-semibold truncate relative z-1">Solicitudes</span>
+          </a>
+        @endif
+      @endauth
 
       <!-- Configuración -->
       <a href="{{ route('settings') }}" wire:navigate data-turbo="false" data-module="company"
