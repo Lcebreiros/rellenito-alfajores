@@ -9,6 +9,7 @@
   open: false,
   unreadCount: {{ $unread }},
   dropdownStyle: '',
+  closeDropdown() { this.open = false; },
   updatePosition() {
     if (!this.$refs || !this.$refs.bellBtn) return;
     const btn = this.$refs.bellBtn;
@@ -33,7 +34,16 @@
     });
   }
 }"
-x-init="setTimeout(() => updatePosition(), 0); window.addEventListener('resize', () => updatePosition()); window.addEventListener('scroll', () => updatePosition(), { passive: true })"
+x-init="
+  setTimeout(() => updatePosition(), 0);
+  window.addEventListener('resize', () => updatePosition());
+  window.addEventListener('scroll', () => updatePosition(), { passive: true });
+  // Siempre cerrar al navegar o volver
+  const close = () => { open = false; };
+  window.addEventListener('livewire:navigated', close);
+  window.addEventListener('popstate', close);
+  window.addEventListener('pageshow', close);
+"
 @notification-received.window="unreadCount++"
 class="relative">
   <button x-ref="bellBtn" @click="open = !open; updatePosition()" @keydown.escape.window="open=false"
