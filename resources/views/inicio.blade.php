@@ -119,7 +119,7 @@
     {{-- Clientes --}}
     <a href="{{ route('clients.index') }}" class="{{ $tile }}">
       <div class="{{ $box }}">
-        <img src="{{ asset('images/empleados.png') }}" alt="Clientes" class="{{ $imgCls }}">
+        <img src="{{ asset('images/clientes.png') }}" alt="Clientes" class="{{ $imgCls }}">
         <div class="{{ $titleCls }}">Clientes</div>
         <div class="{{ $descCls }}">CRM básico</div>
       </div>
