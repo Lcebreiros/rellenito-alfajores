@@ -48,12 +48,18 @@
   </script>
 
   <style>
+    :root {
+      --sb-width: 16rem;
+      --sb-width-collapsed: 4rem;
+    }
     .app-main{
-      margin-left: 18rem; /* w-72 */
+      margin-left: var(--sb-width);
       transition: margin-left .5s cubic-bezier(.16,1,.3,1);
       min-width: 0;
     }
-    .sb-collapsed .app-main{ margin-left: 5rem; } /* w-20 */
+    .sb-collapsed .app-main{
+      margin-left: var(--sb-width-collapsed);
+    }
     @media (max-width: 767px) { .app-main{ margin-left: 0; } }
   </style>
   @if (trim($__env->yieldContent('no_sidebar')))

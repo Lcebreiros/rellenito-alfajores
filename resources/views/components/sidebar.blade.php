@@ -25,7 +25,7 @@
     --sidebar-ring: #e4e4e7;
     --sidebar-shadow: 0 1px 2px 0 rgba(0,0,0,.03), 0 1px 3px 0 rgba(0,0,0,.02);
     --sidebar-shadow-hover: 0 4px 6px -1px rgba(0,0,0,.06), 0 2px 4px -1px rgba(0,0,0,.03);
-    --sb-width: 18rem;
+    --sb-width: 16rem;
   }
   
   .dark {
@@ -90,8 +90,8 @@
 
   .sidebar-container {
     background: var(--sidebar-bg);
-    border-color: var(--sidebar-border);
-    box-shadow: var(--sidebar-shadow);
+    border-width: 0;
+    box-shadow: var(--sidebar-shadow), 8px 0 30px -18px rgba(0,0,0,0.35);
     transition: all .3s cubic-bezier(.16,1,.3,1);
     backdrop-filter: blur(8px);
     -webkit-backdrop-filter: blur(8px);
@@ -99,12 +99,26 @@
 
   .sidebar-header {
     background: var(--sidebar-bg);
-    border-color: var(--sidebar-border);
+    border-color: transparent;
   }
 
   .sidebar-footer {
     background: var(--sidebar-bg);
-    border-color: var(--sidebar-border);
+    border-color: transparent;
+  }
+
+  /* Botón de colapsar con fondo unificado */
+  .sidebar-footer .sidebar-button {
+    background: var(--sidebar-bg);
+    border-color: transparent;
+  }
+  .sidebar-footer .sidebar-button:hover {
+    background: var(--sidebar-hover-bg);
+  }
+
+  /* Toggle container con fondo sólido */
+  .sidebar-toggle {
+    background: var(--sidebar-bg);
   }
 
   .sidebar-nav {
@@ -221,6 +235,9 @@
   
   aside[data-collapsed="true"] .nav-link {
     justify-content: center;
+    padding-left: 0.75rem !important;
+    padding-right: 0.25rem !important;
+    gap: 0.5rem;
   }
   
   aside[data-collapsed="true"] .nav-icon {
@@ -510,7 +527,7 @@
         // Clase que usa tu layout (.sb-collapsed .app-main { margin-left: 5rem; })
         document.documentElement.classList.toggle('sb-collapsed', this.collapsed === true);
         // (opcional) variable para otras UIs
-        document.documentElement.style.setProperty('--sb-width', this.collapsed ? '5rem' : '18rem');
+        document.documentElement.style.setProperty('--sb-width', this.collapsed ? '4rem' : '16rem');
       },
       observeThemeChanges() {
         const observer = new MutationObserver((m) => {
@@ -529,9 +546,9 @@
   }"
   x-effect="sync()"  {{-- asegura sincronía si Alpine rehidrata --}}
   x-bind:data-collapsed="collapsed ? 'true' : 'false'"
-  :class="collapsed ? 'w-20' : 'w-72 sm:w-72 lg:w-72'"
+  :class="collapsed ? 'w-16' : 'w-64 sm:w-64 lg:w-64'"
   class="sidebar-container fixed inset-y-0 left-0 z-50 overflow-hidden
-         border-r transition-[width] duration-500 ease-[cubic-bezier(0.16,1,0.3,1)]"
+         transition-[width] duration-500 ease-[cubic-bezier(0.16,1,0.3,1)]"
   style="height: 100vh; height: calc(var(--vh, 1vh) * 100);">
 
   <div class="h-full flex flex-col">
@@ -595,7 +612,8 @@
     </div>
 
     <!-- NAV -->
-    <nav class="sidebar-nav flex-1 min-h-0 overflow-y-auto px-3 pt-4 pb-2 space-y-1 custom-scrollbar"
+    <nav class="sidebar-nav flex-1 min-h-0 overflow-y-auto pt-4 pb-2 space-y-1 custom-scrollbar"
+         :class="collapsed ? 'px-0' : 'px-3'"
          :class="animating ? 'pointer-events-none select-none' : ''">
 
       <!-- Dashboard -->
@@ -820,7 +838,7 @@
     </nav>
 
     <!-- Toggle -->
-    <div class="flex-shrink-0 pt-2 pb-3 px-3">
+    <div class="sidebar-toggle flex-shrink-0 pt-2 pb-3 px-3">
       <button @click="toggle()" :disabled="animating"
               class="sidebar-button w-full flex items-center justify-center gap-2 text-xs py-2.5 px-3 rounded-xl border"
               :title="collapsed ? 'Expandir sidebar' : 'Contraer sidebar'">

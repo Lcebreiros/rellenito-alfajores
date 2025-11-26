@@ -145,7 +145,7 @@
         </label>
 
         {{-- Layout responsivo: columna en móvil, fila en desktop --}}
-        <div class="flex flex-col sm:flex-row gap-3">
+        <div class="flex flex-col sm:flex-row sm:flex-wrap sm:items-center gap-3">
           {{-- Contenedor de color picker y texto --}}
           <div class="flex items-center gap-3 flex-1">
             <input type="color"
@@ -168,7 +168,7 @@
                   wire:loading.class="opacity-50 cursor-not-allowed"
                   class="w-full sm:w-auto px-5 py-3 rounded-lg bg-indigo-600 hover:bg-indigo-700
                          text-white font-medium text-sm transition-all duration-200 shadow-sm hover:shadow-md
-                         disabled:opacity-60 disabled:cursor-not-allowed flex-shrink-0
+                         disabled:opacity-60 disabled:cursor-not-allowed sm:self-start
                          dark:bg-indigo-500 dark:hover:bg-indigo-600">
             <span wire:loading.remove>Guardar Color</span>
             <span wire:loading>Guardando...</span>
