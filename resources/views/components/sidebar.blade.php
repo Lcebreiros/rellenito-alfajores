@@ -674,6 +674,18 @@
       </a>
       @endif
 
+      <!-- Stock -->
+      <a href="{{ route('stock.index') }}#stock" wire:navigate data-turbo="false" data-module="stock"
+         class="nav-link {{ request()->fullUrlIs(route('stock.index').'#stock') ? $active : $idle }}"
+         :class="collapsed ? 'justify-center flex items-center gap-3 p-3' : 'flex items-center gap-3 p-3'"
+         :title="collapsed ? 'Stock' : null">
+        <span class="shrink-0 flex items-center justify-center w-7 h-7">
+          <img src="{{ asset('images/stock.png') }}" alt="Stock" class="nav-icon">
+        </span>
+        <span x-show="!collapsed" x-transition:enter="fade-slide-enter"
+              class="text-sm font-semibold truncate relative z-1">Stock</span>
+      </a>
+
       <!-- Servicios -->
       @if(auth()->user()->hasModule('servicios'))
       <a href="{{ route('services.index') }}" wire:navigate data-turbo="false" data-module="services"
@@ -714,18 +726,6 @@
               class="text-sm font-semibold truncate relative z-1">Métodos de Pago</span>
       </a>
 
-      <!-- Stock -->
-      <a href="{{ route('stock.index') }}#stock" wire:navigate data-turbo="false" data-module="stock"
-         class="nav-link {{ request()->fullUrlIs(route('stock.index').'#stock') ? $active : $idle }}"
-         :class="collapsed ? 'justify-center flex items-center gap-3 p-3' : 'flex items-center gap-3 p-3'"
-         :title="collapsed ? 'Stock' : null">
-        <span class="shrink-0 flex items-center justify-center w-7 h-7">
-          <img src="{{ asset('images/stock.png') }}" alt="Stock" class="nav-icon">
-        </span>
-        <span x-show="!collapsed" x-transition:enter="fade-slide-enter"
-              class="text-sm font-semibold truncate relative z-1">Stock</span>
-      </a>
-
       <!-- Calcular costos -->
       <a href="{{ route('expenses.index') }}"" wire:navigate data-turbo="false" data-module="expenses"
          class="nav-link {{ request()->routeIs('costs.*') ? $active : $idle }}"
@@ -735,7 +735,7 @@
           <img src="{{ asset('images/calcular-costos.png') }}" alt="Calcular costos" class="nav-icon">
         </span>
         <span x-show="!collapsed" x-transition:enter="fade-slide-enter"
-              class="text-sm font-semibold truncate relative z-1">Costos</span>
+              class="text-sm font-semibold truncate relative z-1">Gastos</span>
       </a>
 
 @auth
