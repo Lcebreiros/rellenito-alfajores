@@ -409,11 +409,18 @@
   text-shadow: 0 0 15px rgb(138 0 255 / 0.3);
 }
 
-/* Sidebar semitransparente con fondo negro */
+/* Sidebar con efecto glass y fondo negro transparente */
 .theme-neon .sidebar-container {
-  background: rgb(0 0 0 / 0.7);
-  backdrop-filter: blur(10px);
-  border-right: none;
+  background: linear-gradient(
+    180deg,
+    rgb(0 0 0 / 0.85) 0%,
+    rgb(0 0 0 / 0.90) 100%
+  ) !important;
+  backdrop-filter: blur(16px) saturate(120%);
+  -webkit-backdrop-filter: blur(16px) saturate(120%);
+  border-right: 1px solid rgb(138 0 255 / 0.3) !important;
+  box-shadow: 0 0 30px rgb(138 0 255 / 0.2),
+              inset 0 0 20px rgb(138 0 255 / 0.05);
 }
 
 /* Hovers con línea neón en nav links - sin glow */
@@ -442,11 +449,30 @@
   border-left: 3px solid rgb(var(--module-expenses-500));
 }
 
-/* Header semitransparente con fondo negro */
+/* Header con efecto glass y fondo negro transparente */
 .theme-neon .header-glass {
-  background: rgb(0 0 0 / 0.7);
-  backdrop-filter: blur(10px);
-  border-bottom: 1px solid rgb(138 0 255 / 0.3);
+  background: linear-gradient(
+    180deg,
+    rgb(0 0 0 / 0.80) 0%,
+    rgb(0 0 0 / 0.85) 100%
+  ) !important;
+  backdrop-filter: blur(16px) saturate(120%);
+  -webkit-backdrop-filter: blur(16px) saturate(120%);
+  border-bottom: 1px solid rgb(138 0 255 / 0.4) !important;
+  box-shadow: 0 0 20px rgb(138 0 255 / 0.15),
+              inset 0 1px 0 0 rgb(138 0 255 / 0.1);
+}
+
+/* Mobile header con efecto glass y fondo negro transparente */
+.theme-neon .md\:hidden.bg-white {
+  background: linear-gradient(
+    180deg,
+    rgb(0 0 0 / 0.80) 0%,
+    rgb(0 0 0 / 0.85) 100%
+  ) !important;
+  backdrop-filter: blur(16px) saturate(120%);
+  -webkit-backdrop-filter: blur(16px) saturate(120%);
+  border-bottom-color: rgb(138 0 255 / 0.4) !important;
 }
 
 /* Botones transparentes con borde neón */

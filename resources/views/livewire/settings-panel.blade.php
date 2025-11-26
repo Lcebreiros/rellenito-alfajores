@@ -143,32 +143,38 @@
         <label class="block text-sm font-medium text-neutral-700 dark:text-neutral-300 mb-3">
           Seleccioná tu color personalizado
         </label>
-        <div class="flex items-center gap-3">
-          <div class="relative flex-1">
+
+        {{-- Layout responsivo: columna en móvil, fila en desktop --}}
+        <div class="flex flex-col sm:flex-row gap-3">
+          {{-- Contenedor de color picker y texto --}}
+          <div class="flex items-center gap-3 flex-1">
             <input type="color"
                    wire:model.defer="custom_color"
-                   class="w-20 h-12 rounded-lg border-2 border-neutral-300 dark:border-neutral-600
-                          cursor-pointer transition-all hover:border-indigo-400">
+                   class="w-16 h-12 sm:w-20 rounded-lg border-2 border-neutral-300 dark:border-neutral-600
+                          cursor-pointer transition-all hover:border-indigo-400 flex-shrink-0">
             <input type="text"
                    wire:model.defer="custom_color"
                    placeholder="#6366f1"
-                   class="absolute left-24 top-0 h-12 flex-1 rounded-lg px-4 py-2
+                   class="flex-1 h-12 rounded-lg px-4 py-2 border-2
                           border-neutral-300 dark:border-neutral-600
                           dark:bg-neutral-900 dark:text-neutral-100
                           focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500
                           font-mono text-sm">
           </div>
+
+          {{-- Botón de guardar --}}
           <button wire:click="saveCustomColor"
                   wire:loading.attr="disabled"
                   wire:loading.class="opacity-50 cursor-not-allowed"
-                  class="px-5 py-3 rounded-lg bg-indigo-600 hover:bg-indigo-700
+                  class="w-full sm:w-auto px-5 py-3 rounded-lg bg-indigo-600 hover:bg-indigo-700
                          text-white font-medium text-sm transition-all duration-200 shadow-sm hover:shadow-md
-                         disabled:opacity-60 disabled:cursor-not-allowed
+                         disabled:opacity-60 disabled:cursor-not-allowed flex-shrink-0
                          dark:bg-indigo-500 dark:hover:bg-indigo-600">
             <span wire:loading.remove>Guardar Color</span>
             <span wire:loading>Guardando...</span>
           </button>
         </div>
+
         @error('custom_color')
           <p class="mt-2 text-sm text-rose-600 dark:text-rose-400">{{ $message }}</p>
         @enderror
