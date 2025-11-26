@@ -74,6 +74,10 @@
       margin-left: var(--sb-width-collapsed);
     }
     @media (max-width: 1024px) {
+      :root {
+        --sb-width: 0;
+        --sb-width-collapsed: 0;
+      }
       .app-main{
         margin-left: 0;
         width: 100vw;
