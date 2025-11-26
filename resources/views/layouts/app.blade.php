@@ -119,11 +119,12 @@
 
     {{-- HEADER: slot Jetstream o sección Blade --}}
     @if (isset($header))
-      <header class="header-glass border-b @if(request()->routeIs('inicio')) hidden md:block @endif">
+      <header class="header-glass @if(request()->routeIs('inicio')) hidden md:block @endif">
         <div class="w-full py-4 px-4 sm:px-6 lg:px-8">
-          <div class="flex items-center justify-between gap-4">
+          <div class="flex items-center gap-4">
             <div class="min-w-0">{{ $header }}</div>
-            <div class="flex items-center gap-2" @if(!request()->routeIs('inicio')) x-data @endif>
+            <div class="h-8 w-px bg-neutral-300 dark:bg-neutral-700"></div>
+            <div class="flex items-center gap-2 ml-auto" @if(!request()->routeIs('inicio')) x-data @endif>
               @hasSection('header_actions')
                 @yield('header_actions')
               @endif
@@ -160,11 +161,12 @@
       </header>
     @else
       @hasSection('header')
-        <header class="header-glass border-b @if(request()->routeIs('inicio')) hidden md:block @endif">
+        <header class="header-glass @if(request()->routeIs('inicio')) hidden md:block @endif">
           <div class="w-full py-4 px-4 sm:px-6 lg:px-8">
-            <div class="flex items-center justify-between gap-4">
+            <div class="flex items-center gap-4">
               <div class="min-w-0">@yield('header')</div>
-              <div class="flex items-center gap-2">
+              <div class="h-8 w-px bg-neutral-300 dark:bg-neutral-700"></div>
+              <div class="flex items-center gap-2 ml-auto">
                 @hasSection('header_actions')
                   @yield('header_actions')
                 @endif
