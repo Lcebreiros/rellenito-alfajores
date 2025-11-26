@@ -1,8 +1,8 @@
-<div class="min-h-screen">
+<div class="min-h-screen w-full overflow-x-hidden">
   {{-- Header --}}
-  <div class="mb-6">
-    <h1 class="text-2xl font-semibold text-neutral-900 dark:text-neutral-100">Solicitudes de Prueba</h1>
-    <p class="text-sm text-neutral-600 dark:text-neutral-400 mt-1">Gestiona las solicitudes de prueba gratis</p>
+  <div class="mb-4 sm:mb-6">
+    <h1 class="text-xl sm:text-2xl font-semibold text-neutral-900 dark:text-neutral-100">Solicitudes de Prueba</h1>
+    <p class="text-xs sm:text-sm text-neutral-600 dark:text-neutral-400 mt-1">Gestiona las solicitudes de prueba gratis</p>
   </div>
 
   {{-- Mensajes --}}
@@ -64,33 +64,33 @@
   </div>
 
   {{-- Filtros --}}
-  <div class="mb-4 flex gap-2">
+  <div class="mb-4 flex flex-wrap gap-2">
     <button wire:click="setFilter('pending')"
-            class="px-4 py-2 rounded-lg text-sm font-medium transition {{ $filter === 'pending' ? 'bg-yellow-500 text-white' : 'bg-neutral-200 text-neutral-700 dark:bg-neutral-800 dark:text-neutral-300' }}">
+            class="px-3 sm:px-4 py-2 rounded-lg text-xs sm:text-sm font-medium transition {{ $filter === 'pending' ? 'bg-yellow-500 text-white' : 'bg-neutral-200 text-neutral-700 dark:bg-neutral-800 dark:text-neutral-300' }}">
       Pendientes
     </button>
     <button wire:click="setFilter('approved')"
-            class="px-4 py-2 rounded-lg text-sm font-medium transition {{ $filter === 'approved' ? 'bg-green-500 text-white' : 'bg-neutral-200 text-neutral-700 dark:bg-neutral-800 dark:text-neutral-300' }}">
+            class="px-3 sm:px-4 py-2 rounded-lg text-xs sm:text-sm font-medium transition {{ $filter === 'approved' ? 'bg-green-500 text-white' : 'bg-neutral-200 text-neutral-700 dark:bg-neutral-800 dark:text-neutral-300' }}">
       Aprobadas
     </button>
     <button wire:click="setFilter('rejected')"
-            class="px-4 py-2 rounded-lg text-sm font-medium transition {{ $filter === 'rejected' ? 'bg-red-500 text-white' : 'bg-neutral-200 text-neutral-700 dark:bg-neutral-800 dark:text-neutral-300' }}">
+            class="px-3 sm:px-4 py-2 rounded-lg text-xs sm:text-sm font-medium transition {{ $filter === 'rejected' ? 'bg-red-500 text-white' : 'bg-neutral-200 text-neutral-700 dark:bg-neutral-800 dark:text-neutral-300' }}">
       Rechazadas
     </button>
     <button wire:click="setFilter('all')"
-            class="px-4 py-2 rounded-lg text-sm font-medium transition {{ $filter === 'all' ? 'bg-indigo-500 text-white' : 'bg-neutral-200 text-neutral-700 dark:bg-neutral-800 dark:text-neutral-300' }}">
+            class="px-3 sm:px-4 py-2 rounded-lg text-xs sm:text-sm font-medium transition {{ $filter === 'all' ? 'bg-indigo-500 text-white' : 'bg-neutral-200 text-neutral-700 dark:bg-neutral-800 dark:text-neutral-300' }}">
       Todas
     </button>
   </div>
 
   {{-- Lista de solicitudes --}}
-  <div class="rounded-xl border border-neutral-200 bg-white dark:border-neutral-800 dark:bg-neutral-900 overflow-hidden">
+  <div class="rounded-xl border border-neutral-200 bg-white dark:border-neutral-800 dark:bg-neutral-900 overflow-hidden w-full">
     @forelse($requests as $request)
-      <div class="p-4 border-b border-neutral-200 dark:border-neutral-800 last:border-b-0">
-        <div class="flex items-start justify-between">
-          <div class="flex-1">
-            <div class="flex items-center gap-3 mb-2">
-              <h3 class="text-lg font-semibold text-neutral-900 dark:text-neutral-100">{{ $request->name }}</h3>
+      <div class="p-3 sm:p-4 border-b border-neutral-200 dark:border-neutral-800 last:border-b-0">
+        <div class="flex flex-col sm:flex-row items-start justify-between gap-3">
+          <div class="flex-1 w-full min-w-0">
+            <div class="flex flex-wrap items-center gap-2 mb-2">
+              <h3 class="text-base sm:text-lg font-semibold text-neutral-900 dark:text-neutral-100 truncate">{{ $request->name }}</h3>
               <span class="px-2 py-1 text-xs font-medium rounded-full
                 {{ $request->isPending() ? 'bg-yellow-500/10 text-yellow-700 dark:text-yellow-400' : '' }}
                 {{ $request->isApproved() ? 'bg-green-500/10 text-green-700 dark:text-green-400' : '' }}
@@ -122,17 +122,17 @@
 
           {{-- Acciones --}}
           @if($request->isPending())
-            <div class="flex gap-2 ml-4">
+            <div class="flex flex-col sm:flex-row gap-2 w-full sm:w-auto sm:ml-4">
               <button wire:click="approve({{ $request->id }})"
                       wire:loading.attr="disabled"
                       wire:confirm="¿Aprobar esta solicitud y crear el usuario?"
-                      class="px-4 py-2 rounded-lg bg-green-600 hover:bg-green-700 text-white text-sm font-medium transition disabled:opacity-50">
+                      class="px-3 sm:px-4 py-2 rounded-lg bg-green-600 hover:bg-green-700 text-white text-xs sm:text-sm font-medium transition disabled:opacity-50 w-full sm:w-auto">
                 ✅ Aprobar
               </button>
               <button wire:click="reject({{ $request->id }})"
                       wire:loading.attr="disabled"
                       wire:confirm="¿Rechazar esta solicitud?"
-                      class="px-4 py-2 rounded-lg bg-red-600 hover:bg-red-700 text-white text-sm font-medium transition disabled:opacity-50">
+                      class="px-3 sm:px-4 py-2 rounded-lg bg-red-600 hover:bg-red-700 text-white text-xs sm:text-sm font-medium transition disabled:opacity-50 w-full sm:w-auto">
                 ❌ Rechazar
               </button>
             </div>

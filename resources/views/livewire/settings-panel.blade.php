@@ -52,7 +52,16 @@
 
     <div x-data="{
         t: @entangle('theme').live,
+        customDark: {{ $custom_theme_dark ? 'true' : 'false' }},
         isChanging: false,
+        isSaving: false,
+
+        init() {
+            // Aplicar tema inicial si es custom
+            if (this.t === 'custom') {
+                this.applyThemeImmediate('custom');
+            }
+        },
 
         async selectTheme(themeId) {
             if (this.isChanging || this.t === themeId) return;
@@ -71,6 +80,24 @@
             }
         },
 
+        async toggleDarkMode() {
+            if (this.isSaving) return;
+
+            this.isSaving = true;
+            this.customDark = !this.customDark;
+
+            try {
+                await $wire.toggleCustomThemeMode();
+                this.applyThemeImmediate('custom');
+            } catch (error) {
+                console.error('Error al cambiar modo:', error);
+                // Revertir en caso de error
+                this.customDark = !this.customDark;
+            } finally {
+                this.isSaving = false;
+            }
+        },
+
         applyThemeImmediate(theme) {
             // Remover todas las clases de tema
             document.documentElement.classList.remove(
@@ -84,7 +111,12 @@
                 // Neon hereda dark + agrega efectos neón
                 document.documentElement.classList.add('dark', 'theme-neon');
             } else if (theme === 'custom') {
-                document.documentElement.classList.add('theme-custom');
+                // Aplicar tema custom con o sin modo oscuro
+                if (this.customDark) {
+                    document.documentElement.classList.add('dark', 'theme-custom');
+                } else {
+                    document.documentElement.classList.add('theme-custom');
+                }
                 // Aplicar el color personalizado guardado
                 if (window.applyCustomColor) {
                     window.applyCustomColor('{{ $custom_color }}');
@@ -140,6 +172,60 @@
            x-transition:enter-start="opacity-0 -translate-y-2"
            x-transition:enter-end="opacity-100 translate-y-0"
            class="p-5 rounded-xl bg-neutral-50 dark:bg-neutral-800/50 border border-neutral-200 dark:border-neutral-700">
+
+        {{-- Switch Día/Noche --}}
+        <div class="flex items-center justify-between mb-4 pb-4 border-b border-neutral-200 dark:border-neutral-700">
+          <div>
+            <label class="text-sm font-medium text-neutral-700 dark:text-neutral-300">
+              Modo del tema
+            </label>
+            <p class="text-xs text-neutral-500 dark:text-neutral-400 mt-1">
+              Elegí entre modo claro u oscuro
+            </p>
+          </div>
+
+          <div class="flex items-center gap-2">
+            {{-- Icono Sol --}}
+            <svg class="w-5 h-5 transition-colors flex-shrink-0"
+                 :class="!customDark ? 'text-neutral-600 dark:text-neutral-400' : 'text-neutral-300 dark:text-neutral-600'"
+                 fill="none"
+                 stroke="currentColor"
+                 viewBox="0 0 24 24">
+              <path stroke-linecap="round"
+                    stroke-linejoin="round"
+                    stroke-width="2"
+                    d="M12 3v1m0 16v1m9-9h-1M4 12H3m15.364 6.364l-.707-.707M6.343 6.343l-.707-.707m12.728 0l-.707.707M6.343 17.657l-.707.707M16 12a4 4 0 11-8 0 4 4 0 018 0z"/>
+            </svg>
+
+            {{-- Switch --}}
+            <button type="button"
+                    @click="toggleDarkMode()"
+                    :disabled="isSaving"
+                    role="switch"
+                    :aria-checked="customDark.toString()"
+                    class="relative inline-flex h-6 w-11 flex-shrink-0 items-center rounded-full border-2 border-transparent
+                           focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2
+                           transition-colors ease-in-out duration-200 disabled:opacity-50 disabled:cursor-not-allowed"
+                    :class="customDark ? 'bg-indigo-600' : 'bg-neutral-300 dark:bg-neutral-600'">
+              <span class="inline-block h-4 w-4 transform rounded-full bg-white shadow-lg ring-0
+                           transition ease-in-out duration-200"
+                    :class="customDark ? 'translate-x-5' : 'translate-x-0.5'"></span>
+            </button>
+
+            {{-- Icono Luna --}}
+            <svg class="w-5 h-5 transition-colors flex-shrink-0"
+                 :class="customDark ? 'text-neutral-600 dark:text-neutral-400' : 'text-neutral-300 dark:text-neutral-600'"
+                 fill="none"
+                 stroke="currentColor"
+                 viewBox="0 0 24 24">
+              <path stroke-linecap="round"
+                    stroke-linejoin="round"
+                    stroke-width="2"
+                    d="M20.354 15.354A9 9 0 018.646 3.646 9.003 9.003 0 0012 21a9.003 9.003 0 008.354-5.646z"/>
+            </svg>
+          </div>
+        </div>
+
         <label class="block text-sm font-medium text-neutral-700 dark:text-neutral-300 mb-3">
           Seleccioná tu color personalizado
         </label>

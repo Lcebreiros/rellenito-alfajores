@@ -18,6 +18,7 @@ class SettingsPanel extends Component
     public $site_title = 'Mi App';
     public ?string $timezone = null;
     public $custom_color = '#6366f1'; // Indigo por defecto
+    public bool $custom_theme_dark = false; // Modo oscuro para tema personalizado
 
     public array $timezones = [];
     public array $availableThemes = [];
@@ -48,6 +49,9 @@ class SettingsPanel extends Component
 
         // Cargar color personalizado
         $this->custom_color = Setting::get('custom_color', '#6366f1');
+        // Convertir explícitamente a booleano
+        $darkValue = Setting::get('custom_theme_dark', 'false');
+        $this->custom_theme_dark = filter_var($darkValue, FILTER_VALIDATE_BOOLEAN);
 
         // Temas disponibles simplificados
         $this->availableThemes = [
@@ -115,6 +119,16 @@ class SettingsPanel extends Component
         Setting::set('custom_color', $this->custom_color);
         $this->dispatch('custom-color-updated', color: $this->custom_color);
         session()->flash('ok', 'Color personalizado guardado.');
+    }
+
+    public function toggleCustomThemeMode()
+    {
+        $this->custom_theme_dark = !$this->custom_theme_dark;
+        // Guardar como string para evitar problemas de conversión
+        Setting::set('custom_theme_dark', $this->custom_theme_dark ? 'true' : 'false');
+
+        // No hay que recargar el componente, solo confirmar el cambio
+        $this->skipRender();
     }
 
     public function save()

@@ -6,6 +6,11 @@
     } elseif ($theme === 'neon') {
         // Neon hereda dark + agrega efectos neón
         $themeClass = 'dark theme-neon';
+    } elseif ($theme === 'custom') {
+        // Tema personalizado con o sin modo oscuro
+        $darkValue = \App\Models\Setting::get('custom_theme_dark', 'false');
+        $customThemeDark = filter_var($darkValue, FILTER_VALIDATE_BOOLEAN);
+        $themeClass = $customThemeDark ? 'dark theme-custom' : 'theme-custom';
     } elseif ($theme !== 'light') {
         $themeClass = 'theme-' . $theme;
     }
@@ -49,6 +54,12 @@
   </script>
 
   <style>
+    /* Prevenir scroll horizontal global */
+    html, body {
+      overflow-x: hidden;
+      max-width: 100vw;
+    }
+
     :root {
       --sb-width: 16rem;
       --sb-width-collapsed: 4rem;
@@ -57,11 +68,18 @@
       margin-left: var(--sb-width);
       transition: margin-left .5s cubic-bezier(.16,1,.3,1);
       min-width: 0;
+      max-width: 100vw;
     }
     .sb-collapsed .app-main{
       margin-left: var(--sb-width-collapsed);
     }
-    @media (max-width: 767px) { .app-main{ margin-left: 0; } }
+    @media (max-width: 767px) {
+      .app-main{
+        margin-left: 0;
+        width: 100vw;
+        max-width: 100vw;
+      }
+    }
   </style>
   @if (trim($__env->yieldContent('no_sidebar')))
   <style>
@@ -73,7 +91,7 @@
   @stack('styles')
 </head>
 
-<body class="font-sans antialiased dark:text-neutral-100">
+<body class="font-sans antialiased dark:text-neutral-100 overflow-x-hidden">
 
   <x-banner />
 
@@ -114,7 +132,7 @@
   @endif
 
   {{-- Contenido principal --}}
-  <div class="app-main min-h-screen flex flex-col {{ module_bg() }}">
+  <div class="app-main min-h-screen flex flex-col {{ module_bg() }} overflow-x-hidden w-full">
     <x-mobile-header />
 
     {{-- HEADER: slot Jetstream o sección Blade --}}
@@ -205,7 +223,7 @@
     @endif
 
     {{-- CONTENIDO: padding extra en mobile para no tapar con la bottom bar --}}
-    <main class="flex-1 p-4 md:p-6 pb-6 md:pb-6">
+    <main class="flex-1 p-4 md:p-6 pb-6 md:pb-6 w-full overflow-x-hidden">
       @if (isset($slot))
         {{ $slot }}
       @else
