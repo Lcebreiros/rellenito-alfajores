@@ -776,9 +776,9 @@
 @endif
 @endauth
 
-      <!-- Solicitudes de Prueba (solo Master) -->
+      <!-- Solicitudes de Prueba (solo Master y si la ruta existe) -->
       @auth
-        @if(auth()->user()->isMaster())
+        @if(auth()->user()->isMaster() && Route::has('trial-requests'))
           <a href="{{ route('trial-requests') }}" wire:navigate data-turbo="false"
              class="nav-link {{ request()->routeIs('trial-requests') ? $active : $idle }}"
              :class="collapsed ? 'justify-center flex items-center gap-3 p-3' : 'flex items-center gap-3 p-3'"
