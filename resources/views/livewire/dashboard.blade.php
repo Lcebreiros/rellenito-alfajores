@@ -2,14 +2,16 @@
 <div
   x-data="{ editMode: @entangle('editMode').live }"
   x-cloak
-  class="min-h-[70vh]"
+  class="min-h-[70vh] w-full overflow-x-hidden"
 >
   {{-- GRID --}}
 <div
-  class="grid grid-cols-2 md:grid-cols-3 xl:grid-cols-4 gap-3 md:gap-4
-         auto-rows-[14rem] md:auto-rows-[16rem]
+  class="w-full px-4 sm:px-5 lg:px-6
+         grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4
+         gap-3 md:gap-4
+         auto-rows-[14rem] lg:auto-rows-[16rem]
          items-stretch content-start justify-items-stretch
-         isolate"
+         isolate overflow-hidden"
 >
   @foreach($layout as $slot)
     @php 

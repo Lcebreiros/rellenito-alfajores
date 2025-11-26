@@ -37,8 +37,8 @@
   {{-- Estado inicial del sidebar antes de Alpine --}}
   <script>
     (function () {
-      // El sidebar siempre inicia contraído
-      const collapsed = true;
+      // Leer estado guardado del sidebar (por defecto expandido)
+      const collapsed = localStorage.getItem('sidebar:collapsed') === '1';
       document.documentElement.classList.toggle('sb-collapsed', collapsed);
 
       // Aplicar color personalizado si el tema custom está activo
@@ -66,12 +66,14 @@
     }
     .app-main{
       margin-left: var(--sb-width);
-      transition: margin-left .5s cubic-bezier(.16,1,.3,1);
+      width: calc(100vw - var(--sb-width));
+      transition: margin-left .5s cubic-bezier(.16,1,.3,1), width .5s cubic-bezier(.16,1,.3,1);
       min-width: 0;
-      max-width: 100vw;
+      overflow-x: hidden;
     }
     .sb-collapsed .app-main{
       margin-left: var(--sb-width-collapsed);
+      width: calc(100vw - var(--sb-width-collapsed));
     }
     @media (max-width: 1024px) {
       :root {
@@ -81,7 +83,6 @@
       .app-main{
         margin-left: 0;
         width: 100vw;
-        max-width: 100vw;
       }
     }
   </style>
