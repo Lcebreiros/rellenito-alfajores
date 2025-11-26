@@ -635,6 +635,7 @@
       </a>
 
       <!-- Productos -->
+      @if(auth()->user()->hasModule('productos'))
       <a href="{{ route('products.index') }}" wire:navigate data-turbo="false" data-module="products"
          class="nav-link {{ request()->routeIs('products.*') ? $active : $idle }}"
          :class="collapsed ? 'justify-center flex items-center gap-3 p-3' : 'flex items-center gap-3 p-3'"
@@ -645,8 +646,10 @@
         <span x-show="!collapsed" x-transition:enter="fade-slide-enter"
               class="text-sm font-semibold truncate relative z-1">Productos</span>
       </a>
+      @endif
 
       <!-- Servicios -->
+      @if(auth()->user()->hasModule('servicios'))
       <a href="{{ route('services.index') }}" wire:navigate data-turbo="false" data-module="services"
          class="nav-link {{ request()->routeIs('services.*') ? $active : $idle }}"
          :class="collapsed ? 'justify-center flex items-center gap-3 p-3' : 'flex items-center gap-3 p-3'"
@@ -657,8 +660,10 @@
         <span x-show="!collapsed" x-transition:enter="fade-slide-enter"
               class="text-sm font-semibold truncate relative z-1">Servicios</span>
       </a>
+      @endif
 
       <!-- Clientes -->
+      @if(auth()->user()->hasModule('clientes'))
       <a href="{{ route('clients.index') }}" wire:navigate data-turbo="false" data-module="clients"
          class="nav-link {{ request()->routeIs('clients.*') ? $active : $idle }}"
          :class="collapsed ? 'justify-center flex items-center gap-3 p-3' : 'flex items-center gap-3 p-3'"
@@ -669,6 +674,7 @@
         <span x-show="!collapsed" x-transition:enter="fade-slide-enter"
               class="text-sm font-semibold truncate relative z-1">Clientes</span>
       </a>
+      @endif
 
       <!-- Métodos de Pago -->
       <a href="{{ route('payment-methods.index') }}" wire:navigate data-turbo="false" data-module="payment"
@@ -707,7 +713,7 @@
       </a>
 
 @auth
-    @if(auth()->user()->isMaster() || auth()->user()->isCompany())
+    @if((auth()->user()->isMaster() || auth()->user()->isCompany()) && auth()->user()->hasModule('sucursales'))
         <a href="{{ route('company.branches.index') }}" wire:navigate data-turbo="false" data-module="company"
            class="nav-link {{ request()->routeIs('company.branches.*') ? $active : $idle }}"
            :class="collapsed ? 'justify-center flex items-center gap-3 p-3' : 'flex items-center gap-3 p-3'"
@@ -722,7 +728,7 @@
 @endauth
 
 @auth
-    @if(auth()->user()->isMaster() || auth()->user()->isCompany())
+    @if((auth()->user()->isMaster() || auth()->user()->isCompany()) && auth()->user()->hasModule('empleados'))
         <a href="{{ route('company.employees.index') }}" wire:navigate data-turbo="false" data-module="employees"
            class="nav-link {{ request()->routeIs('company.branches.*') ? $active : $idle }}"
            :class="collapsed ? 'justify-center flex items-center gap-3 p-3' : 'flex items-center gap-3 p-3'"

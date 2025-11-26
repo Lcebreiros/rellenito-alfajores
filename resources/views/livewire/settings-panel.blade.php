@@ -189,6 +189,9 @@
     </div>
   </div>
 
+  {{-- CARD: Módulos personalizables --}}
+  @livewire('modulos-config')
+
 {{-- CARD: Zona horaria (mejorada y optimizada para solapes) --}}
 <div class="rounded-2xl bg-neutral-50/50 p-6 transition-all duration-300
             dark:bg-neutral-800/30">

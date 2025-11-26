@@ -272,9 +272,11 @@
 }
 
 /* Tarjetas y contenedores con efecto glass y bordes neón */
-.theme-neon .rounded-2xl,
-.theme-neon .rounded-xl,
-.theme-neon .rounded-lg {
+/* Excluir dropdowns y modales de los estilos generales */
+.theme-neon .rounded-2xl:not(.notifications-dropdown):not([role="dialog"]):not([x-teleport]),
+.theme-neon .rounded-xl:not(.notifications-dropdown):not([role="dialog"]):not([x-teleport]),
+.theme-neon .rounded-lg:not(.notifications-dropdown):not([role="dialog"]):not([x-teleport]) {
+  position: relative;
   background: rgb(0 0 0 / 0.3) !important;
   backdrop-filter: blur(10px);
   -webkit-backdrop-filter: blur(10px);
@@ -282,10 +284,18 @@
   box-shadow: 0 0 15px rgb(138 0 255 / 0.2), 0 0 20px rgb(0 0 0 / 0.5);
 }
 
+/* Contenido interno siempre visible sobre el efecto glass */
+.theme-neon .rounded-2xl:not(.notifications-dropdown):not([role="dialog"]):not([x-teleport]) > *,
+.theme-neon .rounded-xl:not(.notifications-dropdown):not([role="dialog"]):not([x-teleport]) > *,
+.theme-neon .rounded-lg:not(.notifications-dropdown):not([role="dialog"]):not([x-teleport]) > * {
+  position: relative;
+  z-index: 10;
+}
+
 /* Borde más visible en hover */
-.theme-neon .rounded-2xl:hover,
-.theme-neon .rounded-xl:hover,
-.theme-neon .rounded-lg:hover {
+.theme-neon .rounded-2xl:not(.notifications-dropdown):not([role="dialog"]):hover,
+.theme-neon .rounded-xl:not(.notifications-dropdown):not([role="dialog"]):hover,
+.theme-neon .rounded-lg:not(.notifications-dropdown):not([role="dialog"]):hover {
   background: rgb(0 0 0 / 0.4) !important;
   border-color: rgb(138 0 255 / 0.8);
   box-shadow: 0 0 20px rgb(138 0 255 / 0.3), 0 0 25px rgb(0 0 0 / 0.5);
@@ -297,11 +307,19 @@
 .theme-neon .module-bg-orders .rounded-2xl,
 .theme-neon .module-bg-orders .rounded-xl,
 .theme-neon .module-bg-orders .rounded-lg {
+  position: relative;
   background: rgb(0 0 0 / 0.3) !important;
   backdrop-filter: blur(10px);
   -webkit-backdrop-filter: blur(10px);
   border-color: rgb(var(--module-orders-500) / 0.5);
   box-shadow: 0 0 15px rgb(var(--module-orders-500) / 0.2), 0 0 20px rgb(0 0 0 / 0.5);
+}
+
+.theme-neon .module-bg-orders .rounded-2xl > *,
+.theme-neon .module-bg-orders .rounded-xl > *,
+.theme-neon .module-bg-orders .rounded-lg > * {
+  position: relative;
+  z-index: 10;
 }
 
 .theme-neon .module-bg-orders .rounded-2xl:hover,
@@ -315,11 +333,19 @@
 .theme-neon .module-bg-products .rounded-2xl,
 .theme-neon .module-bg-products .rounded-xl,
 .theme-neon .module-bg-products .rounded-lg {
+  position: relative;
   background: rgb(0 0 0 / 0.3) !important;
   backdrop-filter: blur(10px);
   -webkit-backdrop-filter: blur(10px);
   border-color: rgb(var(--module-products-500) / 0.5);
   box-shadow: 0 0 15px rgb(var(--module-products-500) / 0.2), 0 0 20px rgb(0 0 0 / 0.5);
+}
+
+.theme-neon .module-bg-products .rounded-2xl > *,
+.theme-neon .module-bg-products .rounded-xl > *,
+.theme-neon .module-bg-products .rounded-lg > * {
+  position: relative;
+  z-index: 10;
 }
 
 .theme-neon .module-bg-products .rounded-2xl:hover,
@@ -333,11 +359,19 @@
 .theme-neon .module-bg-clients .rounded-2xl,
 .theme-neon .module-bg-clients .rounded-xl,
 .theme-neon .module-bg-clients .rounded-lg {
+  position: relative;
   background: rgb(0 0 0 / 0.3) !important;
   backdrop-filter: blur(10px);
   -webkit-backdrop-filter: blur(10px);
   border-color: rgb(var(--module-clients-500) / 0.5);
   box-shadow: 0 0 15px rgb(var(--module-clients-500) / 0.2), 0 0 20px rgb(0 0 0 / 0.5);
+}
+
+.theme-neon .module-bg-clients .rounded-2xl > *,
+.theme-neon .module-bg-clients .rounded-xl > *,
+.theme-neon .module-bg-clients .rounded-lg > * {
+  position: relative;
+  z-index: 10;
 }
 
 .theme-neon .module-bg-clients .rounded-2xl:hover,
@@ -351,11 +385,19 @@
 .theme-neon .module-bg-dashboard .rounded-2xl,
 .theme-neon .module-bg-dashboard .rounded-xl,
 .theme-neon .module-bg-dashboard .rounded-lg {
+  position: relative;
   background: rgb(0 0 0 / 0.3) !important;
   backdrop-filter: blur(10px);
   -webkit-backdrop-filter: blur(10px);
   border-color: rgb(var(--module-dashboard-500) / 0.5);
   box-shadow: 0 0 15px rgb(var(--module-dashboard-500) / 0.2), 0 0 20px rgb(0 0 0 / 0.5);
+}
+
+.theme-neon .module-bg-dashboard .rounded-2xl > *,
+.theme-neon .module-bg-dashboard .rounded-xl > *,
+.theme-neon .module-bg-dashboard .rounded-lg > * {
+  position: relative;
+  z-index: 10;
 }
 
 .theme-neon .module-bg-dashboard .rounded-2xl:hover,
@@ -369,11 +411,19 @@
 .theme-neon .module-bg-expenses .rounded-2xl,
 .theme-neon .module-bg-expenses .rounded-xl,
 .theme-neon .module-bg-expenses .rounded-lg {
+  position: relative;
   background: rgb(0 0 0 / 0.3) !important;
   backdrop-filter: blur(10px);
   -webkit-backdrop-filter: blur(10px);
   border-color: rgb(var(--module-expenses-500) / 0.5);
   box-shadow: 0 0 15px rgb(var(--module-expenses-500) / 0.2), 0 0 20px rgb(0 0 0 / 0.5);
+}
+
+.theme-neon .module-bg-expenses .rounded-2xl > *,
+.theme-neon .module-bg-expenses .rounded-xl > *,
+.theme-neon .module-bg-expenses .rounded-lg > * {
+  position: relative;
+  z-index: 10;
 }
 
 .theme-neon .module-bg-expenses .rounded-2xl:hover,
@@ -387,11 +437,19 @@
 .theme-neon .module-bg-stock .rounded-2xl,
 .theme-neon .module-bg-stock .rounded-xl,
 .theme-neon .module-bg-stock .rounded-lg {
+  position: relative;
   background: rgb(0 0 0 / 0.3) !important;
   backdrop-filter: blur(10px);
   -webkit-backdrop-filter: blur(10px);
   border-color: rgb(var(--module-stock-500) / 0.5);
   box-shadow: 0 0 15px rgb(var(--module-stock-500) / 0.2), 0 0 20px rgb(0 0 0 / 0.5);
+}
+
+.theme-neon .module-bg-stock .rounded-2xl > *,
+.theme-neon .module-bg-stock .rounded-xl > *,
+.theme-neon .module-bg-stock .rounded-lg > * {
+  position: relative;
+  z-index: 10;
 }
 
 .theme-neon .module-bg-stock .rounded-2xl:hover,
@@ -464,7 +522,7 @@
 }
 
 /* Mobile header con efecto glass y fondo negro transparente */
-.theme-neon .md\:hidden.bg-white {
+.theme-neon .mobile-header-glass {
   background: linear-gradient(
     180deg,
     rgb(0 0 0 / 0.80) 0%,
@@ -473,6 +531,115 @@
   backdrop-filter: blur(16px) saturate(120%);
   -webkit-backdrop-filter: blur(16px) saturate(120%);
   border-bottom-color: rgb(138 0 255 / 0.4) !important;
+  box-shadow: 0 0 20px rgb(138 0 255 / 0.15),
+              inset 0 1px 0 0 rgb(138 0 255 / 0.1);
+}
+
+/* Contenido del mobile header siempre visible */
+.theme-neon .mobile-header-glass > * {
+  position: relative;
+  z-index: 10;
+}
+
+/* Asegurar que todo el contenido de texto sea visible y nítido */
+.theme-neon input,
+.theme-neon select,
+.theme-neon textarea,
+.theme-neon button,
+.theme-neon a,
+.theme-neon p,
+.theme-neon h1,
+.theme-neon h2,
+.theme-neon h3,
+.theme-neon h4,
+.theme-neon h5,
+.theme-neon h6,
+.theme-neon span,
+.theme-neon div,
+.theme-neon label,
+.theme-neon table,
+.theme-neon td,
+.theme-neon th {
+  position: relative;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  text-rendering: optimizeLegibility;
+}
+
+/* Inputs y formularios con fondo semi-transparente y texto visible */
+.theme-neon input,
+.theme-neon select,
+.theme-neon textarea {
+  background: rgb(0 0 0 / 0.5) !important;
+  color: rgb(255 255 255) !important;
+  border-color: rgb(138 0 255 / 0.3) !important;
+}
+
+.theme-neon input::placeholder,
+.theme-neon textarea::placeholder {
+  color: rgb(200 200 200 / 0.6) !important;
+}
+
+/* Dropdown de notificaciones con fondo negro y efecto glass en tema neon */
+.theme-neon .notifications-dropdown {
+  background: linear-gradient(
+    180deg,
+    rgb(0 0 0 / 0.95) 0%,
+    rgb(0 0 0 / 0.98) 100%
+  ) !important;
+  backdrop-filter: blur(16px) saturate(120%) !important;
+  -webkit-backdrop-filter: blur(16px) saturate(120%) !important;
+  border-color: rgb(138 0 255 / 0.5) !important;
+  box-shadow: 0 0 30px rgb(138 0 255 / 0.3),
+              0 10px 40px rgb(0 0 0 / 0.8) !important;
+  position: fixed !important;
+  z-index: 2147483647 !important;
+}
+
+.theme-neon .notifications-header {
+  background: rgb(0 0 0 / 0.5) !important;
+  border-bottom-color: rgb(138 0 255 / 0.3) !important;
+}
+
+.theme-neon .notifications-footer {
+  background: rgb(0 0 0 / 0.5) !important;
+  border-top-color: rgb(138 0 255 / 0.3) !important;
+}
+
+.theme-neon .notifications-list {
+  background: transparent !important;
+}
+
+.theme-neon .notifications-list > div {
+  border-bottom-color: rgb(138 0 255 / 0.1) !important;
+}
+
+.theme-neon .notifications-list > div:hover {
+  background: rgb(138 0 255 / 0.1) !important;
+}
+
+/* Asegurar que el contenido del dropdown sea visible */
+.theme-neon .notifications-dropdown * {
+  position: relative !important;
+  z-index: auto !important;
+}
+
+.theme-neon .notifications-dropdown .text-neutral-800,
+.theme-neon .notifications-dropdown .text-neutral-600,
+.theme-neon .notifications-dropdown .text-neutral-500 {
+  color: rgb(255 255 255 / 0.9) !important;
+}
+
+.theme-neon .notifications-dropdown .text-neutral-100 {
+  color: rgb(255 255 255) !important;
+}
+
+.theme-neon .notifications-dropdown .text-neutral-400 {
+  color: rgb(200 200 200 / 0.7) !important;
+}
+
+.theme-neon .notifications-dropdown .text-neutral-300 {
+  color: rgb(220 220 220 / 0.8) !important;
 }
 
 /* Botones transparentes con borde neón */

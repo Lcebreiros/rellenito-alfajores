@@ -53,7 +53,7 @@
   <div class="absolute top-0 left-0 right-0 h-1 {{ $progressColor }} opacity-60"></div>
 
   <a href="{{ route('stock.show', $product->id) }}"
-     class="block p-4 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2 rounded-xl">
+     class="block p-4 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2 rounded-xl relative z-10">
 
     {{-- Header: Nombre y Badge --}}
     <div class="flex items-start justify-between gap-3 mb-3">
@@ -218,5 +218,5 @@
               dark:via-indigo-900/0 dark:to-indigo-800/0
               group-hover:via-indigo-50/30 group-hover:to-indigo-100/20
               dark:group-hover:via-indigo-900/20 dark:group-hover:to-indigo-800/10
-              transition-all duration-300 pointer-events-none"></div>
+              transition-all duration-300 pointer-events-none -z-10"></div>
 </article>

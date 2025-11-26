@@ -10,8 +10,8 @@
   unreadCount: {{ $unread }},
   dropdownStyle: '',
   updatePosition() {
+    if (!this.$refs || !this.$refs.bellBtn) return;
     const btn = this.$refs.bellBtn;
-    if (!btn) return;
     const rect = btn.getBoundingClientRect();
     const gutter = 12;
     const top = rect.bottom + 8 + window.scrollY;
@@ -33,7 +33,7 @@
     });
   }
 }"
-x-init="updatePosition(); window.addEventListener('resize', updatePosition); window.addEventListener('scroll', updatePosition, { passive: true })"
+x-init="setTimeout(() => updatePosition(), 0); window.addEventListener('resize', () => updatePosition()); window.addEventListener('scroll', () => updatePosition(), { passive: true })"
 @notification-received.window="unreadCount++"
 class="relative">
   <button x-ref="bellBtn" @click="open = !open; updatePosition()" @keydown.escape.window="open=false"
@@ -52,13 +52,13 @@ class="relative">
 
   <template x-teleport="body">
     <div x-cloak x-show="open" @click.outside="open=false"
-         class="fixed w-80 max-w-[90vw] rounded-xl border border-neutral-200 dark:border-neutral-800 bg-white dark:bg-neutral-900 shadow-lg z-[2147483647] overflow-hidden"
+         class="notifications-dropdown fixed w-80 max-w-[90vw] rounded-xl border border-neutral-200 dark:border-neutral-800 bg-white dark:bg-neutral-900 shadow-lg z-[2147483647] overflow-hidden"
          :style="dropdownStyle">
-      <div class="px-4 py-3 border-b border-neutral-200 dark:border-neutral-800 flex items-center justify-between bg-neutral-50 dark:bg-neutral-900">
+      <div class="notifications-header px-4 py-3 border-b border-neutral-200 dark:border-neutral-800 flex items-center justify-between bg-neutral-50 dark:bg-neutral-900">
         <div class="text-sm font-semibold text-neutral-800 dark:text-neutral-100">Notificaciones</div>
         <span class="text-xs text-neutral-600 dark:text-neutral-400" x-text="unreadCount + ' nuevas'"></span>
       </div>
-      <div class="max-h-96 overflow-auto divide-y divide-neutral-100 dark:divide-neutral-800">
+      <div class="notifications-list max-h-96 overflow-auto divide-y divide-neutral-100 dark:divide-neutral-800">
         @forelse($latest as $n)
           <div class="px-4 py-3 hover:bg-neutral-50 dark:hover:bg-neutral-800 transition-colors">
             <div class="flex items-start gap-3">
@@ -235,7 +235,7 @@ class="relative">
         @endforelse
       </div>
       @if($latest->isNotEmpty())
-        <div class="px-4 py-2 border-t border-neutral-200 dark:border-neutral-800 bg-neutral-50 dark:bg-neutral-900 text-right">
+        <div class="notifications-footer px-4 py-2 border-t border-neutral-200 dark:border-neutral-800 bg-neutral-50 dark:bg-neutral-900 text-right">
           <a href="{{ route('notifications.index') }}" class="text-xs font-medium text-indigo-600 dark:text-indigo-400 hover:underline">Ver todas</a>
         </div>
       @endif

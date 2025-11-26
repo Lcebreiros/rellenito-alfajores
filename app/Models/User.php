@@ -61,6 +61,8 @@ class User extends Authenticatable
         'google_calendar_id',
         'google_email',
         'google_calendar_sync_enabled',
+        // Módulos activos
+        'modulos_activos',
     ];
 
     protected $hidden = [
@@ -86,6 +88,7 @@ class User extends Authenticatable
         'low_stock_threshold' => 'integer',
         'notify_out_of_stock' => 'boolean',
         'notify_by_email' => 'boolean',
+        'modulos_activos' => 'array',
     ];
 
     // ================================
@@ -330,4 +333,74 @@ class User extends Authenticatable
         }
     );
 }
+
+    // ================================
+    // MÉTODOS DE MÓDULOS ACTIVOS
+    // ================================
+
+    /**
+     * Módulos disponibles en el sistema
+     */
+    public static function availableModules(): array
+    {
+        return [
+            'productos' => 'Productos',
+            'servicios' => 'Servicios',
+            'proyectos' => 'Proyectos',
+            'sucursales' => 'Sucursales',
+            'empleados' => 'Personal',
+            'clientes' => 'Clientes',
+        ];
+    }
+
+    /**
+     * Módulos que siempre están activos (no personalizables)
+     */
+    public static function fixedModules(): array
+    {
+        return [
+            'dashboard',
+            'pedidos',
+            'metodos_pago',
+            'stock',
+            'gastos',
+            'configuracion',
+            'soporte',
+        ];
+    }
+
+    /**
+     * Obtener módulos activos del usuario
+     */
+    public function getActiveModules(): array
+    {
+        // Si no tiene configurado, retornar todos por defecto
+        if (empty($this->modulos_activos)) {
+            return array_keys(self::availableModules());
+        }
+
+        return $this->modulos_activos;
+    }
+
+    /**
+     * Verificar si un módulo está activo
+     */
+    public function hasModule(string $module): bool
+    {
+        // Los módulos fijos siempre están activos
+        if (in_array($module, self::fixedModules())) {
+            return true;
+        }
+
+        return in_array($module, $this->getActiveModules());
+    }
+
+    /**
+     * Activar/desactivar módulos
+     */
+    public function setActiveModules(array $modules): void
+    {
+        $this->modulos_activos = $modules;
+        $this->save();
+    }
 }
