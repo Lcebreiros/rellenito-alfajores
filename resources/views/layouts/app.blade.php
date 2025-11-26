@@ -32,7 +32,8 @@
   {{-- Estado inicial del sidebar antes de Alpine --}}
   <script>
     (function () {
-      const collapsed = localStorage.getItem('sidebar:collapsed') === '1';
+      // El sidebar siempre inicia contraído
+      const collapsed = true;
       document.documentElement.classList.toggle('sb-collapsed', collapsed);
 
       // Aplicar color personalizado si el tema custom está activo
@@ -72,13 +73,7 @@
   @stack('styles')
 </head>
 
-<body class="font-sans antialiased dark:text-neutral-100"
-      x-data
-      x-init="
-        window.addEventListener('sidebar:toggle', e => {
-          document.documentElement.classList.toggle('sb-collapsed', e.detail === true);
-        });
-      ">
+<body class="font-sans antialiased dark:text-neutral-100">
 
   <x-banner />
 
@@ -159,7 +154,6 @@
               </div>
               @endif
               <x-server-status />
-              <x-notifications-bell />
             </div>
           </div>
         </div>
@@ -201,7 +195,6 @@
                 </div>
                 @endif
                 <x-server-status />
-                <x-notifications-bell />
               </div>
             </div>
           </div>

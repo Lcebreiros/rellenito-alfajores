@@ -43,9 +43,15 @@
     const btn = this.$refs.bellBtn;
     const rect = btn.getBoundingClientRect();
     const gutter = 12;
-    const top = rect.bottom + 8 + window.scrollY;
-    const right = Math.max(window.innerWidth - rect.right, gutter);
-    this.dropdownStyle = `top: ${top}px; right: ${right}px`;
+    const dropdownHeight = 480; // altura estimada del dropdown (max-h-96 + headers + footer)
+
+    // Posicionar hacia arriba desde el botón
+    const bottom = window.innerHeight - rect.top + 8;
+
+    // Posicionar a la derecha del botón (alineado con el borde izquierdo del botón)
+    const left = rect.left;
+
+    this.dropdownStyle = `bottom: ${bottom}px; left: ${left}px`;
   },
   markAsRead(notificationId) {
     if (!notificationId) return;

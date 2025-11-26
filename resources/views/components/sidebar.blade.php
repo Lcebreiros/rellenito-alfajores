@@ -489,12 +489,12 @@
 
 <aside
   x-data="{
-      collapsed: false,
+      collapsed: true,
       animating: false,
+      collapseTimeout: null,
       init() {
-        // estado inicial desde LS
-        const saved = localStorage.getItem('sidebar:collapsed') === '1';
-        this.collapsed = saved;
+        // Siempre iniciamos contraído
+        this.collapsed = true;
 
         // sincronizar inmediatamente la clase/var en <html>
         this.sync();
@@ -504,24 +504,29 @@
 
         // observar cambios de tema (por si necesitás filtros de iconos)
         this.observeThemeChanges();
-        
+
         // Ajustar altura en móviles para evitar scroll
         this.adjustMobileHeight();
         window.addEventListener('resize', () => this.adjustMobileHeight());
       },
-      toggle() {
-        if (this.animating) return;
-        this.animating = true;
-        this.collapsed = !this.collapsed;
-        localStorage.setItem('sidebar:collapsed', this.collapsed ? '1' : '0');
-
-        // seguir emitiendo el evento (si alguien más lo usa)
-        window.dispatchEvent(new CustomEvent('sidebar:toggle', { detail: this.collapsed }));
-
-        // sincronizar <html> al instante
+      expand() {
+        if (this.animating || window.innerWidth <= 768) return;
+        // Cancelar cualquier timeout de contracción pendiente
+        if (this.collapseTimeout) {
+          clearTimeout(this.collapseTimeout);
+          this.collapseTimeout = null;
+        }
+        this.collapsed = false;
         this.sync();
-
-        setTimeout(() => this.animating = false, 520);
+      },
+      contract() {
+        if (this.animating || window.innerWidth <= 768) return;
+        // Agregar un pequeño delay antes de contraer para dar tiempo al usuario
+        this.collapseTimeout = setTimeout(() => {
+          this.collapsed = true;
+          this.sync();
+          this.collapseTimeout = null;
+        }, 300);
       },
       sync(){
         // Clase que usa tu layout (.sb-collapsed .app-main { margin-left: 5rem; })
@@ -544,7 +549,8 @@
         }
       }
   }"
-  x-effect="sync()"  {{-- asegura sincronía si Alpine rehidrata --}}
+  @mouseleave="contract()"
+  x-effect="sync()"
   x-bind:data-collapsed="collapsed ? 'true' : 'false'"
   :class="collapsed ? 'w-16' : 'w-64 sm:w-64 lg:w-64'"
   class="sidebar-container fixed inset-y-0 left-0 z-50 overflow-hidden
@@ -552,6 +558,8 @@
   style="height: 100vh; height: calc(var(--vh, 1vh) * 100);">
 
   <div class="h-full flex flex-col">
+    <!-- Área expandible: Header + Nav -->
+    <div @mouseenter="expand()" class="flex-1 min-h-0 flex flex-col">
     <!-- Header -->
     <div class="sidebar-header flex-shrink-0 h-16 flex items-center px-4 border-b">
       <a href="{{ route('inicio') }}" wire:navigate data-turbo="false"
@@ -836,20 +844,14 @@
               class="text-sm font-semibold truncate relative z-1">Soporte</span>
       </a>
     </nav>
+    </div>
+    <!-- Fin área expandible -->
 
-    <!-- Toggle -->
+    <!-- Notificaciones (no expande) -->
     <div class="sidebar-toggle flex-shrink-0 pt-2 pb-3 px-3">
-      <button @click="toggle()" :disabled="animating"
-              class="sidebar-button w-full flex items-center justify-center gap-2 text-xs py-2.5 px-3 rounded-xl border"
-              :title="collapsed ? 'Expandir sidebar' : 'Contraer sidebar'">
-        <svg x-show="!collapsed" x-transition:enter="fade-slide-enter" class="w-4 h-4" viewBox="0 0 24 24" fill="none">
-          <path d="M11 5l-7 7 7 7M4 12h16" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
-        </svg>
-        <svg x-show="collapsed" x-transition:enter="fade-slide-enter" class="w-4 h-4" viewBox="0 0 24 24" fill="none">
-          <path d="M13 19l7-7-7-7M4 12h16" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
-        </svg>
-        <span x-show="!collapsed" x-transition:enter="fade-slide-enter" class="font-medium">Contraer</span>
-      </button>
+      <div class="w-full flex items-center justify-center">
+        <x-notifications-bell />
+      </div>
     </div>
   </div>
 
