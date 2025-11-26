@@ -73,7 +73,7 @@
     .sb-collapsed .app-main{
       margin-left: var(--sb-width-collapsed);
     }
-    @media (max-width: 767px) {
+    @media (max-width: 1024px) {
       .app-main{
         margin-left: 0;
         width: 100vw;
