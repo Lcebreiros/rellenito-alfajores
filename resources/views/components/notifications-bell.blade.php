@@ -9,7 +9,8 @@
   [x-cloak] { display: none !important; }
 </style>
 
-<div x-data="{
+<div data-bell-root
+     x-data="{
   open: false,
   unreadCount: {{ $unread }},
   dropdownStyle: '',
@@ -22,6 +23,20 @@
         el.style.display = 'none';
       }
     });
+  },
+  hideDropdown() {
+    const d = this.$refs?.dropdown;
+    if (d) {
+      d.style.display = 'none';
+      d.setAttribute('aria-hidden', 'true');
+    }
+  },
+  showDropdown() {
+    const d = this.$refs?.dropdown;
+    if (d) {
+      d.style.display = 'block';
+      d.removeAttribute('aria-hidden');
+    }
   },
   updatePosition() {
     if (!this.$refs || !this.$refs.bellBtn) return;
@@ -50,7 +65,7 @@
 x-init="
   open = false;
   cleanupTeleports();
-  requestAnimationFrame(() => { open = false; updatePosition(); });
+  requestAnimationFrame(() => { open = false; hideDropdown(); updatePosition(); });
   window.addEventListener('resize', () => updatePosition());
   window.addEventListener('scroll', () => updatePosition(), { passive: true });
   // Siempre cerrar al navegar o volver
@@ -60,6 +75,14 @@ x-init="
   window.addEventListener('popstate', close);
   window.addEventListener('pageshow', close);
   window.addEventListener('beforeunload', close);
+  $watch('open', (val) => {
+    if (val) {
+      showDropdown();
+      updatePosition();
+    } else {
+      hideDropdown();
+    }
+  });
 "
 @notification-received.window="unreadCount++"
 class="relative">
@@ -78,9 +101,17 @@ class="relative">
   </button>
 
   <template x-teleport="body">
-    <div x-cloak x-show="open" x-ref="dropdown" x-effect="$refs.dropdown && ($refs.dropdown.style.display = open ? 'block' : 'none')"
+    <div x-cloak x-show="open" x-ref="dropdown"
+         x-effect="
+           if ($refs.dropdown) {
+             $refs.dropdown.style.display = open ? 'block' : 'none';
+             $refs.dropdown.hidden = !open;
+           }
+         "
+         :hidden="!open"
          @click.outside="open=false"
          class="notifications-dropdown fixed w-80 max-w-[90vw] rounded-xl border border-neutral-200 dark:border-neutral-800 bg-white dark:bg-neutral-900 shadow-lg z-[2147483647] overflow-hidden"
+         hidden
          style="display:none"
          :style="dropdownStyle">
       <div class="notifications-header px-4 py-3 border-b border-neutral-200 dark:border-neutral-800 flex items-center justify-between bg-neutral-50 dark:bg-neutral-900">
@@ -298,3 +329,23 @@ class="relative">
     });
   </script>
 </div>
+
+<script>
+  // Fallback defensivo: si Alpine conserva estado entre navegaciones (wire:navigate),
+  // forzamos cerrar cualquier campana al montar y después de navegar.
+  (function() {
+    const ensureClosed = () => {
+      document.querySelectorAll('[data-bell-root]').forEach(el => {
+        const alpine = el.__x;
+        if (alpine?.$data) {
+          alpine.$data.open = false;
+          alpine.$data.hideDropdown?.();
+        }
+      });
+    };
+    document.addEventListener('DOMContentLoaded', ensureClosed);
+    document.addEventListener('livewire:navigated', ensureClosed);
+    document.addEventListener('livewire:navigating', ensureClosed);
+    document.addEventListener('pageshow', ensureClosed);
+  })();
+</script>
