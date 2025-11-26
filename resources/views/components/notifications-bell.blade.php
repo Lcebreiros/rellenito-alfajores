@@ -43,15 +43,15 @@
     const btn = this.$refs.bellBtn;
     const rect = btn.getBoundingClientRect();
     const gutter = 12;
-    const dropdownHeight = 480; // altura estimada del dropdown (max-h-96 + headers + footer)
 
     // Posicionar hacia arriba desde el botón
     const bottom = window.innerHeight - rect.top + 8;
 
-    // Posicionar a la derecha del botón (alineado con el borde izquierdo del botón)
-    const left = rect.left;
+    // Posicionar a la derecha del sidebar (diagonal arriba-derecha)
+    // El sidebar está a la izquierda, así que posicionamos justo después de su borde derecho
+    const left = rect.right + gutter;
 
-    this.dropdownStyle = `bottom: ${bottom}px; left: ${left}px`;
+    this.dropdownStyle = `bottom: ${bottom}px; left: ${left}px; z-index: 9999;`;
   },
   markAsRead(notificationId) {
     if (!notificationId) return;
