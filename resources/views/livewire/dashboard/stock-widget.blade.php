@@ -87,7 +87,7 @@
         </div>
       </div>
 
-      <div class="space-y-2">
+      <div class="space-y-2 max-h-64 overflow-y-auto dashboard-widget-scroll">
         @forelse($items as $p)
           @php
             $min   = $hasMin ? (int)($p->min_stock ?? 0) : 0;

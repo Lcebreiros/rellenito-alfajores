@@ -55,7 +55,7 @@
   </div>
 
   {{-- Events List --}}
-  <div class="flex-1 px-4 sm:px-5 pb-4 overflow-y-auto">
+  <div class="flex-1 px-4 sm:px-5 pb-4 overflow-y-auto dashboard-widget-scroll">
     <div class="text-xs font-semibold text-neutral-700 dark:text-neutral-300 mb-2">Eventos</div>
 
     @if($upcomingEvents->isEmpty())
@@ -240,7 +240,7 @@
       </div>
 
       {{-- Calendar Grid --}}
-      <div class="p-2 sm:p-3 md:p-4 overflow-y-auto flex-1">
+      <div class="p-2 sm:p-3 md:p-4 overflow-y-auto flex-1 dashboard-widget-scroll">
         {{-- Days of week header --}}
         <div style="display: grid; grid-template-columns: repeat(7, 1fr); gap: 0.25rem; margin-bottom: 0.25rem;">
           @foreach(['L', 'M', 'X', 'J', 'V', 'S', 'D'] as $day)
@@ -271,7 +271,7 @@
 
                 {{-- Events for this day --}}
                 @if($hasEvents)
-                  <div style="flex: 1; overflow-y: auto; overflow-x: hidden; display: flex; flex-direction: column; gap: 0.125rem;">
+                  <div style="flex: 1; overflow-y: auto; overflow-x: hidden; display: flex; flex-direction: column; gap: 0.125rem;" class="dashboard-widget-scroll">
                     @foreach($day['events'] as $event)
                       @php
                         $isOverdue = ($event['is_overdue'] ?? false) === true;

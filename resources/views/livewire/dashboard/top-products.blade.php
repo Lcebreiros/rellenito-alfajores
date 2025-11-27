@@ -4,7 +4,7 @@
   <div class="px-4 sm:px-5 py-3 border-b border-neutral-200 dark:border-neutral-800 flex items-center justify-between">
     <h3 class="text-sm font-semibold text-neutral-900 dark:text-neutral-100">Más pedidos ({{ $days }} días)</h3>
   </div>
-  <div class="flex-1 p-4 sm:p-5 space-y-2 overflow-y-auto">
+  <div class="flex-1 p-4 sm:p-5 space-y-2 overflow-y-auto dashboard-widget-scroll">
     @forelse($rows as $r)
       <div class="flex items-center gap-3">
         <div class="flex-1 min-w-0">

@@ -2,25 +2,69 @@
 <div
   x-data="{ editMode: @entangle('editMode').live }"
   x-cloak
-  class="min-h-[70vh] w-full overflow-x-hidden"
+  class="w-full overflow-x-hidden"
 >
+  {{-- Estilos para scrollbar personalizado en widgets --}}
+  <style>
+    /* Scrollbar personalizado para widgets del dashboard */
+    .dashboard-widget-scroll {
+      scrollbar-width: thin;
+      scrollbar-color: rgb(212 212 216 / 0.4) transparent;
+    }
+
+    .dark .dashboard-widget-scroll {
+      scrollbar-color: rgb(82 82 91 / 0.4) transparent;
+    }
+
+    /* WebKit (Chrome, Safari, Edge) */
+    .dashboard-widget-scroll::-webkit-scrollbar {
+      width: 8px;
+      height: 8px;
+    }
+
+    .dashboard-widget-scroll::-webkit-scrollbar-track {
+      background: transparent;
+    }
+
+    .dashboard-widget-scroll::-webkit-scrollbar-thumb {
+      background-color: rgb(212 212 216 / 0.4);
+      border-radius: 9999px;
+      border: 2px solid transparent;
+      background-clip: padding-box;
+    }
+
+    .dashboard-widget-scroll::-webkit-scrollbar-thumb:hover {
+      background-color: rgb(212 212 216 / 0.7);
+    }
+
+    .dark .dashboard-widget-scroll::-webkit-scrollbar-thumb {
+      background-color: rgb(82 82 91 / 0.4);
+    }
+
+    .dark .dashboard-widget-scroll::-webkit-scrollbar-thumb:hover {
+      background-color: rgb(82 82 91 / 0.7);
+    }
+  </style>
+
   {{-- GRID --}}
 <div
   class="w-full px-4 sm:px-5 lg:px-6
          grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4
          gap-3 md:gap-4
-         auto-rows-[14rem] lg:auto-rows-[16rem]
+         auto-rows-[14rem] sm:auto-rows-[15rem] lg:auto-rows-[16rem]
          items-stretch content-start justify-items-stretch
          isolate overflow-hidden"
 >
   @foreach($layout as $slot)
-    @php 
-      $meta    = $available[$slot['key']] ?? null; 
-      $rowSpan = $slot['key'] === 'revenue-widget' ? 'row-span-2' : '';
-      $colSpan = $slot['key'] === 'revenue-widget' ? 'col-span-2' : '';
+    @php
+      $meta    = $available[$slot['key']] ?? null;
+      // Widgets que necesitan más espacio
+      $isLargeWidget = in_array($slot['key'], ['revenue-widget', 'expenses-widget']);
+      $rowSpan = $isLargeWidget ? 'sm:row-span-2' : '';
+      $colSpan = $isLargeWidget ? 'sm:col-span-2' : '';
     @endphp
 
-    <div class="relative min-w-0 {{ $rowSpan }} {{ $colSpan }}" wire:key="cell-{{ $slot['id'] }}">
+    <div class="relative w-full min-w-0 {{ $rowSpan }} {{ $colSpan }}" wire:key="cell-{{ $slot['id'] }}">
       @if ($editMode)
         <button
           type="button"
@@ -48,6 +92,5 @@
   @endforeach
 </div>
 
-</div>
-
 {{-- No se requiere script Alpine adicional: usamos objeto inline con @entangle --}}
+</div>

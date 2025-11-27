@@ -223,9 +223,9 @@
             {{-- Registro --}}
             <div class="mt-6 pt-6 border-t border-slate-200 text-center text-sm text-slate-500">
               ¿No tiene una cuenta?
-              @if (Route::has('register'))
-                <a href="{{ route('register') }}" class="font-medium text-violet-700 hover:underline">
-                  Regístrese aquí
+              @if (Route::has('plans'))
+                <a href="{{ route('plans') }}" class="font-medium text-violet-700 hover:underline">
+                  Ver planes y registrarse
                 </a>
               @endif
             </div>

@@ -5,7 +5,7 @@
     <h3 class="text-sm font-semibold text-neutral-900 dark:text-neutral-100">Últimos pedidos</h3>
     <a href="{{ route('orders.index') }}" class="text-xs text-indigo-600 dark:text-indigo-400 hover:underline">Ver todos</a>
   </div>
-  <div class="flex-1 divide-y divide-neutral-200 dark:divide-neutral-800 overflow-y-auto">
+  <div class="flex-1 divide-y divide-neutral-200 dark:divide-neutral-800 overflow-y-auto dashboard-widget-scroll">
     @forelse($orders as $o)
       <div class="px-4 sm:px-5 py-3 flex items-center justify-between gap-3">
         <div class="min-w-0">

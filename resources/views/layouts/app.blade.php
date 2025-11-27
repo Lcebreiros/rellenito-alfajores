@@ -36,6 +36,18 @@
 
   {{-- Estado inicial del sidebar antes de Alpine --}}
   <script>
+    // Definir función global para aplicar color personalizado PRIMERO
+    window.applyCustomColor = function(hexColor) {
+      if (!hexColor) return;
+      // Convertir hex a RGB
+      const hex = hexColor.replace('#', '');
+      const r = parseInt(hex.substring(0, 2), 16);
+      const g = parseInt(hex.substring(2, 4), 16);
+      const b = parseInt(hex.substring(4, 6), 16);
+      // Aplicar el color como CSS variable
+      document.documentElement.style.setProperty('--custom-color-rgb', `${r} ${g} ${b}`);
+    };
+
     (function () {
       // Leer estado guardado del sidebar (por defecto expandido)
       const collapsed = localStorage.getItem('sidebar:collapsed') === '1';
@@ -43,12 +55,7 @@
 
       // Aplicar color personalizado si el tema custom está activo
       @if($theme === 'custom')
-        const customColor = '{{ $customColor }}';
-        const hex = customColor.replace('#', '');
-        const r = parseInt(hex.substring(0, 2), 16);
-        const g = parseInt(hex.substring(2, 4), 16);
-        const b = parseInt(hex.substring(4, 6), 16);
-        document.documentElement.style.setProperty('--custom-color-rgb', `${r} ${g} ${b}`);
+        window.applyCustomColor('{{ $customColor }}');
       @endif
     })();
   </script>
@@ -88,7 +95,11 @@
   </style>
   @if (trim($__env->yieldContent('no_sidebar')))
   <style>
-    .app-main { margin-left: 0 !important; }
+    .app-main {
+      margin-left: 0 !important;
+      width: 100% !important;
+      max-width: 100% !important;
+    }
   </style>
   @endif
 
@@ -312,23 +323,6 @@
         document.documentElement.classList.add('theme-custom');
       }
     });
-
-    // Función global para aplicar color personalizado
-    window.applyCustomColor = function(hexColor) {
-      // Convertir hex a RGB
-      const hex = hexColor.replace('#', '');
-      const r = parseInt(hex.substring(0, 2), 16);
-      const g = parseInt(hex.substring(2, 4), 16);
-      const b = parseInt(hex.substring(4, 6), 16);
-
-      // Aplicar el color como CSS variable
-      document.documentElement.style.setProperty('--custom-color-rgb', `${r} ${g} ${b}`);
-    }
-
-    // Aplicar el color personalizado al cargar la página si el tema es custom
-    @if($theme === 'custom')
-      window.applyCustomColor('{{ $customColor }}');
-    @endif
   </script>
 
   {{-- Global search (Ctrl/Cmd + K) --}}
