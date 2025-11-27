@@ -176,7 +176,7 @@
       flex-direction: column;
       align-items: center;
       justify-content: center;
-      padding: 0.75rem;
+      padding: 0.875rem;
     }
 
     @media (min-width: 640px) {
@@ -195,7 +195,7 @@
       display: flex;
       align-items: center;
       gap: 0.5rem;
-      padding: 0.5rem 0.625rem;
+      padding: 0.625rem 0.75rem;
       min-width: 0;
       width: 100%;
     }
@@ -427,8 +427,8 @@
   @endif
 
   {{-- CONTENEDOR PRINCIPAL - Layout vertical con secciones --}}
-  <div class="h-full flex flex-col justify-center w-full">
-    <div class="max-w-7xl mx-auto w-full flex flex-col gap-3 sm:gap-5 lg:gap-8">
+  <div class="h-full flex flex-col justify-evenly sm:justify-center w-full">
+    <div class="max-w-7xl mx-auto w-full flex flex-col gap-4 sm:gap-5 lg:gap-8">
 
     {{-- OPERACIONES --}}
     <div class="fade-in-up">

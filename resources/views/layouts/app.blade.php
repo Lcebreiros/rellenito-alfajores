@@ -154,84 +154,94 @@
     {{-- HEADER: slot Jetstream o sección Blade --}}
     @if (isset($header))
       <header class="header-glass @if(request()->routeIs('inicio')) hidden md:block @endif">
-        <div class="w-full py-4 px-4 sm:px-6 lg:px-8">
-          <div class="flex items-center gap-4">
-            <div class="min-w-0">{{ $header }}</div>
-            <div class="h-8 w-px bg-neutral-300 dark:bg-neutral-700"></div>
-            <div class="flex items-center gap-2 ml-auto" @if(!request()->routeIs('inicio')) x-data @endif>
-              @hasSection('header_actions')
-                @yield('header_actions')
-              @endif
-              @if (request()->routeIs('inicio'))
-              <div x-data="{ open:false }" class="relative">
-                <button type="button" @click="open=true"
-                        class="inline-flex items-center gap-2 px-3 py-2 text-sm rounded-lg border border-neutral-300 dark:border-neutral-700 text-neutral-700 dark:text-neutral-200 hover:bg-neutral-50 dark:hover:bg-neutral-800">
-                  <svg class="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true">
-                    <path stroke-linecap="round" stroke-linejoin="round" d="M15 12H3m12 0-4-4m4 4-4 4M21 3v18" />
-                  </svg>
-                  Salir
-                </button>
-                <!-- Modal de confirmación logout -->
-                <div x-cloak x-show="open" class="fixed inset-0 z-50 flex items-center justify-center">
-                  <div class="absolute inset-0 bg-black/50" @click="open=false"></div>
-                  <div class="relative w-full max-w-md mx-4 rounded-xl border border-neutral-200 dark:border-neutral-800 bg-white dark:bg-neutral-900 shadow-lg p-5">
-                    <h3 class="text-lg font-semibold text-neutral-900 dark:text-neutral-100 mb-2">Confirmar salida</h3>
-                    <p class="text-sm text-neutral-600 dark:text-neutral-300 mb-4">¿Está seguro que desea cerrar sesión?</p>
-                    <div class="flex items-center justify-end gap-2">
-                      <button type="button" @click="open=false" class="px-3 py-2 rounded-lg border border-neutral-300 dark:border-neutral-700 text-sm text-neutral-700 dark:text-neutral-200 hover:bg-neutral-50 dark:hover:bg-neutral-800">Cancelar</button>
-                      <form method="POST" action="{{ route('logout') }}">
-                        @csrf
-                        <button type="submit" class="px-4 py-2 rounded-lg bg-rose-600 text-white text-sm hover:bg-rose-700">Cerrar sesión</button>
-                      </form>
+        <div class="w-full py-3 sm:py-4 px-4 sm:px-6 lg:px-8">
+          <div class="flex flex-col sm:flex-row sm:items-center gap-3 sm:gap-4">
+            <div class="flex-1 min-w-0">{{ $header }}</div>
+            @php
+              $hasActions = trim($__env->yieldContent('header_actions')) !== '' || request()->routeIs('inicio');
+            @endphp
+            @if($hasActions)
+              <div class="hidden sm:block h-8 w-px bg-neutral-200 dark:bg-neutral-700/70 flex-shrink-0"></div>
+              <div class="flex items-center gap-2 flex-wrap sm:flex-nowrap">
+                @hasSection('header_actions')
+                  @yield('header_actions')
+                @endif
+                @if (request()->routeIs('inicio'))
+                  <div x-data="{ open:false }" class="relative flex-shrink-0">
+                    <button type="button" @click="open=true"
+                            class="inline-flex items-center gap-2 px-3.5 py-2 text-sm font-medium rounded-lg border border-neutral-300 dark:border-neutral-700 text-neutral-700 dark:text-neutral-200 hover:bg-neutral-50 dark:hover:bg-neutral-800/80 hover:border-neutral-400 dark:hover:border-neutral-600 transition-all">
+                      <svg class="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true">
+                        <path stroke-linecap="round" stroke-linejoin="round" d="M15 12H3m12 0-4-4m4 4-4 4M21 3v18" />
+                      </svg>
+                      <span class="hidden lg:inline">Cerrar sesión</span>
+                      <span class="lg:hidden">Salir</span>
+                    </button>
+                    <!-- Modal de confirmación logout -->
+                    <div x-cloak x-show="open" class="fixed inset-0 z-50 flex items-center justify-center p-4">
+                      <div class="absolute inset-0 bg-black/50 backdrop-blur-sm" @click="open=false"></div>
+                      <div class="relative w-full max-w-md rounded-2xl border border-neutral-200 dark:border-neutral-700 bg-white dark:bg-neutral-900 shadow-2xl p-6">
+                        <h3 class="text-lg font-semibold text-neutral-900 dark:text-neutral-100 mb-2">Confirmar salida</h3>
+                        <p class="text-sm text-neutral-600 dark:text-neutral-400 mb-5">¿Está seguro que desea cerrar sesión?</p>
+                        <div class="flex items-center justify-end gap-2">
+                          <button type="button" @click="open=false" class="px-4 py-2 rounded-lg border border-neutral-300 dark:border-neutral-700 text-sm font-medium text-neutral-700 dark:text-neutral-200 hover:bg-neutral-50 dark:hover:bg-neutral-800 transition-colors">Cancelar</button>
+                          <form method="POST" action="{{ route('logout') }}" class="inline">
+                            @csrf
+                            <button type="submit" class="px-4 py-2 rounded-lg bg-rose-600 text-white text-sm font-medium hover:bg-rose-700 transition-colors shadow-sm">Cerrar sesión</button>
+                          </form>
+                        </div>
+                      </div>
                     </div>
                   </div>
-                </div>
+                @endif
               </div>
-              @endif
-              <x-server-status />
-            </div>
+            @endif
           </div>
         </div>
       </header>
     @else
       @hasSection('header')
         <header class="header-glass @if(request()->routeIs('inicio')) hidden md:block @endif">
-          <div class="w-full py-4 px-4 sm:px-6 lg:px-8">
-            <div class="flex items-center gap-4">
-              <div class="min-w-0">@yield('header')</div>
-              <div class="h-8 w-px bg-neutral-300 dark:bg-neutral-700"></div>
-              <div class="flex items-center gap-2 ml-auto">
-                @hasSection('header_actions')
-                  @yield('header_actions')
-                @endif
-                @if (request()->routeIs('inicio'))
-                <div x-data="{ open:false }" class="relative">
-                  <button type="button" @click="open=true"
-                          class="inline-flex items-center gap-2 px-3 py-2 text-sm rounded-lg border border-neutral-300 dark:border-neutral-700 text-neutral-700 dark:text-neutral-200 hover:bg-neutral-50 dark:hover:bg-neutral-800">
-                    <svg class="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true">
-                      <path stroke-linecap="round" stroke-linejoin="round" d="M15 12H3m12 0-4-4m4 4-4 4M21 3v18" />
-                    </svg>
-                    Salir
-                  </button>
-                  <!-- Modal de confirmación logout -->
-                  <div x-cloak x-show="open" class="fixed inset-0 z-50 flex items-center justify-center">
-                    <div class="absolute inset-0 bg-black/50" @click="open=false"></div>
-                    <div class="relative w-full max-w-md mx-4 rounded-xl border border-neutral-200 dark:border-neutral-800 bg-white dark:bg-neutral-900 shadow-lg p-5">
-                      <h3 class="text-lg font-semibold text-neutral-900 dark:text-neutral-100 mb-2">Confirmar salida</h3>
-                      <p class="text-sm text-neutral-600 dark:text-neutral-300 mb-4">¿Está seguro que desea cerrar sesión?</p>
-                      <div class="flex items-center justify-end gap-2">
-                        <button type="button" @click="open=false" class="px-3 py-2 rounded-lg border border-neutral-300 dark:border-neutral-700 text-sm text-neutral-700 dark:text-neutral-200 hover:bg-neutral-50 dark:hover:bg-neutral-800">Cancelar</button>
-                        <form method="POST" action="{{ route('logout') }}">
-                          @csrf
-                          <button type="submit" class="px-4 py-2 rounded-lg bg-rose-600 text-white text-sm hover:bg-rose-700">Cerrar sesión</button>
-                        </form>
+          <div class="w-full py-3 sm:py-4 px-4 sm:px-6 lg:px-8">
+            <div class="flex flex-col sm:flex-row sm:items-center gap-3 sm:gap-4">
+              <div class="flex-1 min-w-0">@yield('header')</div>
+              @php
+                $hasActions = trim($__env->yieldContent('header_actions')) !== '' || request()->routeIs('inicio');
+              @endphp
+              @if($hasActions)
+                <div class="hidden sm:block h-8 w-px bg-neutral-200 dark:bg-neutral-700/70 flex-shrink-0"></div>
+                <div class="flex items-center gap-2 flex-wrap sm:flex-nowrap">
+                  @hasSection('header_actions')
+                    @yield('header_actions')
+                  @endif
+                  @if (request()->routeIs('inicio'))
+                    <div x-data="{ open:false }" class="relative flex-shrink-0">
+                      <button type="button" @click="open=true"
+                              class="inline-flex items-center gap-2 px-3.5 py-2 text-sm font-medium rounded-lg border border-neutral-300 dark:border-neutral-700 text-neutral-700 dark:text-neutral-200 hover:bg-neutral-50 dark:hover:bg-neutral-800/80 hover:border-neutral-400 dark:hover:border-neutral-600 transition-all">
+                        <svg class="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true">
+                          <path stroke-linecap="round" stroke-linejoin="round" d="M15 12H3m12 0-4-4m4 4-4 4M21 3v18" />
+                        </svg>
+                        <span class="hidden lg:inline">Cerrar sesión</span>
+                        <span class="lg:hidden">Salir</span>
+                      </button>
+                      <!-- Modal de confirmación logout -->
+                      <div x-cloak x-show="open" class="fixed inset-0 z-50 flex items-center justify-center p-4">
+                        <div class="absolute inset-0 bg-black/50 backdrop-blur-sm" @click="open=false"></div>
+                        <div class="relative w-full max-w-md rounded-2xl border border-neutral-200 dark:border-neutral-700 bg-white dark:bg-neutral-900 shadow-2xl p-6">
+                          <h3 class="text-lg font-semibold text-neutral-900 dark:text-neutral-100 mb-2">Confirmar salida</h3>
+                          <p class="text-sm text-neutral-600 dark:text-neutral-400 mb-5">¿Está seguro que desea cerrar sesión?</p>
+                          <div class="flex items-center justify-end gap-2">
+                            <button type="button" @click="open=false" class="px-4 py-2 rounded-lg border border-neutral-300 dark:border-neutral-700 text-sm font-medium text-neutral-700 dark:text-neutral-200 hover:bg-neutral-50 dark:hover:bg-neutral-800 transition-colors">Cancelar</button>
+                            <form method="POST" action="{{ route('logout') }}" class="inline">
+                              @csrf
+                              <button type="submit" class="px-4 py-2 rounded-lg bg-rose-600 text-white text-sm font-medium hover:bg-rose-700 transition-colors shadow-sm">Cerrar sesión</button>
+                            </form>
+                          </div>
+                        </div>
                       </div>
                     </div>
-                  </div>
+                  @endif
                 </div>
-                @endif
-                <x-server-status />
-              </div>
+              @endif
             </div>
           </div>
         </header>

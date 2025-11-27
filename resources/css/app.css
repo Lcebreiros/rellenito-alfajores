@@ -455,7 +455,7 @@ body {
      HEADER CON GLASS MORPHISM
      ================================ */
 
-  /* Header con glass morphism y acento del módulo activo */
+  /* Header Desktop - Transparente limpio */
   .header-glass {
     background: transparent !important;
     border-color: transparent !important;
@@ -484,6 +484,32 @@ body {
   .module-bg-stock .header-glass,
   .module-bg-payment .header-glass {
     border-bottom-color: transparent !important;
+  }
+
+  /* ================================
+     MOBILE HEADER - Limpio y optimizado
+     ================================ */
+
+  .mobile-header-glass {
+    @apply backdrop-blur-md;
+    background: linear-gradient(
+      180deg,
+      rgb(255 255 255 / 0.98) 0%,
+      rgb(255 255 255 / 0.95) 100%
+    ) !important;
+    border-bottom: 1px solid rgb(229 231 235 / 0.5);
+    box-shadow: 0 1px 3px rgb(0 0 0 / 0.05);
+  }
+
+  .dark .mobile-header-glass {
+    @apply backdrop-blur-md;
+    background: linear-gradient(
+      180deg,
+      rgb(23 23 23 / 0.98) 0%,
+      rgb(23 23 23 / 0.95) 100%
+    ) !important;
+    border-bottom: 1px solid rgb(64 64 64 / 0.5);
+    box-shadow: 0 1px 3px rgb(0 0 0 / 0.3);
   }
 
   /* Backgrounds with glass effect */
