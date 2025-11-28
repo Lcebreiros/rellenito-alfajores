@@ -374,8 +374,8 @@
 </div>
 
 {{-- Modal de Descarga --}}
-<div id="downloadModal" class="fixed inset-0 bg-black/50 hidden items-center justify-center z-50" role="dialog" aria-modal="true" aria-labelledby="downloadTitle">
-  <div class="bg-white dark:bg-neutral-900 rounded-xl p-6 max-w-md w-full mx-4 border border-neutral-100 dark:border-neutral-800" role="document">
+<div id="downloadModal" class="download-modal" role="dialog" aria-modal="true" aria-labelledby="downloadTitle" aria-hidden="true">
+  <div class="bg-white dark:bg-neutral-900 rounded-xl p-6 w-full max-w-md border border-neutral-100 dark:border-neutral-800 shadow-2xl shadow-black/30" role="document">
     <div class="flex items-center justify-between mb-4">
       <h3 id="downloadTitle" class="text-lg font-semibold text-neutral-900 dark:text-neutral-100 flex items-center gap-2">
         <x-svg-icon name="download" size="5" class="text-emerald-600" /> Descargar Reporte
@@ -422,6 +422,20 @@
 <style>
   #filtersPanel{transform:translateY(-10px);opacity:0}
   #filtersPanel.show{transform:translateY(0);opacity:1}
+  /* Modal centrado fijo sobre todo el contenido */
+  .download-modal{
+    position:fixed;
+    inset:0;
+    padding:12px;
+    display:none;
+    align-items:center;
+    justify-content:center;
+    background:rgba(0,0,0,0.5);
+    z-index:110;
+  }
+  .download-modal.show{
+    display:flex;
+  }
 </style>
 
 <script>
@@ -584,17 +598,31 @@
     'use strict';
 
     function initializeModalsAndFilters() {
-        // Modal de descarga
+        // Modal de descarga (lo movemos al body para evitar transform parents)
         const downloadModal = document.getElementById('downloadModal');
         const downloadBtn = document.querySelector('[data-modal-open="downloadModal"]');
         const closeModalBtn = document.getElementById('closeModal');
+
+        const showDownload = () => {
+            downloadModal.classList.add('show');
+            downloadModal.setAttribute('aria-hidden', 'false');
+        };
+
+        const hideDownload = () => {
+            downloadModal.classList.remove('show');
+            downloadModal.setAttribute('aria-hidden', 'true');
+        };
+
+        // Evitar que algún contenedor con transform afecte al fixed
+        if (downloadModal && downloadModal.parentElement !== document.body) {
+            document.body.appendChild(downloadModal);
+        }
 
         if (downloadBtn && downloadModal) {
             downloadBtn.addEventListener('click', function(e) {
                 e.preventDefault();
                 e.stopPropagation();
-                downloadModal.classList.remove('hidden');
-                downloadModal.classList.add('flex');
+                showDownload();
             }, { once: false });
         }
 
@@ -602,8 +630,7 @@
             closeModalBtn.addEventListener('click', function(e) {
                 e.preventDefault();
                 e.stopPropagation();
-                downloadModal.classList.add('hidden');
-                downloadModal.classList.remove('flex');
+                hideDownload();
             }, { once: false });
         }
 
@@ -611,17 +638,15 @@
         if (downloadModal) {
             downloadModal.addEventListener('click', function(e) {
                 if (e.target === downloadModal) {
-                    downloadModal.classList.add('hidden');
-                    downloadModal.classList.remove('flex');
+                    hideDownload();
                 }
             }, { once: false });
         }
 
         // Cerrar modal con tecla ESC
         document.addEventListener('keydown', function(e) {
-            if (e.key === 'Escape' && downloadModal && !downloadModal.classList.contains('hidden')) {
-                downloadModal.classList.add('hidden');
-                downloadModal.classList.remove('flex');
+            if (e.key === 'Escape' && downloadModal && downloadModal.classList.contains('show')) {
+                hideDownload();
             }
         }, { once: false });
 

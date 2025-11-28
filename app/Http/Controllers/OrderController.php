@@ -66,6 +66,14 @@ public function index(Request $request)
 
         [$baseQuery, $meta] = $this->buildOrdersQuery($request);
 
+        // Asegurar misma visibilidad que el listado y dejar trazas para diagnosticar fallos silenciosos
+        $baseQuery->availableFor($request->user());
+        Log::info('orders.download-report', [
+            'user_id' => $request->user()?->id,
+            'format'  => $request->input('format', 'csv'),
+            'filters' => $request->query(),
+        ]);
+
         $filenameBase = 'pedidos_' . now()->format('Ymd_His');
         if ($meta['period']) {
             $filenameBase .= '_' . $meta['period'];
@@ -102,6 +110,9 @@ public function index(Request $request)
     /** CSV en streaming con BOM UTF-8 y separador ';' (excel-friendly es-AR) */
     private function streamCsv($query, string $filename, bool $hasNote)
     {
+        // Asegurar conteo de ítems en la selección
+        $query->withSum('items as items_qty', 'quantity');
+
         $headers = [
             'Content-Type'        => 'text/csv; charset=UTF-8',
             'Content-Disposition' => "attachment; filename=\"{$filename}\"",
@@ -158,6 +169,9 @@ public function index(Request $request)
      */
     private function excelToTempFileAndDownload($query, string $downloadName, bool $hasNote)
     {
+        // Asegurar conteo de ítems en la selección
+        $query->withSum('items as items_qty', 'quantity');
+
         $tmpDir = storage_path('app/tmp');
         if (!is_dir($tmpDir)) { @mkdir($tmpDir, 0775, true); }
         $tmpPath = tempnam($tmpDir, 'xls_');
@@ -223,6 +237,9 @@ public function index(Request $request)
     /** Fallback: Excel HTML directo (no streaming). */
     private function excelHtmlResponseNoStream($query, string $downloadName, bool $hasNote)
     {
+        // Asegurar conteo de ítems en la selección
+        $query->withSum('items as items_qty', 'quantity');
+
         $html = '<html><head><meta charset="utf-8"><style>
                     table{border-collapse:collapse;width:100%}
                     th,td{border:1px solid #ccc;padding:6px}
@@ -459,7 +476,7 @@ public function index(Request $request)
     /** Columnas a seleccionar en exports (depende de si existe orders.note). */
     private function orderExportColumns(bool $hasNote): array
     {
-        $cols = ['id','client_id','created_at','total','status'];
+        $cols = ['id','client_id','created_at','total','status','items_qty'];
         if ($hasNote) $cols[] = 'note';
         return $cols;
     }

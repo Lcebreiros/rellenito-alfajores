@@ -114,60 +114,90 @@
   /* Colores neón ultra vibrantes para los módulos */
   --module-orders-50: 45 5 25;         /* Pink oscuro para hover */
   --module-orders-100: 60 10 35;
+  --module-orders-200: 110 15 70;
+  --module-orders-300: 165 25 105;
+  --module-orders-400: 210 35 135;
   --module-orders-500: 255 0 128;      /* Pink neón brillante */
   --module-orders-600: 255 20 147;
   --module-orders-700: 255 40 167;
 
   --module-products-50: 0 25 35;       /* Cyan oscuro para hover */
   --module-products-100: 0 35 45;
+  --module-products-200: 0 75 95;
+  --module-products-300: 0 115 140;
+  --module-products-400: 0 175 200;
   --module-products-500: 0 255 255;    /* Cyan neón brillante */
   --module-products-600: 20 255 255;
   --module-products-700: 40 255 255;
 
   --module-clients-50: 0 35 15;        /* Green oscuro para hover */
   --module-clients-100: 0 45 20;
+  --module-clients-200: 10 80 35;
+  --module-clients-300: 20 120 55;
+  --module-clients-400: 30 180 75;
   --module-clients-500: 57 255 20;     /* Green neón brillante */
   --module-clients-600: 77 255 40;
   --module-clients-700: 97 255 60;
 
   --module-dashboard-50: 25 0 45;      /* Purple oscuro para hover */
   --module-dashboard-100: 35 0 60;
+  --module-dashboard-200: 80 0 120;
+  --module-dashboard-300: 120 0 170;
+  --module-dashboard-400: 160 0 210;
   --module-dashboard-500: 191 0 255;   /* Purple neón brillante */
   --module-dashboard-600: 201 20 255;
   --module-dashboard-700: 211 40 255;
 
   --module-expenses-50: 40 15 0;       /* Orange oscuro para hover */
   --module-expenses-100: 50 20 0;
+  --module-expenses-200: 100 45 5;
+  --module-expenses-300: 150 70 8;
+  --module-expenses-400: 200 100 10;
   --module-expenses-500: 255 128 0;    /* Orange neón brillante */
   --module-expenses-600: 255 148 20;
   --module-expenses-700: 255 168 40;
 
   --module-company-50: 15 15 25;
   --module-company-100: 20 20 30;
+  --module-company-200: 90 90 140;
+  --module-company-300: 120 120 175;
+  --module-company-400: 150 150 215;
   --module-company-500: 180 180 255;   /* Azul claro neón */
   --module-company-600: 190 190 255;
   --module-company-700: 200 200 255;
 
   --module-employees-50: 0 30 30;
   --module-employees-100: 0 40 40;
+  --module-employees-200: 0 90 85;
+  --module-employees-300: 0 140 130;
+  --module-employees-400: 0 200 175;
   --module-employees-500: 0 255 200;   /* Turquesa neón */
   --module-employees-600: 20 255 210;
   --module-employees-700: 40 255 220;
 
   --module-services-50: 35 0 20;
   --module-services-100: 45 0 30;
+  --module-services-200: 90 0 60;
+  --module-services-300: 140 0 95;
+  --module-services-400: 190 0 125;
   --module-services-500: 255 20 147;   /* Magenta neón */
   --module-services-600: 255 40 167;
   --module-services-700: 255 60 187;
 
   --module-stock-50: 0 30 40;
   --module-stock-100: 0 40 50;
+  --module-stock-200: 0 85 105;
+  --module-stock-300: 0 135 150;
+  --module-stock-400: 0 190 210;
   --module-stock-500: 0 242 255;       /* Cyan claro neón */
   --module-stock-600: 20 245 255;
   --module-stock-700: 40 248 255;
 
   --module-payment-50: 40 35 0;
   --module-payment-100: 50 45 0;
+  --module-payment-200: 110 100 5;
+  --module-payment-300: 160 145 8;
+  --module-payment-400: 210 190 10;
   --module-payment-500: 255 255 0;     /* Amarillo neón brillante */
   --module-payment-600: 255 255 51;
   --module-payment-700: 255 255 102;
@@ -311,8 +341,8 @@
   background: rgb(0 0 0 / 0.3) !important;
   backdrop-filter: blur(10px) !important;
   -webkit-backdrop-filter: blur(10px) !important;
-  border-color: rgb(var(--module-orders-500) / 0.5) !important;
-  box-shadow: 0 0 15px rgb(var(--module-orders-500) / 0.2), 0 0 20px rgb(0 0 0 / 0.5) !important;
+  border: 1px solid rgb(200 0 255 / 0.5) !important;
+  box-shadow: 0 0 15px rgb(200 0 255 / 0.3), 0 0 20px rgb(0 0 0 / 0.5) !important;
 }
 
 .theme-neon .module-bg-orders .rounded-2xl > *,
@@ -326,8 +356,10 @@
 .theme-neon .module-bg-orders .rounded-xl:hover,
 .theme-neon .module-bg-orders .rounded-lg:hover {
   background: rgb(0 0 0 / 0.4) !important;
-  border-color: rgb(var(--module-orders-500) / 0.8) !important;
-  box-shadow: 0 0 20px rgb(var(--module-orders-500) / 0.3), 0 0 25px rgb(0 0 0 / 0.5) !important;
+  border: 1px solid rgb(200 0 255 / 0.8) !important;
+  box-shadow: 0 0 25px rgb(200 0 255 / 0.5), 0 0 30px rgb(0 0 0 / 0.5) !important;
+  transform: translateY(-1px);
+  transition: all 0.2s ease;
 }
 
 .theme-neon .module-bg-products .rounded-2xl,
@@ -337,8 +369,8 @@
   background: rgb(0 0 0 / 0.3) !important;
   backdrop-filter: blur(10px) !important;
   -webkit-backdrop-filter: blur(10px) !important;
-  border-color: rgb(var(--module-products-500) / 0.5) !important;
-  box-shadow: 0 0 15px rgb(var(--module-products-500) / 0.2), 0 0 20px rgb(0 0 0 / 0.5) !important;
+  border: 1px solid rgb(0 200 255 / 0.5) !important;
+  box-shadow: 0 0 15px rgb(0 200 255 / 0.3), 0 0 20px rgb(0 0 0 / 0.5) !important;
 }
 
 .theme-neon .module-bg-products .rounded-2xl > *,
@@ -352,8 +384,10 @@
 .theme-neon .module-bg-products .rounded-xl:hover,
 .theme-neon .module-bg-products .rounded-lg:hover {
   background: rgb(0 0 0 / 0.4) !important;
-  border-color: rgb(var(--module-products-500) / 0.8) !important;
-  box-shadow: 0 0 20px rgb(var(--module-products-500) / 0.3), 0 0 25px rgb(0 0 0 / 0.5) !important;
+  border: 1px solid rgb(0 200 255 / 0.8) !important;
+  box-shadow: 0 0 25px rgb(0 200 255 / 0.5), 0 0 30px rgb(0 0 0 / 0.5) !important;
+  transform: translateY(-1px);
+  transition: all 0.2s ease;
 }
 
 .theme-neon .module-bg-clients .rounded-2xl,
@@ -363,8 +397,8 @@
   background: rgb(0 0 0 / 0.3) !important;
   backdrop-filter: blur(10px) !important;
   -webkit-backdrop-filter: blur(10px) !important;
-  border-color: rgb(var(--module-clients-500) / 0.5) !important;
-  box-shadow: 0 0 15px rgb(var(--module-clients-500) / 0.2), 0 0 20px rgb(0 0 0 / 0.5) !important;
+  border: 1px solid rgb(0 255 150 / 0.5) !important;
+  box-shadow: 0 0 15px rgb(0 255 150 / 0.3), 0 0 20px rgb(0 0 0 / 0.5) !important;
 }
 
 .theme-neon .module-bg-clients .rounded-2xl > *,
@@ -378,8 +412,10 @@
 .theme-neon .module-bg-clients .rounded-xl:hover,
 .theme-neon .module-bg-clients .rounded-lg:hover {
   background: rgb(0 0 0 / 0.4) !important;
-  border-color: rgb(var(--module-clients-500) / 0.8) !important;
-  box-shadow: 0 0 20px rgb(var(--module-clients-500) / 0.3), 0 0 25px rgb(0 0 0 / 0.5) !important;
+  border: 1px solid rgb(0 255 150 / 0.8) !important;
+  box-shadow: 0 0 25px rgb(0 255 150 / 0.5), 0 0 30px rgb(0 0 0 / 0.5) !important;
+  transform: translateY(-1px);
+  transition: all 0.2s ease;
 }
 
 .theme-neon .module-bg-dashboard .rounded-2xl,
@@ -441,8 +477,8 @@
   background: rgb(0 0 0 / 0.3) !important;
   backdrop-filter: blur(10px) !important;
   -webkit-backdrop-filter: blur(10px) !important;
-  border-color: rgb(var(--module-stock-500) / 0.5) !important;
-  box-shadow: 0 0 15px rgb(var(--module-stock-500) / 0.2), 0 0 20px rgb(0 0 0 / 0.5) !important;
+  border: 1px solid rgb(0 242 255 / 0.5) !important;
+  box-shadow: 0 0 15px rgb(0 242 255 / 0.3), 0 0 20px rgb(0 0 0 / 0.5) !important;
 }
 
 .theme-neon .module-bg-stock .rounded-2xl > *,
@@ -456,8 +492,10 @@
 .theme-neon .module-bg-stock .rounded-xl:hover,
 .theme-neon .module-bg-stock .rounded-lg:hover {
   background: rgb(0 0 0 / 0.4) !important;
-  border-color: rgb(var(--module-stock-500) / 0.8) !important;
-  box-shadow: 0 0 20px rgb(var(--module-stock-500) / 0.3), 0 0 25px rgb(0 0 0 / 0.5) !important;
+  border: 1px solid rgb(0 242 255 / 0.8) !important;
+  box-shadow: 0 0 25px rgb(0 242 255 / 0.5), 0 0 30px rgb(0 0 0 / 0.5) !important;
+  transform: translateY(-1px);
+  transition: all 0.2s ease;
 }
 
 /* Texto con sutil glow neón */
@@ -1056,92 +1094,92 @@
 /* Background del módulo con gradientes sutiles mezclando color con blanco */
 .module-bg-orders {
   background: linear-gradient(135deg,
-    rgb(255 255 255) 0%,      /* white */
-    rgb(250 245 255) 20%,     /* violet-50 */
-    rgb(243 232 255) 50%,     /* violet-100 */
-    rgb(237 233 254) 70%,     /* violet-100 ligeramente saturado */
-    rgb(221 214 254) 100%);   /* violet-200 */
+    rgb(255 255 255) 0%,
+    rgb(var(--module-orders-50)) 20%,
+    rgb(var(--module-orders-100)) 50%,
+    color-mix(in srgb, rgb(var(--module-orders-100)) 80%, rgb(var(--module-orders-500))) 70%,
+    color-mix(in srgb, rgb(var(--module-orders-100)) 65%, rgb(var(--module-orders-600))) 100%);
 }
 
 .module-bg-products {
   background: linear-gradient(135deg,
-    rgb(255 255 255) 0%,      /* white */
-    rgb(240 249 255) 20%,     /* sky-50 */
-    rgb(224 242 254) 50%,     /* sky-100 */
-    rgb(207 239 253) 70%,     /* sky-150 blend */
-    rgb(186 230 253) 100%);   /* sky-200 */
+    rgb(255 255 255) 0%,
+    rgb(var(--module-products-50)) 20%,
+    rgb(var(--module-products-100)) 50%,
+    color-mix(in srgb, rgb(var(--module-products-100)) 80%, rgb(var(--module-products-500))) 70%,
+    color-mix(in srgb, rgb(var(--module-products-100)) 65%, rgb(var(--module-products-600))) 100%);
 }
 
 .module-bg-clients {
   background: linear-gradient(135deg,
-    rgb(255 255 255) 0%,      /* white */
-    rgb(236 253 245) 20%,     /* emerald-50 */
-    rgb(209 250 229) 50%,     /* emerald-100 */
-    rgb(188 246 218) 70%,     /* emerald-150 blend */
-    rgb(167 243 208) 100%);   /* emerald-200 */
+    rgb(255 255 255) 0%,
+    rgb(var(--module-clients-50)) 20%,
+    rgb(var(--module-clients-100)) 50%,
+    color-mix(in srgb, rgb(var(--module-clients-100)) 80%, rgb(var(--module-clients-500))) 70%,
+    color-mix(in srgb, rgb(var(--module-clients-100)) 65%, rgb(var(--module-clients-600))) 100%);
 }
 
 .module-bg-dashboard {
   background: linear-gradient(135deg,
-    rgb(255 255 255) 0%,      /* white */
-    rgb(238 242 255) 20%,     /* indigo-50 */
-    rgb(224 231 255) 50%,     /* indigo-100 */
-    rgb(211 220 254) 70%,     /* indigo-150 blend */
-    rgb(199 210 254) 100%);   /* indigo-200 */
+    rgb(255 255 255) 0%,
+    rgb(var(--module-dashboard-50)) 20%,
+    rgb(var(--module-dashboard-100)) 50%,
+    color-mix(in srgb, rgb(var(--module-dashboard-100)) 80%, rgb(var(--module-dashboard-500))) 70%,
+    color-mix(in srgb, rgb(var(--module-dashboard-100)) 65%, rgb(var(--module-dashboard-600))) 100%);
 }
 
 .module-bg-expenses {
   background: linear-gradient(135deg,
-    rgb(255 255 255) 0%,      /* white */
-    rgb(255 247 237) 20%,     /* amber-50 */
-    rgb(254 243 199) 50%,     /* amber-100 */
-    rgb(253 236 168) 70%,     /* amber-150 blend */
-    rgb(253 230 138) 100%);   /* amber-200 */
+    rgb(255 255 255) 0%,
+    rgb(var(--module-expenses-50)) 20%,
+    rgb(var(--module-expenses-100)) 50%,
+    color-mix(in srgb, rgb(var(--module-expenses-100)) 80%, rgb(var(--module-expenses-500))) 70%,
+    color-mix(in srgb, rgb(var(--module-expenses-100)) 65%, rgb(var(--module-expenses-600))) 100%);
 }
 
 .module-bg-company {
   background: linear-gradient(135deg,
-    rgb(255 255 255) 0%,      /* white */
-    rgb(248 250 252) 20%,     /* slate-50 */
-    rgb(241 245 249) 50%,     /* slate-100 */
-    rgb(233 238 244) 70%,     /* slate-150 blend */
-    rgb(226 232 240) 100%);   /* slate-200 */
+    rgb(255 255 255) 0%,
+    rgb(var(--module-company-50)) 20%,
+    rgb(var(--module-company-100)) 50%,
+    color-mix(in srgb, rgb(var(--module-company-100)) 80%, rgb(var(--module-company-500))) 70%,
+    color-mix(in srgb, rgb(var(--module-company-100)) 65%, rgb(var(--module-company-600))) 100%);
 }
 
 .module-bg-employees {
   background: linear-gradient(135deg,
-    rgb(255 255 255) 0%,      /* white */
-    rgb(240 253 250) 20%,     /* teal-50 */
-    rgb(204 251 241) 50%,     /* teal-100 */
-    rgb(178 248 234) 70%,     /* teal-150 blend */
-    rgb(153 246 228) 100%);   /* teal-200 */
+    rgb(255 255 255) 0%,
+    rgb(var(--module-employees-50)) 20%,
+    rgb(var(--module-employees-100)) 50%,
+    color-mix(in srgb, rgb(var(--module-employees-100)) 80%, rgb(var(--module-employees-500))) 70%,
+    color-mix(in srgb, rgb(var(--module-employees-100)) 65%, rgb(var(--module-employees-600))) 100%);
 }
 
 .module-bg-services {
   background: linear-gradient(135deg,
-    rgb(255 255 255) 0%,      /* white */
-    rgb(253 242 248) 20%,     /* pink-50 */
-    rgb(252 231 243) 50%,     /* pink-100 */
-    rgb(251 219 237) 70%,     /* pink-150 blend */
-    rgb(251 207 232) 100%);   /* pink-200 */
+    rgb(255 255 255) 0%,
+    rgb(var(--module-services-50)) 20%,
+    rgb(var(--module-services-100)) 50%,
+    color-mix(in srgb, rgb(var(--module-services-100)) 80%, rgb(var(--module-services-500))) 70%,
+    color-mix(in srgb, rgb(var(--module-services-100)) 65%, rgb(var(--module-services-600))) 100%);
 }
 
 .module-bg-stock {
   background: linear-gradient(135deg,
-    rgb(255 255 255) 0%,      /* white */
-    rgb(236 254 255) 20%,     /* cyan-50 */
-    rgb(207 250 254) 50%,     /* cyan-100 */
-    rgb(186 246 253) 70%,     /* cyan-150 blend */
-    rgb(165 243 252) 100%);   /* cyan-200 */
+    rgb(255 255 255) 0%,
+    rgb(var(--module-stock-50)) 20%,
+    rgb(var(--module-stock-100)) 50%,
+    color-mix(in srgb, rgb(var(--module-stock-100)) 80%, rgb(var(--module-stock-500))) 70%,
+    color-mix(in srgb, rgb(var(--module-stock-100)) 65%, rgb(var(--module-stock-600))) 100%);
 }
 
 .module-bg-payment {
   background: linear-gradient(135deg,
-    rgb(255 255 255) 0%,      /* white */
-    rgb(254 252 232) 20%,     /* yellow-50 */
-    rgb(254 249 195) 50%,     /* yellow-100 */
-    rgb(254 244 166) 70%,     /* yellow-150 blend */
-    rgb(254 240 138) 100%);   /* yellow-200 */
+    rgb(255 255 255) 0%,
+    rgb(var(--module-payment-50)) 20%,
+    rgb(var(--module-payment-100)) 50%,
+    color-mix(in srgb, rgb(var(--module-payment-100)) 80%, rgb(var(--module-payment-500))) 70%,
+    color-mix(in srgb, rgb(var(--module-payment-100)) 65%, rgb(var(--module-payment-600))) 100%);
 }
 
 /* Fallback neutral */
@@ -1153,97 +1191,97 @@
 }
 
 /* Modo oscuro - gradientes mezclando color con negro */
-.dark .module-bg-orders {
+.dark:not(.theme-neon) .module-bg-orders {
   background: linear-gradient(135deg,
-    rgb(23 23 23) 0%,       /* neutral-900 (casi negro) */
-    rgb(30 27 52) 20%,      /* transición suave */
-    rgb(49 46 129) 50%,     /* indigo-900 */
-    rgb(62 37 139) 70%,     /* violet-blend */
-    rgb(76 29 149) 100%);   /* violet-900 */
+    color-mix(in srgb, rgb(var(--module-orders-500)) 12%, rgb(0 0 0)) 0%,
+    color-mix(in srgb, rgb(var(--module-orders-500)) 24%, rgb(0 0 0)) 20%,
+    color-mix(in srgb, rgb(var(--module-orders-600)) 38%, rgb(0 0 0)) 50%,
+    color-mix(in srgb, rgb(var(--module-orders-600)) 52%, rgb(0 0 0)) 70%,
+    color-mix(in srgb, rgb(var(--module-orders-700)) 65%, rgb(0 0 0)) 100%);
 }
 
-.dark .module-bg-products {
+.dark:not(.theme-neon) .module-bg-products {
   background: linear-gradient(135deg,
-    rgb(23 23 23) 0%,       /* neutral-900 */
-    rgb(18 48 66) 20%,      /* transición suave */
-    rgb(12 74 110) 50%,     /* sky-900 */
-    rgb(9 81 121) 70%,      /* sky-blend */
-    rgb(7 89 133) 100%);    /* sky-800 */
+    color-mix(in srgb, rgb(var(--module-products-500)) 12%, rgb(0 0 0)) 0%,
+    color-mix(in srgb, rgb(var(--module-products-500)) 24%, rgb(0 0 0)) 20%,
+    color-mix(in srgb, rgb(var(--module-products-600)) 38%, rgb(0 0 0)) 50%,
+    color-mix(in srgb, rgb(var(--module-products-600)) 52%, rgb(0 0 0)) 70%,
+    color-mix(in srgb, rgb(var(--module-products-700)) 65%, rgb(0 0 0)) 100%);
 }
 
-.dark .module-bg-clients {
+.dark:not(.theme-neon) .module-bg-clients {
   background: linear-gradient(135deg,
-    rgb(23 23 23) 0%,       /* neutral-900 */
-    rgb(14 50 41) 20%,      /* transición suave */
-    rgb(6 78 59) 50%,       /* emerald-900 */
-    rgb(12 78 66) 70%,      /* emerald-blend */
-    rgb(19 78 74) 100%);    /* teal-900 */
+    color-mix(in srgb, rgb(var(--module-clients-500)) 12%, rgb(0 0 0)) 0%,
+    color-mix(in srgb, rgb(var(--module-clients-500)) 24%, rgb(0 0 0)) 20%,
+    color-mix(in srgb, rgb(var(--module-clients-600)) 38%, rgb(0 0 0)) 50%,
+    color-mix(in srgb, rgb(var(--module-clients-600)) 52%, rgb(0 0 0)) 70%,
+    color-mix(in srgb, rgb(var(--module-clients-700)) 65%, rgb(0 0 0)) 100%);
 }
 
-.dark .module-bg-dashboard {
+.dark:not(.theme-neon) .module-bg-dashboard {
   background: linear-gradient(135deg,
-    rgb(23 23 23) 0%,       /* neutral-900 */
-    rgb(36 34 76) 20%,      /* transición suave */
-    rgb(49 46 129) 50%,     /* indigo-900 */
-    rgb(52 47 146) 70%,     /* indigo-blend */
-    rgb(55 48 163) 100%);   /* indigo-800 */
+    color-mix(in srgb, rgb(var(--module-dashboard-500)) 12%, rgb(0 0 0)) 0%,
+    color-mix(in srgb, rgb(var(--module-dashboard-500)) 24%, rgb(0 0 0)) 20%,
+    color-mix(in srgb, rgb(var(--module-dashboard-600)) 38%, rgb(0 0 0)) 50%,
+    color-mix(in srgb, rgb(var(--module-dashboard-600)) 52%, rgb(0 0 0)) 70%,
+    color-mix(in srgb, rgb(var(--module-dashboard-700)) 65%, rgb(0 0 0)) 100%);
 }
 
-.dark .module-bg-expenses {
+.dark:not(.theme-neon) .module-bg-expenses {
   background: linear-gradient(135deg,
-    rgb(23 23 23) 0%,       /* neutral-900 */
-    rgb(88 37 20) 20%,      /* transición suave */
-    rgb(154 52 18) 50%,     /* orange-900 */
-    rgb(137 52 16) 70%,     /* orange-blend */
-    rgb(120 53 15) 100%);   /* amber-900 */
+    color-mix(in srgb, rgb(var(--module-expenses-500)) 12%, rgb(0 0 0)) 0%,
+    color-mix(in srgb, rgb(var(--module-expenses-500)) 24%, rgb(0 0 0)) 20%,
+    color-mix(in srgb, rgb(var(--module-expenses-600)) 38%, rgb(0 0 0)) 50%,
+    color-mix(in srgb, rgb(var(--module-expenses-600)) 52%, rgb(0 0 0)) 70%,
+    color-mix(in srgb, rgb(var(--module-expenses-700)) 65%, rgb(0 0 0)) 100%);
 }
 
-.dark .module-bg-company {
+.dark:not(.theme-neon) .module-bg-company {
   background: linear-gradient(135deg,
-    rgb(23 23 23) 0%,       /* neutral-900 */
-    rgb(19 23 32) 20%,      /* transición suave */
-    rgb(15 23 42) 50%,      /* slate-950 */
-    rgb(22 32 50) 70%,      /* slate-blend */
-    rgb(30 41 59) 100%);    /* slate-900 */
+    color-mix(in srgb, rgb(var(--module-company-500)) 12%, rgb(0 0 0)) 0%,
+    color-mix(in srgb, rgb(var(--module-company-500)) 24%, rgb(0 0 0)) 20%,
+    color-mix(in srgb, rgb(var(--module-company-600)) 38%, rgb(0 0 0)) 50%,
+    color-mix(in srgb, rgb(var(--module-company-600)) 52%, rgb(0 0 0)) 70%,
+    color-mix(in srgb, rgb(var(--module-company-700)) 65%, rgb(0 0 0)) 100%);
 }
 
-.dark .module-bg-employees {
+.dark:not(.theme-neon) .module-bg-employees {
   background: linear-gradient(135deg,
-    rgb(23 23 23) 0%,       /* neutral-900 */
-    rgb(21 50 48) 20%,      /* transición suave */
-    rgb(19 78 74) 50%,      /* teal-900 */
-    rgb(20 78 86) 70%,      /* teal-blend */
-    rgb(22 78 99) 100%);    /* cyan-900 */
+    color-mix(in srgb, rgb(var(--module-employees-500)) 12%, rgb(0 0 0)) 0%,
+    color-mix(in srgb, rgb(var(--module-employees-500)) 24%, rgb(0 0 0)) 20%,
+    color-mix(in srgb, rgb(var(--module-employees-600)) 38%, rgb(0 0 0)) 50%,
+    color-mix(in srgb, rgb(var(--module-employees-600)) 52%, rgb(0 0 0)) 70%,
+    color-mix(in srgb, rgb(var(--module-employees-700)) 65%, rgb(0 0 0)) 100%);
 }
 
-.dark .module-bg-services {
+.dark:not(.theme-neon) .module-bg-services {
   background: linear-gradient(135deg,
-    rgb(23 23 23) 0%,       /* neutral-900 */
-    rgb(79 21 39) 20%,      /* transición suave */
-    rgb(136 19 55) 50%,     /* rose-900 */
-    rgb(133 21 61) 70%,     /* rose-blend */
-    rgb(131 24 67) 100%);   /* pink-900 */
+    color-mix(in srgb, rgb(var(--module-services-500)) 12%, rgb(0 0 0)) 0%,
+    color-mix(in srgb, rgb(var(--module-services-500)) 24%, rgb(0 0 0)) 20%,
+    color-mix(in srgb, rgb(var(--module-services-600)) 38%, rgb(0 0 0)) 50%,
+    color-mix(in srgb, rgb(var(--module-services-600)) 52%, rgb(0 0 0)) 70%,
+    color-mix(in srgb, rgb(var(--module-services-700)) 65%, rgb(0 0 0)) 100%);
 }
 
-.dark .module-bg-stock {
+.dark:not(.theme-neon) .module-bg-stock {
   background: linear-gradient(135deg,
-    rgb(23 23 23) 0%,       /* neutral-900 */
-    rgb(22 50 61) 20%,      /* transición suave */
-    rgb(22 78 99) 50%,      /* cyan-900 */
-    rgb(21 86 108) 70%,     /* cyan-blend */
-    rgb(21 94 117) 100%);   /* cyan-800 */
+    color-mix(in srgb, rgb(var(--module-stock-500)) 12%, rgb(0 0 0)) 0%,
+    color-mix(in srgb, rgb(var(--module-stock-500)) 24%, rgb(0 0 0)) 20%,
+    color-mix(in srgb, rgb(var(--module-stock-600)) 38%, rgb(0 0 0)) 50%,
+    color-mix(in srgb, rgb(var(--module-stock-600)) 52%, rgb(0 0 0)) 70%,
+    color-mix(in srgb, rgb(var(--module-stock-700)) 65%, rgb(0 0 0)) 100%);
 }
 
-.dark .module-bg-payment {
+.dark:not(.theme-neon) .module-bg-payment {
   background: linear-gradient(135deg,
-    rgb(23 23 23) 0%,       /* neutral-900 */
-    rgb(68 43 20) 20%,      /* transición suave */
-    rgb(113 63 18) 50%,     /* yellow-900 */
-    rgb(129 63 16) 70%,     /* yellow-blend */
-    rgb(146 64 14) 100%);   /* yellow-800 */
+    color-mix(in srgb, rgb(var(--module-payment-500)) 12%, rgb(0 0 0)) 0%,
+    color-mix(in srgb, rgb(var(--module-payment-500)) 24%, rgb(0 0 0)) 20%,
+    color-mix(in srgb, rgb(var(--module-payment-600)) 38%, rgb(0 0 0)) 50%,
+    color-mix(in srgb, rgb(var(--module-payment-600)) 52%, rgb(0 0 0)) 70%,
+    color-mix(in srgb, rgb(var(--module-payment-700)) 65%, rgb(0 0 0)) 100%);
 }
 
-.dark .module-bg-neutral {
+.dark:not(.theme-neon) .module-bg-neutral {
   background: linear-gradient(135deg,
     rgb(var(--theme-bg-via) / 0.9) 0%,
     rgb(var(--theme-bg-from) / 0.9) 50%,
