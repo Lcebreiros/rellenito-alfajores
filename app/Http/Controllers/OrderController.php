@@ -110,8 +110,9 @@ public function index(Request $request)
     /** CSV en streaming con BOM UTF-8 y separador ';' (excel-friendly es-AR) */
     private function streamCsv($query, string $filename, bool $hasNote)
     {
-        // Asegurar conteo de ítems en la selección
-        $query->withSum('items as items_qty', 'quantity');
+        // Selección de columnas + conteo de ítems
+        $columns = $this->orderExportColumns($hasNote);
+        $query->select($columns)->withSum('items as items_qty', 'quantity');
 
         $headers = [
             'Content-Type'        => 'text/csv; charset=UTF-8',
@@ -132,14 +133,11 @@ public function index(Request $request)
                 // Encabezados (dejamos "Notas" aunque no exista la columna)
                 fputcsv($out, ['ID','Fecha','Cliente','Estado','Items','Total','Notas'], ';');
 
-                $columns = $this->orderExportColumns($hasNote);
-
-                $query->select($columns)
-                      ->orderBy('id')
+                $query->orderBy('id')
                       ->chunkById(1000, function ($orders) use ($out, $hasNote) {
                           foreach ($orders as $o) {
                               $note = $hasNote ? (string)($o->note ?? '') : '';
-                fputcsv($out, [
+                              fputcsv($out, [
                                   (int) $o->id,
                                   $o->created_at ? $o->created_at->format('d/m/Y H:i') : '',
                                   optional($o->client)->name ?? 'Sin cliente',
@@ -169,8 +167,9 @@ public function index(Request $request)
      */
     private function excelToTempFileAndDownload($query, string $downloadName, bool $hasNote)
     {
-        // Asegurar conteo de ítems en la selección
-        $query->withSum('items as items_qty', 'quantity');
+        // Selección de columnas + conteo de ítems
+        $columns = $this->orderExportColumns($hasNote);
+        $query->select($columns)->withSum('items as items_qty', 'quantity');
 
         $tmpDir = storage_path('app/tmp');
         if (!is_dir($tmpDir)) { @mkdir($tmpDir, 0775, true); }
@@ -194,10 +193,8 @@ public function index(Request $request)
             file_put_contents($tmpPath, $head, LOCK_EX);
 
             $totalSum = 0; $count = 0;
-            $columns = $this->orderExportColumns($hasNote);
 
-            $query->select($columns)
-                  ->orderBy('id')
+            $query->orderBy('id')
                   ->chunkById(1000, function ($orders) use (&$totalSum, &$count, $tmpPath, $hasNote) {
                       $chunkHtml = '';
                       foreach ($orders as $o) {
@@ -237,8 +234,9 @@ public function index(Request $request)
     /** Fallback: Excel HTML directo (no streaming). */
     private function excelHtmlResponseNoStream($query, string $downloadName, bool $hasNote)
     {
-        // Asegurar conteo de ítems en la selección
-        $query->withSum('items as items_qty', 'quantity');
+        // Selección de columnas + conteo de ítems
+        $columns = $this->orderExportColumns($hasNote);
+        $query->select($columns)->withSum('items as items_qty', 'quantity');
 
         $html = '<html><head><meta charset="utf-8"><style>
                     table{border-collapse:collapse;width:100%}
@@ -253,10 +251,8 @@ public function index(Request $request)
                   </tr></thead><tbody>';
 
         $totalSum = 0; $count = 0;
-        $columns = $this->orderExportColumns($hasNote);
 
-        $query->select($columns)
-              ->orderBy('id')
+        $query->orderBy('id')
               ->chunkById(1000, function ($orders) use (&$html, &$totalSum, &$count, $hasNote) {
                   foreach ($orders as $o) {
                       $totalSum += (float) $o->total; $count++;
@@ -476,7 +472,8 @@ public function index(Request $request)
     /** Columnas a seleccionar en exports (depende de si existe orders.note). */
     private function orderExportColumns(bool $hasNote): array
     {
-        $cols = ['id','client_id','created_at','total','status','items_qty'];
+        // items_qty se agrega vía withSum; no va en el select directo
+        $cols = ['id','client_id','created_at','total','status'];
         if ($hasNote) $cols[] = 'note';
         return $cols;
     }
