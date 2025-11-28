@@ -303,9 +303,24 @@ $s = $statusMap[$statusKey] ?? [
                 </div>
               @endif
               @if($tax > 0)
-                <div class="flex items-center justify-between">
+                <div class="flex items-center justify-between relative group">
                   <span class="text-neutral-600 dark:text-neutral-300">IVA</span>
                   <span class="font-medium text-neutral-900 dark:text-neutral-100">{{ $fmt($tax) }}</span>
+                  <div class="hidden group-hover:flex absolute right-0 top-full mt-2 z-30 px-3 py-2 rounded-xl border border-neutral-200 dark:border-neutral-700 bg-white/95 dark:bg-neutral-900/95 shadow-xl shadow-black/10 backdrop-blur-md min-w-[220px] text-xs text-neutral-700 dark:text-neutral-200">
+                    <div class="w-full">
+                      <p class="font-semibold mb-1 text-neutral-900 dark:text-neutral-100">Detalle de impuestos</p>
+                      <div class="flex items-center justify-between text-neutral-600 dark:text-neutral-300">
+                        <span>IVA</span>
+                        <span class="font-semibold text-neutral-900 dark:text-neutral-100">{{ $fmt($tax) }}</span>
+                      </div>
+                      @if($shipping > 0)
+                      <div class="flex items-center justify-between text-neutral-600 dark:text-neutral-300">
+                        <span>Base + envío</span>
+                        <span>{{ $fmt($subtotal - $discount + $shipping) }}</span>
+                      </div>
+                      @endif
+                    </div>
+                  </div>
                 </div>
               @endif
               <div class="sm:col-span-2 flex items-center justify-between pt-2 border-t border-neutral-100 dark:border-neutral-800/60">

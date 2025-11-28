@@ -508,7 +508,7 @@
         </a>
 
         <a href="{{ route('invoices.configuration') }}" class="tile-wide tile-invoicing">
-          <img src="{{ asset('images/factura.png') }}" alt="Facturación" class="w-7 h-7 sm:w-8 sm:h-8 lg:w-10 lg:h-10 object-contain dark:invert flex-shrink-0">
+          <img src="{{ asset('images/arca.png') }}" alt="Facturación ARCA" class="w-7 h-7 sm:w-8 sm:h-8 lg:w-10 lg:h-10 object-contain dark:invert flex-shrink-0">
           <div class="min-w-0">
             <div class="text-xs sm:text-sm font-bold text-neutral-900 dark:text-neutral-100 truncate flex items-center gap-1">
               <span class="truncate">Facturación</span>
