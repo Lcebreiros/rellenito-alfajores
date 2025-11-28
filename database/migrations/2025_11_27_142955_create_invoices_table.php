@@ -26,6 +26,7 @@ return new class extends Migration
             // Datos del cliente
             $table->string('client_name');
             $table->string('client_cuit', 13)->nullable();
+            $table->string('client_tax_id', 13)->nullable()->comment('DNI u otro doc');
             $table->string('client_address')->nullable();
             $table->enum('client_tax_condition', ['IVA Responsable Inscripto', 'Monotributo', 'Exento', 'No Responsable', 'Consumidor Final'])->default('Consumidor Final');
 

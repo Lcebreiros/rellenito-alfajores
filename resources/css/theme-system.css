@@ -588,12 +588,11 @@
 .theme-neon h5,
 .theme-neon h6,
 .theme-neon span,
-.theme-neon div,
+.theme-neon div:not([role="dialog"]):not(.download-modal):not(.modal),
 .theme-neon label,
 .theme-neon table,
 .theme-neon td,
 .theme-neon th {
-  position: relative;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
   text-rendering: optimizeLegibility;

@@ -51,36 +51,42 @@
       </div>
     </div>
 
-    <div class="border-t border-neutral-100 dark:border-neutral-800 p-3 sm:p-4 bg-neutral-50 dark:bg-neutral-900/50">
-      <form id="chat-form" method="POST" action="{{ route('support.reply', $ticket) }}" class="flex flex-col sm:flex-row items-stretch sm:items-end gap-2">
-        @csrf
-        <div class="flex-1 min-w-0">
-          <textarea
-            id="message-input"
-            name="message"
-            rows="2"
-            required
-            class="w-full rounded-lg border-neutral-300 dark:border-neutral-700 bg-white dark:bg-neutral-900 px-3 py-2 text-sm focus:ring-2 focus:ring-indigo-500 focus:border-transparent resize-none touch-manipulation"
-            placeholder="Escribe tu mensaje..."
-            maxlength="5000"
-          ></textarea>
-          <div class="text-[11px] sm:text-xs text-neutral-500 dark:text-neutral-400 mt-1 flex items-center justify-between">
-            <span><span id="char-count">0</span> / 5000</span>
-            <span class="text-[10px] sm:text-[11px] opacity-60">Shift+Enter para nueva línea</span>
+    @if($ticket->status === 'solucionado')
+      <div class="border-t border-neutral-100 dark:border-neutral-800 p-4 bg-neutral-50 dark:bg-neutral-900/50 text-sm text-neutral-600 dark:text-neutral-300">
+        Este ticket está marcado como solucionado. No se pueden agregar más mensajes.
+      </div>
+    @else
+      <div class="border-t border-neutral-100 dark:border-neutral-800 p-3 sm:p-4 bg-neutral-50 dark:bg-neutral-900/50">
+        <form id="chat-form" method="POST" action="{{ route('support.reply', $ticket) }}" class="flex flex-col sm:flex-row items-stretch sm:items-end gap-2">
+          @csrf
+          <div class="flex-1 min-w-0">
+            <textarea
+              id="message-input"
+              name="message"
+              rows="2"
+              required
+              class="w-full rounded-lg border-neutral-300 dark:border-neutral-700 bg-white dark:bg-neutral-900 px-3 py-2 text-sm focus:ring-2 focus:ring-indigo-500 focus:border-transparent resize-none touch-manipulation"
+              placeholder="Escribe tu mensaje..."
+              maxlength="5000"
+            ></textarea>
+            <div class="text-[11px] sm:text-xs text-neutral-500 dark:text-neutral-400 mt-1 flex items-center justify-between">
+              <span><span id="char-count">0</span> / 5000</span>
+              <span class="text-[10px] sm:text-[11px] opacity-60">Shift+Enter para nueva línea</span>
+            </div>
           </div>
-        </div>
-        <button
-          type="submit"
-          id="send-button"
-          class="px-4 py-2.5 sm:py-2 rounded-lg bg-indigo-600 text-white hover:bg-indigo-700 active:bg-indigo-800 transition-colors disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2 touch-manipulation min-h-[44px] sm:min-h-0"
-        >
-          <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 19l9 2-9-18-9 18 9-2zm0 0v-8"></path>
-          </svg>
-          <span class="font-medium">Enviar</span>
-        </button>
-      </form>
-    </div>
+          <button
+            type="submit"
+            id="send-button"
+            class="px-4 py-2.5 sm:py-2 rounded-lg bg-indigo-600 text-white hover:bg-indigo-700 active:bg-indigo-800 transition-colors disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2 touch-manipulation min-h-[44px] sm:min-h-0"
+          >
+            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 19l9 2-9-18-9 18 9-2zm0 0v-8"></path>
+            </svg>
+            <span class="font-medium">Enviar</span>
+          </button>
+        </form>
+      </div>
+    @endif
   </div>
 </div>
 @endsection

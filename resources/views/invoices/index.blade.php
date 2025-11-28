@@ -49,7 +49,7 @@
       <div class="flex items-center justify-between">
         <div>
           <p class="text-xs text-neutral-600 dark:text-neutral-400 uppercase tracking-wide">Total Facturas</p>
-          <p class="text-2xl font-bold text-neutral-900 dark:text-neutral-100 mt-1">{{ $invoices->total() }}</p>
+          <p class="text-2xl font-bold text-neutral-900 dark:text-neutral-100 mt-1">{{ $stats['total'] ?? 0 }}</p>
         </div>
         <div class="w-12 h-12 rounded-full bg-indigo-100 dark:bg-indigo-900/30 flex items-center justify-center">
           <svg class="w-6 h-6 text-indigo-600 dark:text-indigo-400" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
@@ -63,7 +63,7 @@
       <div class="flex items-center justify-between">
         <div>
           <p class="text-xs text-neutral-600 dark:text-neutral-400 uppercase tracking-wide">Aprobadas</p>
-          <p class="text-2xl font-bold text-emerald-600 dark:text-emerald-400 mt-1">{{ $invoices->where('status', 'approved')->count() }}</p>
+          <p class="text-2xl font-bold text-emerald-600 dark:text-emerald-400 mt-1">{{ $stats['approved'] ?? 0 }}</p>
         </div>
         <div class="w-12 h-12 rounded-full bg-emerald-100 dark:bg-emerald-900/30 flex items-center justify-center">
           <svg class="w-6 h-6 text-emerald-600 dark:text-emerald-400" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
@@ -77,7 +77,7 @@
       <div class="flex items-center justify-between">
         <div>
           <p class="text-xs text-neutral-600 dark:text-neutral-400 uppercase tracking-wide">Borradores</p>
-          <p class="text-2xl font-bold text-amber-600 dark:text-amber-400 mt-1">{{ $invoices->where('status', 'draft')->count() }}</p>
+          <p class="text-2xl font-bold text-amber-600 dark:text-amber-400 mt-1">{{ $stats['draft'] ?? 0 }}</p>
         </div>
         <div class="w-12 h-12 rounded-full bg-amber-100 dark:bg-amber-900/30 flex items-center justify-center">
           <svg class="w-6 h-6 text-amber-600 dark:text-amber-400" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
@@ -92,7 +92,7 @@
         <div>
           <p class="text-xs text-neutral-600 dark:text-neutral-400 uppercase tracking-wide">Este mes</p>
           <p class="text-2xl font-bold text-neutral-900 dark:text-neutral-100 mt-1">
-            $ {{ number_format($invoices->where('invoice_date', '>=', now()->startOfMonth())->sum('total'), 2, ',', '.') }}
+            $ {{ number_format($stats['month_sum'] ?? 0, 2, ',', '.') }}
           </p>
         </div>
         <div class="w-12 h-12 rounded-full bg-blue-100 dark:bg-blue-900/30 flex items-center justify-center">

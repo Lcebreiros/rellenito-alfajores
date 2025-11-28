@@ -102,6 +102,10 @@ class SupportController extends Controller
         $user = $request->user();
         abort_unless($user->isMaster() || $ticket->user_id === $user->id, 403);
 
+        if ($ticket->status === 'solucionado') {
+            return back()->with('error', 'El ticket está solucionado y ya no acepta más mensajes.');
+        }
+
         $data = $request->validate(['message' => ['required','string','max:5000']]);
 
         $message = SupportMessage::create([

@@ -18,7 +18,9 @@
 @endphp
 <!DOCTYPE html>
 <html lang="{{ str_replace('_', '-', app()->getLocale()) }}"
-      class="{{ $themeClass }}">
+      class="{{ $themeClass }}"
+      data-theme="{{ $theme }}"
+      data-custom-color="{{ $customColor }}">
 
 <head>
   <meta charset="utf-8">
@@ -53,10 +55,38 @@
       const collapsed = localStorage.getItem('sidebar:collapsed') === '1';
       document.documentElement.classList.toggle('sb-collapsed', collapsed);
 
-      // Aplicar color personalizado si el tema custom está activo
-      @if($theme === 'custom')
-        window.applyCustomColor('{{ $customColor }}');
-      @endif
+      const customDarkFromServer = {{ $theme === 'custom' ? ($customThemeDark ? 'true' : 'false') : 'false' }};
+
+      function applyThemeClasses(themeOverride) {
+        const html = document.documentElement;
+        const storedTheme = localStorage.getItem('theme');
+        const theme = themeOverride || storedTheme || html.dataset.theme || 'light';
+        html.classList.remove('dark', 'theme-neon', 'theme-custom');
+
+        if (theme === 'dark') {
+          html.classList.add('dark');
+        } else if (theme === 'neon') {
+          html.classList.add('dark', 'theme-neon');
+        } else if (theme === 'custom') {
+          const customDark = customDarkFromServer || html.dataset.customThemeDark === 'true';
+          if (customDark) {
+            html.classList.add('dark', 'theme-custom');
+          } else {
+            html.classList.add('theme-custom');
+          }
+          if (window.applyCustomColor) {
+            const cc = html.dataset.customColor || '{{ $customColor }}';
+            window.applyCustomColor(cc);
+          }
+        } else if (theme && theme !== 'light') {
+          html.classList.add('theme-' + theme);
+        }
+        html.setAttribute('data-theme', theme);
+      }
+
+      applyThemeClasses();
+      document.addEventListener('livewire:navigated', () => applyThemeClasses(), { once: false });
+      document.addEventListener('turbo:load', () => applyThemeClasses(), { once: false });
     })();
   </script>
 
@@ -99,6 +129,95 @@
       margin-left: 0 !important;
       width: 100% !important;
       max-width: 100% !important;
+    }
+  </style>
+  @endif
+  @if($theme === 'neon')
+  <style id="neon-inline-vars">
+    :root.theme-neon, html.theme-neon {
+      --theme-bg-from: 10 10 11;
+      --theme-bg-via: 23 23 23;
+      --theme-bg-to: 15 15 18;
+      --module-orders-50: 45 5 25;
+      --module-orders-100: 60 10 35;
+      --module-orders-200: 110 15 70;
+      --module-orders-300: 165 25 105;
+      --module-orders-400: 210 35 135;
+      --module-orders-500: 255 0 128;
+      --module-orders-600: 255 20 147;
+      --module-orders-700: 255 40 167;
+      --module-products-50: 0 25 35;
+      --module-products-100: 0 35 45;
+      --module-products-200: 0 75 95;
+      --module-products-300: 0 115 140;
+      --module-products-400: 0 175 200;
+      --module-products-500: 0 255 255;
+      --module-products-600: 20 255 255;
+      --module-products-700: 40 255 255;
+      --module-clients-50: 0 35 15;
+      --module-clients-100: 0 45 20;
+      --module-clients-200: 10 80 35;
+      --module-clients-300: 20 120 55;
+      --module-clients-400: 30 180 75;
+      --module-clients-500: 57 255 20;
+      --module-clients-600: 77 255 40;
+      --module-clients-700: 97 255 60;
+      --module-dashboard-50: 25 0 45;
+      --module-dashboard-100: 35 0 60;
+      --module-dashboard-200: 80 0 120;
+      --module-dashboard-300: 120 0 170;
+      --module-dashboard-400: 160 0 210;
+      --module-dashboard-500: 191 0 255;
+      --module-dashboard-600: 201 20 255;
+      --module-dashboard-700: 211 40 255;
+      --module-expenses-50: 40 15 0;
+      --module-expenses-100: 50 20 0;
+      --module-expenses-200: 100 45 5;
+      --module-expenses-300: 150 70 8;
+      --module-expenses-400: 200 100 10;
+      --module-expenses-500: 255 128 0;
+      --module-expenses-600: 255 148 20;
+      --module-expenses-700: 255 168 40;
+      --module-company-50: 15 15 25;
+      --module-company-100: 20 20 30;
+      --module-company-200: 90 90 140;
+      --module-company-300: 120 120 175;
+      --module-company-400: 150 150 215;
+      --module-company-500: 180 180 255;
+      --module-company-600: 190 190 255;
+      --module-company-700: 200 200 255;
+      --module-employees-50: 0 30 30;
+      --module-employees-100: 0 40 40;
+      --module-employees-200: 0 90 85;
+      --module-employees-300: 0 140 130;
+      --module-employees-400: 0 200 175;
+      --module-employees-500: 0 255 200;
+      --module-employees-600: 20 255 210;
+      --module-employees-700: 40 255 220;
+      --module-services-50: 35 0 20;
+      --module-services-100: 45 0 30;
+      --module-services-200: 90 0 60;
+      --module-services-300: 140 0 95;
+      --module-services-400: 190 0 125;
+      --module-services-500: 255 20 147;
+      --module-services-600: 255 40 167;
+      --module-services-700: 255 60 187;
+      --module-stock-50: 0 30 40;
+      --module-stock-100: 0 40 50;
+      --module-stock-200: 0 85 105;
+      --module-stock-300: 0 135 150;
+      --module-stock-400: 0 190 210;
+      --module-stock-500: 0 242 255;
+      --module-stock-600: 20 245 255;
+      --module-stock-700: 40 248 255;
+      --module-payment-50: 40 35 0;
+      --module-payment-100: 50 45 0;
+      --module-payment-200: 110 100 5;
+      --module-payment-300: 160 145 8;
+      --module-payment-400: 210 190 10;
+      --module-payment-500: 255 255 0;
+      --module-payment-600: 255 255 51;
+      --module-payment-700: 255 255 102;
     }
   </style>
   @endif

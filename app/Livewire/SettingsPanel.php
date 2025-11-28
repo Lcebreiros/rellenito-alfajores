@@ -69,6 +69,7 @@ class SettingsPanel extends Component
                 'id' => 'neon',
                 'name' => 'Neón',
                 'description' => 'Colores vibrantes fluorescentes',
+                'badge' => 'BETA',
             ],
             [
                 'id' => 'custom',

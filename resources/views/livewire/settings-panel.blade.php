@@ -143,9 +143,16 @@
 
             {{-- Contenido --}}
             <div class="flex flex-col items-center gap-3 text-center">
-                <span class="text-base font-semibold text-neutral-900 dark:text-neutral-100">
-                    {{ $themeItem['name'] }}
-                </span>
+                <div class="flex items-center gap-2">
+                    <span class="text-base font-semibold text-neutral-900 dark:text-neutral-100">
+                        {{ $themeItem['name'] }}
+                    </span>
+                    @if(isset($themeItem['badge']))
+                        <span class="px-2 py-0.5 rounded-full text-[10px] font-semibold bg-neutral-200 text-neutral-700 dark:bg-neutral-800 dark:text-neutral-300 uppercase tracking-wide">
+                            {{ $themeItem['badge'] }}
+                        </span>
+                    @endif
+                </div>
                 <span class="text-xs text-neutral-600 dark:text-neutral-400">
                     {{ $themeItem['description'] }}
                 </span>

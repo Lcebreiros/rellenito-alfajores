@@ -7,6 +7,8 @@ use App\Models\Invoice;
 use Carbon\Carbon;
 use SoapClient;
 use Exception;
+use Illuminate\Support\Facades\Cache;
+use Illuminate\Support\Facades\Log;
 
 class ArcaService
 {
@@ -26,6 +28,18 @@ class ArcaService
     {
         if ($this->token && $this->sign) {
             return true;
+        }
+
+        // Intentar leer de cache (token/sign + expiración)
+        $cacheKey = 'arca_auth_' . $this->config->company_id . '_' . $this->config->environment;
+        $cached = Cache::get($cacheKey);
+        if ($cached && !empty($cached['token']) && !empty($cached['sign']) && !empty($cached['expires_at'])) {
+            $expiresAt = Carbon::parse($cached['expires_at']);
+            if ($expiresAt->isFuture()) {
+                $this->token = $cached['token'];
+                $this->sign  = $cached['sign'];
+                return true;
+            }
         }
 
         try {
@@ -58,6 +72,14 @@ class ArcaService
 
             $this->token = (string) $xml->credentials->token;
             $this->sign = (string) $xml->credentials->sign;
+
+            // Guardar en cache con expiración (10 min antes de expirar)
+            $exp = Carbon::parse((string) $xml->header->expirationTime)->subMinutes(10);
+            Cache::put($cacheKey, [
+                'token' => $this->token,
+                'sign' => $this->sign,
+                'expires_at' => $exp->toIso8601String(),
+            ], $exp);
 
             return true;
         } catch (Exception $e) {
@@ -92,57 +114,49 @@ class ArcaService
         // Guardar TRA temporalmente
         $traFile = storage_path('app/temp/tra.xml');
         $cmsFile = storage_path('app/temp/tra.cms');
+        $certFile = storage_path('app/temp/cert.pem');
+        $keyFile  = storage_path('app/temp/key.pem');
 
         if (!is_dir(dirname($traFile))) {
             mkdir(dirname($traFile), 0755, true);
         }
 
-        file_put_contents($traFile, $tra);
+        try {
+            file_put_contents($traFile, $tra);
+            file_put_contents($certFile, $this->config->certificate);
+            file_put_contents($keyFile, $this->config->private_key);
 
-        // Guardar certificado y clave temporalmente
-        $certFile = storage_path('app/temp/cert.pem');
-        $keyFile = storage_path('app/temp/key.pem');
+            // Firmar con OpenSSL
+            $password = $this->config->certificate_password;
+            $key = $password
+                ? openssl_pkey_get_private(file_get_contents($keyFile), $password)
+                : file_get_contents($keyFile);
 
-        file_put_contents($certFile, $this->config->certificate);
-        file_put_contents($keyFile, $this->config->private_key);
+            $cert = file_get_contents($certFile);
 
-        // Firmar con OpenSSL
-        $password = $this->config->certificate_password;
+            openssl_pkcs7_sign(
+                $traFile,
+                $cmsFile,
+                $cert,
+                $key,
+                [],
+                !PKCS7_DETACHED
+            );
 
-        if ($password) {
-            // Si hay contraseña, necesitamos convertir la clave
-            $keyContent = file_get_contents($keyFile);
-            $key = openssl_pkey_get_private($keyContent, $password);
-        } else {
-            $key = file_get_contents($keyFile);
+            // Leer CMS generado
+            $cms = file_get_contents($cmsFile);
+
+            // Extraer solo la parte firmada (sin headers)
+            $cms = preg_replace('/^.+\n\n/', '', $cms);
+            $cms = preg_replace('/\n.+$/', '', $cms);
+
+            return $cms;
+        } finally {
+            @unlink($traFile);
+            @unlink($cmsFile);
+            @unlink($certFile);
+            @unlink($keyFile);
         }
-
-        $cert = file_get_contents($certFile);
-
-        // Firmar el TRA
-        openssl_pkcs7_sign(
-            $traFile,
-            $cmsFile,
-            $cert,
-            $key,
-            [],
-            !PKCS7_DETACHED
-        );
-
-        // Leer CMS generado
-        $cms = file_get_contents($cmsFile);
-
-        // Limpiar archivos temporales
-        @unlink($traFile);
-        @unlink($cmsFile);
-        @unlink($certFile);
-        @unlink($keyFile);
-
-        // Extraer solo la parte firmada (sin headers)
-        $cms = preg_replace('/^.+\n\n/', '', $cms);
-        $cms = preg_replace('/\n.+$/', '', $cms);
-
-        return $cms;
     }
 
     /**
@@ -246,9 +260,22 @@ class ArcaService
      */
     protected function prepareInvoiceData(Invoice $invoice)
     {
-        $conceptCode = 1; // 1: Productos, 2: Servicios, 3: Productos y Servicios
-        $docType = $invoice->client_cuit ? 80 : 99; // 80: CUIT, 99: Sin identificar
-        $docNumber = $invoice->client_cuit ? preg_replace('/[^0-9]/', '', $invoice->client_cuit) : 0;
+        // Determinar concepto según items
+        $hasProducts = $invoice->items()->where('tax_rate', '>=', 0)->exists(); // asume productos/servicios en items
+        $hasServices = $invoice->items()->where('tax_rate', '>=', 0)->exists(); // placeholder (si tuvieras flag, cámbialo)
+        // Si tu modelo distingue productos/servicios, ajusta estas condiciones
+        $conceptCode = ($hasProducts && $hasServices) ? 3 : ($hasServices ? 2 : 1);
+
+        // Documento
+        $docNumber = 0;
+        $docType = 99; // sin identificar
+        if (!empty($invoice->client_cuit)) {
+            $docType = 80;
+            $docNumber = preg_replace('/[^0-9]/', '', $invoice->client_cuit);
+        } elseif (!empty($invoice->client_tax_id)) { // si guardas DNI en otro campo, ajusta
+            $docType = 96;
+            $docNumber = preg_replace('/[^0-9]/', '', $invoice->client_tax_id);
+        }
 
         return [
             'Concepto' => $conceptCode,
@@ -318,6 +345,8 @@ class ArcaService
 
         // Guardar respuesta completa
         $invoice->arca_response = json_encode($response);
+        $invoice->arca_observations = null;
+        $invoice->arca_errors = null;
 
         // Verificar errores
         if (isset($response->Errors)) {
@@ -329,6 +358,7 @@ class ArcaService
             }
 
             $invoice->status = 'rejected';
+            $invoice->arca_errors = implode(', ', $errorMessages);
             $invoice->save();
 
             throw new Exception("ARCA rechazó la factura: " . implode(', ', $errorMessages));
@@ -350,6 +380,16 @@ class ArcaService
                 'cae_expiration' => $result->CAEFchVto,
                 'message' => 'Factura aprobada por ARCA'
             ];
+        } elseif ($result->Resultado == 'P') {
+            // Pendiente
+            $invoice->status = 'pending';
+            $invoice->arca_observations = 'Pendiente de autorización';
+            $invoice->save();
+            return [
+                'success' => false,
+                'pending' => true,
+                'message' => 'Factura pendiente de autorización en ARCA'
+            ];
         } else {
             // Rechazado
             $invoice->status = 'rejected';
@@ -362,6 +402,7 @@ class ArcaService
                     $observations .= $o->Code . ': ' . $o->Msg . ' ';
                 }
             }
+            $invoice->arca_observations = trim($observations);
 
             throw new Exception("Factura rechazada: " . $observations);
         }

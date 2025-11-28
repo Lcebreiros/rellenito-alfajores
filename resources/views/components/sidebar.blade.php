@@ -726,6 +726,23 @@
               class="text-sm font-semibold truncate relative z-1">Métodos de Pago</span>
       </a>
 
+      @if(Route::has('invoices.configuration'))
+      <!-- Facturación (BETA) -->
+      <a href="{{ route('invoices.configuration') }}" wire:navigate data-turbo="false" data-module="dashboard"
+         class="nav-link {{ request()->routeIs('invoices.*') ? $active : $idle }}"
+         :class="collapsed ? 'justify-center flex items-center gap-3 p-3' : 'flex items-center gap-3 p-3'"
+         :title="collapsed ? 'Facturación (BETA)' : null">
+        <span class="shrink-0 flex items-center justify-center w-7 h-7">
+          <img src="{{ asset('images/factura.png') }}" alt="Facturación" class="nav-icon">
+        </span>
+        <span x-show="!collapsed" x-transition:enter="fade-slide-enter"
+              class="text-sm font-semibold truncate relative z-1 flex items-center gap-1">
+          <span class="truncate">Facturación</span>
+          <span class="px-1.5 py-0.5 rounded-full text-[9px] font-bold bg-neutral-200 text-neutral-700 dark:bg-neutral-800 dark:text-neutral-300 uppercase tracking-wide">BETA</span>
+        </span>
+      </a>
+      @endif
+
       <!-- Calcular costos -->
       <a href="{{ route('expenses.index') }}"" wire:navigate data-turbo="false" data-module="expenses"
          class="nav-link {{ request()->routeIs('costs.*') ? $active : $idle }}"

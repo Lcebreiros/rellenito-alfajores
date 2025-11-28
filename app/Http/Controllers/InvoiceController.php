@@ -74,12 +74,20 @@ class InvoiceController extends Controller
      */
     public function index()
     {
-        $invoices = Invoice::where('company_id', Auth::id())
-            ->with(['client', 'items'])
+        $base = Invoice::where('company_id', Auth::id());
+
+        $stats = [
+            'total'     => (clone $base)->count(),
+            'approved'  => (clone $base)->where('status', 'approved')->count(),
+            'draft'     => (clone $base)->where('status', 'draft')->count(),
+            'month_sum' => (clone $base)->where('invoice_date', '>=', now()->startOfMonth())->sum('total'),
+        ];
+
+        $invoices = $base->with(['client', 'items'])
             ->orderBy('created_at', 'desc')
             ->paginate(20);
 
-        return view('invoices.index', compact('invoices'));
+        return view('invoices.index', compact('invoices', 'stats'));
     }
 
     /**
@@ -145,8 +153,25 @@ class InvoiceController extends Controller
             'status' => 'draft',
         ]);
 
-        foreach ($validated['items'] as $item) {
-            $invoice->items()->create($item);
+        // Si viene de un pedido, usar los items del pedido
+        if ($validated['order_id']) {
+            $order = Order::find($validated['order_id']);
+            if ($order) {
+                foreach ($order->items as $orderItem) {
+                    $invoice->items()->create([
+                        'description' => $orderItem->name ?? $orderItem->product?->name ?? 'Item',
+                        'quantity' => $orderItem->quantity,
+                        'unit_price' => $orderItem->unit_price,
+                        'tax_rate' => $orderItem->tax_rate ?? 21,
+                        'tax_amount' => ($orderItem->unit_price * $orderItem->quantity - ($orderItem->discount ?? 0)) * (($orderItem->tax_rate ?? 21) / 100),
+                        'discount_amount' => $orderItem->discount ?? 0,
+                    ]);
+                }
+            }
+        } else {
+            foreach ($validated['items'] as $item) {
+                $invoice->items()->create($item);
+            }
         }
 
         $invoice->calculateTotals();

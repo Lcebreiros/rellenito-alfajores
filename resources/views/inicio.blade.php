@@ -27,15 +27,21 @@
         }
     }
   @endphp
-  <div class="grid grid-cols-3 items-center">
-    <div class="flex items-center gap-2 sm:gap-3">
+  <div class="relative flex items-center justify-center w-full">
+    <div class="absolute left-0 inset-y-0 flex items-center gap-2 sm:gap-3 z-10">
       <img src="{{ asset('images/Gestior.png') }}" alt="Gestior" class="h-8 sm:h-9 lg:h-10 w-auto" />
       @if($levelLabel)
         <span class="text-sm sm:text-base lg:text-lg text-neutral-500 dark:text-neutral-400 font-bold">{{ $levelLabel }}</span>
       @endif
     </div>
-    <div class="text-center">
-      <h1 class="text-lg sm:text-xl lg:text-2xl font-bold text-neutral-900 dark:text-neutral-100">Bienvenido/a {{ auth()->user()->name }}</h1>
+    <div class="pointer-events-none flex items-center justify-center">
+      <a href="{{ route('dashboard') }}"
+         class="pointer-events-auto inline-flex items-center gap-2 px-5 sm:px-6 py-2.5 rounded-full border border-neutral-300 dark:border-neutral-700 bg-white/85 dark:bg-neutral-900/75 text-sm sm:text-base font-semibold text-neutral-800 dark:text-neutral-100 shadow-md shadow-black/10 hover:shadow-lg hover:-translate-y-0.5 transition-all duration-150 hover:border-indigo-400 hover:bg-indigo-50/80 dark:hover:border-indigo-400 dark:hover:bg-indigo-900/40">
+        <svg class="w-4 h-4 text-indigo-600 dark:text-indigo-300" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <path d="M3 13h4v8H3zM9 3h4v18H9zM15 9h4v12h-4z" stroke-linecap="round" stroke-linejoin="round"/>
+        </svg>
+        <span>Ir al Dashboard</span>
+      </a>
     </div>
     <div></div>
   </div>
@@ -504,7 +510,10 @@
         <a href="{{ route('invoices.configuration') }}" class="tile-wide tile-invoicing">
           <img src="{{ asset('images/factura.png') }}" alt="Facturación" class="w-7 h-7 sm:w-8 sm:h-8 lg:w-10 lg:h-10 object-contain dark:invert flex-shrink-0">
           <div class="min-w-0">
-            <div class="text-xs sm:text-sm font-bold text-neutral-900 dark:text-neutral-100 truncate">Facturación</div>
+            <div class="text-xs sm:text-sm font-bold text-neutral-900 dark:text-neutral-100 truncate flex items-center gap-1">
+              <span class="truncate">Facturación</span>
+              <span class="px-1.5 py-0.5 rounded-full text-[9px] font-bold bg-neutral-200 text-neutral-700 dark:bg-neutral-800 dark:text-neutral-300 uppercase tracking-wide">BETA</span>
+            </div>
             <div class="text-[10px] sm:text-xs text-neutral-500 dark:text-neutral-400">ARCA</div>
           </div>
         </a>

@@ -83,9 +83,27 @@
         </svg>
         <div class="flex-1">
           <p class="font-semibold text-rose-900 dark:text-rose-100">Factura rechazada por ARCA</p>
-          @if($invoice->arca_response)
+          @if($invoice->arca_errors || $invoice->arca_observations)
+            <p class="text-sm text-rose-700 dark:text-rose-300 mt-1">
+              {{ $invoice->arca_errors ?: $invoice->arca_observations }}
+            </p>
+          @else
             <p class="text-sm text-rose-700 dark:text-rose-300 mt-1">Revise los detalles de la respuesta de ARCA</p>
           @endif
+        </div>
+      </div>
+    </div>
+  @elseif($invoice->status === 'pending')
+    <div class="mb-6 panel-glass p-4 border-l-4 border-blue-500">
+      <div class="flex items-start gap-3">
+        <svg class="w-6 h-6 text-blue-600 dark:text-blue-400 flex-shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <path stroke-linecap="round" stroke-linejoin="round" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
+        </svg>
+        <div class="flex-1">
+          <p class="font-semibold text-blue-900 dark:text-blue-100">Pendiente de autorización</p>
+          <p class="text-sm text-blue-700 dark:text-blue-300 mt-1">
+            {{ $invoice->arca_observations ?: 'ARCA está procesando la solicitud. Intenta consultar el estado en unos minutos.' }}
+          </p>
         </div>
       </div>
     </div>

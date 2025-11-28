@@ -150,6 +150,23 @@ $s = $statusMap[$statusKey] ?? [
         </a>
         @endif
 
+        @php
+            $canInvoice = Route::has('invoices.create');
+        @endphp
+        @if($canInvoice && empty($order->invoice_id))
+        <a href="{{ route('invoices.create', ['order_id' => $order->id]) }}"
+           class="inline-flex items-center gap-2 px-3 py-2 rounded-lg border border-emerald-200 dark:border-emerald-500/40
+                  text-emerald-700 dark:text-emerald-300 bg-emerald-50 dark:bg-emerald-500/10 
+                  hover:bg-emerald-100 dark:hover:bg-emerald-500/20 transition text-sm"
+        >
+            <svg class="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <path d="M9 4h11v16H4V4h5Z" stroke-linecap="round" stroke-linejoin="round"/>
+                <path d="M9 9h6M9 13h6M9 17h3" stroke-linecap="round"/>
+            </svg>
+            Emitir factura
+        </a>
+        @endif
+
         {{-- Editar --}}
         @if(Route::has('orders.edit'))
         <a href="{{ route('orders.edit', $order) }}"
