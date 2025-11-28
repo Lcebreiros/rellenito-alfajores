@@ -66,9 +66,9 @@
                  x-transition:leave-start="opacity-100 scale-100 translate-y-0"
                  x-transition:leave-end="opacity-0 scale-95 -translate-y-2"
                  @click.stop
-                 class="absolute right-0 top-[calc(100%+8px)] w-64 rounded-2xl
+                 class="absolute right-0 top-[calc(100%+8px)] min-w-[16rem] max-w-xs rounded-2xl
                         border border-neutral-200/60 dark:border-neutral-700/60
-                        bg-white dark:bg-neutral-900 
+                        bg-white/95 dark:bg-neutral-900/95 backdrop-blur-xl
                         shadow-xl shadow-neutral-900/10 dark:shadow-black/25
                         overflow-hidden ring-1 ring-black/5 dark:ring-white/10 z-50">
                 

@@ -12,6 +12,7 @@ use Illuminate\Support\Facades\Storage;
 use Spatie\Permission\Traits\HasRoles;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
+use Illuminate\Database\Eloquent\Relations\HasOne;
 use Illuminate\Database\Eloquent\Relations\MorphTo;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\SoftDeletes;
@@ -129,6 +130,14 @@ class User extends Authenticatable
     public function children(): HasMany
     {
         return $this->hasMany(User::class, 'parent_id')->where('is_active', true);
+    }
+
+    /**
+     * Relación con configuración de ARCA
+     */
+    public function arcaConfiguration(): HasOne
+    {
+        return $this->hasOne(ArcaConfiguration::class, 'company_id');
     }
 
     // ================================

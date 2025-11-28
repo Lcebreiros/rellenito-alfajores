@@ -20,6 +20,7 @@ use App\Http\Controllers\Master\UserController;
 use App\Http\Controllers\PaymentMethodController;
 use App\Http\Controllers\ExpenseController;
 use App\Http\Controllers\GoogleCalendarController;
+use App\Http\Controllers\InvoiceController;
 
 // Company Controllers
 use App\Http\Controllers\Company\BranchController;
@@ -102,6 +103,7 @@ Route::middleware([
     'auth:sanctum',
     config('jetstream.auth_session'),
     'verified',
+    'requires.subscription',
 ])->group(function () {
     // Logo por nivel de suscripción (sirve imágenes desde base_path('images'))
     Route::get('/branding/plan-logo', function () {
@@ -330,6 +332,27 @@ Route::middleware([
     Route::resource('payment-methods', PaymentMethodController::class)->except(['show']);
     Route::post('payment-methods/{paymentMethod}/toggle', [PaymentMethodController::class, 'toggleActive'])->name('payment-methods.toggle');
     Route::post('payment-methods/{paymentMethod}/toggle-global', [PaymentMethodController::class, 'toggleGlobal'])->name('payment-methods.toggle-global');
+
+    // ============ FACTURACIÓN ELECTRÓNICA ============
+    Route::prefix('invoices')->name('invoices.')->group(function () {
+        // Configuración ARCA
+        Route::get('configuration', [InvoiceController::class, 'configuration'])->name('configuration');
+        Route::post('configuration', [InvoiceController::class, 'saveConfiguration'])->name('configuration.save');
+
+        // CRUD de facturas
+        Route::get('/', [InvoiceController::class, 'index'])->name('index');
+        Route::get('create', [InvoiceController::class, 'create'])->name('create');
+        Route::post('/', [InvoiceController::class, 'store'])->name('store');
+        Route::get('{invoice}', [InvoiceController::class, 'show'])->name('show');
+        Route::get('{invoice}/edit', [InvoiceController::class, 'edit'])->name('edit');
+        Route::put('{invoice}', [InvoiceController::class, 'update'])->name('update');
+        Route::delete('{invoice}', [InvoiceController::class, 'destroy'])->name('destroy');
+
+        // ARCA y PDF
+        Route::post('{invoice}/send-to-arca', [InvoiceController::class, 'sendToArca'])->name('send-to-arca');
+        Route::get('{invoice}/download-pdf', [InvoiceController::class, 'downloadPdf'])->name('download-pdf');
+        Route::post('{invoice}/regenerate-pdf', [InvoiceController::class, 'regeneratePdf'])->name('regenerate-pdf');
+    });
 
     // ============ GOOGLE CALENDAR ============
     Route::prefix('google')->name('google.')->group(function () {

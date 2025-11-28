@@ -16,15 +16,21 @@ class EnsureUserIsNotSuspended
             return $next($request);
         }
 
-        if ($user->is_suspended) {
+        // Master users (-1) siempre tienen acceso sin verificación
+        if ($user->hierarchy_level === -1) {
+            return $next($request);
+        }
+
+        // Verificar si el usuario está suspendido (usando is_active)
+        if (!$user->is_active) {
             // Si es petición AJAX/JSON devolvemos 403 con mensaje
             if ($request->expectsJson()) {
                 return response()->json(['message' => 'Cuenta suspendida'], 403);
             }
 
-            // Redirigir a la pantalla de suspendido (podemos pasar razón y URL de apelación)
-            return redirect()->route('auth.suspended')
-                             ->with('suspended_reason', $user->suspended_reason ?? null);
+            // Redirigir a login con mensaje de cuenta suspendida
+            return redirect()->route('login')
+                             ->with('error', 'Tu cuenta ha sido suspendida. Contacta con el administrador.');
         }
 
         return $next($request);

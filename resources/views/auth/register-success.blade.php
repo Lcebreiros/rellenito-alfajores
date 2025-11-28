@@ -75,7 +75,7 @@
         </h1>
 
         <p class="text-slate-600 mb-6">
-          Tu solicitud de acceso ha sido enviada correctamente.
+          {{ session('message', 'Tu solicitud de acceso ha sido enviada correctamente y será atendida tan pronto como sea posible.') }}
         </p>
 
         {{-- Info Box --}}

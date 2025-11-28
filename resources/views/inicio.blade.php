@@ -461,12 +461,21 @@
           </div>
         </a>
 
-        {{-- Productos (fila 2, columnas 2-3) --}}
-        <a href="{{ route('products.index') }}" class="tile-wide tile-products col-span-2">
+        {{-- Productos --}}
+        <a href="{{ route('products.index') }}" class="tile-wide tile-products">
           <img src="{{ asset('images/productos.png') }}" alt="Productos" class="w-7 h-7 sm:w-8 sm:h-8 lg:w-10 lg:h-10 object-contain dark:invert flex-shrink-0">
           <div class="min-w-0">
             <div class="text-xs sm:text-sm font-bold text-neutral-900 dark:text-neutral-100 truncate">Productos</div>
-            <div class="text-[10px] sm:text-xs text-neutral-500 dark:text-neutral-400">Catálogo y precios</div>
+            <div class="text-[10px] sm:text-xs text-neutral-500 dark:text-neutral-400">Catálogo</div>
+          </div>
+        </a>
+
+        {{-- Servicios --}}
+        <a href="{{ route('services.index') }}" class="tile-wide tile-services">
+          <img src="{{ asset('images/servicios.png') }}" alt="Servicios" class="w-7 h-7 sm:w-8 sm:h-8 lg:w-10 lg:h-10 object-contain dark:invert flex-shrink-0">
+          <div class="min-w-0">
+            <div class="text-xs sm:text-sm font-bold text-neutral-900 dark:text-neutral-100 truncate">Servicios</div>
+            <div class="text-[10px] sm:text-xs text-neutral-500 dark:text-neutral-400">Catálogo</div>
           </div>
         </a>
       </div>
@@ -492,11 +501,11 @@
           </div>
         </a>
 
-        <a href="{{ route('services.index') }}" class="tile-wide tile-services">
-          <img src="{{ asset('images/servicios.png') }}" alt="Servicios" class="w-7 h-7 sm:w-8 sm:h-8 lg:w-10 lg:h-10 object-contain dark:invert flex-shrink-0">
+        <a href="{{ route('invoices.configuration') }}" class="tile-wide tile-invoicing">
+          <img src="{{ asset('images/factura.png') }}" alt="Facturación" class="w-7 h-7 sm:w-8 sm:h-8 lg:w-10 lg:h-10 object-contain dark:invert flex-shrink-0">
           <div class="min-w-0">
-            <div class="text-xs sm:text-sm font-bold text-neutral-900 dark:text-neutral-100 truncate">Servicios</div>
-            <div class="text-[10px] sm:text-xs text-neutral-500 dark:text-neutral-400">Catálogo</div>
+            <div class="text-xs sm:text-sm font-bold text-neutral-900 dark:text-neutral-100 truncate">Facturación</div>
+            <div class="text-[10px] sm:text-xs text-neutral-500 dark:text-neutral-400">ARCA</div>
           </div>
         </a>
 

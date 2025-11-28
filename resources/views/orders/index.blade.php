@@ -586,43 +586,44 @@
     function initializeModalsAndFilters() {
         // Modal de descarga
         const downloadModal = document.getElementById('downloadModal');
-        const downloadBtn = document.getElementById('downloadReportBtn');
+        const downloadBtn = document.querySelector('[data-modal-open="downloadModal"]');
         const closeModalBtn = document.getElementById('closeModal');
 
         if (downloadBtn && downloadModal) {
-            // Remover listener anterior si existe
-            const newDownloadBtn = downloadBtn.cloneNode(true);
-            downloadBtn.parentNode.replaceChild(newDownloadBtn, downloadBtn);
-
-            newDownloadBtn.addEventListener('click', function() {
+            downloadBtn.addEventListener('click', function(e) {
+                e.preventDefault();
+                e.stopPropagation();
                 downloadModal.classList.remove('hidden');
                 downloadModal.classList.add('flex');
-            });
+            }, { once: false });
         }
 
         if (closeModalBtn && downloadModal) {
-            // Remover listener anterior si existe
-            const newCloseBtn = closeModalBtn.cloneNode(true);
-            closeModalBtn.parentNode.replaceChild(newCloseBtn, closeModalBtn);
-
-            newCloseBtn.addEventListener('click', function() {
+            closeModalBtn.addEventListener('click', function(e) {
+                e.preventDefault();
+                e.stopPropagation();
                 downloadModal.classList.add('hidden');
                 downloadModal.classList.remove('flex');
-            });
+            }, { once: false });
         }
 
-        // Cerrar modal al hacer clic fuera (sin duplicar listeners)
+        // Cerrar modal al hacer clic fuera
         if (downloadModal) {
-            const newModal = downloadModal.cloneNode(true);
-            downloadModal.parentNode.replaceChild(newModal, downloadModal);
-
-            newModal.addEventListener('click', function(e) {
-                if (e.target === newModal) {
-                    newModal.classList.add('hidden');
-                    newModal.classList.remove('flex');
+            downloadModal.addEventListener('click', function(e) {
+                if (e.target === downloadModal) {
+                    downloadModal.classList.add('hidden');
+                    downloadModal.classList.remove('flex');
                 }
-            });
+            }, { once: false });
         }
+
+        // Cerrar modal con tecla ESC
+        document.addEventListener('keydown', function(e) {
+            if (e.key === 'Escape' && downloadModal && !downloadModal.classList.contains('hidden')) {
+                downloadModal.classList.add('hidden');
+                downloadModal.classList.remove('flex');
+            }
+        }, { once: false });
 
         // Toggle de filtros
         const toggleFiltersBtn = document.getElementById('toggleFilters');

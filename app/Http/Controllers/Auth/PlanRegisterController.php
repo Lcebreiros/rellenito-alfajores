@@ -21,6 +21,31 @@ class PlanRegisterController extends Controller
             abort(404);
         }
 
+        // Si el usuario está autenticado, crear solicitud automáticamente
+        if (auth()->check()) {
+            $user = auth()->user();
+
+            // Verificar si ya tiene una solicitud pendiente
+            $existingRequest = TrialRequest::where('email', $user->email)
+                ->where('status', 'pending')
+                ->first();
+
+            if ($existingRequest) {
+                return redirect()->route('register.success')
+                    ->with('message', 'Ya tienes una solicitud pendiente de aprobación.');
+            }
+
+            // Crear la solicitud automáticamente con los datos del usuario
+            TrialRequest::create([
+                'name' => $user->name,
+                'email' => $user->email,
+                'plan' => $plan,
+                'status' => 'pending',
+            ]);
+
+            return redirect()->route('register.success');
+        }
+
         return view('auth.register-with-plan', [
             'plan' => $plan,
             'planName' => match($plan) {

@@ -278,10 +278,10 @@
 .theme-neon .rounded-lg:not(.notifications-dropdown):not([role="dialog"]):not([x-teleport]) {
   position: relative;
   background: rgb(0 0 0 / 0.3) !important;
-  backdrop-filter: blur(10px);
-  -webkit-backdrop-filter: blur(10px);
-  border: 1px solid rgb(138 0 255 / 0.5);
-  box-shadow: 0 0 15px rgb(138 0 255 / 0.2), 0 0 20px rgb(0 0 0 / 0.5);
+  backdrop-filter: blur(10px) !important;
+  -webkit-backdrop-filter: blur(10px) !important;
+  border: 1px solid rgb(138 0 255 / 0.5) !important;
+  box-shadow: 0 0 15px rgb(138 0 255 / 0.2), 0 0 20px rgb(0 0 0 / 0.5) !important;
 }
 
 /* Contenido interno siempre visible sobre el efecto glass */
@@ -297,8 +297,8 @@
 .theme-neon .rounded-xl:not(.notifications-dropdown):not([role="dialog"]):hover,
 .theme-neon .rounded-lg:not(.notifications-dropdown):not([role="dialog"]):hover {
   background: rgb(0 0 0 / 0.4) !important;
-  border-color: rgb(138 0 255 / 0.8);
-  box-shadow: 0 0 20px rgb(138 0 255 / 0.3), 0 0 25px rgb(0 0 0 / 0.5);
+  border-color: rgb(138 0 255 / 0.8) !important;
+  box-shadow: 0 0 20px rgb(138 0 255 / 0.3), 0 0 25px rgb(0 0 0 / 0.5) !important;
   transform: translateY(-1px);
   transition: all 0.2s ease;
 }
@@ -309,10 +309,10 @@
 .theme-neon .module-bg-orders .rounded-lg {
   position: relative;
   background: rgb(0 0 0 / 0.3) !important;
-  backdrop-filter: blur(10px);
-  -webkit-backdrop-filter: blur(10px);
-  border-color: rgb(var(--module-orders-500) / 0.5);
-  box-shadow: 0 0 15px rgb(var(--module-orders-500) / 0.2), 0 0 20px rgb(0 0 0 / 0.5);
+  backdrop-filter: blur(10px) !important;
+  -webkit-backdrop-filter: blur(10px) !important;
+  border-color: rgb(var(--module-orders-500) / 0.5) !important;
+  box-shadow: 0 0 15px rgb(var(--module-orders-500) / 0.2), 0 0 20px rgb(0 0 0 / 0.5) !important;
 }
 
 .theme-neon .module-bg-orders .rounded-2xl > *,
@@ -326,8 +326,8 @@
 .theme-neon .module-bg-orders .rounded-xl:hover,
 .theme-neon .module-bg-orders .rounded-lg:hover {
   background: rgb(0 0 0 / 0.4) !important;
-  border-color: rgb(var(--module-orders-500) / 0.8);
-  box-shadow: 0 0 20px rgb(var(--module-orders-500) / 0.3), 0 0 25px rgb(0 0 0 / 0.5);
+  border-color: rgb(var(--module-orders-500) / 0.8) !important;
+  box-shadow: 0 0 20px rgb(var(--module-orders-500) / 0.3), 0 0 25px rgb(0 0 0 / 0.5) !important;
 }
 
 .theme-neon .module-bg-products .rounded-2xl,
@@ -335,10 +335,10 @@
 .theme-neon .module-bg-products .rounded-lg {
   position: relative;
   background: rgb(0 0 0 / 0.3) !important;
-  backdrop-filter: blur(10px);
-  -webkit-backdrop-filter: blur(10px);
-  border-color: rgb(var(--module-products-500) / 0.5);
-  box-shadow: 0 0 15px rgb(var(--module-products-500) / 0.2), 0 0 20px rgb(0 0 0 / 0.5);
+  backdrop-filter: blur(10px) !important;
+  -webkit-backdrop-filter: blur(10px) !important;
+  border-color: rgb(var(--module-products-500) / 0.5) !important;
+  box-shadow: 0 0 15px rgb(var(--module-products-500) / 0.2), 0 0 20px rgb(0 0 0 / 0.5) !important;
 }
 
 .theme-neon .module-bg-products .rounded-2xl > *,
@@ -352,8 +352,8 @@
 .theme-neon .module-bg-products .rounded-xl:hover,
 .theme-neon .module-bg-products .rounded-lg:hover {
   background: rgb(0 0 0 / 0.4) !important;
-  border-color: rgb(var(--module-products-500) / 0.8);
-  box-shadow: 0 0 20px rgb(var(--module-products-500) / 0.3), 0 0 25px rgb(0 0 0 / 0.5);
+  border-color: rgb(var(--module-products-500) / 0.8) !important;
+  box-shadow: 0 0 20px rgb(var(--module-products-500) / 0.3), 0 0 25px rgb(0 0 0 / 0.5) !important;
 }
 
 .theme-neon .module-bg-clients .rounded-2xl,
@@ -361,10 +361,10 @@
 .theme-neon .module-bg-clients .rounded-lg {
   position: relative;
   background: rgb(0 0 0 / 0.3) !important;
-  backdrop-filter: blur(10px);
-  -webkit-backdrop-filter: blur(10px);
-  border-color: rgb(var(--module-clients-500) / 0.5);
-  box-shadow: 0 0 15px rgb(var(--module-clients-500) / 0.2), 0 0 20px rgb(0 0 0 / 0.5);
+  backdrop-filter: blur(10px) !important;
+  -webkit-backdrop-filter: blur(10px) !important;
+  border-color: rgb(var(--module-clients-500) / 0.5) !important;
+  box-shadow: 0 0 15px rgb(var(--module-clients-500) / 0.2), 0 0 20px rgb(0 0 0 / 0.5) !important;
 }
 
 .theme-neon .module-bg-clients .rounded-2xl > *,
@@ -378,8 +378,8 @@
 .theme-neon .module-bg-clients .rounded-xl:hover,
 .theme-neon .module-bg-clients .rounded-lg:hover {
   background: rgb(0 0 0 / 0.4) !important;
-  border-color: rgb(var(--module-clients-500) / 0.8);
-  box-shadow: 0 0 20px rgb(var(--module-clients-500) / 0.3), 0 0 25px rgb(0 0 0 / 0.5);
+  border-color: rgb(var(--module-clients-500) / 0.8) !important;
+  box-shadow: 0 0 20px rgb(var(--module-clients-500) / 0.3), 0 0 25px rgb(0 0 0 / 0.5) !important;
 }
 
 .theme-neon .module-bg-dashboard .rounded-2xl,
@@ -387,10 +387,10 @@
 .theme-neon .module-bg-dashboard .rounded-lg {
   position: relative;
   background: rgb(0 0 0 / 0.3) !important;
-  backdrop-filter: blur(10px);
-  -webkit-backdrop-filter: blur(10px);
-  border-color: rgb(var(--module-dashboard-500) / 0.5);
-  box-shadow: 0 0 15px rgb(var(--module-dashboard-500) / 0.2), 0 0 20px rgb(0 0 0 / 0.5);
+  backdrop-filter: blur(10px) !important;
+  -webkit-backdrop-filter: blur(10px) !important;
+  border-color: rgb(var(--module-dashboard-500) / 0.5) !important;
+  box-shadow: 0 0 15px rgb(var(--module-dashboard-500) / 0.2), 0 0 20px rgb(0 0 0 / 0.5) !important;
 }
 
 .theme-neon .module-bg-dashboard .rounded-2xl > *,
@@ -404,8 +404,8 @@
 .theme-neon .module-bg-dashboard .rounded-xl:hover,
 .theme-neon .module-bg-dashboard .rounded-lg:hover {
   background: rgb(0 0 0 / 0.4) !important;
-  border-color: rgb(var(--module-dashboard-500) / 0.8);
-  box-shadow: 0 0 20px rgb(var(--module-dashboard-500) / 0.3), 0 0 25px rgb(0 0 0 / 0.5);
+  border-color: rgb(var(--module-dashboard-500) / 0.8) !important;
+  box-shadow: 0 0 20px rgb(var(--module-dashboard-500) / 0.3), 0 0 25px rgb(0 0 0 / 0.5) !important;
 }
 
 .theme-neon .module-bg-expenses .rounded-2xl,
@@ -413,10 +413,10 @@
 .theme-neon .module-bg-expenses .rounded-lg {
   position: relative;
   background: rgb(0 0 0 / 0.3) !important;
-  backdrop-filter: blur(10px);
-  -webkit-backdrop-filter: blur(10px);
-  border-color: rgb(var(--module-expenses-500) / 0.5);
-  box-shadow: 0 0 15px rgb(var(--module-expenses-500) / 0.2), 0 0 20px rgb(0 0 0 / 0.5);
+  backdrop-filter: blur(10px) !important;
+  -webkit-backdrop-filter: blur(10px) !important;
+  border-color: rgb(var(--module-expenses-500) / 0.5) !important;
+  box-shadow: 0 0 15px rgb(var(--module-expenses-500) / 0.2), 0 0 20px rgb(0 0 0 / 0.5) !important;
 }
 
 .theme-neon .module-bg-expenses .rounded-2xl > *,
@@ -430,8 +430,8 @@
 .theme-neon .module-bg-expenses .rounded-xl:hover,
 .theme-neon .module-bg-expenses .rounded-lg:hover {
   background: rgb(0 0 0 / 0.4) !important;
-  border-color: rgb(var(--module-expenses-500) / 0.8);
-  box-shadow: 0 0 20px rgb(var(--module-expenses-500) / 0.3), 0 0 25px rgb(0 0 0 / 0.5);
+  border-color: rgb(var(--module-expenses-500) / 0.8) !important;
+  box-shadow: 0 0 20px rgb(var(--module-expenses-500) / 0.3), 0 0 25px rgb(0 0 0 / 0.5) !important;
 }
 
 .theme-neon .module-bg-stock .rounded-2xl,
@@ -439,10 +439,10 @@
 .theme-neon .module-bg-stock .rounded-lg {
   position: relative;
   background: rgb(0 0 0 / 0.3) !important;
-  backdrop-filter: blur(10px);
-  -webkit-backdrop-filter: blur(10px);
-  border-color: rgb(var(--module-stock-500) / 0.5);
-  box-shadow: 0 0 15px rgb(var(--module-stock-500) / 0.2), 0 0 20px rgb(0 0 0 / 0.5);
+  backdrop-filter: blur(10px) !important;
+  -webkit-backdrop-filter: blur(10px) !important;
+  border-color: rgb(var(--module-stock-500) / 0.5) !important;
+  box-shadow: 0 0 15px rgb(var(--module-stock-500) / 0.2), 0 0 20px rgb(0 0 0 / 0.5) !important;
 }
 
 .theme-neon .module-bg-stock .rounded-2xl > *,
@@ -456,8 +456,8 @@
 .theme-neon .module-bg-stock .rounded-xl:hover,
 .theme-neon .module-bg-stock .rounded-lg:hover {
   background: rgb(0 0 0 / 0.4) !important;
-  border-color: rgb(var(--module-stock-500) / 0.8);
-  box-shadow: 0 0 20px rgb(var(--module-stock-500) / 0.3), 0 0 25px rgb(0 0 0 / 0.5);
+  border-color: rgb(var(--module-stock-500) / 0.8) !important;
+  box-shadow: 0 0 20px rgb(var(--module-stock-500) / 0.3), 0 0 25px rgb(0 0 0 / 0.5) !important;
 }
 
 /* Texto con sutil glow neón */

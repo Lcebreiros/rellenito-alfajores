@@ -4,6 +4,7 @@ use Illuminate\Foundation\Application;
 use Illuminate\Foundation\Configuration\Exceptions;
 use Illuminate\Foundation\Configuration\Middleware;
 use App\Http\Middleware\SetUserTimezone;
+use App\Http\Middleware\RequiresSubscription;
 use Illuminate\Console\Scheduling\Schedule;
 
 return Application::configure(basePath: dirname(__DIR__))
@@ -28,6 +29,11 @@ return Application::configure(basePath: dirname(__DIR__))
         // Aplica el middleware en todas las requests
         $middleware->web(append: [
             SetUserTimezone::class,
+        ]);
+
+        // Registrar middleware con alias
+        $middleware->alias([
+            'requires.subscription' => RequiresSubscription::class,
         ]);
     })
     ->withExceptions(function (Exceptions $exceptions): void {
