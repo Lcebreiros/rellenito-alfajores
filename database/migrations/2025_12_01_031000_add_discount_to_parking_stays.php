@@ -13,8 +13,12 @@ return new class extends Migration
         }
 
         Schema::table('parking_stays', function (Blueprint $table) {
-            $table->foreignId('discount_id')->nullable()->after('parking_space_id')->constrained('discounts')->nullOnDelete();
-            $table->decimal('discount_amount', 12, 2)->default(0)->after('total_amount');
+            if (!Schema::hasColumn('parking_stays', 'discount_id')) {
+                $table->foreignId('discount_id')->nullable()->constrained('discounts')->nullOnDelete();
+            }
+            if (!Schema::hasColumn('parking_stays', 'discount_amount')) {
+                $table->decimal('discount_amount', 12, 2)->default(0);
+            }
         });
     }
 
