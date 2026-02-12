@@ -11,7 +11,7 @@ return new class extends Migration
      */
     public function up(): void
     {
-        if (Schema::hasTable('cash_movements')) {
+        if (Schema::hasTable('cash_movements') || !Schema::hasTable('parking_shifts')) {
             return;
         }
 
