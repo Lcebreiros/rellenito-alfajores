@@ -31,11 +31,13 @@ class Product extends Model
         'unit',
         'cost_price',
         'created_by_type',
+        'uses_stock',
     ];
 
     protected $casts = [
         'is_active'   => 'boolean',
         'is_shared'   => 'boolean',
+        'uses_stock'  => 'boolean',
         'price'       => 'decimal:2',
         'cost_price'  => 'decimal:2',
         // Si stock es entero: 'stock' => 'integer'. Si es fraccional (kg): decimal.
@@ -48,6 +50,7 @@ class Product extends Model
     protected $attributes = [
         'is_active' => true,
         'is_shared' => false,
+        'uses_stock' => true,
         'stock' => 0,
         'min_stock' => 0,
     ];
@@ -133,7 +136,7 @@ class Product extends Model
 
     public function scopeLowStock(Builder $query): Builder
     {
-        return $query->whereColumn('stock', '<=', 'min_stock');
+        return $query->where('uses_stock', true)->whereColumn('stock', '<=', 'min_stock');
     }
 
     public function scopeShared(Builder $query): Builder
@@ -215,6 +218,10 @@ class Product extends Model
     // ---------- Accesores ----------
     public function getIsLowStockAttribute(): bool
     {
+        if (!$this->uses_stock) {
+            return false;
+        }
+
         return $this->stock <= $this->min_stock;
     }
 
@@ -232,11 +239,19 @@ class Product extends Model
 
     public function isAvailableForSale(): bool
     {
+        if (!$this->uses_stock) {
+            return $this->is_active;
+        }
+
         return $this->is_active && $this->stock > 0;
     }
 
     public function needsRestock(): bool
     {
+        if (!$this->uses_stock) {
+            return false;
+        }
+
         return $this->stock <= $this->min_stock;
     }
 
@@ -247,8 +262,13 @@ class Product extends Model
      * - Devuelve la instancia StockAdjustment creada.
      * - Lanza DomainException si no se puede completar (ej: stock insuficiente).
      */
-    public function adjustStock(float $quantityChange, string $reason, ?User $actor = null, $reference = null): StockAdjustment
+    public function adjustStock(float $quantityChange, string $reason, ?User $actor = null, $reference = null): ?StockAdjustment
     {
+        // Productos que no usan stock no registran ajustes
+        if (!$this->uses_stock) {
+            return null;
+        }
+
         return DB::transaction(function () use ($quantityChange, $reason, $actor, $reference) {
             // Bloquea la fila para evitar race conditions
             $product = static::where('id', $this->id)->lockForUpdate()->first();
@@ -324,8 +344,8 @@ protected static function booted(): void
     });
 
     static::created(function (Product $product) {
-        // Registrar ajuste inicial solo si hay stock > 0
-        if ($product->stock > 0) {
+        // Registrar ajuste inicial solo si usa stock y hay stock > 0
+        if ($product->uses_stock && $product->stock > 0) {
             StockAdjustment::create([
                 'product_id' => $product->id,
                 'quantity_change' => $product->stock,

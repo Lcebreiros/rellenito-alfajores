@@ -182,8 +182,15 @@ class ProductController extends Controller
             'unit' => 'nullable|string|max:50',
             'is_active' => 'boolean',
             'is_shared' => 'boolean',
+            'uses_stock' => 'boolean',
             'image' => 'nullable|string', // Base64 o URL
         ]);
+
+        // Si no usa stock, forzar stock y min_stock a 0
+        if (isset($validated['uses_stock']) && !$validated['uses_stock']) {
+            $validated['stock'] = 0;
+            $validated['min_stock'] = 0;
+        }
 
         // Determinar company_id y created_by_type
         $validated['user_id'] = $auth->id;
@@ -248,8 +255,15 @@ class ProductController extends Controller
             'unit' => 'nullable|string|max:50',
             'is_active' => 'boolean',
             'is_shared' => 'boolean',
+            'uses_stock' => 'boolean',
             'image' => 'nullable|string',
         ]);
+
+        // Si cambia a no usar stock, resetear stock y min_stock
+        if (isset($validated['uses_stock']) && !$validated['uses_stock']) {
+            $validated['stock'] = 0;
+            $validated['min_stock'] = 0;
+        }
 
         // Manejar imagen si viene en base64
         if (isset($validated['image']) && str_starts_with($validated['image'], 'data:image')) {
@@ -311,6 +325,13 @@ class ProductController extends Controller
                 'success' => false,
                 'message' => 'No tienes permiso para actualizar el stock',
             ], 403);
+        }
+
+        if (!$product->uses_stock) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Este producto no utiliza control de stock',
+            ], 422);
         }
 
         $validated = $request->validate([

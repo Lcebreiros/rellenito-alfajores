@@ -19,12 +19,12 @@ class StockController extends Controller
         $auth = $request->user();
 
         $query = Product::availableFor($auth)
-            ->select('id', 'name', 'sku', 'stock', 'min_stock', 'unit', 'is_active')
+            ->select('id', 'name', 'sku', 'stock', 'min_stock', 'unit', 'is_active', 'uses_stock')
             ->when($request->filled('low_stock'), function ($q) {
-                $q->whereColumn('stock', '<=', 'min_stock');
+                $q->where('uses_stock', true)->whereColumn('stock', '<=', 'min_stock');
             })
             ->when($request->filled('out_of_stock'), function ($q) {
-                $q->where('stock', '<=', 0);
+                $q->where('uses_stock', true)->where('stock', '<=', 0);
             })
             ->when($request->filled('q'), function ($q) use ($request) {
                 $term = trim($request->q);
@@ -107,7 +107,8 @@ class StockController extends Controller
         $auth = $request->user();
 
         $products = Product::availableFor($auth)
-            ->select('id', 'name', 'sku', 'stock', 'min_stock', 'unit')
+            ->select('id', 'name', 'sku', 'stock', 'min_stock', 'unit', 'uses_stock')
+            ->where('uses_stock', true)
             ->whereColumn('stock', '<=', 'min_stock')
             ->where('stock', '>', 0)
             ->orderBy('stock', 'asc')
@@ -129,7 +130,8 @@ class StockController extends Controller
         $auth = $request->user();
 
         $products = Product::availableFor($auth)
-            ->select('id', 'name', 'sku', 'stock', 'min_stock', 'unit')
+            ->select('id', 'name', 'sku', 'stock', 'min_stock', 'unit', 'uses_stock')
+            ->where('uses_stock', true)
             ->where('stock', '<=', 0)
             ->orderBy('name')
             ->limit(50)
@@ -149,12 +151,14 @@ class StockController extends Controller
     {
         $auth = $request->user();
 
-        $query = Product::availableFor($auth);
+        $allProducts = Product::availableFor($auth);
+        $stockProducts = (clone $allProducts)->where('uses_stock', true);
 
-        $total = $query->count();
-        $lowStock = (clone $query)->whereColumn('stock', '<=', 'min_stock')->where('stock', '>', 0)->count();
-        $outOfStock = (clone $query)->where('stock', '<=', 0)->count();
-        $inStock = $total - $lowStock - $outOfStock;
+        $total = $allProducts->count();
+        $noStock = (clone $allProducts)->where('uses_stock', false)->count();
+        $lowStock = (clone $stockProducts)->whereColumn('stock', '<=', 'min_stock')->where('stock', '>', 0)->count();
+        $outOfStock = (clone $stockProducts)->where('stock', '<=', 0)->count();
+        $inStock = $total - $noStock - $lowStock - $outOfStock;
 
         return response()->json([
             'success' => true,
@@ -163,6 +167,7 @@ class StockController extends Controller
                 'in_stock' => $inStock,
                 'low_stock' => $lowStock,
                 'out_of_stock' => $outOfStock,
+                'no_stock_control' => $noStock,
             ],
         ], 200);
     }
@@ -215,6 +220,13 @@ class StockController extends Controller
 
         // Verificar acceso al producto
         $product = Product::findOrFail($validated['product_id']);
+
+        if (!$product->uses_stock) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Este producto no utiliza control de stock',
+            ], 422);
+        }
 
         if (!$this->canManageProduct($auth, $product)) {
             return response()->json([

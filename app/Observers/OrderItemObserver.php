@@ -30,7 +30,6 @@ class OrderItemObserver
             return;
         }
 
-        // Obtener el producto y descontar stock
         $product = $orderItem->product;
 
         if (!$product) {
@@ -38,33 +37,37 @@ class OrderItemObserver
             return;
         }
 
-        try {
-            // Usar adjustStock del modelo Product que SÍ dispara eventos y notificaciones
-            $product->adjustStock(
-                -$orderItem->quantity, // negativo para descontar
-                'pedido_completado',
-                auth()->user(),
-                $orderItem->order
-            );
+        if ($product->uses_stock) {
+            // Comportamiento original: descontar stock del producto
+            try {
+                $product->adjustStock(
+                    -$orderItem->quantity,
+                    'pedido_completado',
+                    auth()->user(),
+                    $orderItem->order
+                );
 
-            Log::info("Stock decremented for product {$product->id}: -{$orderItem->quantity}");
-        } catch (\DomainException $e) {
-            // Si no hay stock suficiente, registrar error pero no bloquear
-            Log::error("OrderItemObserver: {$e->getMessage()}");
+                Log::info("Stock decremented for product {$product->id}: -{$orderItem->quantity}");
+            } catch (\DomainException $e) {
+                Log::error("OrderItemObserver: {$e->getMessage()}");
+            }
         }
+
+        // Consumir insumos de la receta (si el producto tiene receta)
+        $this->consumeRecipeSupplies($product, $orderItem->quantity);
     }
 
     /**
      * Handle the OrderItem "deleted" event.
-     * Restore stock when an order item is deleted (only for non-completed orders).
+     * Restore stock when an order item is deleted (only for completed orders).
      */
     public function deleted(OrderItem $orderItem): void
     {
         $order = $orderItem->order;
 
-        // Solo restaurar stock si la orden ya había descontado stock (completada).
-        // En borradores/pedidos pendientes todavía no se descuenta, así que no hay nada que revertir.
-        if (!$order || $order->status !== OrderStatus::COMPLETED) return;
+        if (!$order || $order->status !== OrderStatus::COMPLETED) {
+            return;
+        }
 
         $product = $orderItem->product;
 
@@ -72,18 +75,89 @@ class OrderItemObserver
             return;
         }
 
-        try {
-            // Restaurar stock (cantidad positiva)
-            $product->adjustStock(
-                $orderItem->quantity, // positivo para sumar
-                'item_pedido_eliminado',
-                auth()->user(),
-                $order
-            );
+        if ($product->uses_stock) {
+            try {
+                $product->adjustStock(
+                    $orderItem->quantity,
+                    'item_pedido_eliminado',
+                    auth()->user(),
+                    $order
+                );
 
-            Log::info("Stock restored for product {$product->id}: +{$orderItem->quantity}");
-        } catch (\Exception $e) {
-            Log::error("OrderItemObserver delete: {$e->getMessage()}");
+                Log::info("Stock restored for product {$product->id}: +{$orderItem->quantity}");
+            } catch (\Exception $e) {
+                Log::error("OrderItemObserver delete: {$e->getMessage()}");
+            }
+        }
+
+        // Restaurar insumos de la receta
+        $this->restoreRecipeSupplies($product, $orderItem->quantity);
+    }
+
+    /**
+     * Consume los insumos de la receta del producto.
+     *
+     * Para cada ingrediente de la receta, descuenta del stock del insumo
+     * la cantidad necesaria multiplicada por las unidades vendidas,
+     * considerando el porcentaje de merma.
+     */
+    private function consumeRecipeSupplies(Product $product, float $orderQuantity): void
+    {
+        $recipeItems = $product->recipeItems()->with('supply')->get();
+
+        if ($recipeItems->isEmpty()) {
+            return;
+        }
+
+        foreach ($recipeItems as $recipeItem) {
+            $supply = $recipeItem->supply;
+
+            if (!$supply) {
+                continue;
+            }
+
+            // Cantidad a consumir = qty por unidad * (1 + merma%) * unidades vendidas
+            $wasteFactor = 1 + (($recipeItem->waste_pct ?? 0) / 100);
+            $consumption = $recipeItem->qty * $wasteFactor * $orderQuantity;
+
+            try {
+                $supply->decrement('stock_base_qty', $consumption);
+
+                Log::info("Supply {$supply->id} consumed: -{$consumption} {$supply->base_unit} for product {$product->id}");
+            } catch (\Exception $e) {
+                Log::error("OrderItemObserver consumeRecipeSupplies: {$e->getMessage()}");
+            }
+        }
+    }
+
+    /**
+     * Restaura los insumos de la receta cuando se elimina un item.
+     */
+    private function restoreRecipeSupplies(Product $product, float $orderQuantity): void
+    {
+        $recipeItems = $product->recipeItems()->with('supply')->get();
+
+        if ($recipeItems->isEmpty()) {
+            return;
+        }
+
+        foreach ($recipeItems as $recipeItem) {
+            $supply = $recipeItem->supply;
+
+            if (!$supply) {
+                continue;
+            }
+
+            $wasteFactor = 1 + (($recipeItem->waste_pct ?? 0) / 100);
+            $restoration = $recipeItem->qty * $wasteFactor * $orderQuantity;
+
+            try {
+                $supply->increment('stock_base_qty', $restoration);
+
+                Log::info("Supply {$supply->id} restored: +{$restoration} {$supply->base_unit} for product {$product->id}");
+            } catch (\Exception $e) {
+                Log::error("OrderItemObserver restoreRecipeSupplies: {$e->getMessage()}");
+            }
         }
     }
 }
