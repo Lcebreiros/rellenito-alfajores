@@ -98,6 +98,25 @@
         
       </div>
 
+      {{-- Usa stock --}}
+      <div class="flex items-center justify-between rounded-lg border border-neutral-200 bg-neutral-50 p-4
+                  dark:border-neutral-800 dark:bg-neutral-950/40">
+        <div>
+          <label for="uses_stock" class="text-sm font-medium text-neutral-800 dark:text-neutral-100">Usa stock</label>
+          <p class="text-xs text-neutral-500 dark:text-neutral-400">Desactivalo si el producto se prepara al momento (ej: pizzas, comidas). Solo consumirá insumos.</p>
+        </div>
+
+        <label class="inline-flex items-center">
+          <input id="uses_stock" type="checkbox" name="uses_stock" value="1" class="peer sr-only"
+                 {{ old('uses_stock', true) ? 'checked' : '' }}
+                 onchange="document.getElementById('stockField').style.display = this.checked ? '' : 'none'">
+          <span class="relative h-6 w-11 rounded-full bg-neutral-300 transition-colors duration-300
+                       after:absolute after:left-0.5 after:top-0.5 after:h-5 after:w-5 after:rounded-full after:bg-white after:transition-transform
+                       peer-checked:bg-indigo-600 peer-checked:after:translate-x-5
+                       dark:bg-neutral-700 dark:peer-checked:bg-indigo-500"></span>
+        </label>
+      </div>
+
       {{-- Precio y Stock --}}
       <div class="grid grid-cols-1 sm:grid-cols-2 gap-5">
         <div>
@@ -114,11 +133,11 @@
           @enderror
         </div>
 
-        <div>
+        <div id="stockField" style="{{ old('uses_stock', true) ? '' : 'display:none' }}">
           <label for="stock" class="block text-sm font-medium text-neutral-700 dark:text-neutral-200 mb-1">
             Stock <span class="text-rose-600">*</span>
           </label>
-          <input id="stock" type="number" name="stock" value="{{ old('stock', 0) }}" min="0" step="1" required
+          <input id="stock" type="number" name="stock" value="{{ old('stock', 0) }}" min="0" step="1"
                  class="w-full rounded-lg border-neutral-300 bg-white px-4 py-2.5 text-right
                         text-neutral-900 placeholder:text-neutral-400 focus:border-indigo-500 focus:ring-indigo-500
                         dark:border-neutral-700 dark:bg-neutral-900/50 dark:text-neutral-100 dark:placeholder:text-neutral-500"

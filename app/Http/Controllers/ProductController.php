@@ -158,9 +158,20 @@ class ProductController extends Controller
         'image' => 'nullable|image|max:5120',
         'external_image_url' => 'nullable|url|max:500',
         'price' => 'required|numeric|min:0',
-        'stock' => 'required|numeric|min:0',
+        'stock' => 'nullable|numeric|min:0',
+        'uses_stock' => 'boolean',
         'is_active' => 'boolean'
     ]);
+
+    // Normalizar uses_stock desde checkbox
+    $data['uses_stock'] = $request->boolean('uses_stock');
+
+    // Si no usa stock, forzar stock a 0
+    if (!$data['uses_stock']) {
+        $data['stock'] = 0;
+    } else {
+        $data['stock'] = $data['stock'] ?? 0;
+    }
 
     // Guardar imagen si se subió un archivo
     if ($request->hasFile('image')) {
@@ -200,8 +211,18 @@ public function update(Request $request, Product $product)
         'price' => 'required|numeric|min:0',
         'image' => 'nullable|image|max:5120',
         'external_image_url' => 'nullable|url|max:500',
+        'uses_stock' => 'boolean',
         'is_active' => 'boolean'
     ]);
+
+    // Normalizar uses_stock desde checkbox
+    $data['uses_stock'] = $request->boolean('uses_stock');
+
+    // Si no usa stock, forzar stock a 0
+    if (!$data['uses_stock']) {
+        $product->stock = 0;
+        $product->min_stock = 0;
+    }
 
     // Guardar imagen si se subió un archivo
     if ($request->hasFile('image')) {

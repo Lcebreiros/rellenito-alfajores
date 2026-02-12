@@ -208,6 +208,38 @@
 
     {{-- Columna lateral (stock) --}}
     <div class="space-y-6">
+      {{-- Usa stock toggle --}}
+      <div class="rounded-2xl bg-white dark:bg-neutral-900 ring-1 ring-neutral-200/70 dark:ring-neutral-800 shadow-sm">
+        <div class="px-5 py-4">
+          <form action="{{ route('products.update', $product) }}" method="POST" class="flex items-center justify-between">
+            @csrf
+            @method('PUT')
+            {{-- Enviar los campos requeridos del producto para que la validación pase --}}
+            <input type="hidden" name="name" value="{{ $product->name }}">
+            <input type="hidden" name="sku" value="{{ $product->sku }}">
+            <input type="hidden" name="price" value="{{ $product->price }}">
+            <input type="hidden" name="barcode" value="{{ $product->barcode }}">
+            <input type="hidden" name="is_active" value="{{ $product->is_active ? '1' : '0' }}">
+
+            <div>
+              <label for="uses_stock" class="text-sm font-medium text-neutral-800 dark:text-neutral-100">Usa stock</label>
+              <p class="text-xs text-neutral-500 dark:text-neutral-400">Desactivalo si se prepara al momento.</p>
+            </div>
+
+            <label class="inline-flex items-center">
+              <input id="uses_stock" type="checkbox" name="uses_stock" value="1" class="peer sr-only"
+                     {{ old('uses_stock', $product->uses_stock) ? 'checked' : '' }}
+                     onchange="this.form.submit()">
+              <span class="relative h-6 w-11 rounded-full bg-neutral-300 transition-colors duration-300
+                           after:absolute after:left-0.5 after:top-0.5 after:h-5 after:w-5 after:rounded-full after:bg-white after:transition-transform
+                           peer-checked:bg-indigo-600 peer-checked:after:translate-x-5
+                           dark:bg-neutral-700 dark:peer-checked:bg-indigo-500 cursor-pointer"></span>
+            </label>
+          </form>
+        </div>
+      </div>
+
+      @if($product->uses_stock)
       <div class="rounded-2xl bg-white dark:bg-neutral-900 ring-1 ring-neutral-200/70 dark:ring-neutral-800 shadow-sm">
         <div class="px-5 py-4 border-b border-neutral-200 dark:border-neutral-800">
           <h2 class="text-base font-semibold text-neutral-900 dark:text-neutral-100">Stock</h2>
@@ -237,6 +269,13 @@
           </div>
         </form>
       </div>
+      @else
+      <div class="rounded-2xl bg-white dark:bg-neutral-900 ring-1 ring-neutral-200/70 dark:ring-neutral-800 shadow-sm">
+        <div class="px-5 py-5 text-center">
+          <p class="text-sm text-neutral-500 dark:text-neutral-400">Este producto no usa control de stock. Solo consume insumos al venderse.</p>
+        </div>
+      </div>
+      @endif
 
       {{-- Vista previa actual (misma lógica que index) --}}
       @php
