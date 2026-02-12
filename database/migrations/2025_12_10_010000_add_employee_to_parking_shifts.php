@@ -8,7 +8,7 @@ return new class extends Migration
 {
     public function up(): void
     {
-        if (!Schema::hasTable('parking_shifts')) {
+        if (!Schema::hasTable('parking_shifts') || !Schema::hasTable('employees')) {
             return;
         }
 

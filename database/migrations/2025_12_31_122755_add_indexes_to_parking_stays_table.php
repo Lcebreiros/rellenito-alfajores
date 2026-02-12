@@ -16,18 +16,16 @@ return new class extends Migration
         }
 
         Schema::table('parking_stays', function (Blueprint $table) {
-            // Índice compuesto para búsquedas frecuentes: company + status
             $table->index(['company_id', 'status'], 'idx_parking_stays_company_status');
-
-            // Índice compuesto para búsqueda por patente abierta
             $table->index(['company_id', 'status', 'license_plate'], 'idx_parking_stays_company_status_plate');
-
-            // Índice compuesto para estadías por espacio
-            $table->index(['parking_space_id', 'status'], 'idx_parking_stays_space_status');
-
-            // Índice para búsquedas por rango de fechas
             $table->index(['company_id', 'exit_at'], 'idx_parking_stays_company_exit');
         });
+
+        if (Schema::hasColumn('parking_stays', 'parking_space_id')) {
+            Schema::table('parking_stays', function (Blueprint $table) {
+                $table->index(['parking_space_id', 'status'], 'idx_parking_stays_space_status');
+            });
+        }
     }
 
     /**
