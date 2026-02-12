@@ -11,29 +11,15 @@ return new class extends Migration
      */
     public function up(): void
     {
-        if (!Schema::hasTable('parking_rates')) {
-            return;
+        $tables = ['parking_rates', 'parking_stays', 'parking_spaces', 'parking_space_categories', 'parking_shifts'];
+
+        foreach ($tables as $table) {
+            if (Schema::hasTable($table) && !Schema::hasColumn($table, 'deleted_at')) {
+                Schema::table($table, function (Blueprint $t) {
+                    $t->softDeletes();
+                });
+            }
         }
-
-        Schema::table('parking_rates', function (Blueprint $table) {
-            $table->softDeletes();
-        });
-
-        Schema::table('parking_stays', function (Blueprint $table) {
-            $table->softDeletes();
-        });
-
-        Schema::table('parking_spaces', function (Blueprint $table) {
-            $table->softDeletes();
-        });
-
-        Schema::table('parking_space_categories', function (Blueprint $table) {
-            $table->softDeletes();
-        });
-
-        Schema::table('parking_shifts', function (Blueprint $table) {
-            $table->softDeletes();
-        });
     }
 
     /**
