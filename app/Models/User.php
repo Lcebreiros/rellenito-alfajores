@@ -46,6 +46,7 @@ class User extends Authenticatable
         'branch_limit',
         'user_limit',
         'subscription_level',
+        'business_type',
         'organization_context',
         // Campos para relación polimórfica
         'representable_id',
@@ -90,6 +91,7 @@ class User extends Authenticatable
         'notify_out_of_stock' => 'boolean',
         'notify_by_email' => 'boolean',
         'modulos_activos' => 'array',
+        'business_type' => 'string',
     ];
 
     // ================================
@@ -359,6 +361,7 @@ class User extends Authenticatable
             'sucursales' => 'Sucursales',
             'empleados' => 'Personal',
             'clientes' => 'Clientes',
+            'parking'  => 'Estacionamiento (cocheras)',
         ];
     }
 
@@ -383,12 +386,14 @@ class User extends Authenticatable
      */
     public function getActiveModules(): array
     {
-        // Si no tiene configurado, retornar todos por defecto
-        if (empty($this->modulos_activos)) {
-            return array_keys(self::availableModules());
+        if (!empty($this->modulos_activos)) {
+            return $this->modulos_activos;
         }
 
-        return $this->modulos_activos;
+        // Si no tiene configurado, usar preset o genérico
+        $preset = $this->business_type ?: 'generic';
+        $modules = self::presetModules($preset);
+        return $modules ?: array_keys(self::availableModules());
     }
 
     /**
@@ -411,5 +416,11 @@ class User extends Authenticatable
     {
         $this->modulos_activos = $modules;
         $this->save();
+    }
+
+    public static function presetModules(string $type): array
+    {
+        $presets = config('module_presets', []);
+        return $presets[$type] ?? [];
     }
 }

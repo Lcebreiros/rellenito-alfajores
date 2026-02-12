@@ -439,52 +439,118 @@
     {{-- OPERACIONES --}}
     <div class="fade-in-up">
       <h2 class="text-xs font-semibold text-neutral-600 dark:text-neutral-300 mb-1.5 sm:mb-2 lg:mb-2.5 tracking-tight uppercase">Operaciones</h2>
-      <div class="grid grid-cols-3 sm:grid-cols-3 md:grid-cols-3 lg:grid-cols-3 gap-1.5 sm:gap-2 lg:gap-2.5">
-        {{-- Crear Pedido - Ocupa 2 filas --}}
-        <a href="{{ route('orders.create') }}" class="tile-square tile-orders row-span-2">
-          <img src="{{ asset('images/crear-pedido.png') }}" alt="Crear pedido" class="w-8 h-8 sm:w-10 sm:h-10 lg:w-14 lg:h-14 object-contain dark:invert mb-1 sm:mb-1.5 lg:mb-2 transition-transform group-hover:scale-110">
-          <div class="text-center">
-            <div class="text-xs sm:text-sm lg:text-base font-bold text-neutral-900 dark:text-neutral-100">Crear pedido</div>
-            <div class="text-[10px] sm:text-xs text-neutral-500 dark:text-neutral-400 mt-0.5">Carga rápida</div>
-          </div>
-        </a>
 
-        {{-- Pedidos --}}
-        <a href="{{ route('orders.index') }}" class="tile-wide tile-orders">
-          <img src="{{ asset('images/pedidos.png') }}" alt="Pedidos" class="w-7 h-7 sm:w-8 sm:h-8 lg:w-10 lg:h-10 object-contain dark:invert flex-shrink-0">
-          <div class="min-w-0">
-            <div class="text-xs sm:text-sm font-bold text-neutral-900 dark:text-neutral-100 truncate">Pedidos</div>
-            <div class="text-[10px] sm:text-xs text-neutral-500 dark:text-neutral-400">Historial</div>
-          </div>
-        </a>
+      @php
+        $businessType = auth()->user()->business_type ?? 'comercio';
+      @endphp
 
-        {{-- Stock --}}
-        <a href="{{ route('stock.index') }}#stock" class="tile-wide tile-stock">
-          <img src="{{ asset('images/stock.png') }}" alt="Stock" class="w-7 h-7 sm:w-8 sm:h-8 lg:w-10 lg:h-10 object-contain dark:invert flex-shrink-0">
-          <div class="min-w-0">
-            <div class="text-xs sm:text-sm font-bold text-neutral-900 dark:text-neutral-100 truncate">Stock</div>
-            <div class="text-[10px] sm:text-xs text-neutral-500 dark:text-neutral-400">Inventario</div>
-          </div>
-        </a>
+      @if($businessType === 'alquiler')
+        {{-- VISTA PARA ALQUILER/PARKING --}}
+        <div class="grid grid-cols-3 sm:grid-cols-3 md:grid-cols-3 lg:grid-cols-3 gap-1.5 sm:gap-2 lg:gap-2.5">
+          {{-- Crear Ingreso - Ocupa 2 filas --}}
+          <a href="{{ route('parking.board') }}" class="tile-square tile-orders row-span-2">
+            <svg class="w-8 h-8 sm:w-10 sm:h-10 lg:w-14 lg:h-14 text-neutral-900 dark:text-neutral-100 mb-1 sm:mb-1.5 lg:mb-2 transition-transform group-hover:scale-110" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4m16 0a9 9 0 11-18 0 9 9 0 0118 0z"/>
+            </svg>
+            <div class="text-center">
+              <div class="text-xs sm:text-sm lg:text-base font-bold text-neutral-900 dark:text-neutral-100">Crear ingreso</div>
+              <div class="text-[10px] sm:text-xs text-neutral-500 dark:text-neutral-400 mt-0.5">Operador</div>
+            </div>
+          </a>
 
-        {{-- Productos --}}
-        <a href="{{ route('products.index') }}" class="tile-wide tile-products">
-          <img src="{{ asset('images/productos.png') }}" alt="Productos" class="w-7 h-7 sm:w-8 sm:h-8 lg:w-10 lg:h-10 object-contain dark:invert flex-shrink-0">
-          <div class="min-w-0">
-            <div class="text-xs sm:text-sm font-bold text-neutral-900 dark:text-neutral-100 truncate">Productos</div>
-            <div class="text-[10px] sm:text-xs text-neutral-500 dark:text-neutral-400">Catálogo</div>
-          </div>
-        </a>
+          {{-- Historial de movimientos --}}
+          <a href="{{ route('parking.stays.index') }}" class="tile-wide tile-orders">
+            <svg class="w-7 h-7 sm:w-8 sm:h-8 lg:w-10 lg:h-10 text-neutral-900 dark:text-neutral-100 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-3 7h3m-3 4h3m-6-4h.01M9 16h.01"/>
+            </svg>
+            <div class="min-w-0">
+              <div class="text-xs sm:text-sm font-bold text-neutral-900 dark:text-neutral-100 truncate">Movimientos</div>
+              <div class="text-[10px] sm:text-xs text-neutral-500 dark:text-neutral-400">Historial</div>
+            </div>
+          </a>
 
-        {{-- Servicios --}}
-        <a href="{{ route('services.index') }}" class="tile-wide tile-services">
-          <img src="{{ asset('images/servicios.png') }}" alt="Servicios" class="w-7 h-7 sm:w-8 sm:h-8 lg:w-10 lg:h-10 object-contain dark:invert flex-shrink-0">
-          <div class="min-w-0">
-            <div class="text-xs sm:text-sm font-bold text-neutral-900 dark:text-neutral-100 truncate">Servicios</div>
-            <div class="text-[10px] sm:text-xs text-neutral-500 dark:text-neutral-400">Catálogo</div>
-          </div>
-        </a>
-      </div>
+          {{-- Bonificaciones --}}
+          <a href="{{ route('discounts.index') }}" class="tile-wide tile-stock">
+            <svg class="w-7 h-7 sm:w-8 sm:h-8 lg:w-10 lg:h-10 text-neutral-900 dark:text-neutral-100 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 7h.01M7 3h5c.512 0 1.024.195 1.414.586l7 7a2 2 0 010 2.828l-7 7a2 2 0 01-2.828 0l-7-7A1.994 1.994 0 013 12V7a4 4 0 014-4z"></path>
+            </svg>
+            <div class="min-w-0">
+              <div class="text-xs sm:text-sm font-bold text-neutral-900 dark:text-neutral-100 truncate">Bonificaciones</div>
+              <div class="text-[10px] sm:text-xs text-neutral-500 dark:text-neutral-400">Descuentos</div>
+            </div>
+          </a>
+
+          {{-- Cocheras --}}
+          <a href="{{ route('parking.spaces.index') }}" class="tile-wide tile-products">
+            <svg class="w-7 h-7 sm:w-8 sm:h-8 lg:w-10 lg:h-10 text-neutral-900 dark:text-neutral-100 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4"/>
+            </svg>
+            <div class="min-w-0">
+              <div class="text-xs sm:text-sm font-bold text-neutral-900 dark:text-neutral-100 truncate">Cocheras</div>
+              <div class="text-[10px] sm:text-xs text-neutral-500 dark:text-neutral-400">Espacios</div>
+            </div>
+          </a>
+
+          {{-- Tarifas --}}
+          <a href="{{ route('parking.rates.index') }}" class="tile-wide tile-services">
+            <svg class="w-7 h-7 sm:w-8 sm:h-8 lg:w-10 lg:h-10 text-neutral-900 dark:text-neutral-100 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/>
+            </svg>
+            <div class="min-w-0">
+              <div class="text-xs sm:text-sm font-bold text-neutral-900 dark:text-neutral-100 truncate">Tarifas</div>
+              <div class="text-[10px] sm:text-xs text-neutral-500 dark:text-neutral-400">Precios</div>
+            </div>
+          </a>
+        </div>
+      @else
+        {{-- VISTA PARA COMERCIO (default) --}}
+        <div class="grid grid-cols-3 sm:grid-cols-3 md:grid-cols-3 lg:grid-cols-3 gap-1.5 sm:gap-2 lg:gap-2.5">
+          {{-- Crear Pedido - Ocupa 2 filas --}}
+          <a href="{{ route('orders.create') }}" class="tile-square tile-orders row-span-2">
+            <img src="{{ asset('images/crear-pedido.png') }}" alt="Crear pedido" class="w-8 h-8 sm:w-10 sm:h-10 lg:w-14 lg:h-14 object-contain dark:invert mb-1 sm:mb-1.5 lg:mb-2 transition-transform group-hover:scale-110">
+            <div class="text-center">
+              <div class="text-xs sm:text-sm lg:text-base font-bold text-neutral-900 dark:text-neutral-100">Crear pedido</div>
+              <div class="text-[10px] sm:text-xs text-neutral-500 dark:text-neutral-400 mt-0.5">Carga rápida</div>
+            </div>
+          </a>
+
+          {{-- Pedidos --}}
+          <a href="{{ route('orders.index') }}" class="tile-wide tile-orders">
+            <img src="{{ asset('images/pedidos.png') }}" alt="Pedidos" class="w-7 h-7 sm:w-8 sm:h-8 lg:w-10 lg:h-10 object-contain dark:invert flex-shrink-0">
+            <div class="min-w-0">
+              <div class="text-xs sm:text-sm font-bold text-neutral-900 dark:text-neutral-100 truncate">Pedidos</div>
+              <div class="text-[10px] sm:text-xs text-neutral-500 dark:text-neutral-400">Historial</div>
+            </div>
+          </a>
+
+          {{-- Stock --}}
+          <a href="{{ route('stock.index') }}#stock" class="tile-wide tile-stock">
+            <img src="{{ asset('images/stock.png') }}" alt="Stock" class="w-7 h-7 sm:w-8 sm:h-8 lg:w-10 lg:h-10 object-contain dark:invert flex-shrink-0">
+            <div class="min-w-0">
+              <div class="text-xs sm:text-sm font-bold text-neutral-900 dark:text-neutral-100 truncate">Stock</div>
+              <div class="text-[10px] sm:text-xs text-neutral-500 dark:text-neutral-400">Inventario</div>
+            </div>
+          </a>
+
+          {{-- Productos --}}
+          <a href="{{ route('products.index') }}" class="tile-wide tile-products">
+            <img src="{{ asset('images/productos.png') }}" alt="Productos" class="w-7 h-7 sm:w-8 sm:h-8 lg:w-10 lg:h-10 object-contain dark:invert flex-shrink-0">
+            <div class="min-w-0">
+              <div class="text-xs sm:text-sm font-bold text-neutral-900 dark:text-neutral-100 truncate">Productos</div>
+              <div class="text-[10px] sm:text-xs text-neutral-500 dark:text-neutral-400">Catálogo</div>
+            </div>
+          </a>
+
+          {{-- Servicios --}}
+          <a href="{{ route('services.index') }}" class="tile-wide tile-services">
+            <img src="{{ asset('images/servicios.png') }}" alt="Servicios" class="w-7 h-7 sm:w-8 sm:h-8 lg:w-10 lg:h-10 object-contain dark:invert flex-shrink-0">
+            <div class="min-w-0">
+              <div class="text-xs sm:text-sm font-bold text-neutral-900 dark:text-neutral-100 truncate">Servicios</div>
+              <div class="text-[10px] sm:text-xs text-neutral-500 dark:text-neutral-400">Catálogo</div>
+            </div>
+          </a>
+        </div>
+      @endif
     </div>
 
     {{-- GESTIÓN --}}

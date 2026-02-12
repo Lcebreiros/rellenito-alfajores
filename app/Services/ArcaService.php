@@ -174,11 +174,11 @@ class ArcaService
                 'exceptions' => 0
             ]);
 
-            $params = [
-                'Auth' => [
-                    'Token' => $this->token,
-                    'Sign' => $this->sign,
-                    'Cuit' => $this->config->cuit
+        $params = [
+            'Auth' => [
+                'Token' => $this->token,
+                'Sign' => $this->sign,
+                'Cuit' => $this->config->cuit
                 ],
                 'PtoVta' => $salePoint,
                 'CbteTipo' => $this->getVoucherTypeCode($voucherType)
@@ -241,6 +241,9 @@ class ArcaService
                 ]
             ];
 
+            // Validar totales antes de enviar
+            $this->validateTotals($invoiceData);
+
             // Enviar a ARCA
             $results = $client->FECAESolicitar($params);
 
@@ -256,14 +259,37 @@ class ArcaService
     }
 
     /**
+     * Validar coherencia de totales antes de enviar
+     */
+    protected function validateTotals(array $invoiceData): void
+    {
+        $impTotal   = (float) $invoiceData['ImpTotal'];
+        $impNeto    = (float) $invoiceData['ImpNeto'];
+        $impOpEx    = (float) $invoiceData['ImpOpEx'];
+        $impIVA     = (float) $invoiceData['ImpIVA'];
+        $impTrib    = (float) $invoiceData['ImpTrib'];
+        $impTotConc = (float) $invoiceData['ImpTotConc'];
+
+        $calc = $impTotConc + $impOpEx + $impNeto + $impIVA + $impTrib;
+        $delta = round($calc - $impTotal, 2);
+        if (abs($delta) > 0.05) {
+            Log::warning('Inconsistencia de totales ARCA', [
+                'calc' => $calc,
+                'impTotal' => $impTotal,
+                'data' => $invoiceData,
+            ]);
+            throw new Exception("Los totales de la factura no cierran (delta {$delta}). Revisá importes e IVA.");
+        }
+    }
+
+    /**
      * Preparar datos de la factura para ARCA
      */
     protected function prepareInvoiceData(Invoice $invoice)
     {
-        // Determinar concepto según items
-        $hasProducts = $invoice->items()->where('tax_rate', '>=', 0)->exists(); // asume productos/servicios en items
-        $hasServices = $invoice->items()->where('tax_rate', '>=', 0)->exists(); // placeholder (si tuvieras flag, cámbialo)
-        // Si tu modelo distingue productos/servicios, ajusta estas condiciones
+        // Determinar concepto según items: si tienen product_id => productos, si no => servicios
+        $hasProducts = $invoice->items()->whereNotNull('product_id')->exists();
+        $hasServices = $invoice->items()->whereNull('product_id')->exists();
         $conceptCode = ($hasProducts && $hasServices) ? 3 : ($hasServices ? 2 : 1);
 
         // Documento

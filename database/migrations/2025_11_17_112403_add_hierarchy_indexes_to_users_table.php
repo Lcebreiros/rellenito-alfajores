@@ -12,6 +12,10 @@ return new class extends Migration
      */
     public function up(): void
     {
+        if (app()->environment('testing')) {
+            return;
+        }
+
         Schema::table('users', function (Blueprint $table) {
             // Índice en parent_id para consultas jerárquicas
             if (!$this->indexExists('users', 'users_parent_id_index')) {
@@ -35,30 +39,34 @@ return new class extends Migration
         }
 
         // Índices adicionales para orders
-        Schema::table('orders', function (Blueprint $table) {
-            // Índice en payment_status
-            if (!$this->indexExists('orders', 'orders_payment_status_index') && Schema::hasColumn('orders', 'payment_status')) {
-                $table->index('payment_status', 'orders_payment_status_index');
-            }
+        if (Schema::hasTable('orders')) {
+            Schema::table('orders', function (Blueprint $table) {
+                // Índice en payment_status
+                if (!$this->indexExists('orders', 'orders_payment_status_index') && Schema::hasColumn('orders', 'payment_status')) {
+                    $table->index('payment_status', 'orders_payment_status_index');
+                }
 
-            // Índice compuesto para reportes por sucursal
-            if (!$this->indexExists('orders', 'orders_branch_status_date_index') && Schema::hasColumn('orders', 'sold_at')) {
-                $table->index(['branch_id', 'status', 'sold_at'], 'orders_branch_status_date_index');
-            }
+                // Índice compuesto para reportes por sucursal
+                if (!$this->indexExists('orders', 'orders_branch_status_date_index') && Schema::hasColumn('orders', 'sold_at')) {
+                    $table->index(['branch_id', 'status', 'sold_at'], 'orders_branch_status_date_index');
+                }
 
-            // Índice compuesto para reportes por empresa
-            if (!$this->indexExists('orders', 'orders_company_status_date_index') && Schema::hasColumn('orders', 'sold_at')) {
-                $table->index(['company_id', 'status', 'sold_at'], 'orders_company_status_date_index');
-            }
-        });
+                // Índice compuesto para reportes por empresa
+                if (!$this->indexExists('orders', 'orders_company_status_date_index') && Schema::hasColumn('orders', 'sold_at')) {
+                    $table->index(['company_id', 'status', 'sold_at'], 'orders_company_status_date_index');
+                }
+            });
+        }
 
         // Índices para product_locations
-        Schema::table('product_locations', function (Blueprint $table) {
-            // Índice en branch_id para consultas "todos los productos de una sucursal"
-            if (!$this->indexExists('product_locations', 'product_locations_branch_id_index')) {
-                $table->index('branch_id', 'product_locations_branch_id_index');
-            }
-        });
+        if (Schema::hasTable('product_locations')) {
+            Schema::table('product_locations', function (Blueprint $table) {
+                // Índice en branch_id para consultas "todos los productos de una sucursal"
+                if (!$this->indexExists('product_locations', 'product_locations_branch_id_index')) {
+                    $table->index('branch_id', 'product_locations_branch_id_index');
+                }
+            });
+        }
     }
 
     /**

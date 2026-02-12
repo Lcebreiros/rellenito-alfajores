@@ -5,6 +5,10 @@ use Illuminate\Foundation\Configuration\Exceptions;
 use Illuminate\Foundation\Configuration\Middleware;
 use App\Http\Middleware\SetUserTimezone;
 use App\Http\Middleware\RequiresSubscription;
+use App\Http\Middleware\ResolveIntegrator;
+use App\Http\Middleware\RequireInternalIntegrator;
+use App\Http\Middleware\ApiRequestLogger;
+use App\Http\Middleware\EnsureUserHasModule;
 use Illuminate\Console\Scheduling\Schedule;
 
 return Application::configure(basePath: dirname(__DIR__))
@@ -34,6 +38,10 @@ return Application::configure(basePath: dirname(__DIR__))
         // Registrar middleware con alias
         $middleware->alias([
             'requires.subscription' => RequiresSubscription::class,
+            'integrator' => ResolveIntegrator::class,
+            'internal.only' => RequireInternalIntegrator::class,
+            'api.log' => ApiRequestLogger::class,
+            'module' => EnsureUserHasModule::class,
         ]);
     })
     ->withExceptions(function (Exceptions $exceptions): void {

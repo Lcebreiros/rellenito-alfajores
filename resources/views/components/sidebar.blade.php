@@ -726,6 +726,107 @@
               class="text-sm font-semibold truncate relative z-1">Métodos de Pago</span>
       </a>
 
+      <!-- Descuentos -->
+      <a href="{{ route('discounts.index') }}" wire:navigate data-turbo="false" data-module="discounts"
+         class="nav-link {{ request()->routeIs('discounts.*') ? $active : $idle }}"
+         :class="collapsed ? 'justify-center flex items-center gap-3 p-3' : 'flex items-center gap-3 p-3'"
+         :title="collapsed ? 'Descuentos' : null">
+        <span class="shrink-0 flex items-center justify-center w-7 h-7">
+          <svg class="nav-icon w-5 h-5 text-neutral-600 dark:text-neutral-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 7h.01M7 3h5c.512 0 1.024.195 1.414.586l7 7a2 2 0 010 2.828l-7 7a2 2 0 01-2.828 0l-7-7A1.994 1.994 0 013 12V7a4 4 0 014-4z"></path>
+          </svg>
+        </span>
+        <span x-show="!collapsed" x-transition:enter="fade-slide-enter"
+              class="text-sm font-semibold truncate relative z-1">Descuentos</span>
+      </a>
+
+      @if(auth()->user()->hasModule('parking'))
+      <!-- Crear ingreso (mapa de cocheras) -->
+      <a href="{{ Route::has('parking.board') ? route('parking.board') : '#' }}" wire:navigate data-turbo="false" data-module="parking"
+         class="nav-link {{ request()->routeIs('parking.board') ? $active : $idle }}"
+         :class="collapsed ? 'justify-center flex items-center gap-3 p-3' : 'flex items-center gap-3 p-3'"
+         :title="collapsed ? 'Crear ingreso' : null">
+        <span class="shrink-0 flex items-center justify-center w-7 h-7">
+          <svg class="w-5 h-5 text-neutral-600 dark:text-neutral-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4m16 0a9 9 0 11-18 0 9 9 0 0118 0z"/>
+          </svg>
+        </span>
+        <span x-show="!collapsed" x-transition:enter="fade-slide-enter"
+              class="text-sm font-semibold truncate relative z-1">Crear ingreso</span>
+      </a>
+
+      <!-- Cocheras -->
+      <a href="{{ Route::has('parking.spaces.index') ? route('parking.spaces.index') : '#' }}" wire:navigate data-turbo="false" data-module="parking"
+         class="nav-link {{ request()->routeIs('parking.spaces.*') ? $active : $idle }}"
+         :class="collapsed ? 'justify-center flex items-center gap-3 p-3' : 'flex items-center gap-3 p-3'"
+         :title="collapsed ? 'Cocheras' : null">
+        <span class="shrink-0 flex items-center justify-center w-7 h-7">
+          <svg class="w-5 h-5 text-neutral-600 dark:text-neutral-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4"/>
+          </svg>
+        </span>
+        <span x-show="!collapsed" x-transition:enter="fade-slide-enter"
+              class="text-sm font-semibold truncate relative z-1">Cocheras</span>
+      </a>
+
+      <!-- Tarifas de estacionamiento -->
+      <a href="{{ Route::has('parking.rates.index') ? route('parking.rates.index') : '#' }}" wire:navigate data-turbo="false" data-module="parking"
+         class="nav-link {{ request()->routeIs('parking.rates.*') ? $active : $idle }}"
+         :class="collapsed ? 'justify-center flex items-center gap-3 p-3' : 'flex items-center gap-3 p-3'"
+         :title="collapsed ? 'Tarifas' : null">
+        <span class="shrink-0 flex items-center justify-center w-7 h-7">
+          <svg class="w-5 h-5 text-neutral-600 dark:text-neutral-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 7h.01M7 3h5c.512 0 1.024.195 1.414.586l7 7a2 2 0 010 2.828l-7 7a2 2 0 01-2.828 0l-7-7A1.994 1.994 0 013 12V7a4 4 0 014-4z"/>
+          </svg>
+        </span>
+        <span x-show="!collapsed" x-transition:enter="fade-slide-enter"
+              class="text-sm font-semibold truncate relative z-1">Tarifas</span>
+      </a>
+
+      <!-- Estacionamiento -->
+      <a href="{{ Route::has('parking.shifts.audit') ? route('parking.shifts.audit') : '#' }}" wire:navigate data-turbo="false" data-module="parking"
+         class="nav-link {{ request()->routeIs('parking.shifts.audit') ? $active : $idle }}"
+         :class="collapsed ? 'justify-center flex items-center gap-3 p-3' : 'flex items-center gap-3 p-3'"
+         :title="collapsed ? 'Auditoría' : null">
+        <span class="shrink-0 flex items-center justify-center w-7 h-7">
+          <svg class="w-5 h-5 text-neutral-600 dark:text-neutral-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-6 9l2 2 4-4"/>
+          </svg>
+        </span>
+        <span x-show="!collapsed" x-transition:enter="fade-slide-enter"
+              class="text-sm font-semibold truncate relative z-1">Auditoría</span>
+      </a>
+
+      <!-- Mi Historial de Turnos -->
+      <a href="{{ Route::has('parking.shifts.my-history') ? route('parking.shifts.my-history') : '#' }}" wire:navigate data-turbo="false" data-module="parking"
+         class="nav-link {{ request()->routeIs('parking.shifts.my-history') ? $active : $idle }}"
+         :class="collapsed ? 'justify-center flex items-center gap-3 p-3' : 'flex items-center gap-3 p-3'"
+         :title="collapsed ? 'Mi Historial' : null">
+        <span class="shrink-0 flex items-center justify-center w-7 h-7">
+          <svg class="w-5 h-5 text-neutral-600 dark:text-neutral-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+          </svg>
+        </span>
+        <span x-show="!collapsed" x-transition:enter="fade-slide-enter"
+              class="text-sm font-semibold truncate relative z-1">Mi Historial</span>
+      </a>
+
+      <!-- Auditoría de Turnos -->
+      <a href="{{ Route::has('parking.shifts.audit') ? route('parking.shifts.audit') : '#' }}" wire:navigate data-turbo="false" data-module="parking"
+         class="nav-link {{ request()->routeIs('parking.shifts.audit') ? $active : $idle }}"
+         :class="collapsed ? 'justify-center flex items-center gap-3 p-3' : 'flex items-center gap-3 p-3'"
+         :title="collapsed ? 'Reportes' : null">
+        <span class="shrink-0 flex items-center justify-center w-7 h-7">
+          <svg class="w-5 h-5 text-neutral-600 dark:text-neutral-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 17v-2m3 2v-4m3 4v-6m2 10H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path>
+          </svg>
+        </span>
+        <span x-show="!collapsed" x-transition:enter="fade-slide-enter"
+              class="text-sm font-semibold truncate relative z-1">Reportes</span>
+      </a>
+
+      @endif
+
       @if(Route::has('invoices.configuration'))
       <!-- Facturación (BETA) -->
       <a href="{{ route('invoices.configuration') }}" wire:navigate data-turbo="false" data-module="dashboard"

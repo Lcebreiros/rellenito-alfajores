@@ -15,8 +15,10 @@ class Service extends Model
     protected $fillable = [
         'user_id',
         'company_id',
+        'service_category_id',
         'name',
         'description',
+        'tags',
         'price',
         'is_active',
     ];
@@ -26,6 +28,7 @@ class Service extends Model
         'is_active' => 'boolean',
         'user_id' => 'integer',
         'company_id' => 'integer',
+        'tags' => 'array',
     ];
 
     protected $attributes = [
@@ -34,6 +37,7 @@ class Service extends Model
 
     public function user() { return $this->belongsTo(User::class); }
     public function company() { return $this->belongsTo(User::class, 'company_id'); }
+    public function category() { return $this->belongsTo(ServiceCategory::class, 'service_category_id'); }
 
     /**
      * Relación con insumos usados en este servicio
@@ -41,6 +45,14 @@ class Service extends Model
     public function supplies(): HasMany
     {
         return $this->hasMany(ServiceSupply::class);
+    }
+
+    /**
+     * Variantes del servicio (duración/paquete/precio)
+     */
+    public function variants(): HasMany
+    {
+        return $this->hasMany(ServiceVariant::class);
     }
 
     public function scopeActive(Builder $query): Builder

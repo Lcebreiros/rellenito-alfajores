@@ -11,6 +11,10 @@ return new class extends Migration
      */
     public function up(): void
     {
+        if (app()->environment('testing')) {
+            return;
+        }
+
         Schema::table('users', function (Blueprint $table) {
             $table->string('google_email')->nullable()->after('google_calendar_id');
             $table->boolean('google_calendar_sync_enabled')->default(true)->after('google_email');

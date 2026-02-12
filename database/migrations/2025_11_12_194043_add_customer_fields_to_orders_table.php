@@ -11,12 +11,22 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::table('orders', function (Blueprint $table) {
-            $table->string('customer_name')->nullable()->after('client_id');
-            $table->string('customer_email')->nullable()->after('customer_name');
-            $table->string('customer_phone')->nullable()->after('customer_email');
-            $table->text('shipping_address')->nullable()->after('customer_phone');
-        });
+        if (Schema::hasTable('orders')) {
+            Schema::table('orders', function (Blueprint $table) {
+                if (!Schema::hasColumn('orders', 'customer_name')) {
+                    $table->string('customer_name')->nullable()->after('client_id');
+                }
+                if (!Schema::hasColumn('orders', 'customer_email')) {
+                    $table->string('customer_email')->nullable()->after('customer_name');
+                }
+                if (!Schema::hasColumn('orders', 'customer_phone')) {
+                    $table->string('customer_phone')->nullable()->after('customer_email');
+                }
+                if (!Schema::hasColumn('orders', 'shipping_address')) {
+                    $table->text('shipping_address')->nullable()->after('customer_phone');
+                }
+            });
+        }
     }
 
     /**
@@ -24,8 +34,18 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::table('orders', function (Blueprint $table) {
-            $table->dropColumn(['customer_name', 'customer_email', 'customer_phone', 'shipping_address']);
-        });
+        if (Schema::hasTable('orders')) {
+            Schema::table('orders', function (Blueprint $table) {
+                $drop = [];
+                foreach (['customer_name', 'customer_email', 'customer_phone', 'shipping_address'] as $column) {
+                    if (Schema::hasColumn('orders', $column)) {
+                        $drop[] = $column;
+                    }
+                }
+                if ($drop) {
+                    $table->dropColumn($drop);
+                }
+            });
+        }
     }
 };

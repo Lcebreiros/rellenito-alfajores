@@ -55,6 +55,9 @@ class ModuleHelper
             // Stock
             'stock' => 'stock',
 
+            // Estacionamiento (usar paleta de stock/cyan)
+            'parking' => 'stock',
+
             // Métodos de Pago
             'payment-methods' => 'payment',
             'payment' => 'payment',

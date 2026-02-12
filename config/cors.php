@@ -19,7 +19,21 @@ return [
 
     'allowed_methods' => ['*'],
 
-    'allowed_origins' => ['*'],
+'allowed_origins' => (function () {
+        $fromEnv = collect(explode(',', (string) env('CORS_ALLOWED_ORIGINS', '')))
+            ->map(fn ($o) => trim($o))
+            ->filter()
+            ->values()
+            ->all();
+
+        if (!empty($fromEnv)) {
+            return $fromEnv;
+        }
+
+        // Fallback seguro: solo el host de APP_URL
+        $appUrl = env('APP_URL', 'http://localhost');
+        return [rtrim($appUrl, '/')];
+    })(),
 
     'allowed_origins_patterns' => [],
 
@@ -29,6 +43,6 @@ return [
 
     'max_age' => 0,
 
-    'supports_credentials' => false,
+    'supports_credentials' => filter_var(env('CORS_SUPPORTS_CREDENTIALS', false), FILTER_VALIDATE_BOOLEAN),
 
 ];

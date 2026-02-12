@@ -185,9 +185,22 @@
                     </svg>
                   </span>
                   <input id="email" name="email" type="email" value="{{ old('email') }}" required autocomplete="username"
-                         class="txt focus-ring w-full pl-10 pr-3 py-2.5 border border-slate-200 rounded-md bg-white placeholder-slate-400"
-                         placeholder="nombre@empresa.com">
+                 class="txt focus-ring w-full pl-10 pr-3 py-2.5 border border-slate-200 rounded-md bg-white placeholder-slate-400"
+                 placeholder="nombre@empresa.com">
                 </div>
+              </div>
+
+              {{-- Tipo de negocio --}}
+              <div>
+                <label for="business_type" class="block text-sm font-medium text-slate-700 mb-1.5">Tipo de negocio</label>
+                <select id="business_type" name="business_type"
+                        class="txt focus-ring w-full px-3 py-2.5 border border-slate-200 rounded-md bg-white text-sm">
+                  <option value="comercio" @selected(old('business_type', 'comercio') === 'comercio')>Comercio / Tienda</option>
+                  <option value="alquiler" @selected(old('business_type') === 'alquiler')>Alquiler / Estacionamiento</option>
+                </select>
+                <p class="mt-1.5 text-xs text-slate-500">
+                  Seleccione el tipo que mejor describe su negocio. Esto personalizará la interfaz para sus necesidades.
+                </p>
               </div>
 
               {{-- Password --}}

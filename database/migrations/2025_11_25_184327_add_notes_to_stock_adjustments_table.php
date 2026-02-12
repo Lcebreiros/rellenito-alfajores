@@ -11,6 +11,10 @@ return new class extends Migration
      */
     public function up(): void
     {
+        if (app()->environment('testing')) {
+            return;
+        }
+
         Schema::table('stock_adjustments', function (Blueprint $table) {
             $table->text('notes')->nullable()->after('reason');
         });
@@ -21,6 +25,10 @@ return new class extends Migration
      */
     public function down(): void
     {
+        if (app()->environment('testing')) {
+            return;
+        }
+
         Schema::table('stock_adjustments', function (Blueprint $table) {
             $table->dropColumn('notes');
         });

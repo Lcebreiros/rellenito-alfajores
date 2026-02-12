@@ -11,6 +11,7 @@ class TrialRequest extends Model
         'name',
         'email',
         'plan',
+        'business_type',
         'status',
         'notes',
         'approved_by',

@@ -12,6 +12,7 @@ use Illuminate\Validation\Rule;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\View\View;
 use Illuminate\Support\Str;
+use App\Models\ParkingShift;
 
 class EmployeeController extends Controller
 {
@@ -130,7 +131,15 @@ class EmployeeController extends Controller
     {
         $this->authorize('view', $employee); // crea EmployeePolicy
         $employee->load(['branch','company']);
-        return view('company.employees.show', compact('employee'));
+        $shifts = [];
+        if (auth()->user()->hasModule('parking')) {
+            $shifts = ParkingShift::where('company_id', $employee->company_id)
+                ->where('employee_id', $employee->id)
+                ->orderByDesc('started_at')
+                ->limit(20)
+                ->get();
+        }
+        return view('company.employees.show', compact('employee','shifts'));
     }
 
     public function addEvaluation(Request $request, Employee $employee): RedirectResponse

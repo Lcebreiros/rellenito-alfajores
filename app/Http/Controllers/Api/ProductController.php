@@ -7,6 +7,7 @@ use App\Models\Product;
 use App\Models\User;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Storage;
+use Illuminate\Validation\Rule as ValidationRule;
 
 class ProductController extends Controller
 {
@@ -77,9 +78,11 @@ class ProductController extends Controller
         $perPage = min((int) $request->input('per_page', 20), 100);
         $products = $query->orderBy('name')->paginate($perPage);
 
+        $data = collect($products->items())->map(fn($p) => $this->formatProduct($p, $request))->values();
+
         return response()->json([
             'success' => true,
-            'data' => $products->items(),
+            'data' => $data,
             'meta' => [
                 'current_page' => $products->currentPage(),
                 'last_page' => $products->lastPage(),
@@ -109,13 +112,13 @@ class ProductController extends Controller
                   ->orWhereRaw('LOWER(sku) LIKE ?', ["%{$lc}%"])
                   ->orWhereRaw('LOWER(barcode) LIKE ?', ["%{$lc}%"]);
             })
-            ->select('id', 'name', 'sku', 'barcode', 'price', 'stock', 'image', 'is_active')
+            ->select('id', 'name', 'sku', 'barcode', 'price', 'stock', 'min_stock', 'image', 'is_active')
             ->limit(20)
             ->get();
 
         return response()->json([
             'success' => true,
-            'data' => $products,
+            'data' => $products->map(fn($p) => $this->formatProduct($p, $request))->values(),
         ], 200);
     }
 
@@ -134,11 +137,21 @@ class ProductController extends Controller
             ], 403);
         }
 
-        $product->load(['user:id,name', 'company:id,name', 'recipeItems.supply']);
+        $product->load([
+            'user:id,name',
+            'company:id,name',
+            'recipeItems.supply',
+            'productLocations.branch:id,name',
+            'adjustments' => function ($query) {
+                $query->with('user:id,name')
+                    ->orderBy('created_at', 'desc')
+                    ->limit(20);
+            }
+        ]);
 
         return response()->json([
             'success' => true,
-            'data' => $product,
+            'data' => $this->formatProduct($product, $request),
         ], 200);
     }
 
@@ -148,10 +161,17 @@ class ProductController extends Controller
     public function store(Request $request)
     {
         $auth = $request->user();
+        $company = $auth->rootCompany();
+        $companyId = $company ? $company->id : $auth->id;
 
         $validated = $request->validate([
             'name' => 'required|string|max:255',
-            'sku' => 'nullable|string|max:100|unique:products,sku',
+            'sku' => [
+                'nullable',
+                'string',
+                'max:100',
+                ValidationRule::unique('products', 'sku')->where('company_id', $companyId),
+            ],
             'barcode' => 'nullable|string|max:100',
             'price' => 'required|numeric|min:0',
             'cost_price' => 'nullable|numeric|min:0',
@@ -166,9 +186,8 @@ class ProductController extends Controller
         ]);
 
         // Determinar company_id y created_by_type
-        $company = $auth->rootCompany();
         $validated['user_id'] = $auth->id;
-        $validated['company_id'] = $company ? $company->id : $auth->id;
+        $validated['company_id'] = $companyId;
 
         if ($auth->isCompany()) {
             $validated['created_by_type'] = 'company';
@@ -188,7 +207,7 @@ class ProductController extends Controller
         return response()->json([
             'success' => true,
             'message' => 'Producto creado exitosamente',
-            'data' => $product,
+            'data' => $this->formatProduct($product, $request),
         ], 201);
     }
 
@@ -198,6 +217,8 @@ class ProductController extends Controller
     public function update(Request $request, Product $product)
     {
         $auth = $request->user();
+        $company = $auth->rootCompany();
+        $companyId = $company ? $company->id : $auth->id;
 
         // Verificar permisos
         if (!$this->canManageProduct($auth, $product)) {
@@ -209,7 +230,14 @@ class ProductController extends Controller
 
         $validated = $request->validate([
             'name' => 'string|max:255',
-            'sku' => 'nullable|string|max:100|unique:products,sku,' . $product->id,
+            'sku' => [
+                'nullable',
+                'string',
+                'max:100',
+                ValidationRule::unique('products', 'sku')
+                    ->where('company_id', $companyId)
+                    ->ignore($product->id),
+            ],
             'barcode' => 'nullable|string|max:100',
             'price' => 'numeric|min:0',
             'cost_price' => 'nullable|numeric|min:0',
@@ -237,7 +265,7 @@ class ProductController extends Controller
         return response()->json([
             'success' => true,
             'message' => 'Producto actualizado exitosamente',
-            'data' => $product,
+            'data' => $this->formatProduct($product, $request),
         ], 200);
     }
 
@@ -305,7 +333,7 @@ class ProductController extends Controller
         return response()->json([
             'success' => true,
             'message' => 'Stock actualizado exitosamente',
-            'data' => $product,
+            'data' => $this->formatProduct($product, $request),
         ], 200);
     }
 
@@ -362,5 +390,145 @@ class ProductController extends Controller
         Storage::disk('public')->put($filename, $data);
 
         return $filename;
+    }
+
+    /**
+     * Obtener receta del producto (insumos)
+     */
+    public function getRecipe(Request $request, Product $product)
+    {
+        $auth = $request->user();
+
+        if (!$this->canAccessProduct($auth, $product)) {
+            return response()->json([
+                'success' => false,
+                'message' => 'No tienes acceso a este producto',
+            ], 403);
+        }
+
+        $recipe = $product->recipeItems()->with('supply')->get();
+
+        return response()->json([
+            'success' => true,
+            'data' => $recipe,
+        ], 200);
+    }
+
+    /**
+     * Agregar o actualizar insumo en receta
+     */
+    public function addRecipeItem(Request $request, Product $product)
+    {
+        $auth = $request->user();
+
+        if (!$this->canManageProduct($auth, $product)) {
+            return response()->json([
+                'success' => false,
+                'message' => 'No tienes permiso para gestionar este producto',
+            ], 403);
+        }
+
+        $validated = $request->validate([
+            'supply_id' => 'required|integer|exists:supplies,id',
+            'qty' => 'required|numeric|gt:0',
+            'unit' => 'required|string|max:10',
+            'waste_pct' => 'nullable|numeric|min:0|max:100',
+        ]);
+
+        $validated['waste_pct'] = $validated['waste_pct'] ?? 0;
+
+        // Usar updateOrCreate para agregar o actualizar
+        $recipe = $product->recipeItems()->updateOrCreate(
+            ['supply_id' => $validated['supply_id']],
+            $validated
+        );
+
+        $recipe->load('supply');
+
+        return response()->json([
+            'success' => true,
+            'message' => 'Insumo agregado a la receta',
+            'data' => $recipe,
+        ], 200);
+    }
+
+    /**
+     * Actualizar insumo en receta
+     */
+    public function updateRecipeItem(Request $request, Product $product, $recipeId)
+    {
+        $auth = $request->user();
+
+        if (!$this->canManageProduct($auth, $product)) {
+            return response()->json([
+                'success' => false,
+                'message' => 'No tienes permiso para gestionar este producto',
+            ], 403);
+        }
+
+        $recipe = $product->recipeItems()->findOrFail($recipeId);
+
+        $validated = $request->validate([
+            'qty' => 'numeric|gt:0',
+            'unit' => 'string|max:10',
+            'waste_pct' => 'nullable|numeric|min:0|max:100',
+        ]);
+
+        $recipe->update($validated);
+        $recipe->load('supply');
+
+        return response()->json([
+            'success' => true,
+            'message' => 'Insumo actualizado',
+            'data' => $recipe,
+        ], 200);
+    }
+
+    /**
+     * Eliminar insumo de receta
+     */
+    public function removeRecipeItem(Request $request, Product $product, $recipeId)
+    {
+        $auth = $request->user();
+
+        if (!$this->canManageProduct($auth, $product)) {
+            return response()->json([
+                'success' => false,
+                'message' => 'No tienes permiso para gestionar este producto',
+            ], 403);
+        }
+
+        $recipe = $product->recipeItems()->findOrFail($recipeId);
+        $recipe->delete();
+
+        return response()->json([
+            'success' => true,
+            'message' => 'Insumo eliminado de la receta',
+        ], 200);
+    }
+
+    /**
+     * Formatea producto según el integrador (storefront oculta campos sensibles).
+     */
+    private function formatProduct(Product $product, Request $request)
+    {
+        $isStorefront = $request->attributes->get('integrator') === 'storefront';
+
+        if (!$isStorefront) {
+            return $product;
+        }
+
+        return [
+            'id' => $product->id,
+            'name' => $product->name,
+            'sku' => $product->sku,
+            'barcode' => $product->barcode,
+            'price' => $product->price,
+            'stock' => $product->stock,
+            'min_stock' => $product->min_stock,
+            'is_active' => $product->is_active,
+            'is_low_stock' => $product->is_low_stock,
+            'image' => $product->image,
+        ];
     }
 }

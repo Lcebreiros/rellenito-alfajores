@@ -41,6 +41,14 @@
                         placeholder:text-neutral-400 focus:border-indigo-500 focus:ring-indigo-500
                         dark:border-neutral-700 dark:bg-neutral-900 dark:text-neutral-200 dark:placeholder:text-neutral-400">
         </div>
+        <select name="service_category_id"
+                class="w-44 rounded-lg border border-neutral-300 bg-white px-3 py-2 text-sm text-neutral-700
+                       dark:border-neutral-700 dark:bg-neutral-900 dark:text-neutral-200">
+          <option value="">Todas las categorías</option>
+          @foreach(($categories ?? collect()) as $category)
+            <option value="{{ $category->id }}" @selected(request('service_category_id') == $category->id)>{{ $category->name }}</option>
+          @endforeach
+        </select>
         <button class="rounded-lg bg-indigo-600 px-3 py-2 text-sm font-medium text-white hover:bg-indigo-700">
           Buscar
         </button>
@@ -73,6 +81,11 @@
                 <h2 class="text-sm sm:text-base font-medium text-neutral-900 dark:text-neutral-100 line-clamp-2">
                   {{ $service->name }}
                 </h2>
+                @if($service->category)
+                  <div class="mt-1 inline-flex items-center px-2 py-0.5 rounded-full text-[11px] font-semibold bg-neutral-100 text-neutral-700 dark:bg-neutral-800 dark:text-neutral-200">
+                    {{ $service->category->name }}
+                  </div>
+                @endif
                 @if($service->description)
                 <div class="mt-0.5 text-[12px] text-neutral-500 dark:text-neutral-400 line-clamp-2">
                   {{ $service->description }}
@@ -124,4 +137,3 @@
   @endif
 </div>
 @endsection
-

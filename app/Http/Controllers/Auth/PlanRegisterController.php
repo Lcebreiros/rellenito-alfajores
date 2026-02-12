@@ -40,6 +40,7 @@ class PlanRegisterController extends Controller
                 'name' => $user->name,
                 'email' => $user->email,
                 'plan' => $plan,
+                'business_type' => $user->business_type ?? 'comercio',
                 'status' => 'pending',
             ]);
 
@@ -66,6 +67,7 @@ class PlanRegisterController extends Controller
             'name' => ['required', 'string', 'max:255'],
             'email' => ['required', 'string', 'email', 'max:255', 'unique:users', 'unique:trial_requests'],
             'plan' => ['required', 'string', 'in:basic,premium,enterprise'],
+            'business_type' => ['required', 'string', 'in:comercio,alquiler'],
         ], [
             'email.unique' => 'Este correo electrónico ya está registrado.',
         ]);
@@ -81,6 +83,7 @@ class PlanRegisterController extends Controller
             'name' => $request->name,
             'email' => $request->email,
             'plan' => $request->plan,
+            'business_type' => $request->business_type,
             'status' => 'pending',
         ]);
 
@@ -94,5 +97,49 @@ class PlanRegisterController extends Controller
     public function success()
     {
         return view('auth.register-success');
+    }
+
+    /**
+     * Mostrar el formulario de registro multi-step
+     */
+    public function showWizard()
+    {
+        return view('auth.register-wizard');
+    }
+
+    /**
+     * Procesar la solicitud de registro desde el wizard
+     */
+    public function storeWizard(Request $request)
+    {
+        $validator = Validator::make($request->all(), [
+            'name' => ['required', 'string', 'max:255'],
+            'email' => ['required', 'string', 'email', 'max:255', 'unique:users', 'unique:trial_requests'],
+            'plan' => ['required', 'string', 'in:basic,premium,enterprise'],
+            'business_type' => ['required', 'string', 'in:comercio,alquiler'],
+            'password' => ['required', 'string', 'min:8', 'confirmed'],
+        ], [
+            'email.unique' => 'Este correo electrónico ya está registrado.',
+            'password.min' => 'La contraseña debe tener al menos 8 caracteres.',
+            'password.confirmed' => 'Las contraseñas no coinciden.',
+        ]);
+
+        if ($validator->fails()) {
+            return redirect()->back()
+                ->withErrors($validator)
+                ->withInput();
+        }
+
+        // Crear la solicitud de prueba
+        TrialRequest::create([
+            'name' => $request->name,
+            'email' => $request->email,
+            'plan' => $request->plan,
+            'business_type' => $request->business_type,
+            'status' => 'pending',
+        ]);
+
+        // Redirigir con mensaje de éxito
+        return redirect()->route('register.success');
     }
 }

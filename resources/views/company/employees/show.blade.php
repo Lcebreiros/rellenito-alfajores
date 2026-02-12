@@ -75,6 +75,103 @@
       </div>
 
       <div class="md:col-span-2 space-y-6">
+        @if(auth()->user()->hasModule('parking'))
+        <div x-data="{ openShifts: false }" class="rounded-xl border border-neutral-200 dark:border-neutral-800 overflow-hidden">
+          <button @click="openShifts = !openShifts" class="w-full px-4 py-3 bg-neutral-50 dark:bg-neutral-900/40 hover:bg-neutral-100 dark:hover:bg-neutral-800/60 transition-colors">
+            <div class="flex items-center justify-between">
+              <div class="flex items-center gap-2">
+                <svg class="w-5 h-5 text-neutral-600 dark:text-neutral-400 transition-transform" :class="openShifts ? 'rotate-90' : ''" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"></path>
+                </svg>
+                <h3 class="text-sm font-semibold text-neutral-800 dark:text-neutral-200">Historial de Turnos</h3>
+                @if(($shifts ?? collect())->count())
+                  <span class="px-2 py-0.5 rounded-full text-xs font-medium bg-indigo-100 text-indigo-700 dark:bg-indigo-900/30 dark:text-indigo-300">{{ ($shifts ?? collect())->count() }}</span>
+                @endif
+              </div>
+              <span class="text-xs text-neutral-500 dark:text-neutral-400" x-text="openShifts ? 'Ocultar' : 'Ver historial'"></span>
+            </div>
+          </button>
+
+          <div x-show="openShifts" x-collapse x-cloak>
+            @if(($shifts ?? collect())->isNotEmpty())
+              <div class="divide-y divide-neutral-200 dark:divide-neutral-800">
+                @foreach($shifts as $shift)
+                  <div x-data="{ expanded: false }" class="bg-white dark:bg-neutral-900">
+                    <button @click="expanded = !expanded" class="w-full px-4 py-3 hover:bg-neutral-50 dark:hover:bg-neutral-900/40 transition-colors">
+                      <div class="flex items-center justify-between gap-3">
+                        <div class="flex items-center gap-3 flex-1 text-left">
+                          <svg class="w-4 h-4 text-neutral-400 transition-transform" :class="expanded ? 'rotate-90' : ''" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"></path>
+                          </svg>
+                          <div class="flex-1">
+                            <div class="flex items-center gap-2 mb-1">
+                              <span class="font-semibold text-neutral-900 dark:text-neutral-100">{{ optional($shift->started_at)->format('d/m/Y H:i') }}</span>
+                              @if($shift->status === 'open')
+                                <span class="inline-flex items-center rounded-full px-2 py-0.5 bg-amber-100 text-amber-800 dark:bg-amber-900/30 dark:text-amber-300 text-xs font-medium">En curso</span>
+                              @else
+                                <span class="inline-flex items-center rounded-full px-2 py-0.5 bg-emerald-100 text-emerald-800 dark:bg-emerald-900/30 dark:text-emerald-300 text-xs font-medium">Cerrado</span>
+                              @endif
+                            </div>
+                            <div class="flex items-center gap-4 text-xs text-neutral-600 dark:text-neutral-400">
+                              <span>{{ $shift->total_movements ?? 0 }} movimientos</span>
+                              <span class="font-semibold text-neutral-900 dark:text-neutral-100">Total: ${{ number_format((float) $shift->incomes_total, 0, ',', '.') }}</span>
+                              @php $diff = (float) $shift->cash_difference; @endphp
+                              @if($diff != 0)
+                                <span class="font-semibold {{ $diff > 0 ? 'text-emerald-600 dark:text-emerald-400' : 'text-rose-600 dark:text-rose-400' }}">
+                                  Diferencia: {{ $diff > 0 ? '+' : '-' }}${{ number_format(abs($diff), 0, ',', '.') }}
+                                </span>
+                              @endif
+                            </div>
+                          </div>
+                        </div>
+                      </div>
+                    </button>
+
+                    <div x-show="expanded" x-collapse x-cloak class="px-4 pb-4 space-y-3 bg-neutral-50 dark:bg-neutral-900/20">
+                      {{-- Información del turno --}}
+                      <div class="grid grid-cols-2 sm:grid-cols-4 gap-3 pt-3">
+                        <div class="rounded-lg border border-neutral-200 dark:border-neutral-800 bg-white dark:bg-neutral-900 p-3">
+                          <div class="text-xs text-neutral-500 dark:text-neutral-400 mb-1">Efectivo Inicial</div>
+                          <div class="font-semibold text-neutral-900 dark:text-neutral-100">${{ number_format((float) $shift->initial_cash, 0, ',', '.') }}</div>
+                        </div>
+                        <div class="rounded-lg border border-neutral-200 dark:border-neutral-800 bg-white dark:bg-neutral-900 p-3">
+                          <div class="text-xs text-neutral-500 dark:text-neutral-400 mb-1">Efectivo Esperado</div>
+                          <div class="font-semibold text-neutral-900 dark:text-neutral-100">${{ number_format((float) $shift->expected_cash, 0, ',', '.') }}</div>
+                        </div>
+                        <div class="rounded-lg border border-neutral-200 dark:border-neutral-800 bg-white dark:bg-neutral-900 p-3">
+                          <div class="text-xs text-neutral-500 dark:text-neutral-400 mb-1">Efectivo Contado</div>
+                          <div class="font-semibold text-neutral-900 dark:text-neutral-100">${{ number_format((float) $shift->cash_counted, 0, ',', '.') }}</div>
+                        </div>
+                        <div class="rounded-lg border border-neutral-200 dark:border-neutral-800 bg-white dark:bg-neutral-900 p-3">
+                          <div class="text-xs text-neutral-500 dark:text-neutral-400 mb-1">Fin del turno</div>
+                          <div class="font-semibold text-neutral-900 dark:text-neutral-100">{{ $shift->ended_at ? $shift->ended_at->format('d/m H:i') : 'En curso' }}</div>
+                        </div>
+                      </div>
+
+                      {{-- Botón para ver detalle completo --}}
+                      <div class="flex justify-end">
+                        <a href="{{ route('parking.shifts.show', $shift) }}"
+                           class="inline-flex items-center gap-2 rounded-lg bg-indigo-600 px-4 py-2 text-white text-sm font-medium hover:bg-indigo-700 transition-colors">
+                          <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"></path>
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"></path>
+                          </svg>
+                          Ver detalle completo del turno
+                        </a>
+                      </div>
+                    </div>
+                  </div>
+                @endforeach
+              </div>
+            @else
+              <div class="px-4 py-8 text-center">
+                <p class="text-sm text-neutral-500 dark:text-neutral-400">Sin turnos registrados.</p>
+              </div>
+            @endif
+          </div>
+        </div>
+        @endif
+
         @php
           $sections = [
             'family_group' => 'Grupo familiar',

@@ -33,8 +33,14 @@
     </div>
 
     {{-- Formulario --}}
+    @php
+      $initialCreate = [
+        'tags' => old('tags', ''),
+        'variants' => old('variants', []),
+      ];
+    @endphp
     <form method="POST" action="{{ route('services.store') }}" class="p-6 sm:p-8"
-          x-data="{ price: '{{ old('price', '0') }}', isActive: {{ old('is_active', true) ? 'true' : 'false' }} }">
+          x-data="serviceForm(@js($initialCreate))">
       @csrf
 
       <div class="space-y-7">
@@ -104,46 +110,150 @@
         {{-- Precio y Estado --}}
         <div class="grid grid-cols-1 sm:grid-cols-2 gap-6">
           
-          {{-- Precio --}}
-<div>
-          <label for="price" class="block text-sm font-medium text-neutral-700 dark:text-neutral-200 mb-1">
-            Precio (ARS) <span class="text-rose-600">*</span>
-          </label>
-          <input id="price" type="number" name="price" value="{{ old('price') }}" min="0" step="0.01" required
-                 class="w-full rounded-lg border-neutral-300 bg-white px-4 py-2.5 text-right
-                        text-neutral-900 placeholder:text-neutral-400 focus:border-indigo-500 focus:ring-indigo-500
-                        dark:border-neutral-700 dark:bg-neutral-900/50 dark:text-neutral-100 dark:placeholder:text-neutral-500"
-                 placeholder="0,00">
-          @error('price')
-            <p class="mt-1 text-sm text-rose-600 dark:text-rose-400">{{ $message }}</p>
-          @enderror
-        </div>
+          {{-- Precio base --}}
+          <div>
+            <label for="price" class="block text-sm font-medium text-neutral-700 dark:text-neutral-200 mb-1">
+              Precio base (ARS) <span class="text-rose-600">*</span>
+            </label>
+            <input id="price" type="number" name="price" value="{{ old('price') }}" min="0" step="0.01" required
+                   class="w-full rounded-lg border-neutral-300 bg-white px-4 py-2.5 text-right
+                          text-neutral-900 placeholder:text-neutral-400 focus:border-indigo-500 focus:ring-indigo-500
+                          dark:border-neutral-700 dark:bg-neutral-900/50 dark:text-neutral-100 dark:placeholder:text-neutral-500"
+                   placeholder="0,00">
+            <p class="text-xs text-neutral-500 dark:text-neutral-400 mt-1">Se usa cuando no eliges una variante.</p>
+            @error('price')
+              <p class="mt-1 text-sm text-rose-600 dark:text-rose-400">{{ $message }}</p>
+            @enderror
+          </div>
 
           {{-- Estado --}}
           <div class="group">
-                  {{-- Activo --}}
-      <div class="flex items-center justify-between rounded-lg border border-neutral-200 bg-neutral-50 p-4
-                  dark:border-neutral-800 dark:bg-neutral-950/40">
-        <div>
-          <label for="is_active" class="text-sm font-medium text-neutral-800 dark:text-neutral-100">Activo</label>
-          <p class="text-xs text-neutral-500 dark:text-neutral-400">Habilita el producto para aparecer en listados.</p>
-        </div>
+            <div class="flex items-center justify-between rounded-lg border border-neutral-200 bg-neutral-50 p-4
+                        dark:border-neutral-800 dark:bg-neutral-950/40">
+              <div>
+                <label for="is_active" class="text-sm font-medium text-neutral-800 dark:text-neutral-100">Activo</label>
+                <p class="text-xs text-neutral-500 dark:text-neutral-400">Habilita el servicio en listados.</p>
+              </div>
 
-        <label class="inline-flex items-center">
-          <input id="is_active" type="checkbox" name="is_active" value="1" class="peer sr-only"
-                 {{ old('is_active', true) ? 'checked' : '' }}>
-          <span class="relative h-6 w-11 rounded-full bg-neutral-300 transition-colors duration-300
-                       after:absolute after:left-0.5 after:top-0.5 after:h-5 after:w-5 after:rounded-full after:bg-white after:transition-transform
-                       peer-checked:bg-indigo-600 peer-checked:after:translate-x-5
-                       dark:bg-neutral-700 dark:peer-checked:bg-indigo-500"></span>
-        </label>
-      </div>
-      @error('is_active')
-        <p class="mt-1 text-sm text-rose-600 dark:text-rose-400">{{ $message }}</p>
-      @enderror
-            
+              <label class="inline-flex items-center">
+                <input id="is_active" type="checkbox" name="is_active" value="1" class="peer sr-only"
+                       {{ old('is_active', true) ? 'checked' : '' }}>
+                <span class="relative h-6 w-11 rounded-full bg-neutral-300 transition-colors duration-300
+                             after:absolute after:left-0.5 after:top-0.5 after:h-5 after:w-5 after:rounded-full after:bg-white after:transition-transform
+                             peer-checked:bg-indigo-600 peer-checked:after:translate-x-5
+                             dark:bg-neutral-700 dark:peer-checked:bg-indigo-500"></span>
               </label>
             </div>
+            @error('is_active')
+              <p class="mt-1 text-sm text-rose-600 dark:text-rose-400">{{ $message }}</p>
+            @enderror
+          </div>
+        </div>
+
+        {{-- Categoría de servicio (opcional) --}}
+        <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+          <div>
+            <label class="block text-sm font-semibold text-neutral-900 dark:text-neutral-100 mb-2.5">
+              Categoría (opcional)
+            </label>
+            <select name="service_category_id"
+                    class="w-full rounded-xl border-2 border-neutral-200 bg-white px-4 py-3 text-sm text-neutral-900
+                           hover:border-neutral-300 focus:border-indigo-500 focus:ring-4 focus:ring-indigo-500/10 focus:outline-none
+                           dark:border-neutral-700 dark:bg-neutral-900 dark:text-neutral-100 dark:hover:border-neutral-600">
+              <option value="">Sin categoría</option>
+              @foreach(($categories ?? collect()) as $category)
+                <option value="{{ $category->id }}">{{ $category->name }}</option>
+              @endforeach
+            </select>
+          </div>
+          <div>
+            <label class="block text-sm font-semibold text-neutral-900 dark:text-neutral-100 mb-2.5">
+              Crear categoría nueva (opcional)
+            </label>
+            <input name="new_category" type="text" maxlength="100"
+                   placeholder="Ej: Cocheras, Spa, Mantenimiento"
+                   class="w-full rounded-xl border-2 border-neutral-200 bg-white px-4 py-3 text-sm text-neutral-900 placeholder:text-neutral-400
+                          hover:border-neutral-300 focus:border-indigo-500 focus:ring-4 focus:ring-indigo-500/10 focus:outline-none
+                          dark:border-neutral-700 dark:bg-neutral-900 dark:text-neutral-100 dark:placeholder:text-neutral-500
+                          dark:hover:border-neutral-600 transition-all duration-200">
+            <p class="text-xs text-neutral-500 dark:text-neutral-400 mt-1">Si completas este campo, creará la categoría y la asignará.</p>
+          </div>
+        </div>
+
+        {{-- Tags / Categorías --}}
+        <div class="group">
+          <label for="tags" class="block text-sm font-semibold text-neutral-900 dark:text-neutral-100 mb-2.5">
+            Categorías / Tags <span class="text-xs text-neutral-500 dark:text-neutral-400 font-normal ml-1.5">(opcional, separa con coma)</span>
+          </label>
+          <input 
+            id="tags"
+            name="tags"
+            type="text"
+            x-model="tags"
+            placeholder="spa, barbería, mantenimiento"
+            class="w-full rounded-xl border-2 border-neutral-200 bg-white px-4 py-3 text-sm text-neutral-900 placeholder:text-neutral-400
+                   hover:border-neutral-300 focus:border-indigo-500 focus:ring-4 focus:ring-indigo-500/10 focus:outline-none
+                   dark:border-neutral-700 dark:bg-neutral-900 dark:text-neutral-100 dark:placeholder:text-neutral-500
+                   dark:hover:border-neutral-600 transition-all duration-200"
+          />
+        </div>
+
+        {{-- Variantes --}}
+        <div class="space-y-3">
+          <div class="flex items-center justify-between">
+            <div>
+              <h3 class="text-sm font-semibold text-neutral-900 dark:text-neutral-100">Variantes del servicio</h3>
+              <p class="text-xs text-neutral-500 dark:text-neutral-400">Duraciones/paquetes con precios diferenciados.</p>
+            </div>
+            <button type="button" @click="addVariant()"
+                    class="inline-flex items-center gap-2 rounded-lg border border-neutral-300 dark:border-neutral-700 px-3 py-2 text-xs font-semibold text-neutral-700 dark:text-neutral-200 hover:bg-neutral-50 dark:hover:bg-neutral-800 transition">
+              <svg class="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <path d="M12 5v14m-7-7h14" stroke-linecap="round" stroke-linejoin="round"/>
+              </svg>
+              Añadir variante
+            </button>
+          </div>
+
+          <template x-if="variants.length === 0">
+            <p class="text-xs text-neutral-500 dark:text-neutral-400 border border-dashed border-neutral-200 dark:border-neutral-700 rounded-lg px-3 py-3">
+              Sin variantes. Se usará el precio base.
+            </p>
+          </template>
+
+          <div class="space-y-3">
+            <template x-for="(variant, idx) in variants" :key="idx">
+              <div class="rounded-xl border border-neutral-200 dark:border-neutral-800 bg-neutral-50/80 dark:bg-neutral-900/40 p-4 space-y-2">
+                <div class="flex items-start gap-3">
+                  <div class="flex-1 space-y-2">
+                    <input type="text" :name="`variants[${idx}][name]`" x-model="variant.name" placeholder="Básico 30 min"
+                           class="w-full rounded-lg border border-neutral-300 dark:border-neutral-700 bg-white dark:bg-neutral-950 px-3 py-2 text-sm"
+                           required>
+                    <div class="grid grid-cols-1 sm:grid-cols-3 gap-3">
+                      <input type="number" min="0" step="1" :name="`variants[${idx}][duration_minutes]`" x-model="variant.duration_minutes"
+                             placeholder="Duración (min)"
+                             class="rounded-lg border border-neutral-300 dark:border-neutral-700 bg-white dark:bg-neutral-950 px-3 py-2 text-sm">
+                      <input type="number" min="0" step="0.01" :name="`variants[${idx}][price]`" x-model="variant.price"
+                             placeholder="Precio"
+                             class="rounded-lg border border-neutral-300 dark:border-neutral-700 bg-white dark:bg-neutral-950 px-3 py-2 text-sm" required>
+                      <label class="inline-flex items-center gap-2 text-xs font-semibold text-neutral-700 dark:text-neutral-200">
+                        <input type="checkbox" :name="`variants[${idx}][is_active]`" value="1" x-model="variant.is_active"
+                               class="rounded border-neutral-300 text-indigo-600 focus:ring-indigo-500 dark:border-neutral-700">
+                        Activa
+                      </label>
+                    </div>
+                    <textarea :name="`variants[${idx}][description]`" x-model="variant.description" rows="2"
+                              placeholder="Detalle del paquete/duración"
+                              class="w-full rounded-lg border border-neutral-300 dark:border-neutral-700 bg-white dark:bg-neutral-950 px-3 py-2 text-sm resize-none"></textarea>
+                  </div>
+                  <button type="button" @click="removeVariant(idx)"
+                          class="text-rose-500 hover:text-rose-600 dark:text-rose-400 dark:hover:text-rose-300">
+                    <svg class="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                      <path d="M6 18L18 6M6 6l12 12" stroke-linecap="round" stroke-linejoin="round"/>
+                    </svg>
+                  </button>
+                </div>
+              </div>
+            </template>
           </div>
         </div>
 
@@ -236,4 +346,19 @@
   </div>
 
 </div>
+
+<script>
+  function serviceForm(initial) {
+    return {
+      tags: initial.tags || '',
+      variants: Array.isArray(initial.variants) ? initial.variants : [],
+      addVariant() {
+        this.variants.push({ name: '', duration_minutes: '', price: '', description: '', is_active: true });
+      },
+      removeVariant(idx) {
+        this.variants.splice(idx, 1);
+      },
+    };
+  }
+</script>
 @endsection

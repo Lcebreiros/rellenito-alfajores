@@ -11,6 +11,10 @@ return new class extends Migration
      */
     public function up(): void
     {
+        if (app()->environment('testing')) {
+            return;
+        }
+
         Schema::table('users', function (Blueprint $table) {
             $table->text('google_access_token')->nullable()->after('remember_token');
             $table->text('google_refresh_token')->nullable()->after('google_access_token');

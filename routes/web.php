@@ -14,6 +14,9 @@ use App\Http\Controllers\SupplyController;
 use App\Http\Controllers\ServiceController;
 use App\Http\Controllers\ProductCostController;
 use App\Http\Controllers\CalculatorController;
+use App\Http\Controllers\ParkingSpaceController;
+use App\Http\Controllers\ParkingStayController;
+use App\Http\Controllers\ParkingRateController;
 // Master Controllers
 use App\Http\Controllers\Master\InvitationController;
 use App\Http\Controllers\Master\UserController;
@@ -96,6 +99,12 @@ Route::post('/register/store', [PlanRegisterController::class, 'store'])
 Route::get('/register/success', [PlanRegisterController::class, 'success'])
     ->name('register.success');
 
+Route::get('/register-wizard', [PlanRegisterController::class, 'showWizard'])
+    ->name('register.wizard');
+
+Route::post('/register-wizard/store', [PlanRegisterController::class, 'storeWizard'])
+    ->name('register.wizard.store');
+
 //
 // ÁREA PRIVADA (Jetstream / Sanctum / verified)
 //
@@ -103,7 +112,6 @@ Route::middleware([
     'auth:sanctum',
     config('jetstream.auth_session'),
     'verified',
-    'requires.subscription',
 ])->group(function () {
     // Logo por nivel de suscripción (sirve imágenes desde base_path('images'))
     Route::get('/branding/plan-logo', function () {
@@ -289,6 +297,31 @@ Route::middleware([
     // ============ SERVICIOS ============
     Route::resource('services', ServiceController::class);
 
+    // ============ ESTACIONAMIENTO ============
+    // Solo accesible para empresas con módulo "parking" activo
+    Route::middleware(['module:parking'])->group(function () {
+        Route::resource('parking/spaces', ParkingSpaceController::class)->names('parking.spaces')->except(['show', 'create', 'edit']);
+        Route::post('parking/space-categories', [ParkingSpaceController::class, 'storeCategory'])->name('parking.space-categories.store');
+        Route::get('parking/board', [ParkingStayController::class, 'board'])->name('parking.board');
+        Route::post('parking/shifts/start', [ParkingStayController::class, 'startShift'])->name('parking.shifts.start');
+        Route::post('parking/shifts/close', [ParkingStayController::class, 'closeShift'])->name('parking.shifts.close');
+        Route::get('parking/shifts/{shift}/download', [ParkingStayController::class, 'downloadShift'])->name('parking.shifts.download');
+        Route::post('parking/spaces/{parkingSpace}/open', [ParkingStayController::class, 'openSpace'])->name('parking.spaces.open');
+        Route::post('parking/spaces/{parkingSpace}/close', [ParkingStayController::class, 'closeSpace'])->name('parking.spaces.close');
+        Route::resource('parking/rates', ParkingRateController::class)->names('parking.rates')->except(['show', 'create', 'edit']);
+
+        Route::post('parking/stays/check', [ParkingStayController::class, 'check'])
+            ->name('parking.stays.check');
+
+        // Gestión de turnos
+        Route::get('parking/shifts/my-history', [App\Http\Controllers\ParkingShiftController::class, 'myHistory'])
+            ->name('parking.shifts.my-history');
+        Route::get('parking/shifts/audit', [App\Http\Controllers\ParkingShiftController::class, 'audit'])
+            ->name('parking.shifts.audit');
+        Route::get('parking/shifts/{shift}', [App\Http\Controllers\ParkingShiftController::class, 'show'])
+            ->name('parking.shifts.show');
+    });
+
     // ============ GASTOS ============
     Route::get('/expenses', [ExpenseController::class, 'index'])->name('expenses.index');
 
@@ -332,6 +365,10 @@ Route::middleware([
     Route::resource('payment-methods', PaymentMethodController::class)->except(['show']);
     Route::post('payment-methods/{paymentMethod}/toggle', [PaymentMethodController::class, 'toggleActive'])->name('payment-methods.toggle');
     Route::post('payment-methods/{paymentMethod}/toggle-global', [PaymentMethodController::class, 'toggleGlobal'])->name('payment-methods.toggle-global');
+
+    // ============ DESCUENTOS Y BONIFICACIONES ============
+    Route::resource('discounts', App\Http\Controllers\DiscountController::class)->except(['show']);
+    Route::post('discounts/{discount}/toggle', [App\Http\Controllers\DiscountController::class, 'toggle'])->name('discounts.toggle');
 
     // ============ FACTURACIÓN ELECTRÓNICA ============
     Route::prefix('invoices')->name('invoices.')->group(function () {
@@ -377,7 +414,7 @@ Route::middleware([
     });
 
     // Test Google Calendar - remove in production
-    Route::get('/test-google', fn () => view('test-google'))->name('test-google');
+    // Route::get('/test-google', fn () => view('test-google'))->name('test-google');
 
     // (Revert) Recibir productos: eliminado
 
@@ -537,10 +574,10 @@ Route::get('/inicio', function () {
 Route::middleware(['auth'])->group(function () {
     Route::resource('clients', ClientController::class);
 
-    // Prueba de Pusher
-    Route::get('/test-pusher', function () {
-        return view('test-pusher');
-    })->name('test.pusher');
+    // Prueba de Pusher - comentado para producción
+    // Route::get('/test-pusher', function () {
+    //     return view('test-pusher');
+    // })->name('test.pusher');
 });
 
 /*
@@ -567,4 +604,3 @@ Route::middleware(['auth'])->group(function () {
 Route::get('/trial-requests', function () {
     return view('trial-requests');
 })->name('trial-requests');
-

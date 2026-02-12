@@ -23,7 +23,11 @@ class PaymentMethodController extends Controller
             $userId = $company ? $company->id : $auth->id;
         }
 
-        $query = PaymentMethod::where('user_id', $userId)
+        // Incluir métodos globales (user_id = null) y métodos propios del usuario
+        $query = PaymentMethod::where(function ($q) use ($userId) {
+                $q->where('user_id', $userId)
+                  ->orWhereNull('user_id');
+            })
             ->when($request->filled('is_active'), function ($q) use ($request) {
                 $q->where('is_active', filter_var($request->is_active, FILTER_VALIDATE_BOOLEAN));
             })
@@ -31,7 +35,7 @@ class PaymentMethodController extends Controller
                 $q->where('is_global', filter_var($request->is_global, FILTER_VALIDATE_BOOLEAN));
             });
 
-        $paymentMethods = $query->orderBy('name')->get();
+        $paymentMethods = $query->orderBy('sort_order')->orderBy('name')->get();
 
         return response()->json([
             'success' => true,

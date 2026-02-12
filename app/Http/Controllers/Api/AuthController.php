@@ -38,7 +38,9 @@ class AuthController extends Controller
 
         // Generar token
         $deviceName = $request->device_name ?? 'android-app';
-        $token = $user->createToken($deviceName)->plainTextToken;
+        // Usamos abilities configurables para no romper integraciones actuales (default: ['*'])
+        $abilities = config('sanctum.default_api_token_abilities', ['*']);
+        $token = $user->createToken($deviceName, $abilities)->plainTextToken;
 
         return response()->json([
             'success' => true,

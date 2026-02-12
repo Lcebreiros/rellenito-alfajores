@@ -51,6 +51,24 @@ return [
 
     /*
     |--------------------------------------------------------------------------
+    | Default API Token Abilities
+    |--------------------------------------------------------------------------
+    |
+    | Abilities (scopes) asignadas por defecto a los tokens creados vía API.
+    | Se mantiene ['*'] para no romper integraciones actuales; puedes
+    | restringirlas con SANCTUM_DEFAULT_ABILITIES="products:read,orders:write".
+    |
+    */
+
+    'default_api_token_abilities' => collect(
+        explode(',', env('SANCTUM_DEFAULT_ABILITIES', '*'))
+    )->map(fn ($v) => trim($v))
+     ->filter()
+     ->values()
+     ->all(),
+
+    /*
+    |--------------------------------------------------------------------------
     | Token Prefix
     |--------------------------------------------------------------------------
     |

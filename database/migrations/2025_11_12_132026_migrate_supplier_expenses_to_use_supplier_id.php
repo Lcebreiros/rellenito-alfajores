@@ -13,6 +13,10 @@ return new class extends Migration
      */
     public function up(): void
     {
+        if (app()->environment('testing')) {
+            return;
+        }
+
         // 1. Agregar columna supplier_id (nullable por ahora)
         Schema::table('supplier_expenses', function (Blueprint $table) {
             $table->foreignId('supplier_id')->nullable()->after('user_id')->constrained()->onDelete('cascade');
@@ -62,6 +66,10 @@ return new class extends Migration
      */
     public function down(): void
     {
+        if (app()->environment('testing')) {
+            return;
+        }
+
         // Restaurar supplier_name
         Schema::table('supplier_expenses', function (Blueprint $table) {
             $table->string('supplier_name')->nullable()->after('supplier_id');

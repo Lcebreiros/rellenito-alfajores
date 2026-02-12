@@ -12,6 +12,14 @@ return new class extends Migration
      */
     public function up(): void
     {
+        if (app()->environment('testing')) {
+            return;
+        }
+
+        if (!Schema::hasTable('products')) {
+            return;
+        }
+
         // Agregar índice FULLTEXT en el campo name de products
         // Usar SQL directo porque Laravel no soporta FULLTEXT nativamente
         DB::statement('ALTER TABLE products ADD FULLTEXT INDEX products_name_fulltext (name)');
@@ -22,7 +30,13 @@ return new class extends Migration
      */
     public function down(): void
     {
-        // Eliminar índice FULLTEXT
-        DB::statement('ALTER TABLE products DROP INDEX products_name_fulltext');
+        if (app()->environment('testing')) {
+            return;
+        }
+
+        if (Schema::hasTable('products')) {
+            // Eliminar índice FULLTEXT
+            DB::statement('ALTER TABLE products DROP INDEX products_name_fulltext');
+        }
     }
 };

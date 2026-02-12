@@ -11,9 +11,15 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::table('orders', function (Blueprint $table) {
-            $table->string('google_calendar_event_id')->nullable()->after('reminder_sent_at');
-        });
+        if (app()->environment('testing')) {
+            return;
+        }
+
+        if (Schema::hasTable('orders') && !Schema::hasColumn('orders', 'google_calendar_event_id')) {
+            Schema::table('orders', function (Blueprint $table) {
+                $table->string('google_calendar_event_id')->nullable()->after('reminder_sent_at');
+            });
+        }
     }
 
     /**
@@ -21,8 +27,14 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::table('orders', function (Blueprint $table) {
-            $table->dropColumn('google_calendar_event_id');
-        });
+        if (app()->environment('testing')) {
+            return;
+        }
+
+        if (Schema::hasTable('orders') && Schema::hasColumn('orders', 'google_calendar_event_id')) {
+            Schema::table('orders', function (Blueprint $table) {
+                $table->dropColumn('google_calendar_event_id');
+            });
+        }
     }
 };

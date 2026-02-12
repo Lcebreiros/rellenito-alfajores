@@ -112,6 +112,19 @@
             </div>
           </div>
 
+          {{-- Tipo de negocio --}}
+          <div>
+            <label for="business_type" class="block text-sm font-medium text-slate-700 mb-1.5">Tipo de negocio</label>
+            <select id="business_type" name="business_type" required
+                    class="txt focus-ring w-full px-3 py-2.5 border border-slate-200 rounded-md bg-white text-sm">
+              <option value="comercio" @selected(old('business_type', 'comercio') === 'comercio')>Comercio / Tienda</option>
+              <option value="alquiler" @selected(old('business_type') === 'alquiler')>Alquiler / Estacionamiento</option>
+            </select>
+            <p class="mt-1.5 text-xs text-slate-500">
+              Seleccione el tipo que mejor describe su negocio. Esto personalizará su experiencia.
+            </p>
+          </div>
+
           {{-- Info --}}
           <div class="bg-blue-50 border border-blue-200 rounded-lg p-4">
             <div class="flex gap-3">

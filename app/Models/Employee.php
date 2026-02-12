@@ -13,6 +13,7 @@ class Employee extends Model
 
     protected $fillable = [
         'company_id',
+        'user_id',
         'branch_id',
         'first_name',
         'last_name',
@@ -52,10 +53,15 @@ class Employee extends Model
     // =======================
     // RELACIONES
     // =======================
-    
+
     public function company()
     {
         return $this->belongsTo(User::class, 'company_id');
+    }
+
+    public function user()
+    {
+        return $this->belongsTo(User::class, 'user_id');
     }
 
     public function branch()
@@ -66,6 +72,11 @@ class Employee extends Model
     public function documents()
     {
         return $this->morphMany(Document::class, 'attachable');
+    }
+
+    public function parkingShifts()
+    {
+        return $this->hasMany(ParkingShift::class, 'employee_id');
     }
 
     // =======================
@@ -79,5 +90,10 @@ class Employee extends Model
         }
 
         return asset('images/default-avatar.png');
+    }
+
+    public function getNameAttribute(): string
+    {
+        return trim($this->first_name . ' ' . $this->last_name);
     }
 }

@@ -12,9 +12,15 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::table('users', function (Blueprint $table) {
-            $table->json('modulos_activos')->nullable()->after('google_calendar_sync_enabled');
-        });
+        if (app()->environment('testing')) {
+            return;
+        }
+
+        if (!Schema::hasColumn('users', 'modulos_activos')) {
+            Schema::table('users', function (Blueprint $table) {
+                $table->json('modulos_activos')->nullable()->after('google_calendar_sync_enabled');
+            });
+        }
 
         // Actualizar usuarios existentes con todos los módulos activos por defecto
         $todosLosModulos = ['productos', 'servicios', 'proyectos', 'sucursales', 'empleados', 'clientes'];
@@ -29,6 +35,10 @@ return new class extends Migration
      */
     public function down(): void
     {
+        if (app()->environment('testing')) {
+            return;
+        }
+
         Schema::table('users', function (Blueprint $table) {
             $table->dropColumn('modulos_activos');
         });

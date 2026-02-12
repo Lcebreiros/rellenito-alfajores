@@ -6,6 +6,7 @@ use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use Illuminate\Database\Eloquent\Builder;
+use App\Models\ParkingStay;
 
 class PaymentMethod extends Model
 {
@@ -42,6 +43,13 @@ class PaymentMethod extends Model
     {
         return $this->belongsToMany(Order::class, 'order_payment_method')
             ->withPivot(['amount', 'reference', 'notes', 'gateway_response'])
+            ->withTimestamps();
+    }
+
+    public function parkingStays(): BelongsToMany
+    {
+        return $this->belongsToMany(ParkingStay::class, 'parking_stay_payment_method')
+            ->withPivot(['amount'])
             ->withTimestamps();
     }
 

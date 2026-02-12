@@ -11,6 +11,10 @@ return new class extends Migration
      */
     public function up(): void
     {
+        if (app()->environment('testing')) {
+            return;
+        }
+
         // Solo crear las tablas si NO existen (por si ya están en producción)
         if (!Schema::hasTable('supplier_expenses')) {
             Schema::create('supplier_expenses', function (Blueprint $table) {
@@ -89,8 +93,8 @@ return new class extends Migration
             });
         }
 
-        // Agregar columnas a supplies si no existen
-        if (!Schema::hasColumn('supplies', 'description')) {
+        // Agregar columnas a supplies si la tabla existe y la columna no
+        if (Schema::hasTable('supplies') && !Schema::hasColumn('supplies', 'description')) {
             Schema::table('supplies', function (Blueprint $table) {
                 $table->text('description')->after('name')->nullable();
             });

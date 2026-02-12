@@ -28,11 +28,21 @@ class TrialRequests extends Component
         // Crear el usuario
         $temporaryPassword = Str::random(12);
 
+        // Determinar preset de módulos según tipo de negocio
+        $businessType = $request->business_type ?? 'comercio';
+        $presetKey = match($businessType) {
+            'alquiler' => 'estacionamiento',
+            'comercio' => 'tienda',
+            default => 'generic'
+        };
+
         $user = User::create([
             'name' => $request->name,
             'email' => $request->email,
             'password' => Hash::make($temporaryPassword),
             'subscription_level' => $request->plan,
+            'business_type' => $businessType,
+            'modulos_activos' => User::presetModules($presetKey),
             'is_active' => true,
             'hierarchy_level' => User::HIERARCHY_COMPANY,
         ]);

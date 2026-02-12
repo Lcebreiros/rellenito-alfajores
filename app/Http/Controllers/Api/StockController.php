@@ -6,6 +6,8 @@ use App\Http\Controllers\Controller;
 use App\Models\Product;
 use App\Models\StockAdjustment;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\DB;
+use Illuminate\Validation\ValidationException;
 
 class StockController extends Controller
 {
@@ -163,5 +165,212 @@ class StockController extends Controller
                 'out_of_stock' => $outOfStock,
             ],
         ], 200);
+    }
+
+    /**
+     * Ver detalle de un ajuste de stock
+     */
+    public function showAdjustment(Request $request, StockAdjustment $adjustment)
+    {
+        $auth = $request->user();
+
+        // Verificar acceso al producto del ajuste
+        $product = $adjustment->product;
+
+        if (!$product) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Producto no encontrado',
+            ], 404);
+        }
+
+        if (!$this->canAccessProduct($auth, $product)) {
+            return response()->json([
+                'success' => false,
+                'message' => 'No autorizado',
+            ], 403);
+        }
+
+        $adjustment->load(['product:id,name,sku,unit', 'user:id,name']);
+
+        return response()->json([
+            'success' => true,
+            'data' => $adjustment,
+        ], 200);
+    }
+
+    /**
+     * Crear ajuste de stock manual
+     */
+    public function createAdjustment(Request $request)
+    {
+        $auth = $request->user();
+
+        $validated = $request->validate([
+            'product_id' => 'required|integer|exists:products,id',
+            'quantity_change' => 'required|numeric|not_in:0',
+            'reason' => 'required|string|in:manual_adjustment,inventory_count,damage,loss,found,correction,return,other',
+            'notes' => 'nullable|string|max:500',
+        ]);
+
+        // Verificar acceso al producto
+        $product = Product::findOrFail($validated['product_id']);
+
+        if (!$this->canManageProduct($auth, $product)) {
+            return response()->json([
+                'success' => false,
+                'message' => 'No tienes permiso para ajustar el stock de este producto',
+            ], 403);
+        }
+
+        return DB::transaction(function () use ($validated, $auth, $product) {
+            // Obtener stock actual
+            $currentStock = $product->stock ?? 0;
+            $newStock = $currentStock + $validated['quantity_change'];
+
+            // No permitir stock negativo (opcional, depende de la lógica de negocio)
+            if ($newStock < 0) {
+                throw ValidationException::withMessages([
+                    'quantity_change' => 'El ajuste resultaría en stock negativo. Stock actual: ' . $currentStock,
+                ]);
+            }
+
+            // Actualizar stock del producto
+            $product->stock = $newStock;
+            $product->save();
+
+            // Crear registro de ajuste
+            $adjustment = StockAdjustment::create([
+                'user_id' => $auth->id,
+                'product_id' => $product->id,
+                'quantity_change' => $validated['quantity_change'],
+                'new_stock' => $newStock,
+                'reason' => $validated['reason'],
+                'notes' => $validated['notes'] ?? null,
+            ]);
+
+            $adjustment->load(['product:id,name,sku,unit', 'user:id,name']);
+
+            return response()->json([
+                'success' => true,
+                'message' => 'Ajuste de stock realizado exitosamente',
+                'data' => $adjustment,
+            ], 201);
+        });
+    }
+
+    /**
+     * Eliminar/revertir ajuste de stock
+     * IMPORTANTE: Solo se permite revertir ajustes manuales recientes
+     */
+    public function deleteAdjustment(Request $request, StockAdjustment $adjustment)
+    {
+        $auth = $request->user();
+
+        // Verificar acceso al producto del ajuste
+        $product = $adjustment->product;
+
+        if (!$product) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Producto no encontrado',
+            ], 404);
+        }
+
+        if (!$this->canManageProduct($auth, $product)) {
+            return response()->json([
+                'success' => false,
+                'message' => 'No tienes permiso para revertir este ajuste',
+            ], 403);
+        }
+
+        // Verificar que sea un ajuste manual o de corrección
+        $revertibleReasons = ['manual_adjustment', 'inventory_count', 'correction', 'other'];
+        if (!in_array($adjustment->reason, $revertibleReasons)) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Solo se pueden revertir ajustes manuales, conteos de inventario o correcciones',
+            ], 422);
+        }
+
+        // Verificar que no sea muy antiguo (opcional: máximo 7 días)
+        if ($adjustment->created_at->addDays(7)->isPast()) {
+            return response()->json([
+                'success' => false,
+                'message' => 'No se pueden revertir ajustes con más de 7 días de antigüedad',
+            ], 422);
+        }
+
+        return DB::transaction(function () use ($adjustment, $product) {
+            // Revertir el cambio de stock
+            $currentStock = $product->stock ?? 0;
+            $revertedStock = $currentStock - $adjustment->quantity_change;
+
+            // Actualizar stock del producto
+            $product->stock = $revertedStock;
+            $product->save();
+
+            // Crear registro de reversión
+            $reversion = StockAdjustment::create([
+                'user_id' => $adjustment->user_id,
+                'product_id' => $product->id,
+                'quantity_change' => -$adjustment->quantity_change,
+                'new_stock' => $revertedStock,
+                'reason' => 'correction',
+                'notes' => 'Reversión de ajuste #' . $adjustment->id . ($adjustment->notes ? ' - ' . $adjustment->notes : ''),
+                'reference_id' => $adjustment->id,
+                'reference_type' => StockAdjustment::class,
+            ]);
+
+            // Eliminar el ajuste original
+            $adjustment->delete();
+
+            return response()->json([
+                'success' => true,
+                'message' => 'Ajuste revertido exitosamente',
+                'data' => [
+                    'product_id' => $product->id,
+                    'new_stock' => $revertedStock,
+                    'reversion' => $reversion,
+                ],
+            ], 200);
+        });
+    }
+
+    /**
+     * Verificar si el usuario tiene acceso a un producto
+     */
+    private function canAccessProduct($user, Product $product): bool
+    {
+        if ($user->isMaster()) {
+            return true;
+        }
+
+        if ($user->isCompany()) {
+            return $product->company_id === $user->id;
+        }
+
+        if ($user->isAdmin()) {
+            $company = $user->rootCompany();
+            return $product->company_id === $company?->id || $product->user_id === $user->id;
+        }
+
+        return $product->user_id === $user->id || $product->user_id === $user->parent_id;
+    }
+
+    /**
+     * Verificar si el usuario puede gestionar un producto
+     */
+    private function canManageProduct($user, Product $product): bool
+    {
+        if ($user->isMaster()) {
+            return true;
+        }
+
+        if ($user->isCompany()) {
+            return $product->company_id === $user->id;
+        }
+
+        return $product->user_id === $user->id;
     }
 }
