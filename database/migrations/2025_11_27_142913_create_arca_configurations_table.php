@@ -11,6 +11,10 @@ return new class extends Migration
      */
     public function up(): void
     {
+        if (Schema::hasTable('arca_configurations')) {
+            return;
+        }
+
         Schema::create('arca_configurations', function (Blueprint $table) {
             $table->id();
             $table->foreignId('company_id')->nullable()->constrained('users')->onDelete('cascade');

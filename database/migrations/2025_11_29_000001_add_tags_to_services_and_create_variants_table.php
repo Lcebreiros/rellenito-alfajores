@@ -18,6 +18,10 @@ return new class extends Migration
             }
         });
 
+        if (Schema::hasTable('service_variants')) {
+            return;
+        }
+
         Schema::create('service_variants', function (Blueprint $table) {
             $table->id();
             $table->foreignId('service_id')->constrained('services')->onDelete('cascade');
