@@ -99,6 +99,14 @@
         @endif
       @endauth
 
+      @auth
+        @if(auth()->user()->isMaster())
+          <a href="{{ route('trial-requests') }}" wire:navigate data-turbo="false"
+             class="flex items-center gap-3 px-3 py-2 rounded-lg text-sm font-medium hover:bg-neutral-50 dark:hover:bg-neutral-800 {{ request()->routeIs('trial-requests') ? 'bg-neutral-100 dark:bg-neutral-800' : '' }}"
+             role="menuitem">Solicitudes</a>
+        @endif
+      @endauth
+
       <a href="{{ route('settings') }}" wire:navigate data-turbo="false"
          class="flex items-center gap-3 px-3 py-2 rounded-lg text-sm font-medium hover:bg-neutral-50 dark:hover:bg-neutral-800 {{ request()->routeIs('settings') ? 'bg-neutral-100 dark:bg-neutral-800' : '' }}"
          role="menuitem">Configuración</a>
