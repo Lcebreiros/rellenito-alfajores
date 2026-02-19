@@ -9,7 +9,7 @@ use App\Http\Middleware\ResolveIntegrator;
 use App\Http\Middleware\RequireInternalIntegrator;
 use App\Http\Middleware\ApiRequestLogger;
 use App\Http\Middleware\EnsureUserHasModule;
-use Illuminate\Auth\Middleware\EnsureEmailIsVerified;
+use App\Http\Middleware\EnsureEmailIsVerifiedForProfile;
 use Illuminate\Console\Scheduling\Schedule;
 
 return Application::configure(basePath: dirname(__DIR__))
@@ -43,13 +43,8 @@ return Application::configure(basePath: dirname(__DIR__))
             'internal.only' => RequireInternalIntegrator::class,
             'api.log' => ApiRequestLogger::class,
             'module' => EnsureUserHasModule::class,
-        ]);
-
-        // Permitir editar perfil sin tener email verificado
-        $middleware->excludeFrom(EnsureEmailIsVerified::class, [
-            '/user/profile',
-            '/user/profile-information',
-            '/user/password',
+            // Permite editar perfil aunque el email no esté verificado
+            'verified' => EnsureEmailIsVerifiedForProfile::class,
         ]);
     })
     ->withExceptions(function (Exceptions $exceptions): void {
