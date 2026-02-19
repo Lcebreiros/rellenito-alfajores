@@ -116,33 +116,61 @@
 
 {{-- Errores --}}
 @php
-  $emailError = $errors->has('email') ? $errors->first('email') : null;
+  $emailError   = $errors->has('email') ? $errors->first('email') : null;
+  $isSuspended  = $emailError && str_contains($emailError, 'Cuenta suspendida');
+  $isThrottle   = $emailError && (str_contains($emailError, 'Too many') || str_contains($emailError, 'throttle') || str_contains($emailError, 'seconds'));
+  $isCredFailed = $emailError && !$isSuspended && !$isThrottle;
 @endphp
 
-@if($emailError && \Illuminate\Support\Str::contains($emailError, 'Cuenta suspendida'))
-  {{-- Mensaje específico para cuenta suspendida (amarillo) --}}
-  <div class="mb-4 p-3 bg-yellow-50 text-yellow-800 text-sm rounded-lg border border-yellow-100">
-    {{ $emailError }}
+{{-- Cuenta suspendida (amarillo) --}}
+@if($isSuspended)
+  <div class="mb-4 flex items-start gap-2.5 p-3.5 bg-yellow-50 text-yellow-800 text-sm rounded-xl border border-yellow-200">
+    <svg class="w-4 h-4 mt-0.5 flex-shrink-0 text-yellow-600" viewBox="0 0 20 20" fill="currentColor">
+      <path fill-rule="evenodd" d="M8.257 3.099c.765-1.36 2.722-1.36 3.486 0l5.58 9.92c.75 1.334-.213 2.98-1.742 2.98H4.42c-1.53 0-2.493-1.646-1.743-2.98l5.58-9.92zM11 13a1 1 0 11-2 0 1 1 0 012 0zm-1-8a1 1 0 00-1 1v3a1 1 0 002 0V6a1 1 0 00-1-1z" clip-rule="evenodd"/>
+    </svg>
+    <span>{{ $emailError }}</span>
   </div>
 @endif
 
-@if ($errors->any())
-  {{-- Mostrar otros errores (rojo), excluyendo el mensaje de suspensión ya mostrado --}}
-  @php
-    $other = collect($errors->all())->reject(function($e) use ($emailError){
-        return $e === $emailError;
-    })->all();
-  @endphp
+{{-- Throttle / demasiados intentos (naranja) --}}
+@if($isThrottle)
+  <div class="mb-4 flex items-start gap-2.5 p-3.5 bg-orange-50 text-orange-800 text-sm rounded-xl border border-orange-200">
+    <svg class="w-4 h-4 mt-0.5 flex-shrink-0 text-orange-500" viewBox="0 0 20 20" fill="currentColor">
+      <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm1-12a1 1 0 10-2 0v4a1 1 0 00.293.707l2.828 2.829a1 1 0 101.415-1.415L11 9.586V6z" clip-rule="evenodd"/>
+    </svg>
+    <span>Demasiados intentos fallidos. Esperá unos segundos antes de intentar de nuevo.</span>
+  </div>
+@endif
 
-  @if(!empty($other))
-    <div class="mb-4 p-3 bg-red-50 text-red-700 text-sm rounded-lg border border-red-100">
-      <ul class="list-disc ml-4">
-        @foreach ($other as $e)
-          <li>{{ $e }}</li>
-        @endforeach
-      </ul>
-    </div>
-  @endif
+{{-- Credenciales incorrectas (rojo) --}}
+@if($isCredFailed)
+  <div class="mb-4 flex items-start gap-2.5 p-3.5 bg-red-50 text-red-700 text-sm rounded-xl border border-red-200">
+    <svg class="w-4 h-4 mt-0.5 flex-shrink-0 text-red-500" viewBox="0 0 20 20" fill="currentColor">
+      <path fill-rule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7 4a1 1 0 11-2 0 1 1 0 012 0zm-1-9a1 1 0 00-1 1v4a1 1 0 102 0V6a1 1 0 00-1-1z" clip-rule="evenodd"/>
+    </svg>
+    <span>El email o la contraseña son incorrectos. Verificá tus datos e intentá de nuevo.</span>
+  </div>
+@endif
+
+{{-- Otros errores de validación (ej: campos requeridos) --}}
+@if ($errors->any() && !$emailError)
+  <div class="mb-4 p-3 bg-red-50 text-red-700 text-sm rounded-xl border border-red-200">
+    <ul class="list-disc ml-4 space-y-0.5">
+      @foreach ($errors->all() as $e)
+        <li>{{ $e }}</li>
+      @endforeach
+    </ul>
+  </div>
+@endif
+
+{{-- Mensaje de sesión (ej: cuenta suspendida por middleware redirect) --}}
+@if(session('error'))
+  <div class="mb-4 flex items-start gap-2.5 p-3.5 bg-yellow-50 text-yellow-800 text-sm rounded-xl border border-yellow-200">
+    <svg class="w-4 h-4 mt-0.5 flex-shrink-0 text-yellow-600" viewBox="0 0 20 20" fill="currentColor">
+      <path fill-rule="evenodd" d="M8.257 3.099c.765-1.36 2.722-1.36 3.486 0l5.58 9.92c.75 1.334-.213 2.98-1.742 2.98H4.42c-1.53 0-2.493-1.646-1.743-2.98l5.58-9.92zM11 13a1 1 0 11-2 0 1 1 0 012 0zm-1-8a1 1 0 00-1 1v3a1 1 0 002 0V6a1 1 0 00-1-1z" clip-rule="evenodd"/>
+    </svg>
+    <span>{{ session('error') }}</span>
+  </div>
 @endif
 
 
@@ -163,7 +191,7 @@
                     </svg>
                   </span>
                   <input id="email" name="email" type="email" value="{{ old('email') }}" required autofocus
-                         class="txt focus-ring w-full pl-10 pr-3 py-2.5 border border-slate-200 rounded-md bg-white placeholder-slate-400"
+                         class="txt focus-ring w-full pl-10 pr-3 py-2.5 border rounded-md bg-white placeholder-slate-400 {{ $isCredFailed ? 'border-red-400 bg-red-50' : 'border-slate-200' }}"
                          placeholder="nombre@empresa.com">
                 </div>
               </div>
@@ -187,7 +215,7 @@
                     </svg>
                   </span>
                   <input id="password" name="password" :type="show ? 'text' : 'password'" required
-                         class="txt focus-ring w-full pl-10 pr-10 py-2.5 border border-slate-200 rounded-md bg-white placeholder-slate-400"
+                         class="txt focus-ring w-full pl-10 pr-10 py-2.5 border rounded-md bg-white placeholder-slate-400 {{ $isCredFailed ? 'border-red-400 bg-red-50' : 'border-slate-200' }}"
                          placeholder="••••••••" autocomplete="current-password">
                   {{-- Toggle mostrar/ocultar (SVG correctos + x-cloak) --}}
                   <button type="button" @click="show=!show"
