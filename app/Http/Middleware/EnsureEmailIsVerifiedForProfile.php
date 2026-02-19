@@ -4,7 +4,6 @@ namespace App\Http\Middleware;
 
 use Closure;
 use Illuminate\Auth\Middleware\EnsureEmailIsVerified as BaseMiddleware;
-use Illuminate\Http\Request;
 
 class EnsureEmailIsVerifiedForProfile extends BaseMiddleware
 {
@@ -18,7 +17,7 @@ class EnsureEmailIsVerifiedForProfile extends BaseMiddleware
         'user/password',
     ];
 
-    public function handle(Request $request, Closure $next, ...$guards): mixed
+    public function handle($request, Closure $next, $redirectToRoute = null)
     {
         foreach (self::PROFILE_PATHS as $path) {
             if ($request->is($path) || $request->is($path . '/*')) {
@@ -26,6 +25,6 @@ class EnsureEmailIsVerifiedForProfile extends BaseMiddleware
             }
         }
 
-        return parent::handle($request, $next, ...$guards);
+        return parent::handle($request, $next, $redirectToRoute);
     }
 }
