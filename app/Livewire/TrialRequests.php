@@ -25,10 +25,6 @@ class TrialRequests extends Component
             return;
         }
 
-        // Crear el usuario
-        $temporaryPassword = Str::random(12);
-
-        // Determinar preset de módulos según tipo de negocio
         $businessType = $request->business_type ?? 'comercio';
         $presetKey = match($businessType) {
             'alquiler' => 'estacionamiento',
@@ -36,18 +32,32 @@ class TrialRequests extends Component
             default => 'generic'
         };
 
-        $user = User::create([
-            'name' => $request->name,
-            'email' => $request->email,
-            'password' => Hash::make($temporaryPassword),
-            'subscription_level' => $request->plan,
-            'business_type' => $businessType,
-            'modulos_activos' => User::presetModules($presetKey),
-            'is_active' => true,
-            'hierarchy_level' => User::HIERARCHY_COMPANY,
-        ]);
+        if ($request->user_id) {
+            // El usuario ya fue creado durante el registro (wizard) → activar suscripción
+            $user = User::findOrFail($request->user_id);
+            $user->update([
+                'subscription_level' => $request->plan,
+                'modulos_activos' => User::presetModules($presetKey),
+                'is_active' => true,
+                'email_verified_at' => $user->email_verified_at ?? now(),
+            ]);
+        } else {
+            // Flujo legacy: crear usuario con contraseña temporal
+            $temporaryPassword = Str::random(12);
+            $user = User::create([
+                'name' => $request->name,
+                'email' => $request->email,
+                'password' => Hash::make($temporaryPassword),
+                'subscription_level' => $request->plan,
+                'business_type' => $businessType,
+                'modulos_activos' => User::presetModules($presetKey),
+                'is_active' => true,
+                'hierarchy_level' => User::HIERARCHY_COMPANY,
+            ]);
+            // TODO: Enviar email al usuario con sus credenciales temporales
+            // Mail::to($user->email)->send(new TrialApprovedMail($user, $temporaryPassword));
+        }
 
-        // Actualizar la solicitud
         $request->update([
             'status' => 'approved',
             'approved_by' => auth()->id(),
@@ -55,10 +65,7 @@ class TrialRequests extends Component
             'user_id' => $user->id,
         ]);
 
-        // TODO: Enviar email al usuario con sus credenciales
-        // Mail::to($user->email)->send(new TrialApprovedMail($user, $temporaryPassword));
-
-        session()->flash('success', "Solicitud aprobada. Usuario creado: {$user->email}");
+        session()->flash('success', "Solicitud aprobada. Usuario activado: {$user->email}");
     }
 
     public function reject($requestId)

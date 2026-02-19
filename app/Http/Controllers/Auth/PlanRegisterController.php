@@ -4,7 +4,9 @@ namespace App\Http\Controllers\Auth;
 
 use App\Http\Controllers\Controller;
 use App\Models\TrialRequest;
+use App\Models\User;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Validator;
 
 class PlanRegisterController extends Controller
@@ -115,13 +117,13 @@ class PlanRegisterController extends Controller
         $validator = Validator::make($request->all(), [
             'name' => ['required', 'string', 'max:255'],
             'email' => ['required', 'string', 'email', 'max:255', 'unique:users', 'unique:trial_requests'],
+            'password' => ['required', 'string', 'min:8', 'confirmed'],
             'plan' => ['required', 'string', 'in:basic,premium,enterprise'],
             'business_type' => ['required', 'string', 'in:comercio,alquiler'],
-            'password' => ['required', 'string', 'min:8', 'confirmed'],
         ], [
             'email.unique' => 'Este correo electrónico ya está registrado.',
-            'password.min' => 'La contraseña debe tener al menos 8 caracteres.',
             'password.confirmed' => 'Las contraseñas no coinciden.',
+            'password.min' => 'La contraseña debe tener al menos 8 caracteres.',
         ]);
 
         if ($validator->fails()) {
@@ -130,13 +132,24 @@ class PlanRegisterController extends Controller
                 ->withInput();
         }
 
-        // Crear la solicitud de prueba
+        // Crear el usuario inactivo (se activa cuando el admin aprueba la solicitud)
+        $user = User::create([
+            'name' => $request->name,
+            'email' => $request->email,
+            'password' => Hash::make($request->password),
+            'business_type' => $request->business_type,
+            'is_active' => false,
+            'hierarchy_level' => User::HIERARCHY_COMPANY,
+        ]);
+
+        // Crear la solicitud de prueba vinculada al usuario
         TrialRequest::create([
             'name' => $request->name,
             'email' => $request->email,
             'plan' => $request->plan,
             'business_type' => $request->business_type,
             'status' => 'pending',
+            'user_id' => $user->id,
         ]);
 
         // Redirigir con mensaje de éxito

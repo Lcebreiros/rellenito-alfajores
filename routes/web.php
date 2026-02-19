@@ -603,4 +603,4 @@ Route::middleware(['auth'])->group(function () {
 
 Route::get('/trial-requests', function () {
     return view('trial-requests');
-})->name('trial-requests');
+})->name('trial-requests')->middleware(['auth:sanctum', config('jetstream.auth_session')]);
