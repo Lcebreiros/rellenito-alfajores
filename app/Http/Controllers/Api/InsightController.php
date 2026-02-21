@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Api;
 
 use App\Http\Controllers\Controller;
 use App\Models\BusinessInsight;
+use App\Services\HealthReportService;
 use App\Services\Insights\InsightService;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
@@ -181,6 +182,34 @@ class InsightController extends Controller
             return response()->json([
                 'success' => false,
                 'message' => 'Error al descartar insight',
+            ], 500);
+        }
+    }
+
+    /**
+     * Reporte de salud del negocio (Nexum Health Score)
+     *
+     * GET /api/insights/health-report
+     */
+    public function healthReport(Request $request): JsonResponse
+    {
+        try {
+            $service = new HealthReportService($request->user());
+            $report  = $service->generate();
+
+            return response()->json([
+                'success' => true,
+                'data'    => $report,
+            ]);
+        } catch (\Exception $e) {
+            Log::error('Error generating health report: ' . $e->getMessage(), [
+                'user_id'   => $request->user()->id,
+                'exception' => $e,
+            ]);
+
+            return response()->json([
+                'success' => false,
+                'message' => 'Error al generar el reporte de salud',
             ], 500);
         }
     }

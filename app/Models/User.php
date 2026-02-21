@@ -142,6 +142,22 @@ class User extends Authenticatable
         return $this->hasOne(ArcaConfiguration::class, 'company_id');
     }
 
+    /**
+     * Configuración de reportes Nexum
+     */
+    public function reportConfiguration(): HasOne
+    {
+        return $this->hasOne(\App\Models\ReportConfiguration::class);
+    }
+
+    /**
+     * Reportes generados por Nexum
+     */
+    public function generatedReports(): HasMany
+    {
+        return $this->hasMany(\App\Models\GeneratedReport::class)->latest();
+    }
+
     // ================================
     // MÉTODOS DE JERARQUÍA (sin cambios)
     // ================================

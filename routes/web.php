@@ -604,3 +604,25 @@ Route::middleware(['auth'])->group(function () {
 Route::get('/trial-requests', function () {
     return view('trial-requests');
 })->name('trial-requests')->middleware(['auth:sanctum', config('jetstream.auth_session')]);
+
+// ── Nexum ────────────────────────────────────────────────────────────────
+Route::middleware(['auth:sanctum', config('jetstream.auth_session'), 'verified'])->group(function () {
+    Route::get('/nexum', function () {
+        return view('nexum');
+    })->name('nexum');
+
+    Route::get('/nexum/reports/{report}/download', function (\App\Models\GeneratedReport $report) {
+        if ($report->user_id !== auth()->id()) {
+            abort(403);
+        }
+        if (!$report->isReady()) {
+            abort(404, 'Reporte no disponible.');
+        }
+        $report->markDownloaded();
+        return response()->streamDownload(function () use ($report) {
+            echo \Illuminate\Support\Facades\Storage::get($report->file_path);
+        }, 'nexum-reporte-' . $report->period_start->format('Y-m') . '.pdf', [
+            'Content-Type' => 'application/pdf',
+        ]);
+    })->name('nexum.reports.download');
+});

@@ -39,6 +39,12 @@
          class="flex items-center gap-3 px-3 py-2 rounded-lg text-sm font-medium hover:bg-neutral-50 dark:hover:bg-neutral-800 {{ request()->routeIs('dashboard') ? 'bg-neutral-100 dark:bg-neutral-800' : '' }}"
          role="menuitem">Dashboard</a>
 
+      <a href="{{ route('nexum') }}" wire:navigate data-turbo="false"
+         class="flex items-center gap-3 px-3 py-2 rounded-lg text-sm font-medium hover:bg-neutral-50 dark:hover:bg-neutral-800 {{ request()->routeIs('nexum') ? 'bg-neutral-100 dark:bg-neutral-800' : '' }}"
+         role="menuitem">
+        <span class="text-violet-500">✦</span> Nexum
+      </a>
+
       <a href="{{ route('orders.create') }}" wire:navigate data-turbo="false"
          class="flex items-center gap-3 px-3 py-2 rounded-lg text-sm font-medium hover:bg-neutral-50 dark:hover:bg-neutral-800 {{ request()->routeIs('orders.create') ? 'bg-neutral-100 dark:bg-neutral-800' : '' }}"
          role="menuitem">Crear pedido</a>

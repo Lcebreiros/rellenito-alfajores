@@ -22,6 +22,11 @@ class Kernel extends ConsoleKernel
         $schedule->command('orders:notify-today')
             ->dailyAt('08:00')
             ->timezone('America/Argentina/Buenos_Aires');
+
+        // Generar reportes Nexum programados a las 06:00 AM
+        $schedule->command('reports:generate-scheduled')
+            ->dailyAt('06:00')
+            ->timezone('America/Argentina/Buenos_Aires');
     }
 
     protected function commands(): void

@@ -352,6 +352,7 @@ Route::prefix('v1')->middleware(['auth:sanctum', 'throttle:api', 'integrator', '
     Route::middleware('throttle:api-read')->group(function () {
         Route::get('/insights', [InsightController::class, 'index']);
         Route::get('/insights/stats', [InsightController::class, 'stats']);
+        Route::get('/insights/health-report', [InsightController::class, 'healthReport']);
     });
     Route::middleware('throttle:api-write')->group(function () {
         Route::post('/insights/generate', [InsightController::class, 'generate']);
