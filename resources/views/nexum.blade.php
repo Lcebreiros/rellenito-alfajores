@@ -1,4 +1,26 @@
 <x-app-layout>
+
+  {{-- Fondo oscuro violeta fijo, independiente del tema del usuario --}}
+  @push('styles')
+  <style>
+    /* Fondo negro violeta en toda el área de contenido de Nexum */
+    .app-main:has(.nexum-wrap),
+    .app-main:has(.nexum-wrap) main {
+      background:
+        radial-gradient(ellipse 120% 60% at 80% -10%, rgba(109,40,217,.28) 0%, transparent 55%),
+        radial-gradient(ellipse 80% 50% at -5% 110%, rgba(76,29,149,.22) 0%, transparent 50%),
+        #000 !important;
+    }
+    /* Header: oscuro translúcido con borde violeta */
+    .app-main:has(.nexum-wrap) .header-glass {
+      background: rgba(8,3,20,.85) !important;
+      backdrop-filter: blur(12px) !important;
+      border-bottom: 1px solid rgba(109,40,217,.25) !important;
+      box-shadow: none !important;
+    }
+  </style>
+  @endpush
+
   <x-slot name="header">
     <div class="flex items-center justify-between">
       <div class="flex items-center gap-3">
