@@ -39,12 +39,17 @@
       {{-- Categorías --}}
       <div class="nexum-categories">
         @foreach($this->healthReport['categories'] ?? [] as $key => $cat)
-          <div class="nexum-cat-row">
-            <span class="nexum-cat-label">{{ $cat['label'] }}</span>
+          <div class="nexum-cat-row" title="{{ $cat['display_hint'] ?? '' }}">
+            <div class="nexum-cat-label-wrap">
+              <span class="nexum-cat-label">{{ $cat['label'] }}</span>
+              @if(!empty($cat['weight']))
+                <span class="nexum-cat-weight">{{ $cat['weight'] }}%</span>
+              @endif
+            </div>
             <div class="nexum-bar-wrap">
               <div class="nexum-bar-fill" style="width:{{ $cat['score'] }}%; background:{{ $cat['color'] }};"></div>
             </div>
-            <span class="nexum-cat-score" style="color:{{ $cat['color'] }};">{{ $cat['score'] }}</span>
+            <span class="nexum-cat-value" style="color:{{ $cat['color'] }};">{{ $cat['display_value'] ?? $cat['score'] }}</span>
           </div>
         @endforeach
       </div>
@@ -52,11 +57,11 @@
       {{-- Botón generar --}}
       <button wire:click="generate" wire:loading.attr="disabled" wire:loading.class="opacity-60"
               class="nexum-gen-btn">
-        <span wire:loading.remove wire:target="generate">
+        <span wire:loading.remove wire:target="generate" class="flex items-center gap-2">
           <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"/>
           </svg>
-          Actualizar insights
+          Actualizar análisis
         </span>
         <span wire:loading wire:target="generate" class="flex items-center gap-2">
           <svg class="w-4 h-4 animate-spin" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -71,23 +76,47 @@
     <div class="nexum-insights-panel">
       {{-- Header --}}
       <div class="nexum-insights-header">
-        <span class="nexum-label-sm">Insights activos</span>
+        <span class="nexum-label-sm">Diagnósticos activos</span>
         <span class="nexum-badge-count">{{ $this->stats['total'] ?? 0 }}</span>
       </div>
 
-      {{-- Filter chips --}}
+      {{-- Filter chips con íconos --}}
+      @php
+        $chips = [
+          'all' => [
+            'label' => 'Todos',
+            'path'  => 'M4 6h16M4 10h16M4 14h16M4 18h7',
+          ],
+          'critical' => [
+            'label' => 'Urgentes',
+            'path'  => 'M12 9v4m0 4h.01M10.29 3.86L1.82 18a2 2 0 001.71 3h16.94a2 2 0 001.71-3L13.71 3.86a2 2 0 00-3.42 0z',
+          ],
+          'stock_alert' => [
+            'label' => 'Stock',
+            'path'  => 'M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4',
+          ],
+          'revenue_opportunity' => [
+            'label' => 'Ingresos',
+            'path'  => 'M13 7h8m0 0v8m0-8l-8 8-4-4-6 6',
+          ],
+          'cost_warning' => [
+            'label' => 'Costos',
+            'path'  => 'M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z',
+          ],
+          'client_retention' => [
+            'label' => 'Clientes',
+            'path'  => 'M17 21v-2a4 4 0 00-4-4H5a4 4 0 00-4 4v2M23 21v-2a4 4 0 00-3-3.87M16 3.13a4 4 0 010 7.75',
+          ],
+        ];
+      @endphp
       <div class="nexum-filters">
-        @foreach([
-          'all'                => 'Todos',
-          'critical'           => 'Urgentes',
-          'stock_alert'        => '📦 Stock',
-          'revenue_opportunity'=> '📈 Ingresos',
-          'cost_warning'       => '⚠ Costos',
-          'client_retention'   => '👥 Clientes',
-        ] as $val => $label)
+        @foreach($chips as $val => $chip)
           <button wire:click="setFilter('{{ $val }}')"
                   class="nexum-chip {{ $filter === $val ? 'nexum-chip-active' : '' }}">
-            {{ $label }}
+            <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="{{ $chip['path'] }}"/>
+            </svg>
+            {{ $chip['label'] }}
           </button>
         @endforeach
       </div>
@@ -108,7 +137,11 @@
                   {{ ucfirst($insight->priority) }}
                 </span>
                 <button wire:click="dismiss({{ $insight->id }})"
-                        class="nexum-dismiss-btn" title="Descartar insight">×</button>
+                        class="nexum-dismiss-btn" title="Descartar">
+                  <svg class="w-2.5 h-2.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M6 18L18 6M6 6l12 12"/>
+                  </svg>
+                </button>
               </div>
             </div>
           </div>
@@ -117,8 +150,8 @@
             <svg class="w-10 h-10 mx-auto mb-3 opacity-30" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/>
             </svg>
-            <p>No hay insights en esta categoría.</p>
-            <p class="text-xs opacity-60 mt-1">Actualizá el análisis para ver nuevos insights.</p>
+            <p>No hay diagnósticos en esta categoría.</p>
+            <p class="text-xs opacity-60 mt-1">Actualizá el análisis para ver nuevos diagnósticos.</p>
           </div>
         @endforelse
       </div>
@@ -130,30 +163,68 @@
     <div class="nexum-reports-header">
       <div>
         <h3 class="nexum-section-title">Reportes descargables</h3>
-        <p class="nexum-section-sub">PDFs completos con ventas, gastos, margen y health score.</p>
+        <p class="nexum-section-sub">PDFs con ventas, gastos, margen y health score del período.</p>
       </div>
       <div class="flex items-center gap-2">
-        <button wire:click="requestManualReport" wire:loading.attr="disabled" wire:loading.class="opacity-60"
-                class="nexum-btn-secondary">
-          <span wire:loading.remove wire:target="requestManualReport">
-            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/>
-            </svg>
-            Generar reporte ahora
-          </span>
-          <span wire:loading wire:target="requestManualReport">Solicitando...</span>
-        </button>
+
+        {{-- Generar reporte con dropdown de período --}}
+        <div x-data="{ open: false }" class="relative">
+          <button @click="open = !open" :disabled="$wire.requestingManual"
+                  wire:loading.attr="disabled" wire:loading.class="opacity-60"
+                  class="nexum-btn-secondary">
+            <span wire:loading.remove wire:target="requestManualReport" class="flex items-center gap-1.5">
+              <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/>
+              </svg>
+              Generar reporte
+              <svg class="w-3 h-3 transition-transform duration-200" :class="open ? 'rotate-180' : ''"
+                   fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M19 9l-7 7-7-7"/>
+              </svg>
+            </span>
+            <span wire:loading wire:target="requestManualReport" class="flex items-center gap-1.5">
+              <svg class="w-4 h-4 animate-spin" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"/>
+              </svg>
+              Generando...
+            </span>
+          </button>
+
+          <div x-show="open" @click.away="open = false"
+               x-transition:enter="transition ease-out duration-150"
+               x-transition:enter-start="opacity-0 scale-95"
+               x-transition:enter-end="opacity-100 scale-100"
+               x-transition:leave="transition ease-in duration-100"
+               x-transition:leave-start="opacity-100 scale-100"
+               x-transition:leave-end="opacity-0 scale-95"
+               class="nexum-period-dropdown">
+            @foreach([
+              'weekly'     => ['Semanal',     'Últimos 7 días'],
+              'monthly'    => ['Mensual',      'Últimos 30 días'],
+              'quarterly'  => ['Trimestral',   'Últimos 3 meses'],
+              'semiannual' => ['Semestral',    'Últimos 6 meses'],
+              'annual'     => ['Anual',        'Último año'],
+            ] as $value => [$label, $hint])
+              <button @click="$dispatch('open-report-modal'); $wire.requestManualReport('{{ $value }}'); open = false"
+                      class="nexum-period-item">
+                <span>{{ $label }}</span>
+                <span class="nexum-period-hint">{{ $hint }}</span>
+              </button>
+            @endforeach
+          </div>
+        </div>
+
+        {{-- Programar reportes automáticos --}}
         <button wire:click="$set('showConfig', true)" class="nexum-btn-config">
           <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z"/>
-            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/>
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"/>
           </svg>
-          Configurar frecuencia
+          Programar
         </button>
       </div>
     </div>
 
-    {{-- Config modal --}}
+    {{-- Config panel --}}
     @if($showConfig)
     <div class="nexum-config-panel">
       <h4 class="nexum-config-title">Configuración de reportes automáticos</h4>
@@ -177,12 +248,12 @@
           <label class="nexum-toggle-label">
             <input type="checkbox" wire:model="emailDelivery" class="sr-only peer">
             <div class="nexum-toggle peer-checked:bg-violet-600"></div>
-            <span class="nexum-label-sm">Enviar por email</span>
+            <span class="nexum-label-sm">Email</span>
           </label>
         </div>
       </div>
       <div class="flex gap-2 mt-4">
-        <button wire:click="saveConfig" class="nexum-btn-primary">Guardar configuración</button>
+        <button wire:click="saveConfig" class="nexum-btn-primary">Guardar</button>
         <button wire:click="$set('showConfig', false)" class="nexum-btn-cancel">Cancelar</button>
       </div>
     </div>
@@ -196,7 +267,7 @@
             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/>
           </svg>
           <p class="text-sm">Todavía no hay reportes generados.</p>
-          <p class="text-xs opacity-60 mt-1">Hacé click en "Generar reporte ahora" para crear el primero.</p>
+          <p class="text-xs opacity-60 mt-1">Hacé clic en "Generar reporte" para crear el primero.</p>
         </div>
       @else
         <table class="nexum-table">
@@ -213,7 +284,7 @@
           <tbody>
             @foreach($this->reports as $report)
             <tr>
-              <td>{{ $report->period_start->format('d/m/Y') }} → {{ $report->period_end->format('d/m/Y') }}</td>
+              <td>{{ $report->period_start->format('d/m/Y') }} &rarr; {{ $report->period_end->format('d/m/Y') }}</td>
               <td>{{ $report->periodLabel() }}</td>
               <td>{{ $report->created_at->format('d/m/Y H:i') }}</td>
               <td>{{ $report->fileSizeFormatted() }}</td>
@@ -232,21 +303,117 @@
                 @endif
               </td>
               <td>
-                @if($report->isReady())
-                  <a href="{{ route('nexum.reports.download', $report) }}"
-                     class="nexum-download-btn">
+                <div class="nexum-action-btns">
+                  @if($report->isReady())
+                    <a href="{{ route('nexum.reports.view', $report) }}"
+                       target="_blank"
+                       class="nexum-view-btn"
+                       title="Ver online">
+                      <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/>
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"/>
+                      </svg>
+                    </a>
+                    <a href="{{ route('nexum.reports.download', $report) }}"
+                       class="nexum-download-btn"
+                       title="Descargar PDF">
+                      <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"/>
+                      </svg>
+                      PDF
+                    </a>
+                  @endif
+                  <button wire:click="deleteReport({{ $report->id }})"
+                          wire:confirm="¿Eliminar este reporte? Esta acción no se puede deshacer."
+                          wire:loading.attr="disabled"
+                          class="nexum-delete-btn"
+                          title="Eliminar reporte">
                     <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"/>
+                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"/>
                     </svg>
-                    PDF
-                  </a>
-                @endif
+                  </button>
+                </div>
               </td>
             </tr>
             @endforeach
           </tbody>
         </table>
       @endif
+    </div>
+  </div>
+
+  {{-- ── Glass modal: generando / listo ──────────────────────────────── --}}
+  <div
+    x-data="{
+      show: false,
+      done: false,
+      viewUrl: null,
+      downloadUrl: null,
+    }"
+    @open-report-modal.window="show = true; done = false; viewUrl = null; downloadUrl = null;"
+    @report-ready.window="done = true; viewUrl = $event.detail.viewUrl; downloadUrl = $event.detail.downloadUrl;"
+    @report-failed.window="show = false;"
+    x-show="show"
+    x-transition:enter="transition ease-out duration-250"
+    x-transition:enter-start="opacity-0"
+    x-transition:enter-end="opacity-100"
+    x-transition:leave="transition ease-in duration-180"
+    x-transition:leave-start="opacity-100"
+    x-transition:leave-end="opacity-0"
+    class="nexum-modal-overlay"
+    style="display:none;"
+    @click.self="if(done) { show = false; }"
+  >
+    <div
+      class="nexum-modal-glass"
+      x-transition:enter="transition ease-out duration-280"
+      x-transition:enter-start="opacity-0 scale-95 -translate-y-3"
+      x-transition:enter-end="opacity-100 scale-100 translate-y-0"
+      x-transition:leave="transition ease-in duration-180"
+      x-transition:leave-start="opacity-100 scale-100 translate-y-0"
+      x-transition:leave-end="opacity-0 scale-95 translate-y-2"
+    >
+
+      {{-- X cerrar (solo cuando listo) --}}
+      <button x-show="done" @click="show = false" class="nexum-modal-x" title="Cerrar" x-cloak>
+        <svg width="13" height="13" fill="none" stroke="currentColor" stroke-width="2.2" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12"/>
+        </svg>
+      </button>
+
+      {{-- Estado: Generando ──────────────────────────── --}}
+      <div x-show="!done">
+        <div class="nexum-modal-spinner"></div>
+        <p class="nexum-modal-title">Generando reporte</p>
+        <p class="nexum-modal-sub">Analizando ventas, márgenes e inventario&hellip;</p>
+      </div>
+
+      {{-- Estado: Listo ──────────────────────────────── --}}
+      <div x-show="done" x-cloak>
+        <div class="nexum-modal-check">
+          <svg width="24" height="24" fill="none" stroke="#34d399" stroke-width="2.5" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7"/>
+          </svg>
+        </div>
+        <p class="nexum-modal-title">Reporte listo</p>
+        <p class="nexum-modal-sub">Tu PDF ya está disponible.</p>
+        <div class="nexum-modal-actions">
+          <a :href="viewUrl" target="_blank" class="nexum-modal-btn-view">
+            <svg width="15" height="15" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/>
+              <path stroke-linecap="round" stroke-linejoin="round" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"/>
+            </svg>
+            Ver
+          </a>
+          <a :href="downloadUrl" class="nexum-modal-btn-download">
+            <svg width="15" height="15" fill="none" stroke="currentColor" stroke-width="2.2" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"/>
+            </svg>
+            Descargar PDF
+          </a>
+        </div>
+      </div>
+
     </div>
   </div>
 

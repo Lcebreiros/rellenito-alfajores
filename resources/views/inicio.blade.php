@@ -36,7 +36,7 @@
     </div>
     <div class="pointer-events-none flex items-center justify-center">
       <a href="{{ route('dashboard') }}"
-         class="pointer-events-auto inline-flex items-center gap-2 px-5 sm:px-6 py-2.5 rounded-full border border-neutral-300 dark:border-neutral-700 bg-white/85 dark:bg-neutral-900/75 text-sm sm:text-base font-semibold text-neutral-800 dark:text-neutral-100 shadow-md shadow-black/10 hover:shadow-lg hover:-translate-y-0.5 transition-all duration-150 hover:border-indigo-400 hover:bg-indigo-50/80 dark:hover:border-indigo-400 dark:hover:bg-indigo-900/40">
+         class="pointer-events-auto hidden sm:inline-flex items-center gap-2 px-5 sm:px-6 py-2.5 rounded-full border border-neutral-300 dark:border-neutral-700 bg-white/85 dark:bg-neutral-900/75 text-sm sm:text-base font-semibold text-neutral-800 dark:text-neutral-100 shadow-md shadow-black/10 hover:shadow-lg hover:-translate-y-0.5 transition-all duration-150 hover:border-indigo-400 hover:bg-indigo-50/80 dark:hover:border-indigo-400 dark:hover:bg-indigo-900/40">
         <svg class="w-4 h-4 text-indigo-600 dark:text-indigo-300" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
           <path d="M3 13h4v8H3zM9 3h4v18H9zM15 9h4v12h-4z" stroke-linecap="round" stroke-linejoin="round"/>
         </svg>
@@ -366,6 +366,22 @@
       box-shadow: 0 8px 16px rgba(244, 114, 182, 0.35);
     }
 
+    /* Nexum - Violet */
+    .tile-nexum.tile-square:hover:not(.theme-custom *),
+    .tile-nexum.tile-wide:hover:not(.theme-custom *) {
+      background: linear-gradient(135deg, rgba(255, 255, 255, 0.92), rgba(167, 139, 250, 0.80)) !important;
+      border-color: rgba(139, 92, 246, 0.55) !important;
+      transform: translateY(-2px);
+      box-shadow: 0 8px 20px rgba(109, 40, 217, 0.22);
+    }
+    .dark .tile-nexum.tile-square:hover:not(.theme-custom *),
+    .dark .tile-nexum.tile-wide:hover:not(.theme-custom *) {
+      background: linear-gradient(135deg, rgba(30, 30, 30, 0.9), rgba(109, 40, 217, 0.45)) !important;
+      border-color: rgba(139, 92, 246, 0.55) !important;
+      transform: translateY(-2px);
+      box-shadow: 0 8px 20px rgba(109, 40, 217, 0.38);
+    }
+
     /* Dashboard - Slate */
     .tile-dashboard.tile-square:hover:not(.theme-custom *),
     .tile-dashboard.tile-wide:hover:not(.theme-custom *) {
@@ -436,6 +452,35 @@
   <div class="h-full flex flex-col justify-evenly sm:justify-center w-full">
     <div class="max-w-7xl mx-auto w-full flex flex-col gap-4 sm:gap-5 lg:gap-8">
 
+    {{-- INTELIGENCIA --}}
+    <div class="fade-in-up">
+      <a href="{{ route('nexum') }}" class="tile-wide tile-nexum w-full">
+        <div class="min-w-0 flex-1">
+          <span style="font-size:1.45rem; font-weight:800; letter-spacing:.22em; background:linear-gradient(135deg,#a78bfa 0%,#7c3aed 55%,#4c1d95 100%); -webkit-background-clip:text; -webkit-text-fill-color:transparent; background-clip:text; line-height:1.2; display:inline-block;">NEXUM</span>
+          <div class="text-[10px] sm:text-xs text-neutral-500 dark:text-neutral-400 mt-0.5">Business Health · Diagnósticos · Reportes PDF</div>
+        </div>
+        <svg class="w-4 h-4 flex-shrink-0 text-neutral-400 dark:text-neutral-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/>
+        </svg>
+      </a>
+    </div>
+
+    {{-- DASHBOARD - solo mobile --}}
+    <div class="sm:hidden fade-in-up" style="animation-delay:0.04s;">
+      <a href="{{ route('dashboard') }}" class="tile-wide w-full" style="background:linear-gradient(135deg,rgba(99,102,241,.08) 0%,rgba(99,102,241,.04) 100%); border-color:rgba(99,102,241,.15);">
+        <svg class="w-7 h-7 flex-shrink-0 text-indigo-600 dark:text-indigo-400" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <path d="M3 13h4v8H3zM9 3h4v18H9zM15 9h4v12h-4z" stroke-linecap="round" stroke-linejoin="round"/>
+        </svg>
+        <div class="min-w-0 flex-1">
+          <div class="text-xs font-bold text-neutral-900 dark:text-neutral-100">Dashboard</div>
+          <div class="text-[10px] text-neutral-500 dark:text-neutral-400">Métricas · Widgets · Resumen</div>
+        </div>
+        <svg class="w-4 h-4 flex-shrink-0 text-neutral-400 dark:text-neutral-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/>
+        </svg>
+      </a>
+    </div>
+
     {{-- OPERACIONES --}}
     <div class="fade-in-up">
       <h2 class="text-xs font-semibold text-neutral-600 dark:text-neutral-300 mb-1.5 sm:mb-2 lg:mb-2.5 tracking-tight uppercase">Operaciones</h2>
@@ -446,7 +491,7 @@
 
       @if($businessType === 'alquiler')
         {{-- VISTA PARA ALQUILER/PARKING --}}
-        <div class="grid grid-cols-3 sm:grid-cols-3 md:grid-cols-3 lg:grid-cols-3 gap-1.5 sm:gap-2 lg:gap-2.5">
+        <div class="grid grid-cols-2 sm:grid-cols-3 gap-1.5 sm:gap-2 lg:gap-2.5">
           {{-- Crear Ingreso - Ocupa 2 filas --}}
           <a href="{{ route('parking.board') }}" class="tile-square tile-orders row-span-2">
             <svg class="w-8 h-8 sm:w-10 sm:h-10 lg:w-14 lg:h-14 text-neutral-900 dark:text-neutral-100 mb-1 sm:mb-1.5 lg:mb-2 transition-transform group-hover:scale-110" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -504,7 +549,7 @@
         </div>
       @else
         {{-- VISTA PARA COMERCIO (default) --}}
-        <div class="grid grid-cols-3 sm:grid-cols-3 md:grid-cols-3 lg:grid-cols-3 gap-1.5 sm:gap-2 lg:gap-2.5">
+        <div class="grid grid-cols-2 sm:grid-cols-3 gap-1.5 sm:gap-2 lg:gap-2.5">
           {{-- Crear Pedido - Ocupa 2 filas --}}
           <a href="{{ route('orders.create') }}" class="tile-square tile-orders row-span-2">
             <img src="{{ asset('images/crear-pedido.png') }}" alt="Crear pedido" class="w-8 h-8 sm:w-10 sm:h-10 lg:w-14 lg:h-14 object-contain dark:invert mb-1 sm:mb-1.5 lg:mb-2 transition-transform group-hover:scale-110">

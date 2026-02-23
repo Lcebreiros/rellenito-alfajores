@@ -611,6 +611,20 @@ Route::middleware(['auth:sanctum', config('jetstream.auth_session'), 'verified']
         return view('nexum');
     })->name('nexum');
 
+    // Descarga autenticada con URL firmada temporalmente (para la app mobile)
+    Route::get('/nexum/reports/{report}/signed-download', function (\App\Models\GeneratedReport $report) {
+        abort_unless(request()->hasValidSignature(), 403);
+        if (! $report->isReady()) {
+            abort(404, 'Reporte no disponible.');
+        }
+        $report->markDownloaded();
+        return response()->streamDownload(function () use ($report) {
+            echo \Illuminate\Support\Facades\Storage::get($report->file_path);
+        }, 'nexum-reporte-' . $report->period_start->format('Y-m') . '.pdf', [
+            'Content-Type' => 'application/pdf',
+        ]);
+    })->name('nexum.reports.signed-download')->withoutMiddleware([\App\Http\Middleware\Authenticate::class]);
+
     Route::get('/nexum/reports/{report}/download', function (\App\Models\GeneratedReport $report) {
         if ($report->user_id !== auth()->id()) {
             abort(403);
@@ -625,4 +639,18 @@ Route::middleware(['auth:sanctum', config('jetstream.auth_session'), 'verified']
             'Content-Type' => 'application/pdf',
         ]);
     })->name('nexum.reports.download');
+
+    Route::get('/nexum/reports/{report}/view', function (\App\Models\GeneratedReport $report) {
+        if ($report->user_id !== auth()->id()) {
+            abort(403);
+        }
+        if (!$report->isReady()) {
+            abort(404, 'Reporte no disponible.');
+        }
+        $content = \Illuminate\Support\Facades\Storage::get($report->file_path);
+        return response($content, 200, [
+            'Content-Type'        => 'application/pdf',
+            'Content-Disposition' => 'inline; filename="nexum-' . $report->period_start->format('Y-m') . '.pdf"',
+        ]);
+    })->name('nexum.reports.view');
 });

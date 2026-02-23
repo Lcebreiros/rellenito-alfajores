@@ -164,7 +164,7 @@ class ExpenseController extends Controller
             'expense_name' => 'required|string|max:255',
             'description' => 'nullable|string',
             'cost' => 'required|numeric|min:0',
-            'expense_type' => 'required|in:material,mano_obra,herramienta,otro',
+            'expense_type' => 'required|in:material,mano_obra,herramienta,otro,impuesto',
         ]);
 
         $validated['user_id'] = Auth::id();
@@ -182,7 +182,7 @@ class ExpenseController extends Controller
             'expense_name' => 'required|string|max:255',
             'description' => 'nullable|string',
             'cost' => 'required|numeric|min:0',
-            'expense_type' => 'required|in:material,mano_obra,herramienta,otro',
+            'expense_type' => 'required|in:material,mano_obra,herramienta,otro,impuesto',
             'is_active' => 'boolean',
         ]);
 

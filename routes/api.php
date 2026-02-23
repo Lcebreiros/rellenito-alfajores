@@ -28,6 +28,7 @@ use App\Http\Controllers\Api\InvoiceController;
 use App\Http\Controllers\Api\ServiceCategoryController;
 use App\Http\Controllers\Api\CalendarController;
 use App\Http\Controllers\Api\InsightController;
+use App\Http\Controllers\Api\NexumReportController;
 
 /*
 |--------------------------------------------------------------------------
@@ -357,6 +358,18 @@ Route::prefix('v1')->middleware(['auth:sanctum', 'throttle:api', 'integrator', '
     Route::middleware('throttle:api-write')->group(function () {
         Route::post('/insights/generate', [InsightController::class, 'generate']);
         Route::patch('/insights/{id}/dismiss', [InsightController::class, 'dismiss']);
+    });
+
+    // ============ NEXUM REPORTS (PDF) ============
+    Route::middleware('throttle:api-read')->prefix('nexum/reports')->group(function () {
+        Route::get('/', [NexumReportController::class, 'index']);
+        Route::get('/config', [NexumReportController::class, 'getConfig']);
+        Route::get('/{id}/url', [NexumReportController::class, 'downloadUrl']);
+    });
+    Route::middleware('throttle:api-write')->prefix('nexum/reports')->group(function () {
+        Route::post('/', [NexumReportController::class, 'store']);
+        Route::post('/config', [NexumReportController::class, 'saveConfig']);
+        Route::delete('/{id}', [NexumReportController::class, 'destroy']);
     });
 });
 

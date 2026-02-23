@@ -41,6 +41,9 @@
     .summary-cell + .summary-cell { margin-left: 6px; }
     .summary-value { font-size: 16px; font-weight: bold; color: #4c1d95; }
     .summary-label { font-size: 8px; color: #6b7280; margin-top: 2px; }
+    .change-up      { font-size: 8px; font-weight: bold; color: #059669; margin-top: 2px; }
+    .change-down    { font-size: 8px; font-weight: bold; color: #dc2626; margin-top: 2px; }
+    .change-neutral { font-size: 8px; color: #6b7280; margin-top: 2px; }
 
     /* ── Tabla base ── */
     table { width: 100%; border-collapse: collapse; font-size: 9px; }
@@ -51,20 +54,30 @@
     tbody tr:nth-child(even) { background: #f5f3ff; }
     tbody tr:nth-child(odd)  { background: #fff; }
     tbody td { padding: 4px 7px; color: #374151; border-bottom: 1px solid #e9d5ff; }
-    .text-right { text-align: right; }
+    .text-right  { text-align: right; }
     .text-center { text-align: center; }
     .bold { font-weight: bold; }
 
+    /* ── Margen colores ── */
+    .margin-good { color: #059669; font-weight: bold; }
+    .margin-mid  { color: #b45309; font-weight: bold; }
+    .margin-bad  { color: #dc2626; font-weight: bold; }
+
+    /* ── Rotación inventario ── */
+    .dead-stock { color: #dc2626; }
+    .slow-stock { color: #b45309; }
+    .ok-stock   { color: #059669; }
+
     /* ── Health score table ── */
     .health-row td { padding: 5px 7px; }
-    .bar-bg { background: #e9d5ff; border-radius: 4px; height: 8px; }
+    .bar-bg   { background: #e9d5ff; border-radius: 4px; height: 8px; }
     .bar-fill { height: 8px; border-radius: 4px; }
 
     /* ── Insight card ── */
     .insight-item { display: table; width: 100%; margin-bottom: 6px; }
     .insight-dot  { display: table-cell; width: 8px; vertical-align: top; padding-top: 2px; }
     .insight-dot-inner { width: 6px; height: 6px; border-radius: 50%; margin-top: 1px; }
-    .insight-body { display: table-cell; padding-left: 5px; }
+    .insight-body  { display: table-cell; padding-left: 5px; }
     .insight-title { font-weight: bold; font-size: 9px; color: #1e1b4b; }
     .insight-desc  { font-size: 8.5px; color: #6b7280; margin-top: 1px; }
     .badge {
@@ -82,7 +95,7 @@
     .divider { border: none; border-top: 1px solid #e9d5ff; margin: 10px 0; }
 
     /* ── 2-col layout ── */
-    .two-col { display: table; width: 100%; }
+    .two-col   { display: table; width: 100%; }
     .col-left  { display: table-cell; width: 48%; vertical-align: top; padding-right: 8px; }
     .col-right { display: table-cell; width: 48%; vertical-align: top; padding-left: 8px; border-left: 1px solid #e9d5ff; }
   </style>
@@ -110,25 +123,49 @@
   </div>
 
   {{-- ── 1. RESUMEN EJECUTIVO ─────────────────────────────── --}}
+  @php
+    $rChg = $sales['revenue_change_pct'];
+    $cChg = $sales['count_change_pct'];
+    $tChg = $sales['ticket_change_pct'];
+    $mPct = $health['categories']['costs']['metrics']['margin_pct'] ?? 0;
+  @endphp
   <div class="section">
     <div class="section-title">1. Resumen Ejecutivo</div>
     <div class="summary-grid">
       <div class="summary-cell">
         <div class="summary-value">${{ number_format($sales['total_revenue'], 0, ',', '.') }}</div>
+        @if($sales['prev_total_revenue'] > 0 || $sales['total_revenue'] > 0)
+          <div class="{{ $rChg >= 0 ? 'change-up' : 'change-down' }}">
+            {{ $rChg >= 0 ? '+' : '' }}{{ $rChg }}% vs anterior
+          </div>
+        @endif
         <div class="summary-label">Ingresos totales</div>
       </div>
       <div class="summary-cell">
         <div class="summary-value">{{ $sales['order_count'] }}</div>
+        @if($sales['prev_order_count'] > 0 || $sales['order_count'] > 0)
+          <div class="{{ $cChg >= 0 ? 'change-up' : 'change-down' }}">
+            {{ $cChg >= 0 ? '+' : '' }}{{ $cChg }}% vs anterior
+          </div>
+        @endif
         <div class="summary-label">Pedidos completados</div>
       </div>
       <div class="summary-cell">
         <div class="summary-value">${{ number_format($sales['avg_ticket'], 0, ',', '.') }}</div>
+        @if($sales['prev_avg_ticket'] > 0)
+          <div class="{{ $tChg >= 0 ? 'change-up' : 'change-down' }}">
+            {{ $tChg >= 0 ? '+' : '' }}{{ $tChg }}% vs anterior
+          </div>
+        @else
+          <div class="change-neutral">Sin per. anterior</div>
+        @endif
         <div class="summary-label">Ticket promedio</div>
       </div>
       <div class="summary-cell">
-        <div class="summary-value" style="color: {{ $health['categories']['costs']['metrics']['margin_pct'] >= 20 ? '#10b981' : '#ef4444' }}">
-          {{ $health['categories']['costs']['metrics']['margin_pct'] }}%
+        <div class="summary-value" style="color: {{ $mPct >= 20 ? '#059669' : '#dc2626' }}">
+          {{ $mPct }}%
         </div>
+        <div class="change-neutral">${{ number_format($sales['total_revenue'] - ($health['categories']['costs']['metrics']['total_costs'] ?? 0), 0, ',', '.') }} ganancia</div>
         <div class="summary-label">Margen bruto est.</div>
       </div>
     </div>
@@ -153,11 +190,18 @@
             @endforelse
           </tbody>
         </table>
+
+        {{-- Comparación período anterior --}}
+        <div style="margin-top:8px; padding:6px 8px; background:#f5f3ff; border-radius:6px; font-size:8.5px;">
+          <div class="bold" style="color:#4c1d95; margin-bottom:3px;">Período anterior ({{ $sales['prev_order_count'] }} pedidos)</div>
+          <div style="color:#374151;">Ingresos: ${{ number_format($sales['prev_total_revenue'], 0, ',', '.') }}
+            &nbsp;·&nbsp; Ticket: ${{ number_format($sales['prev_avg_ticket'], 0, ',', '.') }}</div>
+        </div>
       </div>
       <div class="col-right">
         <div class="section-title">3. Top Productos</div>
         <table>
-          <thead><tr><th>Producto</th><th class="text-right">Unidades</th><th class="text-right">Total</th></tr></thead>
+          <thead><tr><th>Producto</th><th class="text-right">Unid.</th><th class="text-right">Total</th></tr></thead>
           <tbody>
             @forelse($topProducts as $product)
             <tr>
@@ -173,6 +217,42 @@
       </div>
     </div>
   </div>
+
+  {{-- ── 3b. RENTABILIDAD POR PRODUCTO (si hay cost_price) ──── --}}
+  @if(!empty($productMargin))
+  <div class="section">
+    <div class="section-title">3b. Rentabilidad por Producto</div>
+    <table>
+      <thead>
+        <tr>
+          <th>Producto</th>
+          <th class="text-right">Unid.</th>
+          <th class="text-right">Precio venta</th>
+          <th class="text-right">Costo unit.</th>
+          <th class="text-right">Margen</th>
+          <th class="text-right">Ingreso total</th>
+        </tr>
+      </thead>
+      <tbody>
+        @foreach($productMargin as $pm)
+        <tr>
+          <td>{{ \Illuminate\Support\Str::limit($pm['name'], 24) }}</td>
+          <td class="text-right">{{ $pm['quantity'] }}</td>
+          <td class="text-right">${{ number_format($pm['avg_price'], 2, ',', '.') }}</td>
+          <td class="text-right">${{ number_format($pm['cost_price'], 2, ',', '.') }}</td>
+          <td class="text-right {{ $pm['margin_pct'] >= 40 ? 'margin-good' : ($pm['margin_pct'] >= 20 ? 'margin-mid' : 'margin-bad') }}">
+            {{ $pm['margin_pct'] }}%
+          </td>
+          <td class="text-right">${{ number_format($pm['revenue'], 0, ',', '.') }}</td>
+        </tr>
+        @endforeach
+      </tbody>
+    </table>
+    <div style="font-size:7.5px; color:#6b7280; margin-top:4px;">
+      * Solo incluye productos con costo unitario cargado. Verde ≥40%, Naranja ≥20%, Rojo &lt;20%.
+    </div>
+  </div>
+  @endif
 
   {{-- ── 4. GASTOS ──────────────────────────────────────────── --}}
   <div class="section">
@@ -277,14 +357,48 @@
             <tr><td>Stock bajo</td><td class="text-right" style="color:#b45309;">{{ $health['categories']['inventory']['metrics']['low_stock'] }}</td></tr>
             <tr><td>Sin stock</td><td class="text-right bold" style="color:#b91c1c;">{{ $health['categories']['inventory']['metrics']['out_of_stock'] }}</td></tr>
             <tr><td>Valor del inventario</td><td class="text-right">${{ number_format($health['categories']['inventory']['metrics']['stock_value'], 0, ',', '.') }}</td></tr>
+            @if($inventoryRot['has_data'])
+            <tr><td>Días promedio en stock</td><td class="text-right bold">{{ $inventoryRot['avg_days_of_stock'] }} días</td></tr>
+            <tr><td>Productos sin movimiento</td>
+                <td class="text-right {{ $inventoryRot['dead_stock_count'] > 0 ? 'dead-stock' : 'ok-stock' }} bold">
+                  {{ $inventoryRot['dead_stock_count'] }}
+                </td>
+            </tr>
+            <tr><td>Capital inmovilizado</td>
+                <td class="text-right {{ $inventoryRot['dead_stock_capital'] > 0 ? 'dead-stock' : 'ok-stock' }} bold">
+                  ${{ number_format($inventoryRot['dead_stock_capital'], 0, ',', '.') }}
+                </td>
+            </tr>
+            @endif
           </tbody>
         </table>
+
+        {{-- Rotación por producto --}}
+        @if($inventoryRot['has_data'] && !empty($inventoryRot['items']))
+        <br>
+        <div style="font-size:8.5px; font-weight:bold; color:#4c1d95; margin-bottom:3px;">Rotación por producto:</div>
+        <table>
+          <thead><tr><th>Producto</th><th class="text-right">Vendido</th><th class="text-right">Días stock</th></tr></thead>
+          <tbody>
+            @foreach($inventoryRot['items'] as $ri)
+            <tr>
+              <td>{{ \Illuminate\Support\Str::limit($ri['name'], 20) }}</td>
+              <td class="text-right">{{ $ri['units_sold'] }}</td>
+              <td class="text-right {{ $ri['is_dead'] ? 'dead-stock' : ($ri['days_of_stock'] > 30 ? 'slow-stock' : 'ok-stock') }} bold">
+                {{ $ri['is_dead'] ? 'Inmovilizado' : ($ri['days_of_stock'] ? $ri['days_of_stock'].'d' : '—') }}
+              </td>
+            </tr>
+            @endforeach
+          </tbody>
+        </table>
+        @endif
+
         @if($lowStockItems->isNotEmpty())
         <br>
-        <div style="font-size:8.5px; color:#b45309; font-weight:bold; margin-bottom:3px;">⚠ Productos con stock bajo o agotado:</div>
-        @foreach($lowStockItems->take(6) as $item)
+        <div style="font-size:8.5px; color:#b45309; font-weight:bold; margin-bottom:3px;">Stock bajo o agotado:</div>
+        @foreach($lowStockItems->take(5) as $item)
         <div style="font-size:8px; color:#374151; padding: 1px 0;">
-          · {{ \Illuminate\Support\Str::limit($item->name, 28) }}
+          · {{ \Illuminate\Support\Str::limit($item->name, 26) }}
           <span style="color:{{ $item->stock <= 0 ? '#b91c1c' : '#b45309' }}">
             ({{ $item->stock <= 0 ? 'Sin stock' : 'Stock: '.$item->stock }})
           </span>
@@ -299,17 +413,17 @@
   <div class="section">
     <div class="section-title">8. Nexum Health Score</div>
     <table>
-      <thead><tr><th>Categoría</th><th>Score</th><th>Barra</th><th class="text-right">Estado</th></tr></thead>
+      <thead><tr><th>Categoría</th><th>Valor</th><th>Barra</th><th class="text-right">Estado</th></tr></thead>
       <tbody class="health-row">
         @foreach([
-          ['Revenue',   'Ingresos',   $health['categories']['revenue']],
-          ['Inventory', 'Inventario', $health['categories']['inventory']],
-          ['Clients',   'Clientes',   $health['categories']['clients']],
-          ['Costs',     'Costos',     $health['categories']['costs']],
-        ] as [$key, $label, $cat])
+          ['Ventas',     $health['categories']['revenue']],
+          ['Stock',      $health['categories']['inventory']],
+          ['Clientes',   $health['categories']['clients']],
+          ['Margen',     $health['categories']['costs']],
+        ] as [$label, $cat])
         <tr>
           <td class="bold">{{ $label }}</td>
-          <td class="bold" style="color:{{ $cat['color'] }}; width:40px;">{{ $cat['score'] }}/100</td>
+          <td class="bold" style="color:{{ $cat['color'] }}; width:60px;">{{ $cat['display_value'] ?? $cat['score'].'/100' }}</td>
           <td style="width:120px; padding: 6px 7px;">
             <div class="bar-bg">
               <div class="bar-fill" style="width:{{ $cat['score'] }}%; background:{{ $cat['color'] }};"></div>
@@ -337,20 +451,22 @@
       </tbody>
     </table>
 
-    @if($insights->isNotEmpty())
+    @if(!empty($insights))
     <div style="margin-top:10px;">
-      <div style="font-size:9px; font-weight:bold; color:#4c1d95; margin-bottom:5px;">Insights activos en el período:</div>
-      @foreach($insights->take(8) as $insight)
+      <div style="font-size:9px; font-weight:bold; color:#4c1d95; margin-bottom:5px;">
+        Diagnósticos generados al {{ now()->format('d/m/Y H:i') }}:
+      </div>
+      @foreach($insights as $insight)
       <div class="insight-item">
         <div class="insight-dot">
-          <div class="insight-dot-inner" style="background:{{ $insight->getPriorityColor() }};"></div>
+          <div class="insight-dot-inner" style="background:{{ $insight['priority_color'] }};"></div>
         </div>
         <div class="insight-body">
-          <span class="insight-title">{{ $insight->title }}</span>
-          <span class="badge" style="background:{{ $insight->getPriorityColor() }}; margin-left:4px;">
-            {{ ucfirst($insight->priority) }}
+          <span class="insight-title">{{ $insight['title'] }}</span>
+          <span class="badge" style="background:{{ $insight['priority_color'] }}; margin-left:4px;">
+            {{ ucfirst($insight['priority']) }}
           </span>
-          <div class="insight-desc">{{ \Illuminate\Support\Str::limit($insight->description, 110) }}</div>
+          <div class="insight-desc">{{ \Illuminate\Support\Str::limit($insight['description'], 110) }}</div>
         </div>
       </div>
       @endforeach
