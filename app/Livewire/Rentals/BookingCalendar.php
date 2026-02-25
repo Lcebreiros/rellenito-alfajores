@@ -293,7 +293,11 @@ class BookingCalendar extends Component
             ->orderBy('starts_at')
             ->get();
 
-        $daySlots = $spaces->map(function ($space) use ($openTime, $closeTime, $bookingsForDay, $selectedDayStr) {
+        $spacesForSlots = $this->filterSpaceId
+            ? $spaces->where('id', $this->filterSpaceId)
+            : $spaces;
+
+        $daySlots = $spacesForSlots->map(function ($space) use ($openTime, $closeTime, $bookingsForDay, $selectedDayStr) {
             $baseInterval = $space->activeDurationOptions->min('minutes') ?? 60;
             $slots        = [];
             $current      = Carbon::parse($selectedDayStr . ' ' . $openTime);

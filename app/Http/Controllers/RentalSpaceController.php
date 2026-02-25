@@ -42,7 +42,10 @@ class RentalSpaceController extends Controller
 
     public function show(RentalSpace $rentalSpace)
     {
-        $this->authorize('view', $rentalSpace);
+        $companyId = $this->currentCompanyId();
+        if ($companyId !== null && (int) $rentalSpace->company_id !== $companyId) {
+            abort(403);
+        }
 
         $rentalSpace->load(['category', 'activeDurationOptions']);
 
@@ -94,7 +97,10 @@ class RentalSpaceController extends Controller
 
     public function update(Request $request, RentalSpace $rentalSpace)
     {
-        $this->authorize('update', $rentalSpace);
+        $companyId = $this->currentCompanyId();
+        if ($companyId !== null && (int) $rentalSpace->company_id !== $companyId) {
+            abort(403);
+        }
 
         $data = $request->validate([
             'name'        => 'required|string|max:100',
@@ -112,7 +118,10 @@ class RentalSpaceController extends Controller
 
     public function destroy(RentalSpace $rentalSpace)
     {
-        $this->authorize('delete', $rentalSpace);
+        $companyId = $this->currentCompanyId();
+        if ($companyId !== null && (int) $rentalSpace->company_id !== $companyId) {
+            abort(403);
+        }
         $rentalSpace->delete();
 
         return back()->with('ok', 'Espacio eliminado.');
@@ -137,7 +146,10 @@ class RentalSpaceController extends Controller
 
     public function storeDurationOption(Request $request, RentalSpace $rentalSpace)
     {
-        $this->authorize('update', $rentalSpace);
+        $companyId = $this->currentCompanyId();
+        if ($companyId !== null && (int) $rentalSpace->company_id !== $companyId) {
+            abort(403);
+        }
 
         $data = $request->validate([
             'label'   => 'required|string|max:100',
@@ -158,7 +170,11 @@ class RentalSpaceController extends Controller
 
     public function destroyDurationOption(RentalDurationOption $durationOption)
     {
-        $this->authorize('update', $durationOption->space);
+        $companyId = $this->currentCompanyId();
+        $space = $durationOption->space;
+        if ($companyId !== null && (int) $space->company_id !== $companyId) {
+            abort(403);
+        }
         $durationOption->delete();
 
         return back()->with('ok', 'Opción eliminada.');

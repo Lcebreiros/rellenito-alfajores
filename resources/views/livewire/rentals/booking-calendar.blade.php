@@ -88,7 +88,20 @@
             </button>
           </div>
 
-          {{-- Filtros: segunda fila en mobile, inline en desktop --}}
+          {{-- Filtro de espacio --}}
+          @if($spaces->count() > 1)
+          <div class="lg:flex-shrink-0">
+            <select wire:model.live="filterSpaceId"
+                    class="w-full lg:w-auto text-xs rounded-lg border border-neutral-200 dark:border-neutral-700 bg-white dark:bg-neutral-800 text-neutral-700 dark:text-neutral-300 px-2.5 py-1.5 focus:outline-none focus:ring-1 focus:ring-violet-400">
+              <option value="">Todos los espacios</option>
+              @foreach($spaces as $sp)
+                <option value="{{ $sp->id }}">{{ $sp->name }}</option>
+              @endforeach
+            </select>
+          </div>
+          @endif
+
+          {{-- Filtros: Todos/Libres/Ocupados --}}
           <div class="flex items-center bg-neutral-100 dark:bg-neutral-800 rounded-lg p-1 gap-0.5 lg:flex-shrink-0">
             <button @click="filter = 'all'"
                     :class="filter === 'all' ? 'bg-white dark:bg-neutral-700 shadow-sm text-neutral-900 dark:text-neutral-100' : 'text-neutral-500 dark:text-neutral-400'"
@@ -240,18 +253,6 @@
 
       {{-- ── PARTE VIOLETA: filtro + mes + grilla ── --}}
       <div class="rounded-2xl overflow-hidden flex-shrink-0" style="background: #7c3aed;">
-
-        {{-- Filtro de espacio --}}
-        <div class="px-4 py-3" style="border-bottom: 1px solid rgba(255,255,255,0.15);">
-          <select wire:model.live="filterSpaceId"
-                  class="w-full text-xs rounded-lg px-2.5 py-1.5 text-white/90 focus:outline-none focus:ring-1 focus:ring-white/40"
-                  style="background: rgba(255,255,255,0.15); border: 1px solid rgba(255,255,255,0.2);">
-            <option value="" style="background:#5b21b6; color:white;">Todos los espacios</option>
-            @foreach($spaces as $space)
-              <option value="{{ $space->id }}" style="background:#5b21b6; color:white;">{{ $space->name }}</option>
-            @endforeach
-          </select>
-        </div>
 
         {{-- Navegación de mes --}}
         <div class="px-5 pt-5 pb-4">
