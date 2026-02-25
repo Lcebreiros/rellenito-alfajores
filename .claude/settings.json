@@ -1,0 +1,32 @@
+{
+  "permissions": {
+    "allow": [
+      "Read(//home/leandro/gestior_mobile/lib/domain/models/**)",
+      "Read(//home/leandro/gestior_mobile/lib/features/auth/presentation/**)",
+      "Read(//home/leandro/gestior_mobile/**)",
+      "Bash(dart analyze:*)",
+      "Bash(du:*)",
+      "Bash(pkill:*)",
+      "Read(//home/leandro/gestior/**)",
+      "Read(//home/leandro/**)"
+    ],
+    "additionalDirectories": [
+      "/home/leandro/gestior_mobile/lib/features/support/data",
+      "/home/leandro/gestior_mobile/lib/features/support/presentation",
+      "/home/leandro/gestior_mobile/lib/domain/models",
+      "/home/leandro/gestior_mobile/lib/features/products/presentation",
+      "/home/leandro/gestior_mobile/lib/features/auth/presentation",
+      "/home/leandro/gestior_mobile/lib/features/home/presentation",
+      "/home/leandro/gestior_mobile/android",
+      "/home/leandro/gestior_mobile/lib/features/splash/presentation",
+      "/home/leandro/gestior_mobile/lib/features/clients/presentation",
+      "/home/leandro/gestior_mobile/lib/features/insights/presentation/providers",
+      "/home/leandro/gestior_mobile",
+      "/home/leandro/gestior/database/migrations",
+      "/home/leandro/gestior/app/Http/Controllers/Auth",
+      "/home/leandro/gestior/app/Models",
+      "/home/leandro/gestior/routes",
+      "/home/leandro/gestior/resources/views/auth"
+    ]
+  }
+}

@@ -65,6 +65,9 @@ class User extends Authenticatable
         'google_calendar_sync_enabled',
         // Módulos activos
         'modulos_activos',
+        // Horario operativo de alquileres
+        'rental_open_time',
+        'rental_close_time',
     ];
 
     protected $hidden = [
@@ -371,13 +374,13 @@ class User extends Authenticatable
     public static function availableModules(): array
     {
         return [
-            'productos' => 'Productos',
-            'servicios' => 'Servicios',
-            'proyectos' => 'Proyectos',
+            'productos'  => 'Productos',
+            'servicios'  => 'Servicios',
+            'proyectos'  => 'Proyectos',
             'sucursales' => 'Sucursales',
-            'empleados' => 'Personal',
-            'clientes' => 'Clientes',
-            'parking'  => 'Estacionamiento (cocheras)',
+            'empleados'  => 'Personal',
+            'clientes'   => 'Clientes',
+            'alquileres' => 'Alquileres / Clubes',
         ];
     }
 

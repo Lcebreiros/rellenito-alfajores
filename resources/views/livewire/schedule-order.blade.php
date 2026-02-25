@@ -14,7 +14,7 @@
         <label for="schedule-datetime" class="text-xs text-neutral-600 dark:text-neutral-400">Fecha y hora</label>
         <input id="schedule-datetime" type="datetime-local" step="60" wire:model.lazy="datetime"
                class="w-full px-3 py-2 rounded-lg border border-neutral-300 dark:border-neutral-700 bg-white dark:bg-neutral-900 text-sm"/>
-        <p class="text-[11px] text-neutral-500 dark:text-neutral-400">Se guardará como agendado al confirmar el pedido.</p>
+        <p class="text-[11px] text-neutral-500 dark:text-neutral-400">Se guardará como agendado al confirmar la venta.</p>
     </div>
     <p class="text-xs text-neutral-500 dark:text-neutral-400" x-show="!on">Activá el switch y elegí fecha. Al confirmar, se agenda.</p>
   </div>

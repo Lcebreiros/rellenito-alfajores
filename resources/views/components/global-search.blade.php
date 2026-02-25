@@ -35,7 +35,7 @@
                        @keydown.up.prevent="selectedIndex = Math.max(selectedIndex - 1, 0)"
                        @keydown.enter.prevent="navigateToSelected()"
                        type="text"
-                       placeholder="Buscar productos, pedidos, clientes..."
+                       placeholder="Buscar productos, ventas, clientes..."
                        class="flex-1 bg-transparent border-0 text-neutral-900 dark:text-neutral-100 placeholder-neutral-400 focus:ring-0 text-lg">
                 <kbd class="hidden sm:inline-flex px-2 py-1 text-xs font-semibold text-neutral-500 bg-neutral-100 dark:bg-neutral-800 dark:text-neutral-400 border border-neutral-200 dark:border-neutral-700 rounded">
                     ESC
@@ -79,7 +79,7 @@
                                     <span class="inline-flex items-center rounded-full px-2 py-1 text-xs font-medium"
                                           :class="{
                                               'bg-blue-50 text-blue-700 dark:bg-blue-900/20 dark:text-blue-300': result.type === 'producto',
-                                              'bg-emerald-50 text-emerald-700 dark:bg-emerald-900/20 dark:text-emerald-300': result.type === 'pedido',
+                                              'bg-emerald-50 text-emerald-700 dark:bg-emerald-900/20 dark:text-emerald-300': result.type === 'venta',
                                               'bg-purple-50 text-purple-700 dark:bg-purple-900/20 dark:text-purple-300': result.type === 'cliente',
                                           }"
                                           x-text="result.type"></span>
@@ -93,7 +93,7 @@
                     <div class="p-8 text-center">
                         <x-svg-icon name="search" size="12" class="mx-auto text-neutral-300 dark:text-neutral-700 mb-3" />
                         <p class="text-sm font-medium text-neutral-900 dark:text-neutral-100">Búsqueda rápida</p>
-                        <p class="text-xs text-neutral-500 dark:text-neutral-400 mt-1">Escribe para buscar productos, pedidos o clientes</p>
+                        <p class="text-xs text-neutral-500 dark:text-neutral-400 mt-1">Escribe para buscar productos, ventas o clientes</p>
                     </div>
                 </template>
             </div>

@@ -63,6 +63,15 @@ abstract class BaseInsightGenerator
     abstract protected function getType(): string;
 
     /**
+     * Expone el tipo públicamente para que InsightService pueda limpiar
+     * los insights de este tipo antes de regenerarlos.
+     */
+    public function getInsightType(): string
+    {
+        return $this->getType();
+    }
+
+    /**
      * Determina si este generador debe ejecutarse
      * Útil para validar pre-requisitos (ej: negocio con inventario habilitado)
      */

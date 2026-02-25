@@ -3,10 +3,10 @@
 
 @section('header')
 <div class="flex flex-col sm:flex-row sm:items-end sm:justify-between gap-2">
-    {{-- Información del pedido --}}
+    {{-- Información de la venta --}}
     <div>
         <h1 class="text-xl font-semibold text-neutral-800 dark:text-neutral-100">
-            Editar Pedido #{{ $order->id }}
+            Editar Venta #{{ $order->id }}
         </h1>
         <p class="text-xs sm:text-sm text-neutral-500 dark:text-neutral-400">
             {{ $order->created_at?->format('d/m/Y H:i') }}
@@ -22,13 +22,13 @@
         </a>
 
         <form method="POST" action="{{ route('orders.destroy', $order) }}" 
-              onsubmit="return confirm('¿Seguro querés eliminar este pedido?');">
+              onsubmit="return confirm('¿Seguro querés eliminar esta venta?');">
             @csrf
             @method('DELETE')
             <button type="submit" 
                     class="inline-flex items-center gap-2 px-3 py-1.5 rounded-lg border border-rose-600
                            text-white bg-rose-600 hover:bg-rose-700 transition-colors text-sm">
-                Eliminar Pedido
+                Eliminar Venta
             </button>
         </form>
     </div>
@@ -114,7 +114,7 @@
   {{-- Mensaje cuando no hay productos --}}
   <template x-if="items.length === 0">
     <div class="py-14 text-center text-neutral-500 dark:text-neutral-400">
-      No hay productos en este pedido
+      No hay productos en esta venta
     </div>
   </template>
 </div>
@@ -211,7 +211,7 @@
 
       {{-- Toggle agendar --}}
       <div class="flex items-center justify-between">
-        <label class="text-sm text-neutral-700 dark:text-neutral-300">Agendar pedido</label>
+        <label class="text-sm text-neutral-700 dark:text-neutral-300">Agendar venta</label>
         <button type="button" @click="isScheduled = !isScheduled"
                 :class="isScheduled ? 'bg-indigo-600' : 'bg-neutral-300 dark:bg-neutral-700'"
                 class="relative inline-flex h-6 w-11 items-center rounded-full transition-colors">

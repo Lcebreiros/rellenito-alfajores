@@ -54,8 +54,8 @@
             wire:target="add"
             @disabled(!$canAdd)
             aria-label="Agregar {{ $name }} por {{ $priceLbl }}"
-            class="relative w-full h-full min-h-[100px] max-h-[160px] rounded-2xl 
-                   bg-white dark:bg-neutral-900 ring-1 ring-slate-200/70 dark:ring-neutral-800
+            class="relative w-full h-full min-h-[100px] max-h-[160px] rounded-2xl
+                   bg-white dark:bg-neutral-900 ring-1 ring-violet-200/40 dark:ring-neutral-800
                    p-3 md:p-4 transition-all duration-200 text-left overflow-hidden
                    {{ $canAdd
                       ? 'hover:-translate-y-0.5 hover:shadow-md focus:outline-none focus-visible:ring-2 focus-visible:ring-indigo-500'

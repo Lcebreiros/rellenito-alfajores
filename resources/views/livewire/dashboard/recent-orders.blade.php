@@ -2,7 +2,7 @@
                                    bg-white dark:bg-neutral-900 border border-neutral-200 dark:border-neutral-800
                                    rounded-2xl shadow-sm overflow-hidden">
   <div class="px-4 sm:px-5 py-3 border-b border-neutral-200 dark:border-neutral-800 flex items-center justify-between">
-    <h3 class="text-sm font-semibold text-neutral-900 dark:text-neutral-100">Últimos pedidos</h3>
+    <h3 class="text-sm font-semibold text-neutral-900 dark:text-neutral-100">Últimas ventas</h3>
     <a href="{{ route('orders.index') }}" class="text-xs text-indigo-600 dark:text-indigo-400 hover:underline">Ver todos</a>
   </div>
   <div class="flex-1 divide-y divide-neutral-200 dark:divide-neutral-800 overflow-y-auto dashboard-widget-scroll">
@@ -15,7 +15,7 @@
         <div class="shrink-0 text-sm font-semibold tabular-nums text-neutral-900 dark:text-neutral-100">${{ number_format((float)$o->total,2,',','.') }}</div>
       </div>
     @empty
-      <div class="px-4 sm:px-5 py-6 text-sm text-neutral-500 dark:text-neutral-400">Sin pedidos recientes.</div>
+      <div class="px-4 sm:px-5 py-6 text-sm text-neutral-500 dark:text-neutral-400">Sin ventas recientes.</div>
     @endforelse
   </div>
 </div>

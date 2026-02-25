@@ -32,6 +32,10 @@ class SettingsPanel extends Component
     public int $low_stock_threshold = 5;
     public bool $notify_out_of_stock = true;
 
+    // Horario operativo de alquileres
+    public string $rentalOpenTime = '08:00';
+    public string $rentalCloseTime = '22:00';
+
     public function mount()
     {
         $this->theme      = Setting::get('theme', 'light');
@@ -46,6 +50,10 @@ class SettingsPanel extends Component
         $this->notify_low_stock = $user?->notify_low_stock ?? true;
         $this->low_stock_threshold = $user?->low_stock_threshold ?? 5;
         $this->notify_out_of_stock = $user?->notify_out_of_stock ?? true;
+
+        // Cargar horario operativo de alquileres
+        $this->rentalOpenTime = $user?->rental_open_time ?? '08:00';
+        $this->rentalCloseTime = $user?->rental_close_time ?? '22:00';
 
         // Cargar color personalizado
         $this->custom_color = Setting::get('custom_color', '#6366f1');
@@ -210,6 +218,28 @@ class SettingsPanel extends Component
         }
 
         $this->receipt_logo_url = null;
+    }
+
+    // === RENTAL HOURS ===
+    public function saveRentalHours(): void
+    {
+        $this->validate([
+            'rentalOpenTime' => ['required', 'regex:/^\d{2}:\d{2}$/'],
+            'rentalCloseTime' => ['required', 'regex:/^\d{2}:\d{2}$/'],
+        ], [
+            'rentalOpenTime.required' => 'El horario de apertura es obligatorio.',
+            'rentalCloseTime.required' => 'El horario de cierre es obligatorio.',
+        ]);
+
+        $user = Auth::user();
+        if (!$user) return;
+
+        $user->update([
+            'rental_open_time' => $this->rentalOpenTime,
+            'rental_close_time' => $this->rentalCloseTime,
+        ]);
+
+        session()->flash('ok', 'Horario de alquileres guardado.');
     }
 
     // === STOCK NOTIFICATIONS ===

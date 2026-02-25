@@ -8,18 +8,23 @@ return [
         'sucursales',
         'empleados',
         'clientes',
-        'parking',
+        'alquileres',
     ],
     'tienda' => [
         'productos',
         'servicios',
         'clientes',
     ],
+    'club' => [
+        'alquileres',
+        'clientes',
+        'empleados',
+    ],
     'empresa' => [
         // vacío a propósito, se puede personalizar luego
     ],
+    // Mantenido por compatibilidad con datos existentes
     'estacionamiento' => [
-        'parking',
         'clientes',
     ],
 ];

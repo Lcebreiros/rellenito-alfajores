@@ -27,6 +27,11 @@ class Kernel extends ConsoleKernel
         $schedule->command('reports:generate-scheduled')
             ->dailyAt('06:00')
             ->timezone('America/Argentina/Buenos_Aires');
+
+        // Finalizar reservas de alquiler cuyo horario ya pasó
+        $schedule->command('rental:finish-past-bookings')
+            ->everyFifteenMinutes()
+            ->timezone('America/Argentina/Buenos_Aires');
     }
 
     protected function commands(): void

@@ -81,7 +81,7 @@ class LowStockInsightGenerator extends BaseInsightGenerator
             if ($currentStock <= 0) {
                 $insights[] = $this->makeInsight(
                     BusinessInsight::PRIORITY_CRITICAL,
-                    "⚠️ Sin stock: {$product->name}",
+                    "Sin stock: {$product->name}",
                     "El producto {$product->name} no tiene stock disponible. Es necesario realizar un pedido urgente.",
                     [
                         'product_id' => $product->id,
@@ -96,7 +96,7 @@ class LowStockInsightGenerator extends BaseInsightGenerator
             } elseif ($currentStock < $minStock) {
                 $insights[] = $this->makeInsight(
                     BusinessInsight::PRIORITY_HIGH,
-                    "📦 Stock bajo: {$product->name}",
+                    "Stock bajo: {$product->name}",
                     "El producto {$product->name} tiene solo {$currentStock} unidades. Mínimo recomendado: {$minStock}.",
                     [
                         'product_id' => $product->id,
@@ -112,7 +112,7 @@ class LowStockInsightGenerator extends BaseInsightGenerator
                 $daysRounded = ceil($daysUntilEmpty);
                 $insights[] = $this->makeInsight(
                     BusinessInsight::PRIORITY_MEDIUM,
-                    "⏱️ Stock limitado: {$product->name}",
+                    "Stock limitado: {$product->name}",
                     "Al ritmo actual de ventas, {$product->name} se agotará en aproximadamente {$daysRounded} días.",
                     [
                         'product_id' => $product->id,

@@ -94,13 +94,13 @@
           {{-- Order select --}}
           <div>
             <label class="block text-sm font-medium text-neutral-700 dark:text-neutral-300 mb-2">
-              Pedido (opcional)
+              Venta (opcional)
             </label>
             <select name="order_id" class="input-enhanced w-full">
-              <option value="">Sin pedido asociado</option>
+              <option value="">Sin venta asociada</option>
               @foreach($orders as $order)
                 <option value="{{ $order->id }}">
-                  Pedido #{{ $order->id }} - {{ $order->customer_name }} - ${{ number_format($order->total, 2) }}
+                  Venta #{{ $order->id }} - {{ $order->customer_name }} - ${{ number_format($order->total, 2) }}
                 </option>
               @endforeach
             </select>

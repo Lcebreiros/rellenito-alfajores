@@ -550,20 +550,20 @@
       @else
         {{-- VISTA PARA COMERCIO (default) --}}
         <div class="grid grid-cols-2 sm:grid-cols-3 gap-1.5 sm:gap-2 lg:gap-2.5">
-          {{-- Crear Pedido - Ocupa 2 filas --}}
+          {{-- Crear Venta - Ocupa 2 filas --}}
           <a href="{{ route('orders.create') }}" class="tile-square tile-orders row-span-2">
-            <img src="{{ asset('images/crear-pedido.png') }}" alt="Crear pedido" class="w-8 h-8 sm:w-10 sm:h-10 lg:w-14 lg:h-14 object-contain dark:invert mb-1 sm:mb-1.5 lg:mb-2 transition-transform group-hover:scale-110">
+            <img src="{{ asset('images/crear-venta.png') }}" alt="Crear venta" class="w-8 h-8 sm:w-10 sm:h-10 lg:w-14 lg:h-14 object-contain dark:invert mb-1 sm:mb-1.5 lg:mb-2 transition-transform group-hover:scale-110">
             <div class="text-center">
-              <div class="text-xs sm:text-sm lg:text-base font-bold text-neutral-900 dark:text-neutral-100">Crear pedido</div>
+              <div class="text-xs sm:text-sm lg:text-base font-bold text-neutral-900 dark:text-neutral-100">Crear venta</div>
               <div class="text-[10px] sm:text-xs text-neutral-500 dark:text-neutral-400 mt-0.5">Carga rápida</div>
             </div>
           </a>
 
-          {{-- Pedidos --}}
+          {{-- Ventas --}}
           <a href="{{ route('orders.index') }}" class="tile-wide tile-orders">
-            <img src="{{ asset('images/pedidos.png') }}" alt="Pedidos" class="w-7 h-7 sm:w-8 sm:h-8 lg:w-10 lg:h-10 object-contain dark:invert flex-shrink-0">
+            <img src="{{ asset('images/ventas.png') }}" alt="Ventas" class="w-7 h-7 sm:w-8 sm:h-8 lg:w-10 lg:h-10 object-contain dark:invert flex-shrink-0">
             <div class="min-w-0">
-              <div class="text-xs sm:text-sm font-bold text-neutral-900 dark:text-neutral-100 truncate">Pedidos</div>
+              <div class="text-xs sm:text-sm font-bold text-neutral-900 dark:text-neutral-100 truncate">Ventas</div>
               <div class="text-[10px] sm:text-xs text-neutral-500 dark:text-neutral-400">Historial</div>
             </div>
           </a>

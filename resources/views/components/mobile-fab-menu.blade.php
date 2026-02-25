@@ -47,11 +47,11 @@
 
       <a href="{{ route('orders.create') }}" wire:navigate data-turbo="false"
          class="flex items-center gap-3 px-3 py-2 rounded-lg text-sm font-medium hover:bg-neutral-50 dark:hover:bg-neutral-800 {{ request()->routeIs('orders.create') ? 'bg-neutral-100 dark:bg-neutral-800' : '' }}"
-         role="menuitem">Crear pedido</a>
+         role="menuitem">Crear venta</a>
 
       <a href="{{ $ordersUrl }}" wire:navigate data-turbo="false"
          class="flex items-center gap-3 px-3 py-2 rounded-lg text-sm font-medium hover:bg-neutral-50 dark:hover:bg-neutral-800 {{ request()->routeIs('orders.index') ? 'bg-neutral-100 dark:bg-neutral-800' : '' }}"
-         role="menuitem">Lista de pedidos</a>
+         role="menuitem">Lista de ventas</a>
 
       <a href="{{ route('products.index') }}" wire:navigate data-turbo="false"
          class="flex items-center gap-3 px-3 py-2 rounded-lg text-sm font-medium hover:bg-neutral-50 dark:hover:bg-neutral-800 {{ request()->routeIs('products.*') ? 'bg-neutral-100 dark:bg-neutral-800' : '' }}"

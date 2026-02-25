@@ -4,6 +4,7 @@ namespace App\Livewire\Dashboard;
 
 use Livewire\Component;
 use Illuminate\Support\Facades\Auth;
+use App\Models\Booking;
 use App\Models\ThirdPartyService;
 use App\Models\SupplyPurchase;
 use App\Models\Order;
@@ -69,6 +70,18 @@ class CalendarWidget extends Component
             ->whereBetween('created_at', [$startOfCurrentMonth, $endOfCurrentMonth])
             ->orderBy('created_at', 'desc')
             ->get();
+
+        // Reservas de alquileres próximas (para widget - si tiene el módulo activo)
+        $currentMonthBookings = collect();
+        if ($user->hasModule('alquileres')) {
+            $companyId = $user->isCompany() ? $user->id : $user->parent_id;
+            $currentMonthBookings = Booking::with(['space'])
+                ->where('company_id', $companyId)
+                ->whereIn('status', ['pending', 'confirmed'])
+                ->where('starts_at', '>=', $startOfCurrentMonth)
+                ->orderBy('starts_at')
+                ->get();
+        }
 
         // Pedidos agendados desde el inicio del mes actual en adelante (para widget)
         $currentMonthScheduledOrders = \App\Models\Order::query()
@@ -150,6 +163,20 @@ class CalendarWidget extends Component
                 'title' => $title,
                 'amount' => $order->total,
                 'is_overdue' => Carbon::parse($order->scheduled_for)->isPast(),
+            ];
+        }
+
+        foreach ($currentMonthBookings as $booking) {
+            $date = Carbon::parse($booking->starts_at)->format('Y-m-d');
+            if (!isset($widgetEvents[$date])) {
+                $widgetEvents[$date] = [];
+            }
+            $widgetEvents[$date][] = [
+                'type'        => 'booking',
+                'title'       => ($booking->space->name ?? 'Espacio') . ' · ' . $booking->getClientDisplayName(),
+                'time'        => $booking->starts_at->format('H:i'),
+                'space_color' => $booking->space->color ?? '#6366f1',
+                'status'      => $booking->status,
             ];
         }
 

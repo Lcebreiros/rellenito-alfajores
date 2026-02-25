@@ -30,7 +30,7 @@
             <svg class="w-5 h-5" viewBox="0 0 24 24" fill="none">
                 <path d="M3 7h18M6 3h12M6 21h12M5 7l1 14h12l1-14" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
             </svg>
-            <span>Crear pedido</span>
+            <span>Crear venta</span>
         </a>
 
         <a href="{{ route('products.index') }}"

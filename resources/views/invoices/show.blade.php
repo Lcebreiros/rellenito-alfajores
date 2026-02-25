@@ -360,9 +360,9 @@
 
           @if($invoice->order)
             <div>
-              <p class="text-xs text-neutral-600 dark:text-neutral-400 uppercase tracking-wide mb-1">Pedido asociado</p>
+              <p class="text-xs text-neutral-600 dark:text-neutral-400 uppercase tracking-wide mb-1">Venta asociada</p>
               <a href="{{ route('orders.show', $invoice->order) }}" class="text-indigo-600 dark:text-indigo-400 hover:underline">
-                Pedido #{{ $invoice->order->id }}
+                Venta #{{ $invoice->order->id }}
               </a>
             </div>
           @endif

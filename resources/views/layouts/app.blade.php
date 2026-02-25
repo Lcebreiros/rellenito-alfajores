@@ -98,29 +98,51 @@
     }
 
     :root {
-      --sb-width: 16rem;
       --sb-width-collapsed: 4rem;
     }
+    /* El sidebar es overlay (position:fixed), el contenido nunca se mueve */
     .app-main{
-      margin-left: var(--sb-width);
-      width: calc(100vw - var(--sb-width));
-      transition: margin-left .5s cubic-bezier(.16,1,.3,1), width .5s cubic-bezier(.16,1,.3,1);
+      margin-left: var(--sb-width-collapsed);
+      width: calc(100vw - var(--sb-width-collapsed));
       min-width: 0;
       overflow-x: hidden;
     }
-    .sb-collapsed .app-main{
-      margin-left: var(--sb-width-collapsed);
-      width: calc(100vw - var(--sb-width-collapsed));
-    }
     @media (max-width: 1024px) {
-      :root {
-        --sb-width: 0;
-        --sb-width-collapsed: 0;
-      }
       .app-main{
         margin-left: 0;
         width: 100vw;
       }
+    }
+
+    /*
+     * Velo sobre el contenido cuando el sidebar se expande.
+     * BEST PRACTICE: backdrop-filter y background son ESTÁTICOS (no se animan).
+     * Solo se anima `opacity` — única propiedad 100% GPU-composited sin repaint.
+     */
+    .sb-content-veil {
+      position: fixed;
+      inset: 0 0 0 var(--sb-width-collapsed);
+      z-index: 45; /* entre contenido y sidebar (z-50) */
+      pointer-events: none;
+
+      /* Valores estáticos — nunca transicionan */
+      background: rgba(0, 0, 0, 0.08);
+      backdrop-filter: blur(2px);
+      -webkit-backdrop-filter: blur(2px);
+
+      /* Solo opacity transiciona → sin repaint, GPU composited */
+      opacity: 0;
+      transition: opacity .25s ease;
+      will-change: opacity;
+    }
+    html.dark .sb-content-veil {
+      background: rgba(0, 0, 0, 0.22);
+    }
+    html:not(.sb-collapsed) .sb-content-veil {
+      opacity: 1;
+    }
+    @media (max-width: 1024px) {
+      .sb-content-veil { display: none; }
     }
   </style>
   @if (trim($__env->yieldContent('no_sidebar')))
@@ -266,8 +288,11 @@
     <x-sidebar />
   @endif
 
+  {{-- Velo sutil sobre el contenido cuando el sidebar se expande (blur + oscurecimiento) --}}
+  <div class="sb-content-veil"></div>
+
   {{-- Contenido principal --}}
-  <div class="app-main min-h-screen flex flex-col {{ module_bg() }} overflow-x-hidden w-full">
+  <div class="app-main min-h-screen flex flex-col bg-white dark:bg-neutral-950 overflow-x-hidden w-full">
     <x-mobile-header />
 
     {{-- HEADER: slot Jetstream o sección Blade --}}

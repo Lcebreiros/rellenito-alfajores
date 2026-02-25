@@ -149,7 +149,7 @@
       @else
         <div class="brand">{{ $appName }}</div>
       @endif
-      <div class="subtitle">Comprobante de Pedido</div>
+      <div class="subtitle">Comprobante de Venta</div>
       <div class="badge">#{{ $order->id }}</div>
     </div>
 

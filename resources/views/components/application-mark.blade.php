@@ -3,7 +3,7 @@
     use Illuminate\Support\Facades\Storage;
 
     // Fallback por defecto
-    $src = asset('logo.png');
+    $src = asset('gestior_blanco.png');
 
     if (Auth::check() && Auth::user()->app_logo_path) {
         $path = Auth::user()->app_logo_path;

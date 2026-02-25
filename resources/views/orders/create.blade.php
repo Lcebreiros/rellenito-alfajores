@@ -2,7 +2,7 @@
 
 @section('header')
   <h1 class="text-xl font-semibold text-gray-800 dark:text-neutral-100 leading-tight transition-colors">
-    Crear pedido
+    Crear venta
   </h1>
 @endsection
 
@@ -33,7 +33,7 @@
     <livewire:payment-method-selector :key="'payment-method-selector'" />
   </div>
 
-  {{-- Layout responsive: IZQ productos (8/12) + DER pedido (4/12) --}}
+  {{-- Layout responsive: IZQ productos (8/12) + DER venta (4/12) --}}
   <div class="grid grid-cols-1 lg:grid-cols-12 gap-6 items-start min-w-0">
 
     {{-- IZQUIERDA: Productos y Servicios --}}
@@ -76,7 +76,7 @@
       </div>
     </section>
 
-    {{-- DERECHA: Pedido en curso --}}
+    {{-- DERECHA: Venta en curso --}}
     <aside class="lg:col-span-4 space-y-4 min-w-0">
       {{-- Agendar (arriba del sidebar) --}}
       <livewire:schedule-order :key="'schedule-order'" />
@@ -114,8 +114,8 @@
           </svg>
         </div>
         <div class="flex-1">
-          <div class="font-semibold">Pedido agregado</div>
-          <div class="text-sm opacity-90">Se creó el pedido <span class="font-semibold">#<span x-text="toast.orderId"></span></span>.</div>
+          <div class="font-semibold">Venta agregada</div>
+          <div class="text-sm opacity-90">Se creó la venta <span class="font-semibold">#<span x-text="toast.orderId"></span></span>.</div>
           <div class="mt-2 flex gap-2">
             <button
               type="button"

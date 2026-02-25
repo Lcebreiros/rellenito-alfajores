@@ -4,12 +4,12 @@
 <div class="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
   <div class="flex items-center gap-3">
     <h1 class="text-2xl font-bold text-neutral-900 dark:text-neutral-100 flex items-center gap-3">
-      <x-svg-icon name="document" size="6" class="text-indigo-600" /> Historial de Pedidos
+      <x-svg-icon name="document" size="6" class="text-indigo-600" /> Historial de Ventas
     </h1>
   </div>
 
   <div class="flex flex-wrap items-center gap-2">
-    {{-- Nuevo Pedido --}}
+    {{-- Nueva Venta --}}
     <div class="inline-flex">
       <livewire:order-quick-modal />
     </div>
@@ -252,7 +252,7 @@
                                       dark:border-neutral-700 dark:bg-neutral-700 dark:checked:bg-indigo-500
                                       hover:none focus:none">
                     </th>
-                    <th class="text-left px-6 py-3 font-medium text-neutral-600 dark:text-neutral-300">Pedido</th>
+                    <th class="text-left px-6 py-3 font-medium text-neutral-600 dark:text-neutral-300">Venta</th>
                     <th class="text-left px-3 py-3 font-medium text-neutral-600 dark:text-neutral-300">Cliente</th>
                     <th class="text-left px-3 py-3 font-medium text-neutral-600 dark:text-neutral-300">Fecha</th>
                     @if(!empty($isCompany))
@@ -348,14 +348,14 @@
                         <td colspan="{{ (!empty($isCompany) ? 10 : 9) + (!empty($isMaster) ? 1 : 0) }}" class="px-6 py-16 text-center text-neutral-500 dark:text-neutral-400">
                             <div class="flex flex-col items-center">
                                 <x-svg-icon name="search" size="12" class="text-neutral-300 dark:text-neutral-600 mb-3" />
-                                <div class="text-lg font-medium">No se encontraron pedidos</div>
+                                <div class="text-lg font-medium">No se encontraron ventas</div>
                                 <p class="text-neutral-500 dark:text-neutral-400">Ajustá los filtros para ver resultados.</p>
                                 <div class="mt-4 flex justify-center gap-2">
                                     <a href="{{ route('orders.index') }}" class="inline-flex items-center gap-2 px-3 py-2 text-sm text-neutral-700 dark:text-neutral-200 bg-neutral-100 dark:bg-neutral-800 rounded-lg hover:bg-neutral-200 dark:hover:bg-neutral-700 transition-colors">
                                         <x-svg-icon name="x" size="4" /> Limpiar filtros
                                     </a>
                                     <a href="{{ route('orders.create') }}" class="inline-flex items-center gap-2 px-3 py-2 text-sm text-white bg-indigo-600 rounded-lg hover:bg-indigo-700 transition-all duration-150 active:scale-[0.98]">
-                                        <x-svg-icon name="plus" size="4" /> Crear pedido
+                                        <x-svg-icon name="plus" size="4" /> Crear venta
                                     </a>
                                 </div>
                             </div>
@@ -414,7 +414,7 @@
       </a>
     </div>
     <div class="mt-4 p-3 bg-blue-50 dark:bg-neutral-800/40 rounded-lg text-sm text-blue-700 dark:text-neutral-200">
-      Se incluirán: {{ $orders->total() }} pedidos con los filtros actuales.
+      Se incluirán: {{ $orders->total() }} ventas con los filtros actuales.
     </div>
   </div>
 </div>
@@ -439,7 +439,7 @@
 </style>
 
 <script>
-// Script para manejo de selección y eliminación de pedidos
+// Script para manejo de selección y eliminación de ventas
 (function() {
     'use strict';
 
@@ -526,13 +526,13 @@
                 .map(cb => cb.value);
 
             if (selectedIds.length === 0) {
-                alert('No hay pedidos seleccionados');
+                alert('No hay ventas seleccionadas');
                 return;
             }
 
             const confirmMessage = selectedIds.length === 1
-                ? '¿Eliminar este pedido? Esta acción no se puede deshacer.'
-                : `¿Eliminar ${selectedIds.length} pedidos? Esta acción no se puede deshacer.`;
+                ? '¿Eliminar esta venta? Esta acción no se puede deshacer.'
+                : `¿Eliminar ${selectedIds.length} ventas? Esta acción no se puede deshacer.`;
 
             if (!confirm(confirmMessage)) return;
 
@@ -560,13 +560,13 @@
                     // Recargar la página para mostrar los cambios
                     window.location.reload();
                 } else {
-                    alert(data.message || 'Error al eliminar los pedidos');
+                    alert(data.message || 'Error al eliminar las ventas');
                     deleteBtn.disabled = false;
                     deleteBtn.innerHTML = originalText;
                 }
             } catch (error) {
-                console.error('Error al eliminar pedidos:', error);
-                alert('Error de conexión al eliminar los pedidos');
+                console.error('Error al eliminar ventas:', error);
+                alert('Error de conexión al eliminar las ventas');
                 deleteBtn.disabled = false;
                 deleteBtn.innerHTML = originalText;
             }

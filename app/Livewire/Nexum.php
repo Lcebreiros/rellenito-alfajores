@@ -2,7 +2,6 @@
 
 namespace App\Livewire;
 
-use App\Jobs\GenerateReportJob;
 use App\Models\BusinessInsight;
 use App\Models\GeneratedReport;
 use App\Models\ReportConfiguration;
@@ -128,32 +127,57 @@ class Nexum extends Component
         session()->flash('nexum_success', 'Configuración guardada. Próximo reporte: ' . optional($config->next_generation_at)->format('d/m/Y') . '.');
     }
 
-    public function requestManualReport(): void
+    public function requestManualReport(string $period = 'monthly'): void
     {
         $this->requestingManual = true;
 
-        $user  = Auth::user();
-        $start = now()->subMonth()->startOfMonth();
-        $end   = now()->subMonth()->endOfMonth();
+        $user = Auth::user();
+        $end  = now()->endOfDay();
+        $start = match($period) {
+            'weekly'     => now()->subDays(7)->startOfDay(),
+            'quarterly'  => now()->subMonths(3)->startOfDay(),
+            'semiannual' => now()->subMonths(6)->startOfDay(),
+            'annual'     => now()->subYear()->startOfDay(),
+            default      => now()->subDays(30)->startOfDay(),
+        };
 
-        $report = GeneratedReport::create([
-            'user_id'        => $user->id,
-            'frequency_type' => 'manual',
-            'period_start'   => $start->toDateString(),
-            'period_end'     => $end->toDateString(),
-            'status'         => 'pending',
-        ]);
+        try {
+            $service = new \App\Services\NexumReportService($user);
+            $report  = $service->generate($start, $end, $period);
 
-        GenerateReportJob::dispatch(
-            $user->id,
-            $report->id,
-            $start->toDateString(),
-            $end->toDateString(),
-            'manual'
-        );
+            // Notificación en panel
+            \App\Models\UserNotification::create([
+                'user_id' => $user->id,
+                'type'    => 'report_ready',
+                'title'   => '📊 Reporte listo',
+                'message' => 'Tu reporte manual de Nexum está listo para descargar.',
+                'data'    => [
+                    'report_id'    => $report->id,
+                    'period_start' => $start->toDateString(),
+                    'period_end'   => $end->toDateString(),
+                    'frequency'    => 'manual',
+                    'url'          => '/nexum',
+                ],
+                'is_read' => false,
+            ]);
+
+            // Email si lo activó
+            if ($user->reportConfiguration?->email_delivery) {
+                $user->notify(new \App\Notifications\ReportReadyNotification($report));
+            }
+
+            // Transicionar modal a estado "listo"
+            $this->dispatch('report-ready',
+                reportId:    $report->id,
+                viewUrl:     route('nexum.reports.view', $report),
+                downloadUrl: route('nexum.reports.download', $report),
+            );
+        } catch (\Throwable $e) {
+            $this->dispatch('report-failed');
+            session()->flash('nexum_error', 'Error al generar el reporte: ' . $e->getMessage());
+        }
 
         $this->requestingManual = false;
-        session()->flash('nexum_success', 'Reporte solicitado. Recibirás una notificación cuando esté listo.');
     }
 
     public function downloadReport(int $id): mixed
@@ -172,6 +196,19 @@ class Nexum extends Component
         }, 'nexum-reporte-' . $report->period_start->format('Y-m') . '.pdf', [
             'Content-Type' => 'application/pdf',
         ]);
+    }
+
+    public function deleteReport(int $id): void
+    {
+        $report = GeneratedReport::forUser(Auth::id())->findOrFail($id);
+
+        if ($report->file_path && Storage::exists($report->file_path)) {
+            Storage::delete($report->file_path);
+        }
+
+        $report->delete();
+
+        session()->flash('nexum_success', 'Reporte eliminado correctamente.');
     }
 
     public function render()

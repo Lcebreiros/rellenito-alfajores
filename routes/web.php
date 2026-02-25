@@ -17,6 +17,8 @@ use App\Http\Controllers\CalculatorController;
 use App\Http\Controllers\ParkingSpaceController;
 use App\Http\Controllers\ParkingStayController;
 use App\Http\Controllers\ParkingRateController;
+use App\Http\Controllers\RentalSpaceController;
+use App\Http\Controllers\BookingController;
 // Master Controllers
 use App\Http\Controllers\Master\InvitationController;
 use App\Http\Controllers\Master\UserController;
@@ -320,6 +322,25 @@ Route::middleware([
             ->name('parking.shifts.audit');
         Route::get('parking/shifts/{shift}', [App\Http\Controllers\ParkingShiftController::class, 'show'])
             ->name('parking.shifts.show');
+    });
+
+    // ============ ALQUILERES / CLUBES ============
+    // Accesible para empresas con módulo "alquileres" activo
+    Route::middleware(['module:alquileres'])->group(function () {
+        // Vista calendario (página principal del módulo)
+        Route::get('rentals', [BookingController::class, 'calendar'])->name('rentals.calendar');
+
+        // CRUD de reservas
+        Route::resource('rentals/bookings', BookingController::class)->names('rentals.bookings');
+        Route::post('rentals/bookings/{booking}/confirm', [BookingController::class, 'confirm'])->name('rentals.bookings.confirm');
+        Route::post('rentals/bookings/{booking}/cancel', [BookingController::class, 'cancel'])->name('rentals.bookings.cancel');
+
+        // Gestión de espacios y categorías
+        Route::get('rentals/spaces/{rentalSpace}', [RentalSpaceController::class, 'show'])->name('rentals.spaces.show');
+        Route::resource('rentals/spaces', RentalSpaceController::class)->names('rentals.spaces')->except(['show', 'create', 'edit']);
+        Route::post('rentals/space-categories', [RentalSpaceController::class, 'storeCategory'])->name('rentals.space-categories.store');
+        Route::post('rentals/spaces/{rentalSpace}/duration-options', [RentalSpaceController::class, 'storeDurationOption'])->name('rentals.spaces.duration-options.store');
+        Route::delete('rentals/duration-options/{durationOption}', [RentalSpaceController::class, 'destroyDurationOption'])->name('rentals.duration-options.destroy');
     });
 
     // ============ GASTOS ============

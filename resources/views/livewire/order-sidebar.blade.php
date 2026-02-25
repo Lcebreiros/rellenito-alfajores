@@ -1,16 +1,16 @@
-<div class="bg-white dark:bg-neutral-950 rounded-3xl shadow-xl shadow-slate-200/20 dark:shadow-black/40 ring-1 ring-slate-200/50 dark:ring-neutral-800/60 overflow-hidden backdrop-blur-sm max-h-[100dvh] md:max-h-screen flex flex-col w-full max-w-full min-w-0">
+<div class="bg-white dark:bg-neutral-950 rounded-3xl shadow-xl shadow-violet-100/60 dark:shadow-black/40 ring-1 ring-violet-200/30 dark:ring-neutral-800/60 overflow-hidden backdrop-blur-sm max-h-[100dvh] md:max-h-screen flex flex-col w-full max-w-full min-w-0">
 
   {{-- Header --}}
-  <div class="px-6 py-4 bg-gradient-to-r from-slate-50 to-slate-100/50 dark:from-neutral-900 dark:to-neutral-900/80 border-b border-slate-200/60 dark:border-neutral-800/60">
+  <div class="px-6 py-4 bg-gradient-to-r from-violet-50/60 to-white/80 dark:from-neutral-900 dark:to-neutral-900/80 border-b border-violet-100/50 dark:border-neutral-800/60">
     <h2 class="text-base font-semibold text-slate-900 dark:text-neutral-50 flex items-center gap-3">
       <div class="flex-shrink-0 w-2 h-2 bg-gradient-to-r from-indigo-500 to-purple-600 rounded-full animate-pulse"></div>
-      <span wire:loading.remove>Pedido en curso</span>
+      <span wire:loading.remove>Venta en curso</span>
       <span wire:loading class="text-indigo-600 dark:text-indigo-400 flex items-center gap-2" aria-live="polite">
         <svg class="w-4 h-4 animate-spin" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" aria-hidden="true" role="img">
           <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"/>
           <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 0 1 8-8v3a5 5 0 0 0-5 5H4z"/>
         </svg>
-        Actualizando pedido…
+        Actualizando venta…
       </span>
     </h2>
   </div>
@@ -31,7 +31,7 @@
            focus:outline-none focus:ring-2 focus:ring-indigo-500/70 focus:border-indigo-500/70"
   />
   <p class="mt-1 text-[11px] text-slate-500 dark:text-neutral-400">
-    Si no existe, se creará automáticamente al guardar el pedido.
+    Si no existe, se creará automáticamente al guardar la venta.
   </p>
 </div>
 
@@ -48,7 +48,7 @@
             </svg>
           </div>
           <h3 class="text-sm font-medium text-slate-900 dark:text-neutral-100 mb-1">Sin productos agregados</h3>
-          <p class="text-xs text-slate-500 dark:text-neutral-400">Selecciona productos para comenzar tu pedido</p>
+          <p class="text-xs text-slate-500 dark:text-neutral-400">Selecciona productos para comenzar tu venta</p>
         </div>
       @else
         {{-- Mobile: lista --}}
@@ -197,7 +197,7 @@
         <div class="flex items-center justify-between">
           <div class="flex items-center gap-2">
             <div class="w-1.5 h-1.5 bg-gradient-to-r from-indigo-500 to-purple-600 rounded-full"></div>
-            <span class="text-sm font-semibold text-slate-700 dark:text-neutral-200">Total del pedido</span>
+            <span class="text-sm font-semibold text-slate-700 dark:text-neutral-200">Total de la venta</span>
           </div>
           <span class="text-xl font-bold bg-gradient-to-r from-slate-900 to-slate-700 dark:from-neutral-100 dark:to-neutral-300 bg-clip-text text-transparent">
             $ {{ number_format($total,2,',','.') }}
@@ -230,12 +230,12 @@
                   <svg class="w-4 h-4 group-hover:scale-110 transition-transform" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true" role="img">
                     <path stroke-linecap="round" stroke-linejoin="round" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"/>
                   </svg>
-                  Agendar Pedido
+                  Agendar Venta
                 @else
                   <svg class="w-4 h-4 group-hover:scale-110 transition-transform" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true" role="img">
                     <path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7"/>
                   </svg>
-                  Finalizar Pedido
+                  Finalizar Venta
                 @endif
               </span>
             @endif

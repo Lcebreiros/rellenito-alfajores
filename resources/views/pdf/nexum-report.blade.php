@@ -148,7 +148,7 @@
             {{ $cChg >= 0 ? '+' : '' }}{{ $cChg }}% vs anterior
           </div>
         @endif
-        <div class="summary-label">Pedidos completados</div>
+        <div class="summary-label">Ventas completadas</div>
       </div>
       <div class="summary-cell">
         <div class="summary-value">${{ number_format($sales['avg_ticket'], 0, ',', '.') }}</div>
@@ -177,7 +177,7 @@
       <div class="col-left">
         <div class="section-title">2. Ventas por Método de Pago</div>
         <table>
-          <thead><tr><th>Método</th><th class="text-right">Total</th><th class="text-right">Pedidos</th></tr></thead>
+          <thead><tr><th>Método</th><th class="text-right">Total</th><th class="text-right">Ventas</th></tr></thead>
           <tbody>
             @forelse($sales['by_payment_method'] as $method)
             <tr>
@@ -193,7 +193,7 @@
 
         {{-- Comparación período anterior --}}
         <div style="margin-top:8px; padding:6px 8px; background:#f5f3ff; border-radius:6px; font-size:8.5px;">
-          <div class="bold" style="color:#4c1d95; margin-bottom:3px;">Período anterior ({{ $sales['prev_order_count'] }} pedidos)</div>
+          <div class="bold" style="color:#4c1d95; margin-bottom:3px;">Período anterior ({{ $sales['prev_order_count'] }} ventas)</div>
           <div style="color:#374151;">Ingresos: ${{ number_format($sales['prev_total_revenue'], 0, ',', '.') }}
             &nbsp;·&nbsp; Ticket: ${{ number_format($sales['prev_avg_ticket'], 0, ',', '.') }}</div>
         </div>
@@ -333,7 +333,7 @@
         <br>
         <div class="section-title" style="margin-top:4px;">Top Clientes</div>
         <table>
-          <thead><tr><th>Cliente</th><th class="text-right">Pedidos</th><th class="text-right">Total</th></tr></thead>
+          <thead><tr><th>Cliente</th><th class="text-right">Ventas</th><th class="text-right">Total</th></tr></thead>
           <tbody>
             @forelse($topClients as $client)
             <tr>

@@ -119,7 +119,7 @@
                 <svg class="w-5 h-5 mt-0.5 text-violet-300" viewBox="0 0 20 20" fill="currentColor" aria-hidden="true">
                   <path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-7.25 7.25a1 1 0 01-1.414 0l-3-3a1 1 0 011.414-1.414l2.293 2.293 6.543-6.543a1 1 0 011.414 0z" clip-rule="evenodd"/>
                 </svg>
-                Creá pedidos y comprobantes
+                Creá ventas y comprobantes
               </li>
               <li class="flex items-start gap-3">
                 <svg class="w-5 h-5 mt-0.5 text-violet-300" viewBox="0 0 20 20" fill="currentColor" aria-hidden="true">

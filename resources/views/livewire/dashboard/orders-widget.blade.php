@@ -1,6 +1,6 @@
 @php
   // Props opcionales
-  $title    = $title ?? 'Pedidos';
+  $title    = $title ?? 'Ventas';
   $hasDelta = isset($delta);
   $isUp     = $hasDelta && $delta > 0;
   $isDown   = $hasDelta && $delta < 0;

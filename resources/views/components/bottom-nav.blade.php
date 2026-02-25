@@ -198,7 +198,7 @@ elseif ($isActive('costing.calculator') || $isActive('costs.*')) $activeIndex = 
         </div>
       </a>
 
-      {{-- Crear pedido --}}
+      {{-- Crear venta --}}
       <a href="{{ route('orders.create') }}" wire:navigate data-turbo="false"
          @click.prevent="setActive(1); $nextTick(()=> window.location='{{ route('orders.create') }}')"
          data-tab-index="1"
@@ -207,7 +207,7 @@ elseif ($isActive('costing.calculator') || $isActive('costs.*')) $activeIndex = 
          role="tab">
         <div class="inline-flex flex-col items-center justify-center gap-1.5 px-2 py-2 rounded-2xl min-w-0 min-h-[52px]">
           <div class="relative w-6 h-6">
-            <img src="{{ asset('images/crear-pedido.png') }}" alt="Crear pedido"
+            <img src="{{ asset('images/crear-venta.png') }}" alt="Crear venta"
                  class="nav-icon w-6 h-6 object-contain {{ $isActive('orders.create') ? '' : 'opacity-70 group-hover:opacity-95' }}">
           </div>
           <span class="nav-text text-[10px] sm:text-[11px] font-semibold leading-tight tracking-tight text-center whitespace-nowrap min-w-0">Crear</span>
@@ -215,7 +215,7 @@ elseif ($isActive('costing.calculator') || $isActive('costs.*')) $activeIndex = 
         </div>
       </a>
 
-      {{-- Pedidos --}}
+      {{-- Ventas --}}
       <a href="{{ $ordersUrl }}" wire:navigate data-turbo="false"
          @click.prevent="setActive(2); $nextTick(()=> window.location='{{ $ordersUrl }}')"
          data-tab-index="2"
@@ -224,10 +224,10 @@ elseif ($isActive('costing.calculator') || $isActive('costs.*')) $activeIndex = 
          role="tab">
         <div class="inline-flex flex-col items-center justify-center gap-1.5 px-2 py-2 rounded-2xl min-w-0 min-h-[52px]">
           <div class="relative w-6 h-6">
-            <img src="{{ asset('images/pedidos.png') }}" alt="Pedidos"
+            <img src="{{ asset('images/ventas.png') }}" alt="Ventas"
                  class="nav-icon w-6 h-6 object-contain {{ $isActive('orders.index') ? '' : 'opacity-70 group-hover:opacity-95' }}">
           </div>
-          <span class="nav-text text-[10px] sm:text-[11px] font-semibold leading-tight tracking-tight text-center whitespace-nowrap min-w-0">Pedidos</span>
+          <span class="nav-text text-[10px] sm:text-[11px] font-semibold leading-tight tracking-tight text-center whitespace-nowrap min-w-0">Ventas</span>
           <span class="nav-underline" aria-hidden="true"></span>
         </div>
       </a>

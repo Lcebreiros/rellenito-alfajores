@@ -192,7 +192,7 @@
                   </div>
                   <div class="flex-1">
                     <h3 class="text-lg font-semibold text-slate-900 mb-1">Comercio / Tienda</h3>
-                    <p class="text-sm text-slate-600">Gestiona productos, ventas, stock y pedidos para tu negocio</p>
+                    <p class="text-sm text-slate-600">Gestiona productos, ventas, stock y gastos para tu negocio</p>
                     <ul class="mt-3 space-y-1.5 text-xs text-slate-500">
                       <li class="flex items-center gap-2">
                         <svg class="w-4 h-4 text-violet-500" fill="currentColor" viewBox="0 0 20 20">

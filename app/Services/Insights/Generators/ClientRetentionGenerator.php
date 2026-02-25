@@ -82,7 +82,7 @@ class ClientRetentionGenerator extends BaseInsightGenerator
 
             $insights[] = $this->makeInsight(
                 $priority,
-                "👥 Clientes inactivos",
+                "Clientes inactivos",
                 "Tienes {$count} cliente(s) que no han comprado en más de 60 días. Considera contactarlos con una promoción.",
                 [
                     'inactive_count' => $count,
@@ -116,7 +116,7 @@ class ClientRetentionGenerator extends BaseInsightGenerator
 
             $insights[] = $this->makeInsight(
                 BusinessInsight::PRIORITY_LOW,
-                "⭐ Clientes VIP",
+                "Clientes frecuentes",
                 "Tienes " . count($frequentClients) . " cliente(s) frecuente(s). " .
                 $topClient['client']->name . " es tu mejor cliente con " .
                 $topClient['order_count'] . " pedido(s).",
@@ -138,7 +138,7 @@ class ClientRetentionGenerator extends BaseInsightGenerator
         if ($retentionRate < 30 && $totalClients >= 10) {
             $insights[] = $this->makeInsight(
                 BusinessInsight::PRIORITY_MEDIUM,
-                "📉 Baja retención de clientes",
+                "Baja retención de clientes",
                 "Solo el " . round($retentionRate, 1) . "% de tus clientes han comprado en los últimos 90 días. " .
                 "Considera implementar un programa de fidelización.",
                 [

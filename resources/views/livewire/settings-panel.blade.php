@@ -733,6 +733,78 @@ function timezoneSelector({ tz = '', list = [], recommended = '' }) {
     </div>
   </div>
 
+  {{-- CARD: Alquileres / Canchas --}}
+  @if(auth()->user()->hasModule('alquileres'))
+  <div class="rounded-2xl border border-neutral-200 bg-white p-6 shadow
+              dark:border-neutral-800 dark:bg-neutral-900">
+    <div class="flex items-center gap-3 mb-6">
+      <div class="flex items-center justify-center w-10 h-10 rounded-xl bg-violet-100 dark:bg-violet-900/30">
+        <svg class="w-5 h-5 text-violet-600 dark:text-violet-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"/>
+        </svg>
+      </div>
+      <div>
+        <h2 class="text-lg font-semibold text-neutral-900 dark:text-neutral-100">Alquileres / Canchas</h2>
+        <p class="text-xs text-neutral-500 dark:text-neutral-400">Horario operativo para reservas</p>
+      </div>
+    </div>
+
+    <div class="space-y-4">
+      <p class="text-sm text-neutral-600 dark:text-neutral-400">
+        Configurá el horario de apertura y cierre que se usará para mostrar los slots disponibles en la vista de canchas.
+      </p>
+      <div class="grid grid-cols-2 gap-4">
+        <div>
+          <label class="block text-sm font-medium text-neutral-700 dark:text-neutral-300 mb-1.5">
+            Apertura
+          </label>
+          <input type="time"
+                 wire:model="rentalOpenTime"
+                 class="w-full rounded-xl border border-neutral-300 dark:border-neutral-700
+                        bg-white dark:bg-neutral-800 px-3 py-2 text-sm
+                        text-neutral-900 dark:text-neutral-100
+                        focus:outline-none focus:ring-2 focus:ring-violet-500/30 focus:border-violet-500">
+          @error('rentalOpenTime')
+            <p class="mt-1 text-xs text-rose-600 dark:text-rose-400">{{ $message }}</p>
+          @enderror
+        </div>
+        <div>
+          <label class="block text-sm font-medium text-neutral-700 dark:text-neutral-300 mb-1.5">
+            Cierre
+          </label>
+          <input type="time"
+                 wire:model="rentalCloseTime"
+                 class="w-full rounded-xl border border-neutral-300 dark:border-neutral-700
+                        bg-white dark:bg-neutral-800 px-3 py-2 text-sm
+                        text-neutral-900 dark:text-neutral-100
+                        focus:outline-none focus:ring-2 focus:ring-violet-500/30 focus:border-violet-500">
+          @error('rentalCloseTime')
+            <p class="mt-1 text-xs text-rose-600 dark:text-rose-400">{{ $message }}</p>
+          @enderror
+        </div>
+      </div>
+
+      <div class="flex justify-end pt-2">
+        <button wire:click="saveRentalHours"
+                wire:loading.attr="disabled"
+                wire:loading.class="opacity-50 cursor-not-allowed"
+                class="px-6 py-2.5 rounded-xl bg-violet-600 hover:bg-violet-700
+                       text-white font-medium text-sm transition-all duration-200 shadow-sm hover:shadow-md
+                       focus:ring-2 focus:ring-violet-500/20 disabled:opacity-60 disabled:cursor-not-allowed">
+          <span wire:loading.remove wire:target="saveRentalHours" class="flex items-center gap-2">
+            <i class="fas fa-save"></i>
+            Guardar horario
+          </span>
+          <span wire:loading wire:target="saveRentalHours" class="flex items-center gap-2">
+            <i class="fas fa-spinner fa-spin"></i>
+            Guardando...
+          </span>
+        </button>
+      </div>
+    </div>
+  </div>
+  @endif
+
   {{-- CARD: Google Calendar --}}
   <div class="rounded-2xl border border-neutral-200 bg-white p-6 shadow
               dark:border-neutral-800 dark:bg-neutral-900">
@@ -778,7 +850,7 @@ function timezoneSelector({ tz = '', list = [], recommended = '' }) {
                 Sincronización automática
               </h3>
               <p class="text-xs text-neutral-600 dark:text-neutral-400">
-                Los pedidos agendados se guardarán automáticamente en tu Google Calendar
+                Los ventas agendadas se guardarán automáticamente en tu Google Calendar
               </p>
             </div>
             <div class="flex-shrink-0">
@@ -820,7 +892,7 @@ function timezoneSelector({ tz = '', list = [], recommended = '' }) {
                 <svg class="w-4 h-4 text-green-600 dark:text-green-400" fill="currentColor" viewBox="0 0 20 20">
                   <path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd"></path>
                 </svg>
-                <span>Pedidos agendados (cuando creás o modificás un pedido con fecha)</span>
+                <span>Ventas agendadas (cuando creás o modificás una venta con fecha)</span>
               </div>
               <div class="flex items-center gap-2 text-sm text-neutral-700 dark:text-neutral-300">
                 <svg class="w-4 h-4 text-green-600 dark:text-green-400" fill="currentColor" viewBox="0 0 20 20">
@@ -832,7 +904,7 @@ function timezoneSelector({ tz = '', list = [], recommended = '' }) {
                 <svg class="w-4 h-4 text-green-600 dark:text-green-400" fill="currentColor" viewBox="0 0 20 20">
                   <path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd"></path>
                 </svg>
-                <span>Eliminación automática al cancelar o eliminar pedidos</span>
+                <span>Eliminación automática al cancelar o eliminar ventas</span>
               </div>
             </div>
           </div>
@@ -845,7 +917,7 @@ function timezoneSelector({ tz = '', list = [], recommended = '' }) {
               </svg>
               <div class="text-sm text-neutral-700 dark:text-neutral-300">
                 <strong class="text-neutral-900 dark:text-neutral-100">Sincronización desactivada</strong>
-                <p class="mt-1 text-xs">Los pedidos nuevos solo se guardarán en Gestior. Activá la sincronización para ver tus pedidos en Google Calendar.</p>
+                <p class="mt-1 text-xs">Los ventas nuevas solo se guardarán en Gestior. Activá la sincronización para ver tus ventas en Google Calendar.</p>
               </div>
             </div>
           </div>
@@ -858,7 +930,7 @@ function timezoneSelector({ tz = '', list = [], recommended = '' }) {
               <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>
             </svg>
             <div class="text-xs text-neutral-700 dark:text-neutral-300">
-              <strong>Privacidad:</strong> Solo accedemos a tu calendario para crear eventos de tus pedidos. No compartimos tu información con terceros.
+              <strong>Privacidad:</strong> Solo accedemos a tu calendario para crear eventos de tus ventas. No compartimos tu información con terceros.
               Podés desconectar tu cuenta en cualquier momento.
             </div>
           </div>
@@ -868,7 +940,7 @@ function timezoneSelector({ tz = '', list = [], recommended = '' }) {
         <form action="{{ route('google.disconnect') }}" method="POST">
           @csrf
           <button type="submit"
-                  onclick="return confirm('¿Estás seguro de que querés desconectar tu cuenta de Google Calendar?\n\nLos eventos existentes permanecerán en tu calendario, pero no se sincronizarán nuevos pedidos.')"
+                  onclick="return confirm('¿Estás seguro de que querés desconectar tu cuenta de Google Calendar?\n\nLos eventos existentes permanecerán en tu calendario, pero no se sincronizarán nuevas ventas.')"
                   class="w-full px-4 py-3 rounded-xl bg-red-50 hover:bg-red-100 dark:bg-red-900/20 dark:hover:bg-red-900/30
                          text-red-700 dark:text-red-400 font-medium text-sm transition-all duration-200
                          border border-red-200 dark:border-red-900/30">
@@ -892,19 +964,19 @@ function timezoneSelector({ tz = '', list = [], recommended = '' }) {
               <svg class="w-4 h-4 text-blue-600 dark:text-blue-400 mt-0.5 flex-shrink-0" fill="currentColor" viewBox="0 0 20 20">
                 <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd"></path>
               </svg>
-              <span>Tus pedidos agendados aparecerán automáticamente en tu calendario</span>
+              <span>Tus ventas agendadas aparecerán automáticamente en tu calendario</span>
             </div>
             <div class="flex items-start gap-2 text-sm text-neutral-700 dark:text-neutral-300">
               <svg class="w-4 h-4 text-blue-600 dark:text-blue-400 mt-0.5 flex-shrink-0" fill="currentColor" viewBox="0 0 20 20">
                 <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd"></path>
               </svg>
-              <span>Recibirás recordatorios automáticos antes de cada pedido</span>
+              <span>Recibirás recordatorios automáticos antes de cada venta</span>
             </div>
             <div class="flex items-start gap-2 text-sm text-neutral-700 dark:text-neutral-300">
               <svg class="w-4 h-4 text-blue-600 dark:text-blue-400 mt-0.5 flex-shrink-0" fill="currentColor" viewBox="0 0 20 20">
                 <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd"></path>
               </svg>
-              <span>Verás tus pedidos en todos tus dispositivos sincronizados</span>
+              <span>Verás tus ventas en todos tus dispositivos sincronizados</span>
             </div>
             <div class="flex items-start gap-2 text-sm text-neutral-700 dark:text-neutral-300">
               <svg class="w-4 h-4 text-blue-600 dark:text-blue-400 mt-0.5 flex-shrink-0" fill="currentColor" viewBox="0 0 20 20">
@@ -924,7 +996,7 @@ function timezoneSelector({ tz = '', list = [], recommended = '' }) {
             <div class="text-sm text-neutral-700 dark:text-neutral-300">
               <strong class="text-neutral-900 dark:text-neutral-100">Tu privacidad es importante:</strong>
               <ul class="mt-2 space-y-1 text-xs">
-                <li>• Solo accedemos a tu calendario para crear eventos de pedidos</li>
+                <li>• Solo accedemos a tu calendario para crear eventos de ventas</li>
                 <li>• No leemos tus otros eventos ni información personal</li>
                 <li>• No compartimos tus datos con terceros</li>
                 <li>• Podés desconectar en cualquier momento</li>

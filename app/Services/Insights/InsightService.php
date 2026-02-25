@@ -43,17 +43,24 @@ class InsightService
         bool $clearExisting = false
     ): Collection {
         try {
-            // Eliminar insights antiguos si se requiere
-            if ($clearExisting) {
-                $this->clearOldInsights($user, $organizationId);
-            }
-
             $allInsights = collect();
 
             // Ejecutar todos los generadores
             foreach ($this->generators as $generatorClass) {
                 try {
                     $generator = new $generatorClass($user, $organizationId);
+
+                    // Eliminar TODOS los insights existentes de este tipo para el usuario
+                    // antes de insertar los nuevos. Esto previene duplicados tanto en
+                    // llamadas repetidas como en reintentos del job.
+                    $type = $generator->getInsightType();
+                    $deleteQuery = BusinessInsight::where('user_id', $user->id)
+                        ->where('type', $type);
+                    if ($organizationId) {
+                        $deleteQuery->where('organization_id', $organizationId);
+                    }
+                    $deleteQuery->delete();
+
                     $insights = $generator->generate();
 
                     // Guardar insights en la base de datos

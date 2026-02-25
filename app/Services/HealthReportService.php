@@ -68,21 +68,34 @@ class HealthReportService
         $currentRevenue = $this->revenueInPeriod($start, $now);
         $prevRevenue    = $this->revenueInPeriod($prev, $start);
 
-        $change   = $prevRevenue > 0
-            ? (($currentRevenue - $prevRevenue) / $prevRevenue) * 100
-            : ($currentRevenue > 0 ? 100 : 0);
+        $orderCount = $this->ordersInPeriod($start, $now);
+        $avgTicket  = $orderCount > 0 ? $currentRevenue / $orderCount : 0;
 
-        $score = $this->scoreFromChange($change);
-
-        $orderCount   = $this->ordersInPeriod($start, $now);
-        $avgTicket    = $orderCount > 0 ? $currentRevenue / $orderCount : 0;
-        $changeStr    = ($change >= 0 ? '+' : '') . round($change, 1) . '%';
+        // Sin ventas en el período actual → no puede tener score alto
+        if ($currentRevenue <= 0) {
+            $score        = $prevRevenue > 0 ? 10 : 20;   // cayó todo vs sin datos históricos
+            $change       = $prevRevenue > 0 ? -100.0 : null;
+            $displayValue = 'Sin ventas';
+            $displayHint  = $prevRevenue > 0 ? 'caída desde período ant.' : 'sin actividad';
+            $changeStr    = $prevRevenue > 0 ? '−100%' : '—';
+        } else {
+            $change = $prevRevenue > 0
+                ? (($currentRevenue - $prevRevenue) / $prevRevenue) * 100
+                : 100.0;   // primer período con ventas
+            $score        = $this->scoreFromChange($change);
+            $displayValue = ($change >= 0 ? '+' : '') . number_format($change, 1) . '%';
+            $displayHint  = 'vs. 30 días ant.';
+            $changeStr    = ($change >= 0 ? '+' : '') . round($change, 1) . '%';
+        }
 
         return [
-            'score'      => $score,
-            'label'      => 'Ingresos',
-            'icon'       => 'trending_up',
-            'color'      => $this->colorFromScore($score),
+            'score'         => $score,
+            'label'         => 'Ventas',
+            'weight'        => 35,
+            'display_value' => $displayValue,
+            'display_hint'  => $displayHint,
+            'icon'          => 'trending_up',
+            'color'         => $this->colorFromScore($score),
             'indicators' => [
                 [
                     'label'           => 'Ingresos (30 días)',
@@ -90,13 +103,13 @@ class HealthReportService
                     'value_formatted' => '$' . number_format($currentRevenue, 2, ',', '.'),
                     'what'            => 'Ingresos de los últimos 30 días',
                     'compared_to'     => '$' . number_format($prevRevenue, 2, ',', '.') . ' en los 30 días anteriores',
-                    'impact'          => $change >= 0
-                        ? 'Crecimiento de ingresos: ' . $changeStr
-                        : 'Caída de ingresos: ' . $changeStr,
-                    'action'          => $change < 0
-                        ? 'Revisá tus estrategias de venta y oferta de productos'
-                        : 'Mantén la estrategia actual y analizá qué impulsó el crecimiento',
-                    'trend'           => $change >= 0 ? 'up' : 'down',
+                    'impact'          => $change === null
+                        ? 'Sin ventas registradas en este período'
+                        : ($change >= 0 ? 'Crecimiento de ingresos: ' . $changeStr : 'Caída de ingresos: ' . $changeStr),
+                    'action'          => $currentRevenue <= 0
+                        ? 'Registrá tus primeras ventas para comenzar a medir el rendimiento'
+                        : ($change !== null && $change < 0 ? 'Revisá tus estrategias de venta y oferta de productos' : 'Mantén la estrategia actual y analizá qué impulsó el crecimiento'),
+                    'trend'           => $currentRevenue <= 0 ? 'down' : ($change !== null && $change >= 0 ? 'up' : 'down'),
                 ],
                 [
                     'label'           => 'Ticket promedio',
@@ -142,10 +155,13 @@ class HealthReportService
         $score     = (int) round($healthPct);
 
         return [
-            'score'      => $score,
-            'label'      => 'Inventario',
-            'icon'       => 'inventory_2',
-            'color'      => $this->colorFromScore($score),
+            'score'         => $score,
+            'label'         => 'Stock',
+            'weight'        => 25,
+            'display_value' => $healthy . '/' . $total,
+            'display_hint'  => 'con stock ok',
+            'icon'          => 'inventory_2',
+            'color'         => $this->colorFromScore($score),
             'indicators' => [
                 [
                     'label'           => 'Salud del stock',
@@ -204,10 +220,13 @@ class HealthReportService
         $score = (int) round(min(100, ($activeNow > 0 ? 60 : 20) + ($retentionRate * 0.4)));
 
         return [
-            'score'      => $score,
-            'label'      => 'Clientes',
-            'icon'       => 'people',
-            'color'      => $this->colorFromScore($score),
+            'score'         => $score,
+            'label'         => 'Clientes',
+            'weight'        => 20,
+            'display_value' => (string) $activeNow,
+            'display_hint'  => 'activos / 30d',
+            'icon'          => 'people',
+            'color'         => $this->colorFromScore($score),
             'indicators' => [
                 [
                     'label'           => 'Clientes activos',
@@ -256,24 +275,35 @@ class HealthReportService
         $revenue = $this->revenueInPeriod($start, $now);
         $costs   = $this->totalCostsInPeriod($start, $now);
 
-        $ratio = $revenue > 0 ? ($costs / $revenue) * 100 : 0;
-        // ratio < 60% → excelente (100), 60-80% → bueno (70), 80-90% → regular (40), > 90% → malo (10)
-        $score = match(true) {
-            $ratio <= 0   => 50,
-            $ratio < 60   => 100,
-            $ratio < 70   => 80,
-            $ratio < 80   => 65,
-            $ratio < 90   => 40,
-            default       => 10,
-        };
-
-        $margin = $revenue > 0 ? (($revenue - $costs) / $revenue) * 100 : 0;
+        // Sin ingresos: si además hay costos → situación crítica; si no → sin datos
+        if ($revenue <= 0) {
+            $score        = $costs > 0 ? 10 : 50;
+            $ratio        = 0.0;
+            $margin       = 0.0;
+            $displayValue = 'N/A';
+            $displayHint  = $costs > 0 ? 'costos sin ingresos' : 'sin actividad';
+        } else {
+            $ratio  = ($costs / $revenue) * 100;
+            $score  = match(true) {
+                $ratio < 60  => 100,
+                $ratio < 70  => 80,
+                $ratio < 80  => 65,
+                $ratio < 90  => 40,
+                default      => 10,
+            };
+            $margin       = (($revenue - $costs) / $revenue) * 100;
+            $displayValue = number_format($margin, 1) . '%';
+            $displayHint  = 'margen bruto';
+        }
 
         return [
-            'score'      => $score,
-            'label'      => 'Costos',
-            'icon'       => 'account_balance_wallet',
-            'color'      => $this->colorFromScore($score),
+            'score'         => $score,
+            'label'         => 'Margen',
+            'weight'        => 20,
+            'display_value' => $displayValue,
+            'display_hint'  => $displayHint,
+            'icon'          => 'account_balance_wallet',
+            'color'         => $this->colorFromScore($score),
             'indicators' => [
                 [
                     'label'           => 'Margen bruto estimado',
@@ -401,11 +431,11 @@ class HealthReportService
     private function buildSummary(int $overall, array $rev, array $inv, array $cli, array $cos): string
     {
         $weakest = collect([
-            'Ingresos'   => $rev['score'],
-            'Inventario' => $inv['score'],
-            'Clientes'   => $cli['score'],
-            'Costos'     => $cos['score'],
-        ])->sortAsc()->keys()->first();
+            'Ventas'   => $rev['score'],
+            'Stock'    => $inv['score'],
+            'Clientes' => $cli['score'],
+            'Margen'   => $cos['score'],
+        ])->sort()->keys()->first();
 
         if ($overall >= 80) {
             return "Tu negocio está en excelente forma con un score de {$overall}/100. Seguí así.";
@@ -419,15 +449,18 @@ class HealthReportService
         return "Tu negocio necesita atención urgente ({$overall}/100). Prioridad: {$weakest}.";
     }
 
-    private function emptyCategory(string $label, string $icon, int $score): array
+    private function emptyCategory(string $label, string $icon, int $score, int $weight = 0): array
     {
         return [
-            'score'      => $score,
-            'label'      => $label,
-            'icon'       => $icon,
-            'color'      => $this->colorFromScore($score),
-            'indicators' => [],
-            'metrics'    => [],
+            'score'         => $score,
+            'label'         => $label,
+            'weight'        => $weight,
+            'display_value' => '—',
+            'display_hint'  => 'sin datos',
+            'icon'          => $icon,
+            'color'         => $this->colorFromScore($score),
+            'indicators'    => [],
+            'metrics'       => [],
         ];
     }
 }

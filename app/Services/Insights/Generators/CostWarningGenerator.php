@@ -60,7 +60,7 @@ class CostWarningGenerator extends BaseInsightGenerator
             if ($expenseGrowth > 30) {
                 $insights[] = $this->makeInsight(
                     BusinessInsight::PRIORITY_HIGH,
-                    "⚠️ Gastos en aumento",
+                    "Gastos en aumento",
                     "Tus gastos aumentaron un " . round($expenseGrowth, 1) . "% este mes. Revisa tus costos operativos.",
                     [
                         'current_expenses' => $currentExpenseTotal,
@@ -81,7 +81,7 @@ class CostWarningGenerator extends BaseInsightGenerator
             if ($profitMargin < 15 && $profitMargin > 0) {
                 $insights[] = $this->makeInsight(
                     BusinessInsight::PRIORITY_MEDIUM,
-                    "💰 Margen de ganancia bajo",
+                    "Margen de ganancia bajo",
                     "Tu margen de ganancia es del " . round($profitMargin, 1) . "%. Considera optimizar costos o ajustar precios.",
                     [
                         'revenue' => $currentRevenue,
@@ -95,7 +95,7 @@ class CostWarningGenerator extends BaseInsightGenerator
             } elseif ($profitMargin <= 0) {
                 $insights[] = $this->makeInsight(
                     BusinessInsight::PRIORITY_CRITICAL,
-                    "🚨 Gastos superan ingresos",
+                    "Gastos superan ingresos",
                     "Tus gastos están superando tus ingresos este mes. Es urgente revisar tu estructura de costos.",
                     [
                         'revenue' => $currentRevenue,
@@ -140,7 +140,7 @@ class CostWarningGenerator extends BaseInsightGenerator
             if ($topTypePercent > 70 && count($expensesByType) > 1) {
                 $insights[] = $this->makeInsight(
                     BusinessInsight::PRIORITY_MEDIUM,
-                    "📊 Gastos concentrados",
+                    "Gastos concentrados en una categoría",
                     "El " . round($topTypePercent, 1) . "% de tus gastos están en '{$topType}'. Considera diversificar.",
                     [
                         'type' => $topType,

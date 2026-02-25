@@ -7,483 +7,187 @@
     $firstName = $fullName !== '' ? preg_split('/\s+/', $fullName)[0] : null;
     $panelText = $firstName ? ($firstName.' Panel') : 'Panel';
 
-    // Estados activo/inactivo - integrados con sistema de temas
-    $active = 'text-neutral-900 dark:text-white font-semibold sidebar-nav-active';
-    $idle   = 'text-neutral-600 dark:text-neutral-300 hover:text-neutral-900 dark:hover:text-white sidebar-nav-idle';
+    // Estados activo/inactivo — colores controlados por CSS del sidebar púrpura
+    $active = 'font-semibold sidebar-nav-active';
+    $idle   = 'sidebar-nav-idle';
 @endphp
 
 <style>
+  /* ─── Sidebar púrpura — paleta Nexum ─────────────────────────────── */
   :root {
-    --sidebar-bg: #fafafa;
-    --sidebar-border: #e4e4e7;
-    --sidebar-text: #18181b;
-    --sidebar-text-secondary: #71717a;
-    --sidebar-hover-bg: #ffffff;
-    --sidebar-active-bg: #f4f4f5;
-    --sidebar-button-bg: #ffffff;
-    --sidebar-button-hover: #f4f4f5;
-    --sidebar-ring: #e4e4e7;
-    --sidebar-shadow: 0 1px 2px 0 rgba(0,0,0,.03), 0 1px 3px 0 rgba(0,0,0,.02);
-    --sidebar-shadow-hover: 0 4px 6px -1px rgba(0,0,0,.06), 0 2px 4px -1px rgba(0,0,0,.03);
-    --sb-width: 16rem;
-  }
-  
-  .dark {
-    --sidebar-bg: #0a0a0b;
-    --sidebar-border: #27272a;
-    --sidebar-text: #fafafa;
-    --sidebar-text-secondary: #a1a1aa;
-    --sidebar-hover-bg: #18181b;
-    --sidebar-active-bg: #27272a;
-    --sidebar-button-bg: #18181b;
-    --sidebar-button-hover: #27272a;
-    --sidebar-ring: #3f3f46;
-    --sidebar-shadow: 0 2px 4px 0 rgba(0,0,0,.15), 0 1px 2px 0 rgba(0,0,0,.1);
-    --sidebar-shadow-hover: 0 8px 16px -4px rgba(0,0,0,.3), 0 4px 6px -2px rgba(0,0,0,.2);
+    --sb-purple-from: #a78bfa;
+    --sb-purple-mid:  #7c3aed;
+    --sb-purple-to:   #5b21b6;
   }
 
-  .nav-link {
-    transform: translateZ(0);
-    transition: all .28s cubic-bezier(.34,1.56,.64,1);
-    will-change: transform, box-shadow;
-    border-radius: 0.75rem;
-    position: relative;
+  /* ─── Contenedor principal ───────────────────────────────────────── */
+  .sidebar-container {
+    background: #7c3aed;
+    border-radius: 0 1.5rem 1.5rem 0; /* redondeo hacia el contenido */
+    box-shadow: none;
+    border: none;
+    /* Solo width anima — overlay mode, sin mover el contenido */
+    transition: width .28s cubic-bezier(.16,1,.3,1);
+    will-change: width;
     overflow: hidden;
   }
-  
-  .nav-link:hover {
-    transform: translateY(-1px);
-    box-shadow: var(--sidebar-shadow-hover);
-  }
-  
-  .nav-link::before {
-    content: '';
-    position: absolute;
-    inset: 0 auto 0 -100%;
-    width: 100%;
-    height: 100%;
-    background: linear-gradient(90deg, transparent, rgba(255,255,255,.06), transparent);
-    transition: left .6s cubic-bezier(.34,1.56,.64,1);
-    z-index: 0;
-  }
-  
-  .nav-link:hover::before {
-    left: 100%;
+
+  /* ─── Header / footer / nav: fondo transparente (hereda gradiente) ─ */
+  .sidebar-header,
+  .sidebar-footer,
+  .sidebar-toggle,
+  .sidebar-nav {
+    background: transparent;
+    border-color: transparent;
   }
 
+  /* ─── Íconos: siempre blancos ────────────────────────────────────── */
   .nav-icon {
     width: 1.25rem;
     height: 1.25rem;
-    transition: all .28s cubic-bezier(.34,1.56,.64,1);
-    transform-origin: center center;
     position: relative;
     z-index: 1;
+    /* PNG icons → blancos */
+    filter: brightness(0) invert(1);
+    transition: transform .22s cubic-bezier(.34,1.56,.64,1);
+    transform-origin: center;
   }
-  
+
+  /* SVG con currentColor: heredan el color del texto (blanco) */
+  .nav-link svg.nav-icon {
+    filter: none;
+    color: inherit;
+  }
+
+  /* ─── Links de navegación ────────────────────────────────────────── */
+  .nav-link {
+    color: rgba(255,255,255,0.78);
+    border-radius: 0.875rem;
+    position: relative;
+    overflow: hidden;
+    transition: background .18s ease, color .18s ease;
+  }
+
+  .nav-link:hover {
+    background: transparent;
+    color: #ffffff;
+  }
+
+  /* Barra sutil en hover */
+  .nav-link:hover::before {
+    content: '';
+    position: absolute;
+    left: 0;
+    top: 50%;
+    transform: translateY(-50%);
+    width: 3px;
+    height: 45%;
+    background: rgba(255,255,255,0.4);
+    border-radius: 0 3px 3px 0;
+  }
+
   .nav-link:hover .nav-icon {
-    transform: scale(1.15);
+    transform: scale(1.12);
   }
 
-  .dark .nav-icon {
-    filter: invert(1) brightness(1.1) contrast(.95);
+  /* ─── Item activo: sin contenedor, solo barra + texto marcado ─────── */
+  .sidebar-nav-active {
+    background: transparent !important;
+    color: #ffffff !important;
+    border: none !important;
+    box-shadow: none;
+    font-size: 1.03em;
   }
 
-  .sidebar-container {
-    background: var(--sidebar-bg);
-    border-width: 0;
-    box-shadow: var(--sidebar-shadow), 8px 0 30px -18px rgba(0,0,0,0.35);
-    transition: all .3s cubic-bezier(.16,1,.3,1);
-    backdrop-filter: blur(8px);
-    -webkit-backdrop-filter: blur(8px);
+  /* Barra blanca a la izquierda */
+  .sidebar-nav-active::before {
+    content: '';
+    position: absolute;
+    left: 0;
+    top: 50%;
+    transform: translateY(-50%);
+    width: 3px;
+    height: 60%;
+    background: #ffffff;
+    border-radius: 0 3px 3px 0;
   }
 
-  .sidebar-header {
-    background: var(--sidebar-bg);
-    border-color: transparent;
+  /* Icono PNG activo */
+  .sidebar-nav-active .nav-icon {
+    filter: brightness(0) invert(1);
+    transform: scale(1.08);
   }
 
-  .sidebar-footer {
-    background: var(--sidebar-bg);
-    border-color: transparent;
+  .sidebar-nav-idle {
+    position: relative;
   }
 
-  /* Botón de colapsar con fondo unificado */
-  .sidebar-footer .sidebar-button {
-    background: var(--sidebar-bg);
-    border-color: transparent;
-  }
-  .sidebar-footer .sidebar-button:hover {
-    background: var(--sidebar-hover-bg);
-  }
-
-  /* Toggle container con fondo sólido */
-  .sidebar-toggle {
-    background: var(--sidebar-bg);
-  }
-
-  .sidebar-nav {
-    background: var(--sidebar-bg);
-  }
-
-  .sidebar-button {
-    background: var(--sidebar-button-bg);
-    border-color: var(--sidebar-border);
-    color: var(--sidebar-text-secondary);
-    transition: all .2s cubic-bezier(.34,1.56,.64,1);
-    box-shadow: var(--sidebar-shadow);
-  }
-  
-  .sidebar-button:hover {
-    background: var(--sidebar-button-hover);
-    color: var(--sidebar-text);
-    transform: translateY(-1px);
-    box-shadow: var(--sidebar-shadow-hover);
-  }
+  /* ─── Textos del header ──────────────────────────────────────────── */
+  .user-info  { color: #ffffff; }
+  .user-email { color: rgba(255,255,255,0.65); }
 
   .user-avatar {
-    box-shadow: 0 0 0 2px var(--sidebar-ring) inset;
-    transition: all .2s cubic-bezier(.34,1.56,.64,1);
+    box-shadow: 0 0 0 2px rgba(255,255,255,0.3);
+    transition: transform .2s ease, box-shadow .2s ease;
   }
-  
   .user-avatar:hover {
     transform: scale(1.05);
-    box-shadow: 0 0 0 3px var(--sidebar-ring) inset;
-  }
-  
-  .user-info {
-    color: var(--sidebar-text);
-  }
-  
-  .user-email {
-    color: var(--sidebar-text-secondary);
+    box-shadow: 0 0 0 3px rgba(255,255,255,0.5);
   }
 
-  /* Scrollbar personalizado más sutil */
+  /* ─── Botón de notificaciones ────────────────────────────────────── */
+  .sidebar-button {
+    background: rgba(255,255,255,0.12);
+    border-color: rgba(255,255,255,0.18);
+    color: rgba(255,255,255,0.8);
+    transition: background .18s ease, color .18s ease, transform .18s ease;
+  }
+  .sidebar-button:hover {
+    background: rgba(255,255,255,0.22);
+    color: #ffffff;
+    transform: translateY(-1px);
+  }
+
+  /* ─── Scrollbar: invisible ───────────────────────────────────────── */
   .custom-scrollbar {
-    scrollbar-width: thin;
-    scrollbar-color: transparent transparent;
+    scrollbar-width: none;
   }
-  
-  .custom-scrollbar::-webkit-scrollbar {
-    width: 4px;
-  }
-  
-  .custom-scrollbar::-webkit-scrollbar-track {
-    background: transparent;
-  }
-  
-  .custom-scrollbar::-webkit-scrollbar-thumb {
-    background: rgba(0,0,0,.1);
-    border-radius: 2px;
-  }
-  
-  .dark .custom-scrollbar::-webkit-scrollbar-thumb {
-    background: rgba(255,255,255,.1);
-  }
-  
-  .custom-scrollbar:hover::-webkit-scrollbar-thumb {
-    background: rgba(0,0,0,.2);
-  }
-  
-  .dark .custom-scrollbar:hover::-webkit-scrollbar-thumb {
-    background: rgba(255,255,255,.2);
-  }
+  .custom-scrollbar::-webkit-scrollbar { display: none; }
 
-  /* Responsive breakpoints mejorados */
-  @media (max-width: 1024px) {
-    :root {
-      --sb-width: 16rem;
-    }
-  }
-  
-  @media (max-width: 768px) {
-    .sidebar-container {
-      transform: translateX(-100%);
-      transition: transform .3s cubic-bezier(.16,1,.3,1);
-    }
-    
-    .sidebar-container.mobile-open {
-      transform: translateX(0);
-    }
-    
-    :root {
-      --sb-width: 16rem;
-    }
-  }
-  
-  @media (max-width: 640px) {
-    :root {
-      --sb-width: 14rem;
-    }
-  }
-
-  /* Mejoras para estados colapsados */
+  /* ─── Estado colapsado ───────────────────────────────────────────── */
   aside[data-collapsed="true"] .sidebar-header {
     justify-content: center;
     padding-left: 1rem;
     padding-right: 1rem;
   }
-  
   aside[data-collapsed="true"] .sidebar-header a {
     justify-content: center;
     width: 100%;
   }
-  
   aside[data-collapsed="true"] .sidebar-header a > .user-info {
     display: none !important;
   }
-  
   aside[data-collapsed="true"] .nav-link {
     justify-content: center;
     padding-left: 0.75rem !important;
     padding-right: 0.25rem !important;
     gap: 0.5rem;
   }
-  
-  aside[data-collapsed="true"] .nav-icon {
-    transform-origin: center center;
-  }
 
-  /* Animaciones de entrada más suaves */
+  /* ─── Animación de entrada del texto ─────────────────────────────── */
   .fade-slide-enter {
-    animation: fadeSlideIn .3s cubic-bezier(.34,1.56,.64,1) forwards;
+    animation: fadeSlideIn .25s cubic-bezier(.34,1.56,.64,1) forwards;
   }
-
   @keyframes fadeSlideIn {
-    from {
-      opacity: 0;
-      transform: translateX(-8px);
+    from { opacity: 0; transform: translateX(-6px); }
+    to   { opacity: 1; transform: translateX(0); }
+  }
+
+  /* ─── Mobile ─────────────────────────────────────────────────────── */
+  @media (max-width: 768px) {
+    .sidebar-container {
+      border-radius: 0 1.25rem 1.25rem 0;
     }
-    to {
-      opacity: 1;
-      transform: translateX(0);
-    }
-  }
-
-  /* Glass morphism en sidebar */
-  .sidebar-container {
-    background: linear-gradient(
-      180deg,
-      rgb(250 250 250 / 0.85) 0%,
-      rgb(250 250 250 / 0.90) 100%
-    );
-    backdrop-filter: blur(16px) saturate(120%);
-    -webkit-backdrop-filter: blur(16px) saturate(120%);
-  }
-
-  .dark .sidebar-container {
-    background: linear-gradient(
-      180deg,
-      rgb(10 10 11 / 0.85) 0%,
-      rgb(10 10 11 / 0.90) 100%
-    );
-  }
-
-  /* Estados del nav con integración de temas */
-  .sidebar-nav-idle {
-    position: relative;
-  }
-
-  .sidebar-nav-idle:hover {
-    background: rgb(var(--sidebar-hover-bg));
-  }
-
-  .sidebar-nav-active {
-    position: relative;
-    background: rgb(var(--sidebar-active-bg));
-    border-left: 3px solid transparent;
-  }
-
-  /* Borde de color del módulo activo */
-  .nav-link[data-module="orders"].sidebar-nav-active {
-    border-left-color: rgb(var(--module-orders-500));
-    background: linear-gradient(
-      90deg,
-      rgb(var(--module-orders-50) / 0.5) 0%,
-      rgb(var(--module-orders-50) / 0.2) 50%,
-      transparent 100%
-    );
-  }
-
-  .nav-link[data-module="products"].sidebar-nav-active {
-    border-left-color: rgb(var(--module-products-500));
-    background: linear-gradient(
-      90deg,
-      rgb(var(--module-products-50) / 0.5) 0%,
-      rgb(var(--module-products-50) / 0.2) 50%,
-      transparent 100%
-    );
-  }
-
-  .nav-link[data-module="clients"].sidebar-nav-active {
-    border-left-color: rgb(var(--module-clients-500));
-    background: linear-gradient(
-      90deg,
-      rgb(var(--module-clients-50) / 0.5) 0%,
-      rgb(var(--module-clients-50) / 0.2) 50%,
-      transparent 100%
-    );
-  }
-
-  .nav-link[data-module="dashboard"].sidebar-nav-active {
-    border-left-color: rgb(var(--module-dashboard-500));
-    background: linear-gradient(
-      90deg,
-      rgb(var(--module-dashboard-50) / 0.5) 0%,
-      rgb(var(--module-dashboard-50) / 0.2) 50%,
-      transparent 100%
-    );
-  }
-
-  .nav-link[data-module="expenses"].sidebar-nav-active {
-    border-left-color: rgb(var(--module-expenses-500));
-    background: linear-gradient(
-      90deg,
-      rgb(var(--module-expenses-50) / 0.5) 0%,
-      rgb(var(--module-expenses-50) / 0.2) 50%,
-      transparent 100%
-    );
-  }
-
-  .nav-link[data-module="company"].sidebar-nav-active {
-    border-left-color: rgb(var(--module-company-500));
-    background: linear-gradient(
-      90deg,
-      rgb(var(--module-company-50) / 0.5) 0%,
-      rgb(var(--module-company-50) / 0.2) 50%,
-      transparent 100%
-    );
-  }
-
-  .nav-link[data-module="employees"].sidebar-nav-active {
-    border-left-color: rgb(var(--module-employees-500));
-    background: linear-gradient(
-      90deg,
-      rgb(var(--module-employees-50) / 0.5) 0%,
-      rgb(var(--module-employees-50) / 0.2) 50%,
-      transparent 100%
-    );
-  }
-
-  .nav-link[data-module="services"].sidebar-nav-active {
-    border-left-color: rgb(var(--module-services-500));
-    background: linear-gradient(
-      90deg,
-      rgb(var(--module-services-50) / 0.5) 0%,
-      rgb(var(--module-services-50) / 0.2) 50%,
-      transparent 100%
-    );
-  }
-
-  .nav-link[data-module="stock"].sidebar-nav-active {
-    border-left-color: rgb(var(--module-stock-500));
-    background: linear-gradient(
-      90deg,
-      rgb(var(--module-stock-50) / 0.5) 0%,
-      rgb(var(--module-stock-50) / 0.2) 50%,
-      transparent 100%
-    );
-  }
-
-  .nav-link[data-module="payment"].sidebar-nav-active {
-    border-left-color: rgb(var(--module-payment-500));
-    background: linear-gradient(
-      90deg,
-      rgb(var(--module-payment-50) / 0.5) 0%,
-      rgb(var(--module-payment-50) / 0.2) 50%,
-      transparent 100%
-    );
-  }
-
-  /* Modo oscuro - gradientes más sutiles */
-  .dark .nav-link[data-module="orders"].sidebar-nav-active {
-    background: linear-gradient(
-      90deg,
-      rgb(var(--module-orders-500) / 0.15) 0%,
-      rgb(var(--module-orders-500) / 0.08) 50%,
-      transparent 100%
-    );
-  }
-
-  .dark .nav-link[data-module="products"].sidebar-nav-active {
-    background: linear-gradient(
-      90deg,
-      rgb(var(--module-products-500) / 0.15) 0%,
-      rgb(var(--module-products-500) / 0.08) 50%,
-      transparent 100%
-    );
-  }
-
-  .dark .nav-link[data-module="clients"].sidebar-nav-active {
-    background: linear-gradient(
-      90deg,
-      rgb(var(--module-clients-500) / 0.15) 0%,
-      rgb(var(--module-clients-500) / 0.08) 50%,
-      transparent 100%
-    );
-  }
-
-  .dark .nav-link[data-module="dashboard"].sidebar-nav-active {
-    background: linear-gradient(
-      90deg,
-      rgb(var(--module-dashboard-500) / 0.15) 0%,
-      rgb(var(--module-dashboard-500) / 0.08) 50%,
-      transparent 100%
-    );
-  }
-
-  .dark .nav-link[data-module="expenses"].sidebar-nav-active {
-    background: linear-gradient(
-      90deg,
-      rgb(var(--module-expenses-500) / 0.15) 0%,
-      rgb(var(--module-expenses-500) / 0.08) 50%,
-      transparent 100%
-    );
-  }
-
-  .dark .nav-link[data-module="company"].sidebar-nav-active {
-    background: linear-gradient(
-      90deg,
-      rgb(var(--module-company-500) / 0.15) 0%,
-      rgb(var(--module-company-500) / 0.08) 50%,
-      transparent 100%
-    );
-  }
-
-  .dark .nav-link[data-module="employees"].sidebar-nav-active {
-    background: linear-gradient(
-      90deg,
-      rgb(var(--module-employees-500) / 0.15) 0%,
-      rgb(var(--module-employees-500) / 0.08) 50%,
-      transparent 100%
-    );
-  }
-
-  .dark .nav-link[data-module="services"].sidebar-nav-active {
-    background: linear-gradient(
-      90deg,
-      rgb(var(--module-services-500) / 0.15) 0%,
-      rgb(var(--module-services-500) / 0.08) 50%,
-      transparent 100%
-    );
-  }
-
-  .dark .nav-link[data-module="stock"].sidebar-nav-active {
-    background: linear-gradient(
-      90deg,
-      rgb(var(--module-stock-500) / 0.15) 0%,
-      rgb(var(--module-stock-500) / 0.08) 50%,
-      transparent 100%
-    );
-  }
-
-  .dark .nav-link[data-module="payment"].sidebar-nav-active {
-    background: linear-gradient(
-      90deg,
-      rgb(var(--module-payment-500) / 0.15) 0%,
-      rgb(var(--module-payment-500) / 0.08) 50%,
-      transparent 100%
-    );
   }
 </style>
 
@@ -529,10 +233,7 @@
         }, 300);
       },
       sync(){
-        // Clase que usa tu layout (.sb-collapsed .app-main { margin-left: 5rem; })
         document.documentElement.classList.toggle('sb-collapsed', this.collapsed === true);
-        // (opcional) variable para otras UIs
-        document.documentElement.style.setProperty('--sb-width', this.collapsed ? '4rem' : '16rem');
       },
       observeThemeChanges() {
         const observer = new MutationObserver((m) => {
@@ -554,14 +255,14 @@
   x-bind:data-collapsed="collapsed ? 'true' : 'false'"
   :class="collapsed ? 'w-16' : 'w-64 sm:w-64 lg:w-64'"
   class="sidebar-container fixed inset-y-0 left-0 z-50 overflow-hidden
-         transition-[width] duration-500 ease-[cubic-bezier(0.16,1,0.3,1)]"
+         transition-[width] duration-[280ms] ease-[cubic-bezier(0.16,1,0.3,1)]"
   style="height: 100vh; height: calc(var(--vh, 1vh) * 100);">
 
   <div class="h-full flex flex-col">
     <!-- Área expandible: Header + Nav -->
     <div @mouseenter="expand()" class="flex-1 min-h-0 flex flex-col">
     <!-- Header -->
-    <div class="sidebar-header flex-shrink-0 h-16 flex items-center px-4 border-b">
+    <div class="sidebar-header flex-shrink-0 h-16 flex items-center px-4">
       <a href="{{ route('inicio') }}" wire:navigate data-turbo="false"
          class="inline-flex items-center gap-3 transition-all duration-300 hover:scale-105" 
          title="{{ $panelText }}" aria-label="{{ $panelText }}">
@@ -642,37 +343,34 @@
          :class="collapsed ? 'justify-center flex items-center gap-3 p-3' : 'flex items-center gap-3 p-3'"
          :title="collapsed ? 'Nexum' : null">
         <span class="shrink-0 flex items-center justify-center w-7 h-7">
-          <svg class="nav-icon w-5 h-5 text-violet-500 dark:text-violet-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                  d="M9.663 17h4.673M12 3v1m6.364 1.636l-.707.707M21 12h-1M4 12H3m3.343-5.657l-.707-.707m2.828 9.9a5 5 0 117.072 0l-.548.547A3.374 3.374 0 0014 18.469V19a2 2 0 11-4 0v-.531c0-.895-.356-1.754-.988-2.386l-.548-.547z"/>
-          </svg>
+          <span style="font-size:1.05rem; font-weight:900; letter-spacing:.04em; background:linear-gradient(135deg,#ffffff 0%,#d8ccff 100%); -webkit-background-clip:text; -webkit-text-fill-color:transparent; background-clip:text; display:inline-block; line-height:1;">N</span>
         </span>
         <span x-show="!collapsed" x-transition:enter="fade-slide-enter"
               class="text-sm font-semibold truncate relative z-1">Nexum</span>
       </a>
 
-      <!-- Crear pedido -->
+      <!-- Crear venta -->
       <a href="{{ route('orders.create') }}" wire:navigate data-turbo="false" data-module="orders"
          class="nav-link {{ request()->routeIs('orders.create') ? $active : $idle }}"
          :class="collapsed ? 'justify-center flex items-center gap-3 p-3' : 'flex items-center gap-3 p-3'"
-         :title="collapsed ? 'Crear pedido' : null">
+         :title="collapsed ? 'Crear venta' : null">
         <span class="shrink-0 flex items-center justify-center w-7 h-7">
-          <img src="{{ asset('images/crear-pedido.png') }}" alt="Crear pedido" class="nav-icon">
+          <img src="{{ asset('images/crear-venta.png') }}" alt="Crear venta" class="nav-icon">
         </span>
         <span x-show="!collapsed" x-transition:enter="fade-slide-enter"
-              class="text-sm font-semibold truncate relative z-1">Crear pedido</span>
+              class="text-sm font-semibold truncate relative z-1">Crear venta</span>
       </a>
 
-      <!-- Lista de pedidos -->
+      <!-- Lista de ventas -->
       <a href="{{ $ordersUrl }}" wire:navigate data-turbo="false" data-module="orders"
          class="nav-link {{ request()->routeIs('orders.index') ? $active : $idle }}"
          :class="collapsed ? 'justify-center flex items-center gap-3 p-3' : 'flex items-center gap-3 p-3'"
-         :title="collapsed ? 'Lista de pedidos' : null">
+         :title="collapsed ? 'Lista de ventas' : null">
         <span class="shrink-0 flex items-center justify-center w-7 h-7">
-          <img src="{{ asset('images/pedidos.png') }}" alt="Pedidos" class="nav-icon">
+          <img src="{{ asset('images/ventas.png') }}" alt="Ventas" class="nav-icon">
         </span>
         <span x-show="!collapsed" x-transition:enter="fade-slide-enter"
-              class="text-sm font-semibold truncate relative z-1">Lista de pedidos</span>
+              class="text-sm font-semibold truncate relative z-1">Lista de ventas</span>
       </a>
 
       <!-- Productos -->
@@ -755,91 +453,48 @@
               class="text-sm font-semibold truncate relative z-1">Descuentos</span>
       </a>
 
-      @if(auth()->user()->hasModule('parking'))
-      <!-- Crear ingreso (mapa de cocheras) -->
-      <a href="{{ Route::has('parking.board') ? route('parking.board') : '#' }}" wire:navigate data-turbo="false" data-module="parking"
-         class="nav-link {{ request()->routeIs('parking.board') ? $active : $idle }}"
+      @if(auth()->user()->isMaster() || auth()->user()->hasModule('alquileres'))
+      <!-- Calendario de alquileres -->
+      <a href="{{ Route::has('rentals.calendar') ? route('rentals.calendar') : '#' }}" wire:navigate data-turbo="false" data-module="alquileres"
+         class="nav-link {{ request()->routeIs('rentals.calendar') ? $active : $idle }}"
          :class="collapsed ? 'justify-center flex items-center gap-3 p-3' : 'flex items-center gap-3 p-3'"
-         :title="collapsed ? 'Crear ingreso' : null">
+         :title="collapsed ? 'Calendario' : null">
         <span class="shrink-0 flex items-center justify-center w-7 h-7">
-          <svg class="w-5 h-5 text-neutral-600 dark:text-neutral-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4m16 0a9 9 0 11-18 0 9 9 0 0118 0z"/>
+          <svg class="nav-icon w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"/>
           </svg>
         </span>
         <span x-show="!collapsed" x-transition:enter="fade-slide-enter"
-              class="text-sm font-semibold truncate relative z-1">Crear ingreso</span>
+              class="text-sm font-semibold truncate relative z-1">Calendario</span>
       </a>
 
-      <!-- Cocheras -->
-      <a href="{{ Route::has('parking.spaces.index') ? route('parking.spaces.index') : '#' }}" wire:navigate data-turbo="false" data-module="parking"
-         class="nav-link {{ request()->routeIs('parking.spaces.*') ? $active : $idle }}"
+      <!-- Reservas -->
+      <a href="{{ Route::has('rentals.bookings.index') ? route('rentals.bookings.index') : '#' }}" wire:navigate data-turbo="false" data-module="alquileres"
+         class="nav-link {{ request()->routeIs('rentals.bookings.*') ? $active : $idle }}"
          :class="collapsed ? 'justify-center flex items-center gap-3 p-3' : 'flex items-center gap-3 p-3'"
-         :title="collapsed ? 'Cocheras' : null">
+         :title="collapsed ? 'Reservas' : null">
         <span class="shrink-0 flex items-center justify-center w-7 h-7">
-          <svg class="w-5 h-5 text-neutral-600 dark:text-neutral-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <svg class="nav-icon w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2"/>
+          </svg>
+        </span>
+        <span x-show="!collapsed" x-transition:enter="fade-slide-enter"
+              class="text-sm font-semibold truncate relative z-1">Reservas</span>
+      </a>
+
+      <!-- Espacios -->
+      <a href="{{ Route::has('rentals.spaces.index') ? route('rentals.spaces.index') : '#' }}" wire:navigate data-turbo="false" data-module="alquileres"
+         class="nav-link {{ request()->routeIs('rentals.spaces.*') ? $active : $idle }}"
+         :class="collapsed ? 'justify-center flex items-center gap-3 p-3' : 'flex items-center gap-3 p-3'"
+         :title="collapsed ? 'Espacios' : null">
+        <span class="shrink-0 flex items-center justify-center w-7 h-7">
+          <svg class="nav-icon w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4"/>
           </svg>
         </span>
         <span x-show="!collapsed" x-transition:enter="fade-slide-enter"
-              class="text-sm font-semibold truncate relative z-1">Cocheras</span>
+              class="text-sm font-semibold truncate relative z-1">Espacios</span>
       </a>
-
-      <!-- Tarifas de estacionamiento -->
-      <a href="{{ Route::has('parking.rates.index') ? route('parking.rates.index') : '#' }}" wire:navigate data-turbo="false" data-module="parking"
-         class="nav-link {{ request()->routeIs('parking.rates.*') ? $active : $idle }}"
-         :class="collapsed ? 'justify-center flex items-center gap-3 p-3' : 'flex items-center gap-3 p-3'"
-         :title="collapsed ? 'Tarifas' : null">
-        <span class="shrink-0 flex items-center justify-center w-7 h-7">
-          <svg class="w-5 h-5 text-neutral-600 dark:text-neutral-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 7h.01M7 3h5c.512 0 1.024.195 1.414.586l7 7a2 2 0 010 2.828l-7 7a2 2 0 01-2.828 0l-7-7A1.994 1.994 0 013 12V7a4 4 0 014-4z"/>
-          </svg>
-        </span>
-        <span x-show="!collapsed" x-transition:enter="fade-slide-enter"
-              class="text-sm font-semibold truncate relative z-1">Tarifas</span>
-      </a>
-
-      <!-- Estacionamiento -->
-      <a href="{{ Route::has('parking.shifts.audit') ? route('parking.shifts.audit') : '#' }}" wire:navigate data-turbo="false" data-module="parking"
-         class="nav-link {{ request()->routeIs('parking.shifts.audit') ? $active : $idle }}"
-         :class="collapsed ? 'justify-center flex items-center gap-3 p-3' : 'flex items-center gap-3 p-3'"
-         :title="collapsed ? 'Auditoría' : null">
-        <span class="shrink-0 flex items-center justify-center w-7 h-7">
-          <svg class="w-5 h-5 text-neutral-600 dark:text-neutral-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-6 9l2 2 4-4"/>
-          </svg>
-        </span>
-        <span x-show="!collapsed" x-transition:enter="fade-slide-enter"
-              class="text-sm font-semibold truncate relative z-1">Auditoría</span>
-      </a>
-
-      <!-- Mi Historial de Turnos -->
-      <a href="{{ Route::has('parking.shifts.my-history') ? route('parking.shifts.my-history') : '#' }}" wire:navigate data-turbo="false" data-module="parking"
-         class="nav-link {{ request()->routeIs('parking.shifts.my-history') ? $active : $idle }}"
-         :class="collapsed ? 'justify-center flex items-center gap-3 p-3' : 'flex items-center gap-3 p-3'"
-         :title="collapsed ? 'Mi Historial' : null">
-        <span class="shrink-0 flex items-center justify-center w-7 h-7">
-          <svg class="w-5 h-5 text-neutral-600 dark:text-neutral-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"></path>
-          </svg>
-        </span>
-        <span x-show="!collapsed" x-transition:enter="fade-slide-enter"
-              class="text-sm font-semibold truncate relative z-1">Mi Historial</span>
-      </a>
-
-      <!-- Auditoría de Turnos -->
-      <a href="{{ Route::has('parking.shifts.audit') ? route('parking.shifts.audit') : '#' }}" wire:navigate data-turbo="false" data-module="parking"
-         class="nav-link {{ request()->routeIs('parking.shifts.audit') ? $active : $idle }}"
-         :class="collapsed ? 'justify-center flex items-center gap-3 p-3' : 'flex items-center gap-3 p-3'"
-         :title="collapsed ? 'Reportes' : null">
-        <span class="shrink-0 flex items-center justify-center w-7 h-7">
-          <svg class="w-5 h-5 text-neutral-600 dark:text-neutral-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 17v-2m3 2v-4m3 4v-6m2 10H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path>
-          </svg>
-        </span>
-        <span x-show="!collapsed" x-transition:enter="fade-slide-enter"
-              class="text-sm font-semibold truncate relative z-1">Reportes</span>
-      </a>
-
       @endif
 
       @if(Route::has('invoices.configuration'))

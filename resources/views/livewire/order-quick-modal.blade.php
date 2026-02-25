@@ -4,7 +4,7 @@
         wire:click="showModal"
         class="inline-flex items-center px-4 py-2 bg-indigo-600 border border-transparent rounded-lg font-semibold text-white hover:bg-indigo-700 transition-colors">
   <i class="fas fa-plus-circle mr-2"></i>
-  Nuevo Pedido
+  Nueva Venta
 </button>
 
 
@@ -44,8 +44,8 @@
               </svg>
             </div>
             <div>
-              <h3 class="text-lg font-semibold text-gray-900 dark:text-gray-100">Nuevo Pedido</h3>
-              <p class="text-sm text-gray-500 dark:text-gray-400">Crear pedido</p>
+              <h3 class="text-lg font-semibold text-gray-900 dark:text-gray-100">Nueva Venta</h3>
+              <p class="text-sm text-gray-500 dark:text-gray-400">Crear venta</p>
             </div>
           </div>
 
@@ -83,7 +83,7 @@
         {{-- Fecha en móvil --}}
         <div class="md:hidden px-6 py-3 border-b border-gray-200 dark:border-gray-700">
           <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-            Fecha y hora del pedido
+            Fecha y hora de la venta
           </label>
           <div class="flex items-center gap-2">
             <input type="datetime-local"
@@ -255,7 +255,7 @@
           {{-- Info y Carrito --}}
           <section class="flex flex-col min-h-0">
             <div class="px-6 py-4 border-b border-gray-200 dark:border-gray-700">
-              <h4 class="font-medium text-gray-900 dark:text-gray-100">Información del pedido</h4>
+              <h4 class="font-medium text-gray-900 dark:text-gray-100">Información de la venta</h4>
             </div>
 
             <div class="flex-1 overflow-y-auto p-6 space-y-6">
@@ -347,7 +347,7 @@
                 <div class="flex items-center justify-between mb-4">
                   <label class="font-medium text-gray-900 dark:text-gray-100 flex items-center gap-2">
                     <i class="fas fa-calendar-clock text-indigo-600 dark:text-indigo-400"></i>
-                    Agendar pedido
+                    Agendar venta
                   </label>
 
                   <button type="button"
@@ -401,7 +401,7 @@
                           <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/>
                         </svg>
                         <div class="text-sm text-blue-800 dark:text-blue-200">
-                          <strong>Pedido agendado:</strong> Se guardará como "Agendado" y podrás confirmarlo el día indicado.
+                          <strong>Venta agendado:</strong> Se guardará como "Agendado" y podrás confirmarlo el día indicado.
                         </div>
                       </div>
                     </div>
@@ -507,7 +507,7 @@
                   @if($availablePaymentMethods->count() > 0)
                     <div class="space-y-3">
                       <p class="text-xs text-gray-500 dark:text-gray-400 mb-2">
-                        Seleccioná cómo se pagó el pedido
+                        Seleccioná cómo se pagó la venta
                       </p>
 
                       <div class="grid grid-cols-2 gap-2">
@@ -573,7 +573,7 @@
                     @disabled(!count($items))
                     class="px-4 py-2 text-sm font-medium bg-gradient-to-r from-indigo-600 to-purple-600 text-white rounded
                            hover:from-indigo-700 hover:to-purple-700 disabled:opacity-50">
-              <span wire:loading.remove wire:target="save">Guardar Pedido</span>
+              <span wire:loading.remove wire:target="save">Guardar Venta</span>
               <span wire:loading wire:target="save">Guardando...</span>
             </button>
           </div>

@@ -53,7 +53,7 @@ class RevenueOpportunityGenerator extends BaseInsightGenerator
             if ($growthPercent > 20) {
                 $insights[] = $this->makeInsight(
                     BusinessInsight::PRIORITY_LOW,
-                    "📈 ¡Excelente crecimiento!",
+                    "Crecimiento en ventas",
                     "Tus ventas aumentaron un " . round($growthPercent, 1) . "% este mes. ¡Sigue así!",
                     [
                         'current_revenue' => $currentRevenue,
@@ -67,7 +67,7 @@ class RevenueOpportunityGenerator extends BaseInsightGenerator
             } elseif ($growthPercent < -10) {
                 $insights[] = $this->makeInsight(
                     BusinessInsight::PRIORITY_MEDIUM,
-                    "📉 Baja en ventas",
+                    "Baja en ventas",
                     "Tus ventas disminuyeron un " . abs(round($growthPercent, 1)) . "% este mes. Considera revisar tus estrategias.",
                     [
                         'current_revenue' => $currentRevenue,
@@ -109,7 +109,7 @@ class RevenueOpportunityGenerator extends BaseInsightGenerator
 
             $insights[] = $this->makeInsight(
                 BusinessInsight::PRIORITY_LOW,
-                "⭐ Tus productos estrella",
+                "Productos con mayor ingreso",
                 "Los productos " . implode(', ', $topProducts) . " generan el mayor ingreso. Asegúrate de tener stock suficiente.",
                 [
                     'top_products' => $top3,
@@ -138,7 +138,7 @@ class RevenueOpportunityGenerator extends BaseInsightGenerator
 
             $insights[] = $this->makeInsight(
                 BusinessInsight::PRIORITY_LOW,
-                "🕐 Horario pico",
+                "Horario pico de ventas",
                 "La mayoría de tus ventas ocurren alrededor de las {$peakHourFormatted}. Considera esto para planificar promociones.",
                 [
                     'peak_hour' => $peakHour,

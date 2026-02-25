@@ -29,7 +29,7 @@ $s = $statusMap[$statusKey] ?? [
 
 <div class="flex flex-col sm:flex-row sm:items-end sm:justify-between gap-2">
     <div>
-        <h1 class="text-xl font-semibold text-neutral-800 dark:text-neutral-100">Pedido #{{ $order->order_number ?? $order->id }}</h1>
+        <h1 class="text-xl font-semibold text-neutral-800 dark:text-neutral-100">Venta #{{ $order->order_number ?? $order->id }}</h1>
         <p class="text-xs sm:text-sm text-neutral-500 dark:text-neutral-400">{{ $order->created_at?->format('d/m/Y H:i') }}</p>
     </div>
     <span class="inline-flex items-center gap-2 px-3 py-1.5 rounded-full text-sm font-medium {{ $s['bg'] }} {{ $s['text'] }}">
@@ -104,7 +104,7 @@ $s = $statusMap[$statusKey] ?? [
           <button type="submit"
                   class="flex items-center gap-2 px-4 py-2 rounded-lg bg-emerald-600 text-white font-semibold hover:bg-emerald-700 focus:outline-none focus:ring-2 focus:ring-emerald-400 focus:ring-offset-1 text-sm">
             <svg class="w-4 h-4" viewBox="0 0 24 24" fill="none"><path d="M5 13l4 4L19 7" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
-            Confirmar pedido
+            Confirmar venta
           </button>
         </form>
         <form action="{{ route('orders.cancel-scheduled', $order) }}" method="POST">
@@ -112,7 +112,7 @@ $s = $statusMap[$statusKey] ?? [
           <button type="submit"
                   class="flex items-center gap-2 px-4 py-2 rounded-lg bg-red-600 text-white font-semibold hover:bg-red-700 focus:outline-none focus:ring-2 focus:ring-red-400 focus:ring-offset-1 text-sm">
             <svg class="w-4 h-4" viewBox="0 0 24 24" fill="none"><path d="M6 18L18 6M6 6l12 12" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>
-            Cancelar pedido
+            Cancelar venta
           </button>
         </form>
       </div>
@@ -127,7 +127,7 @@ $s = $statusMap[$statusKey] ?? [
               <svg class="w-4 h-4" viewBox="0 0 24 24" fill="none">
                   <path d="M6 18L18 6M6 6l12 12" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
               </svg>
-              Cancelar pedido
+              Cancelar venta
           </button>
       </form>
     @endif
@@ -202,7 +202,7 @@ $s = $statusMap[$statusKey] ?? [
         {{-- Encabezado --}}
         <div class="px-5 sm:px-6 py-5 border-b border-neutral-100 dark:border-neutral-800/60 flex items-center justify-between">
           <div>
-            <h2 class="text-lg font-semibold text-neutral-900 dark:text-neutral-100">Detalle del pedido</h2>
+            <h2 class="text-lg font-semibold text-neutral-900 dark:text-neutral-100">Detalle de la venta</h2>
             <p class="text-xs text-neutral-500 dark:text-neutral-400 mt-0.5">{{ $totalItems }} artículos</p>
           </div>
           <div class="text-right">
@@ -277,7 +277,7 @@ $s = $statusMap[$statusKey] ?? [
                 <circle cx="12" cy="12" r="10" stroke="currentColor" stroke-width="1.5"/>
                 <path d="M12 8v4m0 4h.01" stroke="currentColor" stroke-width="1.5"/>
               </svg>
-              <p class="text-neutral-500 dark:text-neutral-400">No hay ítems en este pedido</p>
+              <p class="text-neutral-500 dark:text-neutral-400">No hay ítems en esta venta</p>
             </div>
           @endif
         </div>
