@@ -74,6 +74,23 @@
          role="menuitem">Calcular costos</a>
 
       @auth
+        @if(auth()->user()->isMaster() || auth()->user()->hasModule('alquileres'))
+          <div class="h-px bg-neutral-200 dark:bg-neutral-800 my-1"></div>
+          <p class="px-3 pt-1 pb-0.5 text-[10px] font-semibold uppercase tracking-widest text-neutral-400 dark:text-neutral-500">Alquileres</p>
+          <a href="{{ Route::has('rentals.calendar') ? route('rentals.calendar') : '#' }}" wire:navigate data-turbo="false"
+             class="flex items-center gap-3 px-3 py-2 rounded-lg text-sm font-medium hover:bg-neutral-50 dark:hover:bg-neutral-800 {{ request()->routeIs('rentals.calendar') ? 'bg-neutral-100 dark:bg-neutral-800' : '' }}"
+             role="menuitem">Calendario</a>
+          <a href="{{ Route::has('rentals.bookings.index') ? route('rentals.bookings.index') : '#' }}" wire:navigate data-turbo="false"
+             class="flex items-center gap-3 px-3 py-2 rounded-lg text-sm font-medium hover:bg-neutral-50 dark:hover:bg-neutral-800 {{ request()->routeIs('rentals.bookings.*') ? 'bg-neutral-100 dark:bg-neutral-800' : '' }}"
+             role="menuitem">Reservas</a>
+          <a href="{{ Route::has('rentals.spaces.index') ? route('rentals.spaces.index') : '#' }}" wire:navigate data-turbo="false"
+             class="flex items-center gap-3 px-3 py-2 rounded-lg text-sm font-medium hover:bg-neutral-50 dark:hover:bg-neutral-800 {{ request()->routeIs('rentals.spaces.*') ? 'bg-neutral-100 dark:bg-neutral-800' : '' }}"
+             role="menuitem">Espacios</a>
+          <div class="h-px bg-neutral-200 dark:bg-neutral-800 my-1"></div>
+        @endif
+      @endauth
+
+      @auth
         @if(auth()->user()->isMaster() || auth()->user()->isCompany())
           <a href="{{ route('company.branches.index') }}" wire:navigate data-turbo="false"
              class="flex items-center gap-3 px-3 py-2 rounded-lg text-sm font-medium hover:bg-neutral-50 dark:hover:bg-neutral-800 {{ request()->routeIs('company.branches.*') ? 'bg-neutral-100 dark:bg-neutral-800' : '' }}"
