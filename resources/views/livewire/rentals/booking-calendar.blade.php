@@ -27,7 +27,7 @@
       {{-- Header fijo --}}
       <div class="flex-shrink-0 px-5 py-4 border-b border-neutral-100 dark:border-neutral-800 flex flex-wrap items-center gap-3">
         <div class="flex-1 min-w-0">
-          <h2 class="text-base font-bold text-neutral-900 dark:text-neutral-100 capitalize">
+          <h2 class="text-base font-bold text-neutral-900 dark:text-neutral-100 capitalize truncate">
             {{ $selectedDateLabel }}
           </h2>
           @php
