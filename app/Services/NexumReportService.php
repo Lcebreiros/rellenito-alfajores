@@ -74,6 +74,7 @@ class NexumReportService
         $productMargin = $this->productMarginData($from, $to);
         $topClients    = $this->topClientsData($from, $to);
         $expenses      = $this->expensesData();
+        $cogs          = $this->cogsData($from, $to);
         $inventoryRot  = $this->inventoryRotationData($from, $to);
         $insights      = $this->generateInsightsForReport();
         $lowStockItems = Product::where('user_id', $this->user->id)
@@ -81,7 +82,7 @@ class NexumReportService
             ->orderBy('stock')
             ->get();
 
-        return compact('health', 'sales', 'topProducts', 'productMargin', 'topClients', 'expenses', 'inventoryRot', 'insights', 'lowStockItems', 'from', 'to');
+        return compact('health', 'sales', 'topProducts', 'productMargin', 'topClients', 'expenses', 'cogs', 'inventoryRot', 'insights', 'lowStockItems', 'from', 'to');
     }
 
     private function salesData(Carbon $from, Carbon $to): array
@@ -344,6 +345,30 @@ class NexumReportService
             'low'      => '#10B981',
             default    => '#6b7280',
         };
+    }
+
+    private function cogsData(Carbon $from, Carbon $to): float
+    {
+        $ordersSub = Order::query()
+            ->availableFor($this->user)
+            ->completed()
+            ->whereBetween('sold_at', [$from, $to])
+            ->select('id');
+
+        return (float) DB::table('order_items as oi')
+            ->leftJoin('products as p', 'p.id', '=', 'oi.product_id')
+            ->leftJoin(DB::raw('(
+                SELECT c1.product_id, c1.unit_total
+                FROM costings c1
+                JOIN (
+                    SELECT product_id, MAX(created_at) as max_created
+                    FROM costings
+                    GROUP BY product_id
+                ) c2 ON c1.product_id = c2.product_id AND c1.created_at = c2.max_created
+            ) as cx'), 'cx.product_id', '=', 'oi.product_id')
+            ->whereIn('oi.order_id', $ordersSub)
+            ->selectRaw('COALESCE(SUM(oi.quantity * COALESCE(cx.unit_total, COALESCE(p.cost_price, 0))), 0) as c')
+            ->value('c');
     }
 
     private function expensesData(): array

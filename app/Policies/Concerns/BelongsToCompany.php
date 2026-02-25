@@ -29,4 +29,15 @@ trait BelongsToCompany
     {
         return (int) $model->company_id === $this->getCurrentCompanyId($user);
     }
+
+    /**
+     * Verifica si el módulo está activo para la empresa del usuario.
+     * Usa la empresa padre cuando el usuario es empleado/admin,
+     * igual que el middleware EnsureUserHasModule.
+     */
+    protected function companyHasModule(User $user, string $module): bool
+    {
+        $company = $user->isCompany() ? $user : $user->parent;
+        return $company && $company->hasModule($module);
+    }
 }

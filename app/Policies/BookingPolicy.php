@@ -20,29 +20,29 @@ class BookingPolicy
 
     public function viewAny(User $user): bool
     {
-        return $user->hasModule('alquileres');
+        return $this->companyHasModule($user, 'alquileres');
     }
 
     public function view(User $user, Booking $booking): bool
     {
         return $this->belongsToUserCompany($user, $booking)
-            && $user->hasModule('alquileres');
+            && $this->companyHasModule($user, 'alquileres');
     }
 
     public function create(User $user): bool
     {
-        return $user->hasModule('alquileres');
+        return $this->companyHasModule($user, 'alquileres');
     }
 
     public function update(User $user, Booking $booking): bool
     {
         return $this->belongsToUserCompany($user, $booking)
-            && $user->hasModule('alquileres');
+            && $this->companyHasModule($user, 'alquileres');
     }
 
     public function delete(User $user, Booking $booking): bool
     {
         return $this->belongsToUserCompany($user, $booking)
-            && $user->hasModule('alquileres');
+            && $this->companyHasModule($user, 'alquileres');
     }
 }

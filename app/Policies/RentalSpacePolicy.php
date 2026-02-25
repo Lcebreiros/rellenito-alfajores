@@ -20,29 +20,29 @@ class RentalSpacePolicy
 
     public function viewAny(User $user): bool
     {
-        return $user->hasModule('alquileres');
+        return $this->companyHasModule($user, 'alquileres');
     }
 
     public function view(User $user, RentalSpace $rentalSpace): bool
     {
         return $this->belongsToUserCompany($user, $rentalSpace)
-            && $user->hasModule('alquileres');
+            && $this->companyHasModule($user, 'alquileres');
     }
 
     public function create(User $user): bool
     {
-        return $user->hasModule('alquileres');
+        return $this->companyHasModule($user, 'alquileres');
     }
 
     public function update(User $user, RentalSpace $rentalSpace): bool
     {
         return $this->belongsToUserCompany($user, $rentalSpace)
-            && $user->hasModule('alquileres');
+            && $this->companyHasModule($user, 'alquileres');
     }
 
     public function delete(User $user, RentalSpace $rentalSpace): bool
     {
         return $this->belongsToUserCompany($user, $rentalSpace)
-            && $user->hasModule('alquileres');
+            && $this->companyHasModule($user, 'alquileres');
     }
 }

@@ -124,10 +124,15 @@
 
   {{-- ── 1. RESUMEN EJECUTIVO ─────────────────────────────── --}}
   @php
-    $rChg = $sales['revenue_change_pct'];
-    $cChg = $sales['count_change_pct'];
-    $tChg = $sales['ticket_change_pct'];
-    $mPct = $health['categories']['costs']['metrics']['margin_pct'] ?? 0;
+    $rChg        = $sales['revenue_change_pct'];
+    $cChg        = $sales['count_change_pct'];
+    $tChg        = $sales['ticket_change_pct'];
+    $mPct        = $health['categories']['costs']['metrics']['margin_pct'] ?? 0;
+    $sumOpEx     = collect($expenses)->sum('amount');
+    $netProfitEx = $sales['total_revenue'] - $cogs - $sumOpEx;
+    $netPctEx    = $sales['total_revenue'] > 0
+        ? round(($netProfitEx / $sales['total_revenue']) * 100, 1)
+        : 0;
   @endphp
   <div class="section">
     <div class="section-title">1. Resumen Ejecutivo</div>
@@ -165,8 +170,16 @@
         <div class="summary-value" style="color: {{ $mPct >= 20 ? '#059669' : '#dc2626' }}">
           {{ $mPct }}%
         </div>
-        <div class="change-neutral">${{ number_format($sales['total_revenue'] - ($health['categories']['costs']['metrics']['total_costs'] ?? 0), 0, ',', '.') }} ganancia</div>
+        <div class="change-neutral">${{ number_format($sales['total_revenue'] - ($health['categories']['costs']['metrics']['total_costs'] ?? 0), 0, ',', '.') }} bruta</div>
         <div class="summary-label">Margen bruto est.</div>
+        <hr style="border:none; border-top:1px solid #d8b4fe; margin:4px 0;">
+        <div class="summary-value" style="font-size:12px; color: {{ $netPctEx >= 0 ? '#059669' : '#dc2626' }}">
+          {{ $netPctEx }}%
+        </div>
+        <div class="change-neutral">
+          {{ $netProfitEx < 0 ? '−' : '' }}${{ number_format(abs($netProfitEx), 0, ',', '.') }} neta
+        </div>
+        <div class="summary-label">Margen neto est.</div>
       </div>
     </div>
   </div>
@@ -287,33 +300,54 @@
     </table>
   </div>
 
-  {{-- ── 5. MARGEN ─────────────────────────────────────────── --}}
+  {{-- ── 5. RESULTADO ECONÓMICO ──────────────────────────────── --}}
+  @php
+    $totalOpEx   = collect($expenses)->sum('amount');
+    $grossProfit = $sales['total_revenue'] - $cogs;
+    $netProfit   = $grossProfit - $totalOpEx;
+    $rev         = $sales['total_revenue'];
+    $cogsRatio   = $rev > 0 ? round(($cogs / $rev) * 100, 1) : 0;
+    $grossPct    = $rev > 0 ? round(($grossProfit / $rev) * 100, 1) : 0;
+    $opExRatio   = $rev > 0 ? round(($totalOpEx / $rev) * 100, 1) : 0;
+    $netPct      = $rev > 0 ? round(($netProfit / $rev) * 100, 1) : 0;
+  @endphp
   <div class="section">
-    <div class="section-title">5. Margen Bruto Estimado</div>
+    <div class="section-title">5. Resultado Económico Estimado</div>
     <table>
-      <thead><tr><th>Concepto</th><th class="text-right">Monto</th><th class="text-right">%</th></tr></thead>
+      <thead><tr><th>Concepto</th><th class="text-right">Monto</th><th class="text-right">% sobre ingresos</th></tr></thead>
       <tbody>
         <tr>
           <td>Ingresos totales</td>
-          <td class="text-right">${{ number_format($sales['total_revenue'], 2, ',', '.') }}</td>
+          <td class="text-right">${{ number_format($rev, 2, ',', '.') }}</td>
           <td class="text-right">100%</td>
         </tr>
         <tr>
-          <td>Total costos (estimado)</td>
-          <td class="text-right">−${{ number_format($health['categories']['costs']['metrics']['total_costs'], 2, ',', '.') }}</td>
-          <td class="text-right">{{ $health['categories']['costs']['metrics']['cost_ratio'] }}%</td>
+          <td style="padding-left:14px; color:#6b7280;">(−) Costo de mercadería vendida (CMV)</td>
+          <td class="text-right" style="color:#6b7280;">−${{ number_format($cogs, 2, ',', '.') }}</td>
+          <td class="text-right" style="color:#6b7280;">{{ $cogsRatio }}%</td>
         </tr>
         <tr style="background:#d1fae5;">
           <td class="bold" style="color:#065f46;">Ganancia bruta estimada</td>
-          <td class="text-right bold" style="color:#065f46;">
-            ${{ number_format($sales['total_revenue'] - $health['categories']['costs']['metrics']['total_costs'], 2, ',', '.') }}
+          <td class="text-right bold" style="color:#065f46;">${{ number_format($grossProfit, 2, ',', '.') }}</td>
+          <td class="text-right bold" style="color:#065f46;">{{ $grossPct }}%</td>
+        </tr>
+        <tr>
+          <td style="padding-left:14px; color:#6b7280;">(−) Gastos operativos</td>
+          <td class="text-right" style="color:#6b7280;">−${{ number_format($totalOpEx, 2, ',', '.') }}</td>
+          <td class="text-right" style="color:#6b7280;">{{ $opExRatio }}%</td>
+        </tr>
+        <tr style="background:{{ $netProfit >= 0 ? '#d1fae5' : '#fee2e2' }};">
+          <td class="bold" style="color:{{ $netProfit >= 0 ? '#065f46' : '#991b1b' }};">Ganancia neta estimada</td>
+          <td class="text-right bold" style="color:{{ $netProfit >= 0 ? '#065f46' : '#991b1b' }};">
+            {{ $netProfit < 0 ? '−' : '' }}${{ number_format(abs($netProfit), 2, ',', '.') }}
           </td>
-          <td class="text-right bold" style="color:#065f46;">
-            {{ $health['categories']['costs']['metrics']['margin_pct'] }}%
-          </td>
+          <td class="text-right bold" style="color:{{ $netProfit >= 0 ? '#065f46' : '#991b1b' }};">{{ $netPct }}%</td>
         </tr>
       </tbody>
     </table>
+    <div style="font-size:7.5px; color:#6b7280; margin-top:4px;">
+      * CMV calculado sobre costos unitarios registrados. Gastos operativos tomados de los registros activos del período.
+    </div>
   </div>
 
   {{-- ── 6 & 7. CLIENTES + INVENTARIO (2 columnas) ───────────── --}}

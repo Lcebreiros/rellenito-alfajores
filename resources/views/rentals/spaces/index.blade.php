@@ -43,19 +43,19 @@
           </svg>
         </div>
 
-        <form method="POST" action="{{ route('rentals.spaces.store') }}" x-show="open" class="p-4 sm:p-5 space-y-3">
+        <form method="POST" action="{{ route('rentals.spaces.store') }}" x-show="open" class="p-4 sm:p-5 space-y-4">
           @csrf
           <div>
-            <label class="block text-sm font-medium text-neutral-700 dark:text-neutral-200 mb-1">Nombre *</label>
+            <label class="block text-sm font-medium text-neutral-700 dark:text-neutral-200 mb-1">Nombre <span class="text-rose-500">*</span></label>
             <input name="name" required maxlength="100"
                    class="w-full rounded-lg border border-neutral-300 dark:border-neutral-700 bg-white dark:bg-neutral-900 px-3 py-2 text-sm"
                    placeholder="Cancha 1, Salón A...">
           </div>
           <div>
-            <label class="block text-sm font-medium text-neutral-700 dark:text-neutral-200 mb-1">Descripción</label>
+            <label class="block text-sm font-medium text-neutral-700 dark:text-neutral-200 mb-1">Descripción <span class="text-neutral-400 font-normal text-xs">(opcional)</span></label>
             <input name="description" maxlength="500"
                    class="w-full rounded-lg border border-neutral-300 dark:border-neutral-700 bg-white dark:bg-neutral-900 px-3 py-2 text-sm"
-                   placeholder="Cancha de pádel techada...">
+                   placeholder="Cancha de pádel techada, 4 jugadores...">
           </div>
           <div class="grid grid-cols-2 gap-3">
             <div>
@@ -69,50 +69,64 @@
               </select>
             </div>
             <div>
-              <label class="block text-sm font-medium text-neutral-700 dark:text-neutral-200 mb-1">Color</label>
+              <label class="block text-sm font-medium text-neutral-700 dark:text-neutral-200 mb-1">Color identificador</label>
               <input type="color" name="color" value="#6366f1"
-                     class="w-full h-10 rounded-lg border border-neutral-300 dark:border-neutral-700 bg-white dark:bg-neutral-900 px-1 py-1 cursor-pointer">
+                     class="w-full h-[38px] rounded-lg border border-neutral-300 dark:border-neutral-700 bg-white dark:bg-neutral-900 px-1 py-1 cursor-pointer">
             </div>
           </div>
 
           {{-- Opciones de duración / Tarifas --}}
-          <div x-data="{ options: [{label:'', minutes:60, price:0}] }">
-            <div class="flex items-center justify-between mb-1">
-              <label class="text-sm font-medium text-neutral-700 dark:text-neutral-200">Duración y tarifas</label>
-              <span class="text-xs text-neutral-400">obligatorio al menos 1</span>
+          <div x-data="{ options: [{label:'', minutes:60, price:''}] }">
+            <div class="mb-2">
+              <p class="text-sm font-medium text-neutral-700 dark:text-neutral-200">Duraciones y tarifas <span class="text-rose-500">*</span></p>
+              <p class="text-xs text-neutral-400 mt-0.5">Definí las opciones de tiempo y su precio. Ej: "1 hora" → 60 min → $5.000</p>
             </div>
-            {{-- Cabecera de columnas --}}
-            <div class="grid grid-cols-[1fr_56px_72px_24px] gap-1.5 mb-1 px-0.5">
-              <span class="text-xs text-neutral-500">Nombre</span>
-              <span class="text-xs text-neutral-500 text-center">Min.</span>
-              <span class="text-xs text-neutral-500 text-center">Tarifa $</span>
-              <span></span>
+
+            <div class="space-y-3">
+              <template x-for="(opt, i) in options" :key="i">
+                <div class="rounded-lg border border-neutral-200 dark:border-neutral-700 bg-neutral-50/60 dark:bg-neutral-800/40 p-3 relative">
+                  <button type="button" @click="options.splice(i,1)" x-show="options.length > 1"
+                          class="absolute top-2 right-2 p-0.5 text-neutral-400 hover:text-rose-500 transition-colors">
+                    <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/>
+                    </svg>
+                  </button>
+                  <div class="grid grid-cols-1 gap-2 pr-4">
+                    <div>
+                      <label class="block text-xs font-medium text-neutral-600 dark:text-neutral-400 mb-1">Nombre de la opción</label>
+                      <input type="text" :name="`duration_options[${i}][label]`" x-model="opt.label"
+                             placeholder="Ej: 1 hora, Media jornada, Día completo..." maxlength="100"
+                             class="w-full rounded-lg border border-neutral-300 dark:border-neutral-700 bg-white dark:bg-neutral-900 px-2.5 py-1.5 text-sm">
+                    </div>
+                    <div class="grid grid-cols-2 gap-2">
+                      <div>
+                        <label class="block text-xs font-medium text-neutral-600 dark:text-neutral-400 mb-1">Duración (en minutos)</label>
+                        <input type="number" :name="`duration_options[${i}][minutes]`" x-model="opt.minutes"
+                               min="15" max="1440" placeholder="60"
+                               class="w-full rounded-lg border border-neutral-300 dark:border-neutral-700 bg-white dark:bg-neutral-900 px-2.5 py-1.5 text-sm">
+                        <p class="text-xs text-neutral-400 mt-0.5" x-text="opt.minutes >= 60 ? Math.floor(opt.minutes/60)+'h '+(opt.minutes%60 ? opt.minutes%60+'min' : '') : (opt.minutes ? opt.minutes+'min' : '')"></p>
+                      </div>
+                      <div>
+                        <label class="block text-xs font-medium text-neutral-600 dark:text-neutral-400 mb-1">Precio</label>
+                        <div class="relative">
+                          <span class="absolute left-2.5 top-1/2 -translate-y-1/2 text-sm text-neutral-500 font-medium pointer-events-none">$</span>
+                          <input type="number" :name="`duration_options[${i}][price]`" x-model="opt.price"
+                                 min="0" step="1" placeholder="0"
+                                 class="w-full rounded-lg border border-violet-200 dark:border-violet-800 bg-violet-50/50 dark:bg-violet-900/10 pl-6 pr-2.5 py-1.5 text-sm font-medium text-violet-700 dark:text-violet-300">
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </template>
             </div>
-            <template x-for="(opt, i) in options" :key="i">
-              <div class="grid grid-cols-[1fr_56px_72px_24px] gap-1.5 mb-1.5 items-center">
-                <input type="text" :name="`duration_options[${i}][label]`" x-model="opt.label"
-                       placeholder="1 hora" maxlength="100"
-                       class="rounded-lg border border-neutral-300 dark:border-neutral-700 bg-white dark:bg-neutral-900 px-2.5 py-1.5 text-sm">
-                <input type="number" :name="`duration_options[${i}][minutes]`" x-model="opt.minutes"
-                       min="15" max="1440" placeholder="60"
-                       class="rounded-lg border border-neutral-300 dark:border-neutral-700 bg-white dark:bg-neutral-900 px-2 py-1.5 text-sm text-center">
-                <input type="number" :name="`duration_options[${i}][price]`" x-model="opt.price"
-                       min="0" step="1" placeholder="0"
-                       class="rounded-lg border border-violet-200 dark:border-violet-800 bg-violet-50/50 dark:bg-violet-900/10 px-2 py-1.5 text-sm text-center font-medium text-violet-700 dark:text-violet-300">
-                <button type="button" @click="options.splice(i,1)" x-show="options.length > 1"
-                        class="p-0.5 text-rose-400 hover:text-rose-600 transition-colors">
-                  <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/>
-                  </svg>
-                </button>
-              </div>
-            </template>
-            <button type="button" @click="options.push({label:'',minutes:60,price:0})"
-                    class="text-xs text-violet-600 dark:text-violet-400 hover:underline flex items-center gap-1 mt-1">
+
+            <button type="button" @click="options.push({label:'',minutes:60,price:''})"
+                    class="mt-2 text-xs text-violet-600 dark:text-violet-400 hover:underline flex items-center gap-1">
               <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"/>
               </svg>
-              Agregar tarifa
+              Agregar otra opción
             </button>
           </div>
 
@@ -258,41 +272,55 @@
 
           {{-- Form editar espacio --}}
           <div x-show="editing" class="border-t border-neutral-200 dark:border-neutral-700 p-4 sm:p-5">
+            <p class="text-xs font-semibold text-neutral-500 dark:text-neutral-400 uppercase tracking-wide mb-3">Editar espacio</p>
             <form method="POST" action="{{ route('rentals.spaces.update', $space) }}" class="space-y-3">
               @csrf
               @method('PUT')
-              <div class="grid grid-cols-2 gap-3">
-                <div>
-                  <label class="block text-xs font-medium text-neutral-700 dark:text-neutral-200 mb-1">Nombre</label>
-                  <input name="name" required maxlength="100" value="{{ $space->name }}"
-                         class="w-full rounded-lg border border-neutral-300 dark:border-neutral-700 bg-white dark:bg-neutral-900 px-3 py-2 text-sm">
-                </div>
-                <div>
-                  <label class="block text-xs font-medium text-neutral-700 dark:text-neutral-200 mb-1">Color</label>
-                  <input type="color" name="color" value="{{ $space->color }}"
-                         class="w-full h-10 rounded-lg border border-neutral-300 dark:border-neutral-700 bg-white dark:bg-neutral-900 px-1 py-1 cursor-pointer">
-                </div>
+              <div>
+                <label class="block text-xs font-medium text-neutral-700 dark:text-neutral-200 mb-1">Nombre</label>
+                <input name="name" required maxlength="100" value="{{ $space->name }}"
+                       class="w-full rounded-lg border border-neutral-300 dark:border-neutral-700 bg-white dark:bg-neutral-900 px-3 py-2 text-sm">
               </div>
               <div>
                 <label class="block text-xs font-medium text-neutral-700 dark:text-neutral-200 mb-1">Descripción</label>
                 <input name="description" maxlength="500" value="{{ $space->description }}"
-                       class="w-full rounded-lg border border-neutral-300 dark:border-neutral-700 bg-white dark:bg-neutral-900 px-3 py-2 text-sm">
+                       class="w-full rounded-lg border border-neutral-300 dark:border-neutral-700 bg-white dark:bg-neutral-900 px-3 py-2 text-sm"
+                       placeholder="Descripción del espacio...">
               </div>
-              <div class="flex items-center gap-2">
-                <label class="flex items-center gap-2 cursor-pointer">
+              <div class="grid grid-cols-2 gap-3">
+                <div>
+                  <label class="block text-xs font-medium text-neutral-700 dark:text-neutral-200 mb-1">Categoría</label>
+                  <select name="category_id"
+                          class="w-full rounded-lg border border-neutral-300 dark:border-neutral-700 bg-white dark:bg-neutral-900 px-3 py-2 text-sm">
+                    <option value="">Sin categoría</option>
+                    @foreach($categories as $cat)
+                      <option value="{{ $cat->id }}" {{ $space->category_id == $cat->id ? 'selected' : '' }}>
+                        {{ $cat->name }}
+                      </option>
+                    @endforeach
+                  </select>
+                </div>
+                <div>
+                  <label class="block text-xs font-medium text-neutral-700 dark:text-neutral-200 mb-1">Color identificador</label>
+                  <input type="color" name="color" value="{{ $space->color }}"
+                         class="w-full h-[38px] rounded-lg border border-neutral-300 dark:border-neutral-700 bg-white dark:bg-neutral-900 px-1 py-1 cursor-pointer">
+                </div>
+              </div>
+              <div>
+                <label class="flex items-center gap-2 cursor-pointer w-fit">
                   <input type="hidden" name="is_active" value="0">
                   <input type="checkbox" name="is_active" value="1" {{ $space->is_active ? 'checked' : '' }}
-                         class="rounded border-neutral-300 dark:border-neutral-700">
-                  <span class="text-sm text-neutral-700 dark:text-neutral-300">Activo</span>
+                         class="rounded border-neutral-300 dark:border-neutral-700 text-violet-600">
+                  <span class="text-sm text-neutral-700 dark:text-neutral-300">Espacio activo</span>
                 </label>
               </div>
-              <div class="flex gap-2 justify-end">
+              <div class="flex gap-2 justify-end pt-1">
                 <button type="button" @click="editing=false"
                         class="px-3 py-1.5 text-sm rounded-lg border border-neutral-300 dark:border-neutral-700 text-neutral-600 dark:text-neutral-400">
                   Cancelar
                 </button>
-                <button type="submit" class="px-3 py-1.5 text-sm font-medium rounded-lg bg-violet-600 hover:bg-violet-700 text-white">
-                  Guardar
+                <button type="submit" class="px-4 py-1.5 text-sm font-medium rounded-lg bg-violet-600 hover:bg-violet-700 text-white">
+                  Guardar cambios
                 </button>
               </div>
             </form>
