@@ -1,3 +1,11 @@
+@push('styles')
+<style>
+  @media (min-width: 1024px) {
+    .bk-cal-wrapper { height: calc(100vh - 9.5rem); }
+  }
+</style>
+@endpush
+
 <div wire:poll.visible.120s>
 
   {{-- Flash --}}
@@ -7,14 +15,14 @@
     </div>
   @endif
 
-  {{-- ===== LAYOUT: turnos izquierda + calendario fijo derecha hasta el borde ===== --}}
-  <div class="flex gap-4" style="height: calc(100vh - 9.5rem);"
+  {{-- ===== LAYOUT: turnos izquierda + calendario fijo derecha (desktop) / calendario arriba + turnos abajo (mobile) ===== --}}
+  <div class="bk-cal-wrapper flex flex-col lg:flex-row gap-4"
        x-data="{ filter: 'all' }">
 
     {{-- ════════════════════════════════════
-         PANEL IZQUIERDO — Lista de turnos
+         PANEL IZQUIERDO — Lista de turnos (order-2 mobile, order-1 desktop)
          ════════════════════════════════════ --}}
-    <div class="flex-1 min-w-0 flex flex-col rounded-2xl bg-white dark:bg-neutral-900 shadow-sm border border-neutral-200 dark:border-neutral-800 overflow-hidden">
+    <div class="order-2 lg:order-1 flex-1 min-w-0 flex flex-col rounded-2xl bg-white dark:bg-neutral-900 shadow-sm border border-neutral-200 dark:border-neutral-800 overflow-hidden">
 
       {{-- Header fijo --}}
       <div class="flex-shrink-0 px-5 py-4 border-b border-neutral-100 dark:border-neutral-800 flex flex-wrap items-center gap-3">
@@ -186,11 +194,12 @@
          PANEL DERECHO — dos secciones:
          1. Violeta (solo el calendario)
          2. Blanco (leyendas abajo)
+         order-1 mobile (aparece arriba), order-2 desktop (aparece a la derecha)
          ════════════════════════════════════ --}}
-    <div class="w-80 flex-shrink-0 flex flex-col gap-3">
+    <div class="order-1 lg:order-2 w-full lg:w-80 lg:flex-shrink-0 flex flex-col sm:flex-row lg:flex-col gap-3">
 
       {{-- ── PARTE VIOLETA: filtro + mes + grilla ── --}}
-      <div class="rounded-2xl overflow-hidden flex-shrink-0" style="background: #7c3aed;">
+      <div class="rounded-2xl overflow-hidden flex-shrink-0 sm:flex-1 lg:flex-shrink-0" style="background: #7c3aed;">
 
         {{-- Filtro de espacio --}}
         <div class="px-4 py-3" style="border-bottom: 1px solid rgba(255,255,255,0.15);">
@@ -264,7 +273,7 @@
       </div>{{-- /parte violeta --}}
 
       {{-- ── PARTE BLANCA: leyendas ── --}}
-      <div class="rounded-2xl bg-white dark:bg-neutral-900 px-4 py-4 space-y-4">
+      <div class="rounded-2xl bg-white dark:bg-neutral-900 px-4 py-4 space-y-4 sm:w-44 lg:w-auto">
 
         {{-- Leyenda de estados --}}
         <div class="space-y-2">
