@@ -1,14 +1,30 @@
 @push('styles')
 <style>
-  /* Mobile: calendario arriba (order -1), turnos abajo (order 999) */
+  /* Mobile: flex-col, calendario arriba, turnos abajo */
+  .bk-cal-wrapper {
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
+  }
   .bk-slots-panel    { order: 999; }
   .bk-calendar-panel { order: -1; }
 
-  /* Desktop: turnos izquierda, calendario derecha, altura fija */
+  /* Desktop (≥1024px): flex-row, turnos izquierda (flex-1), calendario derecha (20rem fijo) */
   @media (min-width: 1024px) {
-    .bk-cal-wrapper    { height: calc(100vh - 9.5rem); }
-    .bk-slots-panel    { order: 1; }
-    .bk-calendar-panel { order: 2; }
+    .bk-cal-wrapper {
+      flex-direction: row;
+      height: calc(100vh - 9.5rem);
+    }
+    .bk-slots-panel {
+      order: 1;
+      flex: 1 1 0%;
+      min-width: 0;
+    }
+    .bk-calendar-panel {
+      order: 2;
+      width: 23rem;
+      flex-shrink: 0;
+    }
   }
 </style>
 @endpush
@@ -23,64 +39,77 @@
   @endif
 
   {{-- ===== LAYOUT: turnos izquierda + calendario fijo derecha (desktop) / calendario arriba + turnos abajo (mobile) ===== --}}
-  <div class="bk-cal-wrapper flex flex-col lg:flex-row gap-4"
+  <div class="bk-cal-wrapper"
        x-data="{ filter: 'all' }">
 
     {{-- ════════════════════════════════════
-         PANEL IZQUIERDO — Lista de turnos (order-2 mobile, order-1 desktop)
+         PANEL IZQUIERDO — Lista de turnos
          ════════════════════════════════════ --}}
-    <div class="bk-slots-panel flex-1 min-w-0 flex flex-col rounded-2xl bg-white dark:bg-neutral-900 shadow-sm border border-neutral-200 dark:border-neutral-800 overflow-hidden">
+    <div class="bk-slots-panel flex flex-col rounded-2xl bg-white dark:bg-neutral-900 shadow-sm border border-neutral-200 dark:border-neutral-800 overflow-hidden">
 
-      {{-- Header fijo — fila 1: título + botón; fila 2: filtros --}}
-      <div class="flex-shrink-0 px-4 pt-4 pb-3 border-b border-neutral-100 dark:border-neutral-800 space-y-2">
+      {{-- Header fijo --}}
+      {{-- Desktop: una sola fila (título | filtros | botón) — igual que en f0f1538 --}}
+      {{-- Mobile: dos filas (título+botón arriba / filtros abajo) --}}
+      <div class="flex-shrink-0 px-5 py-4 border-b border-neutral-100 dark:border-neutral-800">
+        <div class="flex flex-col lg:flex-row lg:flex-wrap lg:items-center gap-2 lg:gap-3">
 
-        {{-- Fila 1: título (siempre horizontal) + botón nueva reserva --}}
-        <div class="flex items-center gap-2">
-          <div class="flex-1 min-w-0">
-            @php
-              $totalFree     = 0;
-              $totalOccupied = 0;
-              foreach ($daySlots as $sd) {
-                  foreach ($sd['slots'] as $s) {
-                      if ($s['booking'])      $totalOccupied++;
-                      elseif (!$s['is_past']) $totalFree++;
-                  }
-              }
-            @endphp
-            <h2 class="text-base font-bold text-neutral-900 dark:text-neutral-100 capitalize whitespace-nowrap overflow-hidden text-ellipsis">
-              {{ $selectedDateLabel }}
-            </h2>
-            <p class="text-xs text-neutral-500 dark:text-neutral-400 mt-0.5 whitespace-nowrap">
-              <span class="text-emerald-600 dark:text-emerald-400 font-medium">{{ $totalFree }} libre{{ $totalFree !== 1 ? 's' : '' }}</span>
-              @if($totalOccupied)
-                <span class="mx-1 text-neutral-300 dark:text-neutral-600">·</span>
-                <span class="text-violet-600 dark:text-violet-400 font-medium">{{ $totalOccupied }} ocupado{{ $totalOccupied !== 1 ? 's' : '' }}</span>
-              @endif
-            </p>
+          @php
+            $totalFree     = 0;
+            $totalOccupied = 0;
+            foreach ($daySlots as $sd) {
+                foreach ($sd['slots'] as $s) {
+                    if ($s['booking'])      $totalOccupied++;
+                    elseif (!$s['is_past']) $totalFree++;
+                }
+            }
+          @endphp
+
+          {{-- Título + botón compacto (visible en mobile junto al título) --}}
+          <div class="flex items-center gap-2 flex-1 min-w-0">
+            <div class="flex-1 min-w-0">
+              <h2 class="text-base font-bold text-neutral-900 dark:text-neutral-100 capitalize whitespace-nowrap overflow-hidden text-ellipsis">
+                {{ $selectedDateLabel }}
+              </h2>
+              <p class="text-xs text-neutral-500 dark:text-neutral-400 mt-0.5 whitespace-nowrap">
+                <span class="text-emerald-600 dark:text-emerald-400 font-medium">{{ $totalFree }} libre{{ $totalFree !== 1 ? 's' : '' }}</span>
+                @if($totalOccupied)
+                  <span class="mx-1 text-neutral-300 dark:text-neutral-600">·</span>
+                  <span class="text-violet-600 dark:text-violet-400 font-medium">{{ $totalOccupied }} ocupado{{ $totalOccupied !== 1 ? 's' : '' }}</span>
+                @endif
+              </p>
+            </div>
+            {{-- Botón compacto solo en mobile --}}
+            <button wire:click="openCreateModal('{{ $selectedDate }}')"
+                    class="lg:hidden flex-shrink-0 inline-flex items-center gap-1 text-xs px-3 py-2 rounded-lg bg-violet-600 hover:bg-violet-700 text-white font-medium transition-colors">
+              <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"/>
+              </svg>
+              Nueva
+            </button>
           </div>
 
-          {{-- Botón nueva reserva --}}
+          {{-- Filtros: segunda fila en mobile, inline en desktop --}}
+          <div class="flex items-center bg-neutral-100 dark:bg-neutral-800 rounded-lg p-1 gap-0.5 lg:flex-shrink-0">
+            <button @click="filter = 'all'"
+                    :class="filter === 'all' ? 'bg-white dark:bg-neutral-700 shadow-sm text-neutral-900 dark:text-neutral-100' : 'text-neutral-500 dark:text-neutral-400'"
+                    class="flex-1 lg:flex-none text-xs px-3 py-1.5 rounded-md font-medium transition-all">Todos</button>
+            <button @click="filter = 'free'"
+                    :class="filter === 'free' ? 'bg-white dark:bg-neutral-700 shadow-sm text-emerald-700 dark:text-emerald-400' : 'text-neutral-500 dark:text-neutral-400'"
+                    class="flex-1 lg:flex-none text-xs px-3 py-1.5 rounded-md font-medium transition-all">Libres</button>
+            <button @click="filter = 'occupied'"
+                    :class="filter === 'occupied' ? 'bg-white dark:bg-neutral-700 shadow-sm text-violet-700 dark:text-violet-400' : 'text-neutral-500 dark:text-neutral-400'"
+                    class="flex-1 lg:flex-none text-xs px-3 py-1.5 rounded-md font-medium transition-all">Ocupados</button>
+          </div>
+
+          {{-- Botón completo solo en desktop --}}
           <button wire:click="openCreateModal('{{ $selectedDate }}')"
-                  class="flex-shrink-0 inline-flex items-center gap-1 text-xs px-3 py-2 rounded-lg bg-violet-600 hover:bg-violet-700 text-white font-medium transition-colors">
+                  class="hidden lg:inline-flex flex-shrink-0 items-center gap-1.5 text-xs px-3 py-2 rounded-lg bg-violet-600 hover:bg-violet-700 text-white font-medium transition-colors">
             <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"/>
             </svg>
-            <span class="hidden sm:inline">Nueva reserva</span>
-            <span class="sm:hidden">Nueva</span>
+            Nueva reserva
           </button>
-        </div>
 
-        {{-- Fila 2: filtros de estado --}}
-        <div class="flex items-center bg-neutral-100 dark:bg-neutral-800 rounded-lg p-1 gap-0.5 w-full">
-          <button @click="filter = 'all'"
-                  :class="filter === 'all' ? 'bg-white dark:bg-neutral-700 shadow-sm text-neutral-900 dark:text-neutral-100' : 'text-neutral-500 dark:text-neutral-400'"
-                  class="flex-1 text-xs px-2 py-1.5 rounded-md font-medium transition-all">Todos</button>
-          <button @click="filter = 'free'"
-                  :class="filter === 'free' ? 'bg-white dark:bg-neutral-700 shadow-sm text-emerald-700 dark:text-emerald-400' : 'text-neutral-500 dark:text-neutral-400'"
-                  class="flex-1 text-xs px-2 py-1.5 rounded-md font-medium transition-all">Libres</button>
-          <button @click="filter = 'occupied'"
-                  :class="filter === 'occupied' ? 'bg-white dark:bg-neutral-700 shadow-sm text-violet-700 dark:text-violet-400' : 'text-neutral-500 dark:text-neutral-400'"
-                  class="flex-1 text-xs px-2 py-1.5 rounded-md font-medium transition-all">Ocupados</button>
         </div>
       </div>
 
@@ -206,12 +235,11 @@
          PANEL DERECHO — dos secciones:
          1. Violeta (solo el calendario)
          2. Blanco (leyendas abajo)
-         order-1 mobile (aparece arriba), order-2 desktop (aparece a la derecha)
          ════════════════════════════════════ --}}
-    <div class="bk-calendar-panel w-full lg:w-80 lg:flex-shrink-0 flex flex-col sm:flex-row lg:flex-col gap-3">
+    <div class="bk-calendar-panel flex flex-col gap-3">
 
       {{-- ── PARTE VIOLETA: filtro + mes + grilla ── --}}
-      <div class="rounded-2xl overflow-hidden flex-shrink-0 sm:flex-1 lg:flex-shrink-0" style="background: #7c3aed;">
+      <div class="rounded-2xl overflow-hidden flex-shrink-0" style="background: #7c3aed;">
 
         {{-- Filtro de espacio --}}
         <div class="px-4 py-3" style="border-bottom: 1px solid rgba(255,255,255,0.15);">
@@ -285,7 +313,7 @@
       </div>{{-- /parte violeta --}}
 
       {{-- ── PARTE BLANCA: leyendas ── --}}
-      <div class="rounded-2xl bg-white dark:bg-neutral-900 px-4 py-4 space-y-4 sm:w-44 lg:w-auto">
+      <div class="rounded-2xl bg-white dark:bg-neutral-900 px-4 py-4 space-y-4">
 
         {{-- Leyenda de estados --}}
         <div class="space-y-2">
@@ -327,7 +355,7 @@
 
         <div class="px-5 py-4 border-b border-neutral-200 dark:border-neutral-700 flex items-center justify-between">
           <h3 class="font-semibold text-neutral-900 dark:text-neutral-100">
-            Nueva reserva — {{ \Carbon\Carbon::parse($createDate)->translatedFormat('d \d\e F') }}
+            Nueva reserva — {{ \Carbon\Carbon::parse($createDate)->locale('es')->translatedFormat('d \d\e F') }}
           </h3>
           <button wire:click="$set('showCreateModal', false)" class="p-1 rounded-lg hover:bg-neutral-100 dark:hover:bg-neutral-800">
             <svg class="w-4 h-4 text-neutral-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -464,7 +492,7 @@
               {{ $detailBooking->statusLabel() }}
             </span>
             <span class="text-xs text-neutral-500 dark:text-neutral-400">
-              {{ $detailBooking->starts_at->translatedFormat('d \d\e F, H:i') }} – {{ $detailBooking->ends_at->format('H:i') }}
+              {{ $detailBooking->starts_at->locale('es')->translatedFormat('d \d\e F, H:i') }} – {{ $detailBooking->ends_at->format('H:i') }}
             </span>
           </div>
 
