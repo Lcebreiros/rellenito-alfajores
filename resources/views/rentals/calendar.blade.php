@@ -26,7 +26,5 @@
 @endsection
 
 @section('content')
-<div class="max-w-7xl mx-auto px-3 sm:px-6">
-  @livewire('rentals.booking-calendar')
-</div>
+@livewire('rentals.booking-calendar')
 @endsection

@@ -1,140 +1,313 @@
 <div wire:poll.visible.120s>
 
-  {{-- Notificaciones flash --}}
+  {{-- Flash --}}
   @if(session('ok'))
     <div class="mb-4 rounded-lg border border-emerald-200 bg-emerald-50 text-emerald-800 px-4 py-2.5 text-sm dark:border-emerald-800 dark:bg-emerald-900/20 dark:text-emerald-300">
       {{ session('ok') }}
     </div>
   @endif
 
-  {{-- Header del calendario --}}
-  <div class="container-glass shadow-sm overflow-hidden mb-4">
-    <div class="px-4 sm:px-6 py-3 border-b border-neutral-200 dark:border-neutral-700 flex flex-col sm:flex-row sm:items-center gap-3">
-      <div class="flex items-center gap-3 flex-1">
-        {{-- Navegación de meses --}}
-        <button wire:click="previousMonth" class="p-1.5 rounded-lg hover:bg-neutral-100 dark:hover:bg-neutral-800 transition-colors">
-          <svg class="w-4 h-4 text-neutral-600 dark:text-neutral-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"/>
-          </svg>
-        </button>
-        <h2 class="text-base font-bold text-neutral-900 dark:text-neutral-100 capitalize min-w-[180px] text-center">
-          {{ $currentMonthLabel }}
-        </h2>
-        <button wire:click="nextMonth" class="p-1.5 rounded-lg hover:bg-neutral-100 dark:hover:bg-neutral-800 transition-colors">
-          <svg class="w-4 h-4 text-neutral-600 dark:text-neutral-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/>
-          </svg>
-        </button>
-        <button wire:click="goToToday" class="text-xs px-2.5 py-1 rounded-lg bg-neutral-100 dark:bg-neutral-800 text-neutral-700 dark:text-neutral-300 hover:bg-neutral-200 dark:hover:bg-neutral-700 transition-colors">
-          Hoy
-        </button>
-      </div>
+  {{-- ===== LAYOUT: turnos izquierda + calendario fijo derecha hasta el borde ===== --}}
+  <div class="flex gap-4" style="height: calc(100vh - 9.5rem);"
+       x-data="{ filter: 'all' }">
 
-      <div class="flex items-center gap-2">
-        {{-- Filtro por espacio --}}
-        <select wire:model.live="filterSpaceId"
-                class="text-sm rounded-lg border border-neutral-300 dark:border-neutral-700 bg-white dark:bg-neutral-900 px-3 py-1.5 text-neutral-700 dark:text-neutral-300">
-          <option value="">Todos los espacios</option>
-          @foreach($spaces as $space)
-            <option value="{{ $space->id }}">{{ $space->name }}</option>
-          @endforeach
-        </select>
+    {{-- ════════════════════════════════════
+         PANEL IZQUIERDO — Lista de turnos
+         ════════════════════════════════════ --}}
+    <div class="flex-1 min-w-0 flex flex-col rounded-2xl bg-white dark:bg-neutral-900 shadow-sm border border-neutral-200 dark:border-neutral-800 overflow-hidden">
 
-        {{-- Ir a lista --}}
-        <a href="{{ route('rentals.bookings.index') }}"
-           class="text-sm px-3 py-1.5 rounded-lg border border-neutral-300 dark:border-neutral-700 text-neutral-700 dark:text-neutral-300 hover:bg-neutral-50 dark:hover:bg-neutral-800 transition-colors flex items-center gap-1.5">
+      {{-- Header fijo --}}
+      <div class="flex-shrink-0 px-5 py-4 border-b border-neutral-100 dark:border-neutral-800 flex flex-wrap items-center gap-3">
+        <div class="flex-1 min-w-0">
+          <h2 class="text-base font-bold text-neutral-900 dark:text-neutral-100 capitalize">
+            {{ $selectedDateLabel }}
+          </h2>
+          @php
+            $totalFree     = 0;
+            $totalOccupied = 0;
+            foreach ($daySlots as $sd) {
+                foreach ($sd['slots'] as $s) {
+                    if ($s['booking'])      $totalOccupied++;
+                    elseif (!$s['is_past']) $totalFree++;
+                }
+            }
+          @endphp
+          <p class="text-xs text-neutral-500 dark:text-neutral-400 mt-0.5">
+            <span class="text-emerald-600 dark:text-emerald-400 font-medium">{{ $totalFree }} libre{{ $totalFree !== 1 ? 's' : '' }}</span>
+            @if($totalOccupied)
+              <span class="mx-1 text-neutral-300 dark:text-neutral-600">·</span>
+              <span class="text-violet-600 dark:text-violet-400 font-medium">{{ $totalOccupied }} ocupado{{ $totalOccupied !== 1 ? 's' : '' }}</span>
+            @endif
+          </p>
+        </div>
+
+        {{-- Filtros --}}
+        <div class="flex items-center bg-neutral-100 dark:bg-neutral-800 rounded-lg p-1 gap-0.5 flex-shrink-0">
+          <button @click="filter = 'all'"
+                  :class="filter === 'all' ? 'bg-white dark:bg-neutral-700 shadow-sm text-neutral-900 dark:text-neutral-100' : 'text-neutral-500 dark:text-neutral-400'"
+                  class="text-xs px-3 py-1.5 rounded-md font-medium transition-all">Todos</button>
+          <button @click="filter = 'free'"
+                  :class="filter === 'free' ? 'bg-white dark:bg-neutral-700 shadow-sm text-emerald-700 dark:text-emerald-400' : 'text-neutral-500 dark:text-neutral-400'"
+                  class="text-xs px-3 py-1.5 rounded-md font-medium transition-all">Libres</button>
+          <button @click="filter = 'occupied'"
+                  :class="filter === 'occupied' ? 'bg-white dark:bg-neutral-700 shadow-sm text-violet-700 dark:text-violet-400' : 'text-neutral-500 dark:text-neutral-400'"
+                  class="text-xs px-3 py-1.5 rounded-md font-medium transition-all">Ocupados</button>
+        </div>
+
+        {{-- Nueva reserva --}}
+        <button wire:click="openCreateModal('{{ $selectedDate }}')"
+                class="inline-flex items-center gap-1.5 text-xs px-3 py-2 rounded-lg bg-violet-600 hover:bg-violet-700 text-white font-medium transition-colors flex-shrink-0">
           <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 10h16M4 14h16M4 18h16"/>
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"/>
           </svg>
-          Lista
-        </a>
-      </div>
-    </div>
-
-    {{-- Leyenda de espacios --}}
-    @if($spaces->count())
-      <div class="px-4 sm:px-6 py-2 border-b border-neutral-100 dark:border-neutral-800 flex flex-wrap gap-2">
-        @foreach($spaces as $space)
-          <span class="inline-flex items-center gap-1.5 text-xs px-2 py-0.5 rounded-full text-white font-medium"
-                style="background-color: {{ $space->color }};">
-            {{ $space->name }}
-          </span>
-        @endforeach
-      </div>
-    @endif
-
-    {{-- Grilla del calendario --}}
-    <div class="p-3 sm:p-4">
-      {{-- Cabecera de días de la semana --}}
-      <div class="grid grid-cols-7 mb-1">
-        @foreach(['Lun','Mar','Mié','Jue','Vie','Sáb','Dom'] as $dayName)
-          <div class="text-center text-[11px] font-semibold text-neutral-500 dark:text-neutral-400 py-1">
-            {{ $dayName }}
-          </div>
-        @endforeach
+          Nueva reserva
+        </button>
       </div>
 
-      {{-- Días --}}
-      <div class="grid grid-cols-7 gap-0.5">
-        @foreach($calendarDays as $day)
-          @if($day === null)
-            <div class="min-h-[80px] sm:min-h-[100px] rounded-lg"></div>
-          @else
-            <div
-              wire:click="openCreateModal('{{ $day['date'] }}')"
-              class="min-h-[80px] sm:min-h-[100px] rounded-lg p-1.5 cursor-pointer transition-colors
-                     {{ $day['isToday'] ? 'bg-violet-50 dark:bg-violet-900/20 ring-1 ring-violet-400 dark:ring-violet-600' : 'hover:bg-neutral-50 dark:hover:bg-neutral-800/60' }}
-                     {{ $day['isPast'] ? 'opacity-60' : '' }}">
+      {{-- Slots — scrolleable --}}
+      @if($spaces->isEmpty())
+        <div class="flex-1 flex flex-col items-center justify-center px-6 py-16 text-center">
+          <svg class="w-10 h-10 text-neutral-300 dark:text-neutral-700 mb-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5"/>
+          </svg>
+          <p class="text-sm font-medium text-neutral-500 dark:text-neutral-400">No hay espacios configurados</p>
+          <a href="{{ route('rentals.spaces.index') }}" class="text-sm text-violet-600 dark:text-violet-400 hover:underline mt-2">Crear un espacio →</a>
+        </div>
+      @else
+        <div class="flex-1 overflow-y-auto px-4 py-3 space-y-3">
+          @foreach($daySlots as $spaceData)
+            @php
+              $space = $spaceData['space'];
+              $slots = $spaceData['slots'];
+            @endphp
 
-              {{-- Número del día --}}
-              <div class="flex items-center justify-between mb-1">
-                <span class="text-xs font-semibold {{ $day['isToday'] ? 'text-violet-700 dark:text-violet-300' : 'text-neutral-600 dark:text-neutral-400' }}">
-                  {{ $day['day'] }}
-                </span>
-                {{-- Indicadores de estado --}}
-                <div class="flex gap-0.5">
-                  @if($day['hasConfirmed'])
-                    <span class="w-1.5 h-1.5 rounded-full bg-green-500"></span>
-                  @endif
-                  @if($day['hasPending'])
-                    <span class="w-1.5 h-1.5 rounded-full bg-yellow-500"></span>
-                  @endif
-                </div>
-              </div>
+            {{-- Separador de espacio --}}
+            <div class="flex items-center gap-2 pt-1 pb-0.5 sticky top-0 bg-white dark:bg-neutral-900 z-10 py-2">
+              <span class="w-2.5 h-2.5 rounded-full flex-shrink-0" style="background-color: {{ $space->color }};"></span>
+              <span class="text-xs font-bold uppercase tracking-wider" style="color: {{ $space->color }};">{{ $space->name }}</span>
+              @php $spaceFree = collect($slots)->filter(fn($s) => !$s['booking'] && !$s['is_past'])->count(); @endphp
+              @if($spaceFree)
+                <span class="text-[10px] font-semibold px-1.5 py-0.5 rounded-full ml-1 text-white"
+                      style="background-color: {{ $space->color }}88;">{{ $spaceFree }} libres</span>
+              @endif
+            </div>
 
-              {{-- Reservas del día --}}
-              <div class="space-y-0.5 overflow-hidden">
-                @foreach($day['bookings']->take(3) as $booking)
-                  <div
-                    wire:click.stop="openDetailModal({{ $booking->id }})"
-                    class="group text-[10px] sm:text-xs px-1.5 py-0.5 rounded text-white truncate cursor-pointer hover:opacity-90 transition-opacity"
-                    style="background-color: {{ $booking->space->color ?? '#6366f1' }};"
-                    title="{{ $booking->starts_at->format('H:i') }} · {{ $booking->getClientDisplayName() }}">
-                    <span class="font-medium">{{ $booking->starts_at->format('H:i') }}</span>
-                    <span class="hidden sm:inline"> · {{ Str::limit($booking->getClientDisplayName(), 12) }}</span>
+            @if(empty($slots))
+              <p class="text-xs text-neutral-400 pl-4">Configurá opciones de duración para este espacio.</p>
+            @else
+              <div class="space-y-2">
+                @foreach($slots as $slot)
+                  @php
+                    $isFree     = !$slot['booking'] && !$slot['is_past'];
+                    $isOccupied = !empty($slot['booking']);
+                    $isPastFree = $slot['is_past'] && !$slot['booking'];
+                    $b          = $slot['booking'] ?? null;
+
+                    if ($isFree) {
+                        $cardBg     = 'bg-white dark:bg-neutral-800 hover:bg-emerald-50 dark:hover:bg-emerald-900/10 cursor-pointer';
+                        $leftBorder = 'border-l-emerald-400';
+                        $cardBorder = 'border-neutral-100 dark:border-neutral-700/60';
+                    } elseif ($isOccupied && $b->status === 'pending') {
+                        $cardBg     = 'bg-white dark:bg-neutral-800';
+                        $leftBorder = 'border-l-amber-400';
+                        $cardBorder = 'border-neutral-100 dark:border-neutral-700/60';
+                    } elseif ($isOccupied && $b->status === 'confirmed') {
+                        $cardBg     = 'bg-white dark:bg-neutral-800';
+                        $leftBorder = 'border-l-violet-500';
+                        $cardBorder = 'border-neutral-100 dark:border-neutral-700/60';
+                    } else {
+                        $cardBg     = 'bg-neutral-50 dark:bg-neutral-800/40 opacity-45';
+                        $leftBorder = 'border-l-neutral-300 dark:border-l-neutral-600';
+                        $cardBorder = 'border-neutral-100 dark:border-neutral-700/30';
+                    }
+                  @endphp
+
+                  <div x-show="filter === 'all'
+                            || (filter === 'free'     && {{ $isFree ? 'true' : 'false' }})
+                            || (filter === 'occupied' && {{ $isOccupied ? 'true' : 'false' }})"
+                       class="rounded-xl border border-l-4 shadow-sm transition-colors flex items-center gap-3 px-4 py-3
+                              {{ $cardBg }} {{ $leftBorder }} {{ $cardBorder }}"
+                       @if($isFree)
+                         wire:click="openCreateModalFromSlot('{{ $selectedDate }}', '{{ $slot['time'] }}', {{ $space->id }})"
+                       @endif>
+
+                    {{-- Hora --}}
+                    <span class="text-sm font-bold tabular-nums flex-shrink-0 w-12
+                                 {{ $isFree ? 'text-emerald-600 dark:text-emerald-400' : ($isPastFree ? 'text-neutral-400' : 'text-neutral-700 dark:text-neutral-300') }}">
+                      {{ $slot['time'] }}
+                    </span>
+
+                    {{-- Contenido --}}
+                    @if($isOccupied)
+                      <div class="flex-1 min-w-0 flex items-center gap-2">
+                        <div class="min-w-0 flex-1">
+                          <p class="text-sm font-semibold text-neutral-900 dark:text-neutral-100 truncate leading-tight">
+                            {{ $b->getClientDisplayName() }}
+                          </p>
+                          @if($b->getClientDisplayPhone())
+                            <p class="text-xs text-neutral-400 leading-tight">{{ $b->getClientDisplayPhone() }}</p>
+                          @endif
+                        </div>
+                        <span class="flex-shrink-0 text-xs font-medium px-2 py-0.5 rounded-full
+                                     {{ $b->status === 'pending'
+                                         ? 'bg-amber-100 text-amber-700 dark:bg-amber-900/30 dark:text-amber-400'
+                                         : 'bg-violet-100 text-violet-700 dark:bg-violet-900/30 dark:text-violet-400' }}">
+                          {{ $b->statusLabel() }}
+                        </span>
+                      </div>
+                      <button wire:click="openDetailModal({{ $b->id }})"
+                              class="flex-shrink-0 text-xs px-2.5 py-1 rounded-lg border border-neutral-200 dark:border-neutral-700 text-neutral-600 dark:text-neutral-400 hover:bg-neutral-100 dark:hover:bg-neutral-700 transition-colors">
+                        Ver
+                      </button>
+
+                    @elseif($isPastFree)
+                      <span class="text-xs text-neutral-400 italic">Sin reserva</span>
+
+                    @else
+                      <span class="flex-1 text-sm text-neutral-400 dark:text-neutral-500">Disponible</span>
+                      <span class="text-xs font-medium text-emerald-600 dark:text-emerald-400 flex items-center gap-0.5">
+                        <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M12 4v16m8-8H4"/>
+                        </svg>
+                        Reservar
+                      </span>
+                    @endif
+
                   </div>
                 @endforeach
-                @if($day['bookings']->count() > 3)
-                  <div class="text-[10px] text-neutral-500 dark:text-neutral-400 px-1">
-                    +{{ $day['bookings']->count() - 3 }} más
-                  </div>
-                @endif
               </div>
-            </div>
-          @endif
-        @endforeach
-      </div>
+            @endif
+          @endforeach
+        </div>
+      @endif
     </div>
-  </div>
 
-  {{-- Modal: Crear Reserva --}}
+    {{-- ════════════════════════════════════
+         PANEL DERECHO — dos secciones:
+         1. Violeta (solo el calendario)
+         2. Blanco (leyendas abajo)
+         ════════════════════════════════════ --}}
+    <div class="w-80 flex-shrink-0 flex flex-col gap-3">
+
+      {{-- ── PARTE VIOLETA: filtro + mes + grilla ── --}}
+      <div class="rounded-2xl overflow-hidden flex-shrink-0" style="background: #7c3aed;">
+
+        {{-- Filtro de espacio --}}
+        <div class="px-4 py-3" style="border-bottom: 1px solid rgba(255,255,255,0.15);">
+          <select wire:model.live="filterSpaceId"
+                  class="w-full text-xs rounded-lg px-2.5 py-1.5 text-white/90 focus:outline-none focus:ring-1 focus:ring-white/40"
+                  style="background: rgba(255,255,255,0.15); border: 1px solid rgba(255,255,255,0.2);">
+            <option value="" style="background:#5b21b6; color:white;">Todos los espacios</option>
+            @foreach($spaces as $space)
+              <option value="{{ $space->id }}" style="background:#5b21b6; color:white;">{{ $space->name }}</option>
+            @endforeach
+          </select>
+        </div>
+
+        {{-- Navegación de mes --}}
+        <div class="px-5 pt-5 pb-4">
+          <div class="flex items-center justify-between mb-4">
+            <button wire:click="previousMonth"
+                    class="p-1.5 rounded-full transition-colors"
+                    style="color:rgba(255,255,255,0.6);"
+                    onmouseenter="this.style.background='rgba(255,255,255,0.15)'"
+                    onmouseleave="this.style.background='transparent'">
+              <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"/>
+              </svg>
+            </button>
+            <button wire:click="goToToday"
+                    class="text-base font-bold text-white capitalize transition-colors hover:opacity-75">
+              {{ $currentMonthLabel }}
+            </button>
+            <button wire:click="nextMonth"
+                    class="p-1.5 rounded-full transition-colors"
+                    style="color:rgba(255,255,255,0.6);"
+                    onmouseenter="this.style.background='rgba(255,255,255,0.15)'"
+                    onmouseleave="this.style.background='transparent'">
+              <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/>
+              </svg>
+            </button>
+          </div>
+
+          {{-- Días de semana --}}
+          <div class="grid grid-cols-7 mb-2">
+            @foreach(['L','M','M','J','V','S','D'] as $dn)
+              <div class="text-center text-xs font-semibold py-1" style="color:rgba(255,255,255,0.65);">{{ $dn }}</div>
+            @endforeach
+          </div>
+
+          {{-- Grilla de días --}}
+          <div class="grid grid-cols-7 gap-y-1">
+            @foreach($calendarDays as $day)
+              @if($day === null)
+                <div class="h-10"></div>
+              @else
+                <button wire:click="selectDate('{{ $day['date'] }}')"
+                        class="relative h-10 w-full flex items-center justify-center rounded-full text-sm font-medium transition-all"
+                        style="{{ $day['isSelected']
+                            ? 'background:#fff; color:#7c3aed; font-weight:800;'
+                            : ($day['isToday']
+                                ? 'color:#fff; box-shadow:0 0 0 1px rgba(255,255,255,0.6); font-weight:700;'
+                                : 'color:rgba(255,255,255,'.($day['isPast'] ? '0.4' : '1.0').');') }}">
+                  {{ $day['day'] }}
+                  @if(($day['hasConfirmed'] || $day['hasPending']) && !$day['isSelected'])
+                    <span class="absolute bottom-0.5 left-1/2 -translate-x-1/2 w-1 h-1 rounded-full"
+                          style="background-color: {{ $day['hasConfirmed'] ? '#34d399' : '#fbbf24' }};"></span>
+                  @endif
+                </button>
+              @endif
+            @endforeach
+          </div>
+        </div>
+      </div>{{-- /parte violeta --}}
+
+      {{-- ── PARTE BLANCA: leyendas ── --}}
+      <div class="rounded-2xl bg-white dark:bg-neutral-900 px-4 py-4 space-y-4">
+
+        {{-- Leyenda de estados --}}
+        <div class="space-y-2">
+          <p class="text-[10px] font-bold uppercase tracking-widest text-neutral-400 dark:text-neutral-500">Estado</p>
+          <div class="flex items-center gap-2">
+            <span class="w-2.5 h-2.5 rounded-full bg-emerald-400 flex-shrink-0"></span>
+            <span class="text-xs text-neutral-600 dark:text-neutral-400">Confirmada</span>
+          </div>
+          <div class="flex items-center gap-2">
+            <span class="w-2.5 h-2.5 rounded-full bg-amber-400 flex-shrink-0"></span>
+            <span class="text-xs text-neutral-600 dark:text-neutral-400">Pendiente</span>
+          </div>
+        </div>
+
+        {{-- Leyenda de espacios --}}
+        @if($spaces->count())
+          <div class="space-y-2">
+            <p class="text-[10px] font-bold uppercase tracking-widest text-neutral-400 dark:text-neutral-500">Espacios</p>
+            @foreach($spaces as $space)
+              <div class="flex items-center gap-2">
+                <span class="w-2.5 h-2.5 rounded-full flex-shrink-0" style="background-color: {{ $space->color }};"></span>
+                <span class="text-xs text-neutral-600 dark:text-neutral-400 truncate">{{ $space->name }}</span>
+              </div>
+            @endforeach
+          </div>
+        @endif
+      </div>{{-- /parte blanca --}}
+
+    </div>{{-- /panel derecho --}}
+
+  </div>{{-- /flex --}}
+
+
+  {{-- ===== MODAL: Crear Reserva ===== --}}
   @if($showCreateModal)
     <div class="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/60 backdrop-blur-sm"
          wire:click.self="$set('showCreateModal', false)">
       <div class="bg-white dark:bg-neutral-900 rounded-2xl shadow-2xl w-full max-w-md max-h-[90vh] overflow-y-auto">
 
         <div class="px-5 py-4 border-b border-neutral-200 dark:border-neutral-700 flex items-center justify-between">
-          <h3 class="font-semibold text-neutral-900 dark:text-neutral-100">Nueva reserva — {{ \Carbon\Carbon::parse($createDate)->translatedFormat('d \d\e F') }}</h3>
+          <h3 class="font-semibold text-neutral-900 dark:text-neutral-100">
+            Nueva reserva — {{ \Carbon\Carbon::parse($createDate)->translatedFormat('d \d\e F') }}
+          </h3>
           <button wire:click="$set('showCreateModal', false)" class="p-1 rounded-lg hover:bg-neutral-100 dark:hover:bg-neutral-800">
             <svg class="w-4 h-4 text-neutral-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/>
@@ -149,7 +322,6 @@
             </div>
           @endif
 
-          {{-- Espacio --}}
           <div>
             <label class="block text-sm font-medium text-neutral-700 dark:text-neutral-200 mb-1">Espacio *</label>
             <select wire:model.live="createSpaceId"
@@ -162,23 +334,19 @@
             @error('createSpaceId') <p class="text-xs text-rose-600 mt-1">{{ $message }}</p> @enderror
           </div>
 
-          {{-- Fecha y hora de inicio --}}
           <div>
             <label class="block text-sm font-medium text-neutral-700 dark:text-neutral-200 mb-1">Fecha y hora de inicio *</label>
-            <input type="datetime-local"
-                   wire:model="createStartsAt"
+            <input type="datetime-local" wire:model="createStartsAt"
                    class="w-full rounded-lg border border-neutral-300 dark:border-neutral-700 bg-white dark:bg-neutral-900 px-3 py-2 text-sm">
             @error('createStartsAt') <p class="text-xs text-rose-600 mt-1">{{ $message }}</p> @enderror
           </div>
 
-          {{-- Duración --}}
           <div>
             <label class="block text-sm font-medium text-neutral-700 dark:text-neutral-200 mb-1">Duración *</label>
             @if($createDurationOptions->count())
               <div class="flex flex-wrap gap-2 mb-2">
                 @foreach($createDurationOptions as $option)
-                  <button type="button"
-                          wire:click="$set('createDurationOptionId', {{ $option->id }})"
+                  <button type="button" wire:click="$set('createDurationOptionId', {{ $option->id }})"
                           class="px-3 py-1.5 rounded-lg text-sm border transition-colors
                                  {{ $createDurationOptionId == $option->id
                                     ? 'bg-violet-600 border-violet-600 text-white'
@@ -190,9 +358,7 @@
               </div>
             @endif
             <div class="flex items-center gap-2">
-              <input type="number"
-                     wire:model="createDurationMinutes"
-                     min="15" max="1440" step="15"
+              <input type="number" wire:model="createDurationMinutes" min="15" max="1440" step="15"
                      class="w-24 rounded-lg border border-neutral-300 dark:border-neutral-700 bg-white dark:bg-neutral-900 px-3 py-2 text-sm"
                      placeholder="60">
               <span class="text-sm text-neutral-500">minutos</span>
@@ -200,47 +366,37 @@
             @error('createDurationMinutes') <p class="text-xs text-rose-600 mt-1">{{ $message }}</p> @enderror
           </div>
 
-          {{-- Monto --}}
           <div>
             <label class="block text-sm font-medium text-neutral-700 dark:text-neutral-200 mb-1">Monto total</label>
             <div class="relative">
               <span class="absolute left-3 top-2 text-sm text-neutral-500">$</span>
-              <input type="number"
-                     wire:model="createTotalAmount"
-                     min="0" step="0.01"
+              <input type="number" wire:model="createTotalAmount" min="0" step="0.01"
                      class="w-full rounded-lg border border-neutral-300 dark:border-neutral-700 bg-white dark:bg-neutral-900 pl-7 pr-3 py-2 text-sm">
             </div>
           </div>
 
-          {{-- Cliente --}}
           <div>
             <label class="block text-sm font-medium text-neutral-700 dark:text-neutral-200 mb-1">Cliente</label>
             <select wire:model.live="createClientId"
                     class="w-full rounded-lg border border-neutral-300 dark:border-neutral-700 bg-white dark:bg-neutral-900 px-3 py-2 text-sm mb-2">
-              <option value="">Ingresá nombre manual o seleccioná un cliente</option>
+              <option value="">Nombre manual o seleccioná cliente</option>
               @foreach($clients as $client)
                 <option value="{{ $client->id }}">{{ $client->name }}{{ $client->phone ? ' · '.$client->phone : '' }}</option>
               @endforeach
             </select>
             @if(!$createClientId)
               <div class="grid grid-cols-2 gap-2">
-                <input type="text"
-                       wire:model="createClientName"
-                       placeholder="Nombre"
+                <input type="text" wire:model="createClientName" placeholder="Nombre"
                        class="rounded-lg border border-neutral-300 dark:border-neutral-700 bg-white dark:bg-neutral-900 px-3 py-2 text-sm">
-                <input type="text"
-                       wire:model="createClientPhone"
-                       placeholder="Teléfono"
+                <input type="text" wire:model="createClientPhone" placeholder="Teléfono"
                        class="rounded-lg border border-neutral-300 dark:border-neutral-700 bg-white dark:bg-neutral-900 px-3 py-2 text-sm">
               </div>
             @endif
           </div>
 
-          {{-- Notas --}}
           <div>
             <label class="block text-sm font-medium text-neutral-700 dark:text-neutral-200 mb-1">Notas</label>
-            <textarea wire:model="createNotes"
-                      rows="2"
+            <textarea wire:model="createNotes" rows="2"
                       class="w-full rounded-lg border border-neutral-300 dark:border-neutral-700 bg-white dark:bg-neutral-900 px-3 py-2 text-sm resize-none"
                       placeholder="Observaciones..."></textarea>
           </div>
@@ -251,9 +407,7 @@
                   class="px-4 py-2 text-sm rounded-lg border border-neutral-300 dark:border-neutral-700 text-neutral-700 dark:text-neutral-300 hover:bg-neutral-50 dark:hover:bg-neutral-800 transition-colors">
             Cancelar
           </button>
-          <button wire:click="saveBooking"
-                  wire:loading.attr="disabled"
-                  wire:target="saveBooking"
+          <button wire:click="saveBooking" wire:loading.attr="disabled" wire:target="saveBooking"
                   class="px-4 py-2 text-sm font-medium rounded-lg bg-violet-600 hover:bg-violet-700 text-white transition-colors disabled:opacity-60">
             <span wire:loading.remove wire:target="saveBooking">Guardar reserva</span>
             <span wire:loading wire:target="saveBooking">Guardando...</span>
@@ -263,7 +417,7 @@
     </div>
   @endif
 
-  {{-- Modal: Detalle de Reserva --}}
+  {{-- ===== MODAL: Detalle de Reserva ===== --}}
   @if($showDetailModal && $detailBooking)
     <div class="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/60 backdrop-blur-sm"
          wire:click.self="$set('showDetailModal', false)">
@@ -282,7 +436,6 @@
         </div>
 
         <div class="p-5 space-y-3">
-          {{-- Estado --}}
           <div class="flex items-center gap-2">
             @php $color = $detailBooking->statusColor() @endphp
             <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium
@@ -290,12 +443,10 @@
               {{ $detailBooking->statusLabel() }}
             </span>
             <span class="text-xs text-neutral-500 dark:text-neutral-400">
-              {{ $detailBooking->starts_at->translatedFormat('d \d\e F, H:i') }}
-              – {{ $detailBooking->ends_at->format('H:i') }}
+              {{ $detailBooking->starts_at->translatedFormat('d \d\e F, H:i') }} – {{ $detailBooking->ends_at->format('H:i') }}
             </span>
           </div>
 
-          {{-- Cliente --}}
           <div class="text-sm">
             <span class="text-neutral-500 dark:text-neutral-400">Cliente: </span>
             <span class="font-medium text-neutral-900 dark:text-neutral-100">{{ $detailBooking->getClientDisplayName() }}</span>
@@ -304,10 +455,11 @@
             @endif
           </div>
 
-          {{-- Duración y monto --}}
           <div class="flex items-center justify-between text-sm">
             <span class="text-neutral-500 dark:text-neutral-400">
-              {{ $detailBooking->duration_minutes >= 60 ? floor($detailBooking->duration_minutes / 60).'h '.($detailBooking->duration_minutes % 60 ? ($detailBooking->duration_minutes % 60).'min' : '') : $detailBooking->duration_minutes.'min' }}
+              {{ $detailBooking->duration_minutes >= 60
+                  ? floor($detailBooking->duration_minutes / 60).'h '.($detailBooking->duration_minutes % 60 ? ($detailBooking->duration_minutes % 60).'min' : '')
+                  : $detailBooking->duration_minutes.'min' }}
             </span>
             <span class="font-semibold text-neutral-900 dark:text-neutral-100">
               ${{ number_format($detailBooking->total_amount, 0, ',', '.') }}
@@ -323,15 +475,13 @@
 
         <div class="px-5 py-4 border-t border-neutral-200 dark:border-neutral-700 flex flex-wrap gap-2">
           @if($detailBooking->status === 'pending')
-            <button wire:click="confirmBooking({{ $detailBooking->id }})"
-                    wire:loading.attr="disabled"
-                    class="flex-1 px-3 py-2 text-sm font-medium rounded-lg bg-green-600 hover:bg-green-700 text-white transition-colors">
+            <button wire:click="confirmBooking({{ $detailBooking->id }})" wire:loading.attr="disabled"
+                    class="flex-1 px-3 py-2 text-sm font-medium rounded-lg bg-emerald-600 hover:bg-emerald-700 text-white transition-colors">
               Confirmar
             </button>
           @endif
           @if(in_array($detailBooking->status, ['pending', 'confirmed']))
-            <button wire:click="cancelBooking({{ $detailBooking->id }})"
-                    wire:confirm="¿Cancelar esta reserva?"
+            <button wire:click="cancelBooking({{ $detailBooking->id }})" wire:confirm="¿Cancelar esta reserva?"
                     class="flex-1 px-3 py-2 text-sm font-medium rounded-lg border border-rose-300 text-rose-700 dark:border-rose-800 dark:text-rose-400 hover:bg-rose-50 dark:hover:bg-rose-900/20 transition-colors">
               Cancelar
             </button>

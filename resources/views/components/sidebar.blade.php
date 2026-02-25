@@ -254,7 +254,7 @@
   x-effect="sync()"
   x-bind:data-collapsed="collapsed ? 'true' : 'false'"
   :class="collapsed ? 'w-16' : 'w-64 sm:w-64 lg:w-64'"
-  class="sidebar-container fixed inset-y-0 left-0 z-50 overflow-hidden
+  class="sidebar-container fixed inset-y-0 left-0 z-50 overflow-hidden hidden lg:block
          transition-[width] duration-[280ms] ease-[cubic-bezier(0.16,1,0.3,1)]"
   style="height: 100vh; height: calc(var(--vh, 1vh) * 100);">
 
@@ -465,7 +465,7 @@
           </svg>
         </span>
         <span x-show="!collapsed" x-transition:enter="fade-slide-enter"
-              class="text-sm font-semibold truncate relative z-1">Calendario</span>
+              class="text-sm font-semibold truncate relative z-1">Alquileres</span>
       </a>
 
       <!-- Reservas -->

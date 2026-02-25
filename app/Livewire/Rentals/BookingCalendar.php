@@ -31,6 +31,9 @@ class BookingCalendar extends Component
     public string $createNotes = '';
     public string $createError = '';
 
+    // Fecha seleccionada en el calendario (para slots del día)
+    public string $selectedDate = '';
+
     // Modal detalle de reserva
     public bool $showDetailModal = false;
     public ?int $detailBookingId = null;
@@ -43,6 +46,7 @@ class BookingCalendar extends Component
     {
         $this->selectedMonth = now()->month;
         $this->selectedYear  = now()->year;
+        $this->selectedDate  = now()->toDateString();
     }
 
     public function previousMonth(): void
@@ -63,6 +67,35 @@ class BookingCalendar extends Component
     {
         $this->selectedMonth = now()->month;
         $this->selectedYear  = now()->year;
+        $this->selectedDate  = now()->toDateString();
+    }
+
+    public function selectDate(string $date): void
+    {
+        $this->selectedDate = $date;
+        // Si el día pertenece a otro mes, navegar a ese mes
+        $carbon = Carbon::parse($date);
+        if ($carbon->month !== $this->selectedMonth || $carbon->year !== $this->selectedYear) {
+            $this->selectedMonth = $carbon->month;
+            $this->selectedYear  = $carbon->year;
+        }
+    }
+
+    public function openCreateModalFromSlot(string $date, string $time, int $spaceId): void
+    {
+        $this->createError            = '';
+        $this->createDate             = $date;
+        $this->createStartsAt         = $date . ' ' . $time;
+        $this->createSpaceId          = $spaceId;
+        $this->createDurationOptionId = null;
+        $this->createDurationMinutes  = 60;
+        $this->createClientId         = null;
+        $this->createClientName       = '';
+        $this->createClientPhone      = '';
+        $this->createTotalAmount      = 0;
+        $this->createNotes            = '';
+        $this->showCreateModal        = true;
+        $this->updatedCreateSpaceId(); // recarga duration options del espacio
     }
 
     public function openCreateModal(string $date): void
@@ -221,6 +254,7 @@ class BookingCalendar extends Component
                 'date'          => $dateStr,
                 'day'           => $currentDay->day,
                 'isToday'       => $currentDay->isToday(),
+                'isSelected'    => $dateStr === $this->selectedDate,
                 'isPast'        => $currentDay->isPast() && !$currentDay->isToday(),
                 'bookings'      => $dayBookings,
                 'hasConfirmed'  => $dayBookings->contains('status', 'confirmed'),
@@ -242,6 +276,51 @@ class BookingCalendar extends Component
                 ->get()
             : collect();
 
+        // === SLOTS DEL DÍA SELECCIONADO ===
+        $selectedDayStr    = $this->selectedDate ?: now()->toDateString();
+        $selectedDayCarbon = Carbon::parse($selectedDayStr);
+
+        // Horario operativo del comercio
+        $companyUser = $isMaster ? null : ($user->isCompany() ? $user : $user->parent);
+        $openTime    = $companyUser?->rental_open_time  ?? '08:00';
+        $closeTime   = $companyUser?->rental_close_time ?? '22:00';
+
+        // Reservas del día seleccionado (sin filtro de espacio, para mostrar todos)
+        $bookingsForDay = Booking::with(['client'])
+            ->when($companyId, fn($q) => $q->where('company_id', $companyId))
+            ->whereDate('starts_at', $selectedDayStr)
+            ->whereIn('status', ['pending', 'confirmed'])
+            ->orderBy('starts_at')
+            ->get();
+
+        $daySlots = $spaces->map(function ($space) use ($openTime, $closeTime, $bookingsForDay, $selectedDayStr) {
+            $baseInterval = $space->activeDurationOptions->min('minutes') ?? 60;
+            $slots        = [];
+            $current      = Carbon::parse($selectedDayStr . ' ' . $openTime);
+            $close        = Carbon::parse($selectedDayStr . ' ' . $closeTime);
+
+            while ($current < $close) {
+                $slotStart = $current->copy();
+                $slotEnd   = $current->copy()->addMinutes($baseInterval);
+
+                $booking = $bookingsForDay->first(
+                    fn($b) => $b->rental_space_id == $space->id
+                        && $b->starts_at->lt($slotEnd)
+                        && $b->ends_at->gt($slotStart)
+                );
+
+                $slots[] = [
+                    'time'    => $slotStart->format('H:i'),
+                    'booking' => $booking,
+                    'is_past' => $slotStart->isPast(),
+                ];
+
+                $current->addMinutes($baseInterval);
+            }
+
+            return ['space' => $space, 'slots' => $slots];
+        });
+
         return view('livewire.rentals.booking-calendar', [
             'spaces'                => $spaces,
             'calendarDays'          => $calendarDays,
@@ -249,6 +328,9 @@ class BookingCalendar extends Component
             'clients'               => $clients,
             'createDurationOptions' => $createDurationOptions,
             'detailBooking'         => $detailBooking,
+            'daySlots'              => $daySlots,
+            'selectedDate'          => $selectedDayStr,
+            'selectedDateLabel'     => $selectedDayCarbon->translatedFormat('l d \d\e F'),
         ]);
     }
 }

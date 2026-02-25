@@ -75,23 +75,33 @@
             </div>
           </div>
 
-          {{-- Opciones de duración --}}
+          {{-- Opciones de duración / Tarifas --}}
           <div x-data="{ options: [{label:'', minutes:60, price:0}] }">
-            <label class="block text-sm font-medium text-neutral-700 dark:text-neutral-200 mb-2">Opciones de duración</label>
+            <div class="flex items-center justify-between mb-1">
+              <label class="text-sm font-medium text-neutral-700 dark:text-neutral-200">Duración y tarifas</label>
+              <span class="text-xs text-neutral-400">obligatorio al menos 1</span>
+            </div>
+            {{-- Cabecera de columnas --}}
+            <div class="grid grid-cols-[1fr_56px_72px_24px] gap-1.5 mb-1 px-0.5">
+              <span class="text-xs text-neutral-500">Nombre</span>
+              <span class="text-xs text-neutral-500 text-center">Min.</span>
+              <span class="text-xs text-neutral-500 text-center">Tarifa $</span>
+              <span></span>
+            </div>
             <template x-for="(opt, i) in options" :key="i">
-              <div class="flex items-center gap-2 mb-2">
+              <div class="grid grid-cols-[1fr_56px_72px_24px] gap-1.5 mb-1.5 items-center">
                 <input type="text" :name="`duration_options[${i}][label]`" x-model="opt.label"
                        placeholder="1 hora" maxlength="100"
-                       class="flex-1 rounded-lg border border-neutral-300 dark:border-neutral-700 bg-white dark:bg-neutral-900 px-3 py-2 text-sm">
+                       class="rounded-lg border border-neutral-300 dark:border-neutral-700 bg-white dark:bg-neutral-900 px-2.5 py-1.5 text-sm">
                 <input type="number" :name="`duration_options[${i}][minutes]`" x-model="opt.minutes"
                        min="15" max="1440" placeholder="60"
-                       class="w-20 rounded-lg border border-neutral-300 dark:border-neutral-700 bg-white dark:bg-neutral-900 px-3 py-2 text-sm">
+                       class="rounded-lg border border-neutral-300 dark:border-neutral-700 bg-white dark:bg-neutral-900 px-2 py-1.5 text-sm text-center">
                 <input type="number" :name="`duration_options[${i}][price]`" x-model="opt.price"
-                       min="0" step="0.01" placeholder="$"
-                       class="w-20 rounded-lg border border-neutral-300 dark:border-neutral-700 bg-white dark:bg-neutral-900 px-3 py-2 text-sm">
+                       min="0" step="1" placeholder="0"
+                       class="rounded-lg border border-violet-200 dark:border-violet-800 bg-violet-50/50 dark:bg-violet-900/10 px-2 py-1.5 text-sm text-center font-medium text-violet-700 dark:text-violet-300">
                 <button type="button" @click="options.splice(i,1)" x-show="options.length > 1"
-                        class="p-1 text-rose-500 hover:text-rose-700">
-                  <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        class="p-0.5 text-rose-400 hover:text-rose-600 transition-colors">
+                  <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/>
                   </svg>
                 </button>
@@ -99,12 +109,11 @@
             </template>
             <button type="button" @click="options.push({label:'',minutes:60,price:0})"
                     class="text-xs text-violet-600 dark:text-violet-400 hover:underline flex items-center gap-1 mt-1">
-              <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"/>
               </svg>
-              Agregar opción
+              Agregar tarifa
             </button>
-            <p class="text-xs text-neutral-500 mt-1">Minutos | Precio</p>
           </div>
 
           <button type="submit"
