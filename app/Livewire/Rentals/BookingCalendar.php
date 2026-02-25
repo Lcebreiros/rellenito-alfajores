@@ -324,13 +324,13 @@ class BookingCalendar extends Component
         return view('livewire.rentals.booking-calendar', [
             'spaces'                => $spaces,
             'calendarDays'          => $calendarDays,
-            'currentMonthLabel'     => $selectedDate->translatedFormat('F Y'),
+            'currentMonthLabel'     => $selectedDate->locale('es')->translatedFormat('F Y'),
             'clients'               => $clients,
             'createDurationOptions' => $createDurationOptions,
             'detailBooking'         => $detailBooking,
             'daySlots'              => $daySlots,
             'selectedDate'          => $selectedDayStr,
-            'selectedDateLabel'     => $selectedDayCarbon->translatedFormat('l d \d\e F'),
+            'selectedDateLabel'     => $selectedDayCarbon->locale('es')->translatedFormat('l d \d\e F'),
         ]);
     }
 }

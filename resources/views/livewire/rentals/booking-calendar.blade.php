@@ -31,52 +31,57 @@
          ════════════════════════════════════ --}}
     <div class="bk-slots-panel flex-1 min-w-0 flex flex-col rounded-2xl bg-white dark:bg-neutral-900 shadow-sm border border-neutral-200 dark:border-neutral-800 overflow-hidden">
 
-      {{-- Header fijo --}}
-      <div class="flex-shrink-0 px-5 py-4 border-b border-neutral-100 dark:border-neutral-800 flex flex-wrap items-center gap-3">
-        <div class="flex-1 min-w-0">
-          <h2 class="text-base font-bold text-neutral-900 dark:text-neutral-100 capitalize truncate">
-            {{ $selectedDateLabel }}
-          </h2>
-          @php
-            $totalFree     = 0;
-            $totalOccupied = 0;
-            foreach ($daySlots as $sd) {
-                foreach ($sd['slots'] as $s) {
-                    if ($s['booking'])      $totalOccupied++;
-                    elseif (!$s['is_past']) $totalFree++;
-                }
-            }
-          @endphp
-          <p class="text-xs text-neutral-500 dark:text-neutral-400 mt-0.5">
-            <span class="text-emerald-600 dark:text-emerald-400 font-medium">{{ $totalFree }} libre{{ $totalFree !== 1 ? 's' : '' }}</span>
-            @if($totalOccupied)
-              <span class="mx-1 text-neutral-300 dark:text-neutral-600">·</span>
-              <span class="text-violet-600 dark:text-violet-400 font-medium">{{ $totalOccupied }} ocupado{{ $totalOccupied !== 1 ? 's' : '' }}</span>
-            @endif
-          </p>
+      {{-- Header fijo — fila 1: título + botón; fila 2: filtros --}}
+      <div class="flex-shrink-0 px-4 pt-4 pb-3 border-b border-neutral-100 dark:border-neutral-800 space-y-2">
+
+        {{-- Fila 1: título (siempre horizontal) + botón nueva reserva --}}
+        <div class="flex items-center gap-2">
+          <div class="flex-1 min-w-0">
+            @php
+              $totalFree     = 0;
+              $totalOccupied = 0;
+              foreach ($daySlots as $sd) {
+                  foreach ($sd['slots'] as $s) {
+                      if ($s['booking'])      $totalOccupied++;
+                      elseif (!$s['is_past']) $totalFree++;
+                  }
+              }
+            @endphp
+            <h2 class="text-base font-bold text-neutral-900 dark:text-neutral-100 capitalize whitespace-nowrap overflow-hidden text-ellipsis">
+              {{ $selectedDateLabel }}
+            </h2>
+            <p class="text-xs text-neutral-500 dark:text-neutral-400 mt-0.5 whitespace-nowrap">
+              <span class="text-emerald-600 dark:text-emerald-400 font-medium">{{ $totalFree }} libre{{ $totalFree !== 1 ? 's' : '' }}</span>
+              @if($totalOccupied)
+                <span class="mx-1 text-neutral-300 dark:text-neutral-600">·</span>
+                <span class="text-violet-600 dark:text-violet-400 font-medium">{{ $totalOccupied }} ocupado{{ $totalOccupied !== 1 ? 's' : '' }}</span>
+              @endif
+            </p>
+          </div>
+
+          {{-- Botón nueva reserva --}}
+          <button wire:click="openCreateModal('{{ $selectedDate }}')"
+                  class="flex-shrink-0 inline-flex items-center gap-1 text-xs px-3 py-2 rounded-lg bg-violet-600 hover:bg-violet-700 text-white font-medium transition-colors">
+            <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"/>
+            </svg>
+            <span class="hidden sm:inline">Nueva reserva</span>
+            <span class="sm:hidden">Nueva</span>
+          </button>
         </div>
 
-        {{-- Filtros --}}
-        <div class="flex items-center bg-neutral-100 dark:bg-neutral-800 rounded-lg p-1 gap-0.5 flex-shrink-0">
+        {{-- Fila 2: filtros de estado --}}
+        <div class="flex items-center bg-neutral-100 dark:bg-neutral-800 rounded-lg p-1 gap-0.5 w-full">
           <button @click="filter = 'all'"
                   :class="filter === 'all' ? 'bg-white dark:bg-neutral-700 shadow-sm text-neutral-900 dark:text-neutral-100' : 'text-neutral-500 dark:text-neutral-400'"
-                  class="text-xs px-3 py-1.5 rounded-md font-medium transition-all">Todos</button>
+                  class="flex-1 text-xs px-2 py-1.5 rounded-md font-medium transition-all">Todos</button>
           <button @click="filter = 'free'"
                   :class="filter === 'free' ? 'bg-white dark:bg-neutral-700 shadow-sm text-emerald-700 dark:text-emerald-400' : 'text-neutral-500 dark:text-neutral-400'"
-                  class="text-xs px-3 py-1.5 rounded-md font-medium transition-all">Libres</button>
+                  class="flex-1 text-xs px-2 py-1.5 rounded-md font-medium transition-all">Libres</button>
           <button @click="filter = 'occupied'"
                   :class="filter === 'occupied' ? 'bg-white dark:bg-neutral-700 shadow-sm text-violet-700 dark:text-violet-400' : 'text-neutral-500 dark:text-neutral-400'"
-                  class="text-xs px-3 py-1.5 rounded-md font-medium transition-all">Ocupados</button>
+                  class="flex-1 text-xs px-2 py-1.5 rounded-md font-medium transition-all">Ocupados</button>
         </div>
-
-        {{-- Nueva reserva --}}
-        <button wire:click="openCreateModal('{{ $selectedDate }}')"
-                class="inline-flex items-center gap-1.5 text-xs px-3 py-2 rounded-lg bg-violet-600 hover:bg-violet-700 text-white font-medium transition-colors flex-shrink-0">
-          <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"/>
-          </svg>
-          Nueva reserva
-        </button>
       </div>
 
       {{-- Slots — scrolleable --}}
