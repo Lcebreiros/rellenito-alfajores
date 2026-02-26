@@ -337,7 +337,7 @@ Route::middleware([
 
         // Gestión de espacios y categorías
         Route::get('rentals/spaces/{rentalSpace}', [RentalSpaceController::class, 'show'])->name('rentals.spaces.show');
-        Route::resource('rentals/spaces', RentalSpaceController::class)->names('rentals.spaces')->except(['show', 'create', 'edit']);
+        Route::resource('rentals/spaces', RentalSpaceController::class)->names('rentals.spaces')->parameters(['spaces' => 'rentalSpace'])->except(['show', 'create', 'edit']);
         Route::post('rentals/space-categories', [RentalSpaceController::class, 'storeCategory'])->name('rentals.space-categories.store');
         Route::post('rentals/spaces/{rentalSpace}/duration-options', [RentalSpaceController::class, 'storeDurationOption'])->name('rentals.spaces.duration-options.store');
         Route::delete('rentals/duration-options/{durationOption}', [RentalSpaceController::class, 'destroyDurationOption'])->name('rentals.duration-options.destroy');
