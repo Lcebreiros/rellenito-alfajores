@@ -297,11 +297,23 @@ class BookingCalendar extends Component
             ? $spaces->where('id', $this->filterSpaceId)
             : $spaces;
 
-        $daySlots = $spacesForSlots->map(function ($space) use ($openTime, $closeTime, $bookingsForDay, $selectedDayStr) {
+        // Comparación de "pasado" usando timezone explícita para evitar diferencias
+        // entre el timezone del proceso PHP y el configurado en la aplicación
+        $tz      = config('app.timezone', 'UTC');
+        $nowInTz = Carbon::now($tz);
+        $todayStr = $nowInTz->toDateString();
+        $nowTimeStr = $nowInTz->format('H:i');
+
+        $daySlots = $spacesForSlots->map(function ($space) use ($openTime, $closeTime, $bookingsForDay, $selectedDayStr, $tz, $todayStr, $nowTimeStr) {
             $baseInterval = $space->activeDurationOptions->min('minutes') ?? 60;
             $slots        = [];
-            $current      = Carbon::parse($selectedDayStr . ' ' . $openTime);
-            $close        = Carbon::parse($selectedDayStr . ' ' . $closeTime);
+            $current      = Carbon::parse($selectedDayStr . ' ' . $openTime, $tz);
+            $close        = Carbon::parse($selectedDayStr . ' ' . $closeTime, $tz);
+
+            // Si closeTime es medianoche (00:00) o anterior a openTime, es el día siguiente
+            if ($close->lte($current)) {
+                $close->addDay();
+            }
 
             while ($current < $close) {
                 $slotStart = $current->copy();
@@ -313,10 +325,14 @@ class BookingCalendar extends Component
                         && $b->ends_at->gt($slotStart)
                 );
 
+                $slotTimeStr = $slotStart->format('H:i');
+                $isPast = $selectedDayStr < $todayStr
+                    || ($selectedDayStr === $todayStr && $slotTimeStr < $nowTimeStr);
+
                 $slots[] = [
-                    'time'    => $slotStart->format('H:i'),
+                    'time'    => $slotTimeStr,
                     'booking' => $booking,
-                    'is_past' => $slotStart->isPast(),
+                    'is_past' => $isPast,
                 ];
 
                 $current->addMinutes($baseInterval);
