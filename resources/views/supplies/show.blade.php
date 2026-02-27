@@ -1,14 +1,15 @@
 @extends('layouts.app')
 
 @section('header')
-<div class="flex items-center justify-between">
-  <h1 class="text-2xl font-bold text-neutral-900 dark:text-neutral-100 flex items-center gap-2">
-    <i class="fas fa-flask text-violet-600"></i>
-    Detalle de insumo
-  </h1>
-  <a href="{{ route('calculator.show') }}" class="inline-flex items-center gap-2 px-3 py-2 rounded-lg border border-neutral-300 dark:border-neutral-700 text-neutral-700 dark:text-neutral-200 hover:bg-neutral-50 dark:hover:bg-neutral-800">
-    ← Volver a insumos
+<div class="flex items-center gap-3">
+  <a href="{{ route('calculator.show') }}" class="inline-flex items-center gap-1.5 text-sm text-neutral-500 dark:text-neutral-400 hover:text-neutral-800 dark:hover:text-neutral-100 transition-colors">
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" class="w-4 h-4"><path fill-rule="evenodd" d="M11.78 5.22a.75.75 0 0 1 0 1.06L8.06 10l3.72 3.72a.75.75 0 1 1-1.06 1.06l-4.25-4.25a.75.75 0 0 1 0-1.06l4.25-4.25a.75.75 0 0 1 1.06 0Z" clip-rule="evenodd"/></svg>
+    atrás
   </a>
+  <span class="text-neutral-300 dark:text-neutral-600">/</span>
+  <h1 class="text-xl sm:text-2xl font-semibold text-neutral-900 dark:text-neutral-100 truncate">
+    {{ $supply->name }}
+  </h1>
 </div>
 @endsection
 

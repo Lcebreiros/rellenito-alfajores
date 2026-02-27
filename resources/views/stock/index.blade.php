@@ -27,7 +27,7 @@
     @endif
   </h1>
 
-  <div class="flex flex-wrap gap-2">
+  <div class="flex items-center gap-2">
     {{-- Selector de Sucursal --}}
     @include('stock.partials.branch-selector', [
       'availableBranches' => $availableBranches ?? [],
@@ -35,47 +35,62 @@
       'isCompanyView' => $isCompanyView ?? false
     ])
 
+    {{-- Separador --}}
+    <div class="hidden sm:block w-px h-6 bg-neutral-200 dark:bg-neutral-700 mx-1"></div>
+
+    {{-- Utilidades: icon-only --}}
     <button type="button"
             id="openNotificationSettingsBtn"
             aria-label="Configurar notificaciones"
-            class="inline-flex items-center gap-2 px-4 py-2 rounded-lg shadow-sm
-                   bg-indigo-600 text-white font-semibold hover:bg-indigo-700
+            title="Configurar notificaciones"
+            class="inline-flex items-center justify-center w-9 h-9 rounded-lg
+                   text-neutral-500 dark:text-neutral-400
+                   hover:bg-neutral-100 dark:hover:bg-neutral-800
+                   hover:text-neutral-700 dark:hover:text-neutral-200
                    focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2
-                   transition-colors relative">
-      <i class="fa-solid fa-bell"></i>
-      <span class="hidden sm:inline">Notificaciones</span>
-    </button>
-
-    <button type="button"
-            id="downloadReportBtn"
-            aria-label="Descargar reporte"
-            class="inline-flex items-center gap-2 px-4 py-2 rounded-lg shadow-sm
-                   bg-green-600 text-white font-semibold hover:bg-green-700
-                   focus:outline-none focus:ring-2 focus:ring-green-500 focus:ring-offset-2
                    transition-colors">
-      <i class="fa-solid fa-download"></i>
-      <span class="hidden sm:inline">Descargar</span>
+      <i class="fa-solid fa-bell text-sm"></i>
     </button>
 
     <button type="button"
             onclick="window.print()"
             aria-label="Imprimir reporte"
-            class="inline-flex items-center gap-2 px-4 py-2 rounded-lg font-medium transition-colors
-                   bg-white border border-gray-300 text-gray-700 hover:bg-gray-50
-                   dark:bg-neutral-800 dark:border-neutral-600 dark:text-neutral-200 dark:hover:bg-neutral-700
-                   focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2">
-      <i class="fas fa-print"></i>
-      <span class="hidden sm:inline">Imprimir</span>
+            title="Imprimir reporte"
+            class="inline-flex items-center justify-center w-9 h-9 rounded-lg
+                   text-neutral-500 dark:text-neutral-400
+                   hover:bg-neutral-100 dark:hover:bg-neutral-800
+                   hover:text-neutral-700 dark:hover:text-neutral-200
+                   focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2
+                   transition-colors">
+      <i class="fas fa-print text-sm"></i>
     </button>
 
+    {{-- Separador --}}
+    <div class="hidden sm:block w-px h-6 bg-neutral-200 dark:bg-neutral-700 mx-1"></div>
+
+    {{-- Historial: secundario --}}
     <a href="{{ route('stock.history') }}"
        aria-label="Ver historial de stock"
-       class="inline-flex items-center gap-2 px-4 py-2 rounded-lg font-medium transition-colors
-              bg-indigo-600 text-white hover:bg-indigo-700
+       class="inline-flex items-center gap-2 px-3 py-2 rounded-lg text-sm font-medium transition-colors
+              border border-neutral-300 dark:border-neutral-600
+              text-neutral-700 dark:text-neutral-200
+              hover:bg-neutral-50 dark:hover:bg-neutral-800
               focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2">
-       <i class="fas fa-clock"></i>
-       <span class="hidden sm:inline">Historial</span>
+       <i class="fas fa-clock text-xs"></i>
+       <span>Historial</span>
     </a>
+
+    {{-- Descargar: CTA primario --}}
+    <button type="button"
+            id="downloadReportBtn"
+            aria-label="Descargar reporte"
+            class="inline-flex items-center gap-2 px-3 py-2 rounded-lg text-sm
+                   bg-green-600 text-white font-semibold hover:bg-green-700
+                   focus:outline-none focus:ring-2 focus:ring-green-500 focus:ring-offset-2
+                   transition-colors shadow-sm">
+      <i class="fa-solid fa-download text-xs"></i>
+      <span>Descargar</span>
+    </button>
   </div>
 </div>
 @endsection

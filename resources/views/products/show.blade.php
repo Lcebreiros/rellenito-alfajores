@@ -1,9 +1,16 @@
 @extends('layouts.app')
 
 @section('header')
-<h1 class="text-xl sm:text-2xl font-semibold text-neutral-800 dark:text-neutral-100">
-    Detalle de Producto
-</h1>
+<div class="flex items-center gap-3">
+  <a href="{{ route('products.index') }}" class="inline-flex items-center gap-1.5 text-sm text-neutral-500 dark:text-neutral-400 hover:text-neutral-800 dark:hover:text-neutral-100 transition-colors">
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" class="w-4 h-4"><path fill-rule="evenodd" d="M11.78 5.22a.75.75 0 0 1 0 1.06L8.06 10l3.72 3.72a.75.75 0 1 1-1.06 1.06l-4.25-4.25a.75.75 0 0 1 0-1.06l4.25-4.25a.75.75 0 0 1 1.06 0Z" clip-rule="evenodd"/></svg>
+    atrás
+  </a>
+  <span class="text-neutral-300 dark:text-neutral-600">/</span>
+  <h1 class="text-xl sm:text-2xl font-semibold text-neutral-800 dark:text-neutral-100 truncate">
+    {{ $product->name }}
+  </h1>
+</div>
 @endsection
 
 @section('content')
