@@ -53,6 +53,11 @@ class Nexum extends Component
         return $query->get();
     }
 
+    public function getHasAiInsightsProperty(): bool
+    {
+        return Auth::user()->hasAiInsights();
+    }
+
     public function getHealthReportProperty(): array
     {
         try {
@@ -88,7 +93,10 @@ class Nexum extends Component
             $user    = Auth::user();
             $service = new InsightService();
             $service->generateInsights($user, null, true);
-            session()->flash('nexum_success', 'Insights generados correctamente.');
+            $msg = $user->hasAiInsights()
+                ? 'Diagnósticos IA actualizados.'
+                : 'Diagnósticos actualizados.';
+            session()->flash('nexum_success', $msg);
         } catch (\Throwable $e) {
             session()->flash('nexum_error', 'Error al generar insights: ' . $e->getMessage());
         }

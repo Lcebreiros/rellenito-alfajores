@@ -392,6 +392,48 @@
     .nexum-delete-btn:hover { background: rgba(239,68,68,.18); border-color: rgba(239,68,68,.35); }
     .dark .nexum-delete-btn:hover { background: rgba(239,68,68,.25); }
 
+    /* ── Nexum AI Analysis section ─────────────────────────────────────── */
+    .nexum-ai-section {
+      background: linear-gradient(135deg, rgba(109,40,217,.10) 0%, rgba(139,92,246,.06) 100%);
+      border: 1px solid rgba(139,92,246,.28);
+      border-radius: 1.25rem; padding: 1.25rem; margin-bottom: 1rem;
+      box-shadow: var(--nx-shadow-panel);
+      -webkit-backdrop-filter: blur(18px);
+      backdrop-filter: blur(18px);
+    }
+    .dark .nexum-ai-section {
+      background: linear-gradient(135deg, rgba(109,40,217,.18) 0%, rgba(76,29,149,.10) 100%);
+      border-color: rgba(139,92,246,.30);
+      -webkit-backdrop-filter: none; backdrop-filter: none;
+    }
+    .nexum-ai-header { display: flex; align-items: center; gap: .6rem; margin-bottom: .85rem; }
+    .nexum-ai-icon {
+      width: 22px; height: 22px; border-radius: 50%; flex-shrink: 0;
+      background: linear-gradient(135deg, #a78bfa 0%, #7c3aed 55%, #4c1d95 100%);
+      display: flex; align-items: center; justify-content: center;
+    }
+    .nexum-ai-icon span { color: #fff; font-size: 9px; font-weight: 900; letter-spacing: -.5px; }
+    .nexum-ai-loading {
+      display: flex; align-items: center; gap: .5rem;
+      font-size: .8rem; color: var(--nx-t4);
+    }
+    .nexum-ai-spinner {
+      width: 14px; height: 14px; border: 2px solid rgba(139,92,246,.25);
+      border-top-color: #a78bfa; border-radius: 50%;
+      animation: nx-modal-spin 0.75s linear infinite; flex-shrink: 0;
+    }
+    .nexum-ai-content {
+      font-size: .84rem; color: var(--nx-t1); line-height: 1.65;
+      white-space: pre-line;
+    }
+    .nexum-ai-error { font-size: .8rem; color: #f87171; }
+    .nexum-ai-refresh {
+      margin-top: .75rem; display: inline-flex; align-items: center; gap: .35rem;
+      font-size: .72rem; color: var(--nx-t3); cursor: pointer;
+      background: none; border: none; padding: 0; transition: color .15s;
+    }
+    .nexum-ai-refresh:hover { color: var(--nx-t2); }
+
     /* ── Report generation glass modal ─────────────────────────────────── */
     .nexum-modal-overlay {
       position: fixed; inset: 0; z-index: 9999;

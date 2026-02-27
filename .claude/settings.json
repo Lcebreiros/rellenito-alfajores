@@ -8,7 +8,13 @@
       "Bash(du:*)",
       "Bash(pkill:*)",
       "Read(//home/leandro/gestior/**)",
-      "Read(//home/leandro/**)"
+      "Read(//home/leandro/**)",
+      "Bash(sqlite3 database/database.sqlite \".schema products\")",
+      "Bash(mysql -u root -e \"DESC gestior.products; DESC gestior.orders; DESC gestior.order_items;\")",
+      "WebFetch(domain:www.anthropic.com)",
+      "WebFetch(domain:docs.anthropic.com)",
+      "Bash(python3 -c \":*)",
+      "Bash(python3:*)"
     ],
     "additionalDirectories": [
       "/home/leandro/gestior_mobile/lib/features/support/data",

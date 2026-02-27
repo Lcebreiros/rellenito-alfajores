@@ -4,6 +4,7 @@ namespace App\Services\Insights;
 
 use App\Models\BusinessInsight;
 use App\Models\User;
+use App\Services\Insights\Generators\AiInsightGenerator;
 use App\Services\Insights\Generators\LowStockInsightGenerator;
 use App\Services\Insights\Generators\RevenueOpportunityGenerator;
 use App\Services\Insights\Generators\CostWarningGenerator;
@@ -15,19 +16,27 @@ use Illuminate\Support\Facades\Log;
 /**
  * Servicio principal de Business Insights
  *
- * Orquesta la generación, almacenamiento y recuperación de insights
+ * Orquesta la generación, almacenamiento y recuperación de insights.
+ * Usuarios Premium/Enterprise usan IA; Basic usan generadores de reglas.
  */
 class InsightService
 {
     /**
-     * Generadores disponibles
+     * Resuelve los generadores a usar según el plan del usuario.
      */
-    protected array $generators = [
-        LowStockInsightGenerator::class,
-        RevenueOpportunityGenerator::class,
-        CostWarningGenerator::class,
-        ClientRetentionGenerator::class,
-    ];
+    protected function resolveGenerators(User $user): array
+    {
+        if ($user->hasAiInsights()) {
+            return [AiInsightGenerator::class];
+        }
+
+        return [
+            LowStockInsightGenerator::class,
+            RevenueOpportunityGenerator::class,
+            CostWarningGenerator::class,
+            ClientRetentionGenerator::class,
+        ];
+    }
 
     /**
      * Genera nuevos insights para un usuario
@@ -45,17 +54,18 @@ class InsightService
         try {
             $allInsights = collect();
 
-            // Ejecutar todos los generadores
-            foreach ($this->generators as $generatorClass) {
+            // Ejecutar generadores según plan del usuario
+            foreach ($this->resolveGenerators($user) as $generatorClass) {
                 try {
                     $generator = new $generatorClass($user, $organizationId);
 
-                    // Eliminar TODOS los insights existentes de este tipo para el usuario
-                    // antes de insertar los nuevos. Esto previene duplicados tanto en
-                    // llamadas repetidas como en reintentos del job.
+                    // Si el generador usa '*' (AI), borra todos los insights del usuario.
+                    // Si usa un tipo específico, solo borra los de ese tipo.
                     $type = $generator->getInsightType();
-                    $deleteQuery = BusinessInsight::where('user_id', $user->id)
-                        ->where('type', $type);
+                    $deleteQuery = BusinessInsight::where('user_id', $user->id);
+                    if ($type !== '*') {
+                        $deleteQuery->where('type', $type);
+                    }
                     if ($organizationId) {
                         $deleteQuery->where('organization_id', $organizationId);
                     }
@@ -77,12 +87,15 @@ class InsightService
                     Log::info("Generated {$insights->count()} insights using {$generatorClass}", [
                         'user_id' => $user->id,
                     ]);
+                } catch (\RuntimeException $e) {
+                    // Error con mensaje para el usuario (ej: API sin créditos): propagar
+                    throw $e;
                 } catch (\Exception $e) {
                     Log::error("Error generating insights with {$generatorClass}: " . $e->getMessage(), [
                         'user_id' => $user->id,
                         'exception' => $e,
                     ]);
-                    // Continuar con el siguiente generador
+                    // Continuar con el siguiente generador (fallo en generador de reglas)
                     continue;
                 }
             }
@@ -231,16 +244,5 @@ class InsightService
             ->update(['expires_at' => now()]);
     }
 
-    /**
-     * Agrega un generador personalizado
-     *
-     * @param string $generatorClass
-     * @return void
-     */
-    public function addGenerator(string $generatorClass): void
-    {
-        if (!in_array($generatorClass, $this->generators)) {
-            $this->generators[] = $generatorClass;
-        }
-    }
 }
+

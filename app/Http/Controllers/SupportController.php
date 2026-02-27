@@ -44,11 +44,19 @@ class SupportController extends Controller
             'type'    => ['required','in:problema,sugerencia,consulta'],
         ]);
 
+        // Prioridad automática según plan de suscripción
+        $planPriority = match($request->user()->effectiveSubscriptionLevel()) {
+            'enterprise' => 'urgente',
+            'premium'    => 'alta',
+            default      => 'media',
+        };
+
         $ticket = SupportTicket::create([
-            'user_id' => $request->user()->id,
-            'subject' => $data['subject'] ?? null,
-            'type'    => $data['type'],
-            'status'  => 'nuevo',
+            'user_id'  => $request->user()->id,
+            'subject'  => $data['subject'] ?? null,
+            'type'     => $data['type'],
+            'status'   => 'nuevo',
+            'priority' => $planPriority,
         ]);
 
         $message = SupportMessage::create([

@@ -107,15 +107,18 @@
       </div>
     </div>
 
-    {{-- Footer: Info --}}
+    {{-- Footer: Info + link a detalle --}}
     <div class="flex items-center justify-between pt-3 border-t border-gray-200 dark:border-neutral-700">
       <span class="text-xs text-gray-500 dark:text-neutral-400 font-medium">
         <i class="fas fa-warehouse text-[10px] mr-1" aria-hidden="true"></i>
         Insumo
       </span>
-      <span class="text-xs text-gray-400 dark:text-neutral-500">
-        ID: {{ $supply->id }}
-      </span>
+      <a href="{{ route('supplies.show', $supply) }}"
+         class="text-xs text-indigo-600 dark:text-indigo-400 hover:underline font-medium flex items-center gap-1"
+         title="Ver inteligencia de stock">
+        <i class="fas fa-brain text-[10px]" aria-hidden="true"></i>
+        Ver inteligencia →
+      </a>
     </div>
   </div>
 

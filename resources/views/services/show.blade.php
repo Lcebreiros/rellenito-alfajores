@@ -2,7 +2,7 @@
 
 @section('header')
 <h1 class="text-xl sm:text-2xl font-semibold text-neutral-800 dark:text-neutral-100">
-    Detalle de Producto
+    Detalle de Servicio
 </h1>
 @endsection
 
@@ -12,122 +12,104 @@
     <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
 
         {{-- ============================================================
-             COLUMNA IZQUIERDA: Información del producto
+             COLUMNA IZQUIERDA: Información del servicio
              ============================================================ --}}
         <div class="space-y-4">
 
             {{-- Card principal --}}
             <div class="bg-white dark:bg-neutral-900 shadow rounded-2xl overflow-hidden">
-                {{-- Imagen --}}
-                @php
-                    $imgUrl = null;
-                    if (!empty($product->image) && \Illuminate\Support\Facades\Storage::disk('public')->exists($product->image)) {
-                        $imgUrl = \Illuminate\Support\Facades\Storage::url($product->image);
-                    }
-                @endphp
-                @if($imgUrl)
-                    <img src="{{ $imgUrl }}" alt="{{ $product->name }}" class="w-full h-56 object-cover">
-                @else
-                    <div class="w-full h-40 flex items-center justify-center bg-neutral-100 dark:bg-neutral-800">
-                        <svg class="h-12 w-12 text-neutral-400 dark:text-neutral-500" viewBox="0 0 24 24" fill="none">
-                            <rect x="4" y="4" width="16" height="16" rx="2" stroke="currentColor" stroke-width="1.5"/>
-                            <path d="M7 15l3-3 3 3 4-4 2 2" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
-                        </svg>
-                    </div>
-                @endif
-
-                {{-- Datos del producto --}}
                 <div class="p-5 space-y-3">
                     <div class="flex items-start justify-between gap-2">
-                        <h2 class="text-xl font-bold text-neutral-900 dark:text-neutral-100 leading-tight">{{ $product->name }}</h2>
-                        <span class="flex-shrink-0 text-xs px-2 py-0.5 rounded-full {{ $product->is_active ? 'bg-emerald-100 text-emerald-700 dark:bg-emerald-900/30 dark:text-emerald-400' : 'bg-neutral-100 text-neutral-500 dark:bg-neutral-800 dark:text-neutral-400' }}">
-                            {{ $product->is_active ? 'Activo' : 'Inactivo' }}
+                        <h2 class="text-xl font-bold text-neutral-900 dark:text-neutral-100 leading-tight">{{ $service->name }}</h2>
+                        <span class="flex-shrink-0 text-xs px-2 py-0.5 rounded-full {{ $service->is_active ? 'bg-emerald-100 text-emerald-700 dark:bg-emerald-900/30 dark:text-emerald-400' : 'bg-neutral-100 text-neutral-500 dark:bg-neutral-800 dark:text-neutral-400' }}">
+                            {{ $service->is_active ? 'Activo' : 'Inactivo' }}
                         </span>
                     </div>
 
-                    <p class="text-xs text-neutral-400 dark:text-neutral-500 font-mono">SKU: {{ $product->sku }}</p>
-
-                    @if($product->description)
-                        <p class="text-sm text-neutral-600 dark:text-neutral-300">{{ $product->description }}</p>
+                    @if($service->category)
+                        <p class="text-sm text-neutral-500 dark:text-neutral-400">
+                            <span class="text-neutral-400 dark:text-neutral-500">Categoría:</span> {{ $service->category->name }}
+                        </p>
                     @endif
 
-                    @if($product->category)
-                        <p class="text-sm text-neutral-500 dark:text-neutral-400">
-                            <span class="text-neutral-400 dark:text-neutral-500">Categoría:</span> {{ $product->category }}
-                        </p>
+                    @if($service->description)
+                        <p class="text-sm text-neutral-600 dark:text-neutral-300">{{ $service->description }}</p>
+                    @endif
+
+                    @if(!empty($service->tags))
+                        <div class="flex flex-wrap gap-1.5">
+                            @foreach($service->tags as $tag)
+                                <span class="text-xs px-2 py-0.5 rounded-full bg-indigo-50 text-indigo-600 dark:bg-indigo-900/20 dark:text-indigo-300">
+                                    {{ $tag }}
+                                </span>
+                            @endforeach
+                        </div>
                     @endif
 
                     <div class="pt-1 border-t border-neutral-100 dark:border-neutral-800">
                         <p class="text-lg font-semibold text-neutral-900 dark:text-neutral-100">
-                            $ {{ number_format($product->price, 2, ',', '.') }}
+                            $ {{ number_format($service->price, 2, ',', '.') }}
+                            <span class="text-sm font-normal text-neutral-400">precio base</span>
                         </p>
                     </div>
-
-                    {{-- Sólo visible para master/company --}}
-                    @php $auth = auth()->user(); @endphp
-                    @if($auth && ((method_exists($auth,'isMaster') && $auth->isMaster()) || (method_exists($auth,'isCompany') && $auth->isCompany())))
-                        @php
-                            $owner = $product->user;
-                            $companyName = $product->company?->name;
-                            $chain = null;
-                            if ($owner && $owner->representable_type === \App\Models\Branch::class) {
-                                $branchName = optional($owner->representable)->name;
-                                $chain = trim(($companyName ?: 'Empresa') . ' → ' . ($branchName ?: 'Sucursal'));
-                            } elseif ($owner && method_exists($owner,'isCompany') && $owner->isCompany()) {
-                                $chain = $owner->name;
-                            } else {
-                                $chain = $companyName ?: ($owner?->name ?? 'N/D');
-                            }
-                            $creatorText = null;
-                            if ($owner && $owner->representable_type === \App\Models\Branch::class) {
-                                $creatorText = 'Creado por sucursal: ' . (optional($owner->representable)->name ?? ('#'.$owner->representable_id));
-                            } elseif ($owner && method_exists($owner,'isCompany') && $owner->isCompany()) {
-                                $creatorText = 'Creado por empresa';
-                            } else {
-                                $creatorText = 'Creado por usuario';
-                            }
-                        @endphp
-                        <div class="pt-2 space-y-0.5">
-                            <p class="text-xs text-neutral-400 dark:text-neutral-500">
-                                #{{ $product->user_id }} — {{ $product->user?->name ?? 'N/D' }}
-                                @if(!empty($chain))<span class="ml-1">({{ $chain }})</span>@endif
-                            </p>
-                            @if($creatorText)
-                                <p class="text-xs text-neutral-400 dark:text-neutral-500">{{ $creatorText }}</p>
-                            @endif
-                        </div>
-                    @endif
                 </div>
             </div>
 
-            {{-- Card de stock --}}
-            <div class="bg-white dark:bg-neutral-900 rounded-xl border border-neutral-100 dark:border-neutral-800 p-5">
-                <div class="flex items-center justify-between mb-3">
-                    <h3 class="text-sm font-semibold text-neutral-800 dark:text-neutral-200">Stock</h3>
-                    <span class="text-lg font-bold text-neutral-900 dark:text-neutral-100">{{ $totalStock }}</span>
+            {{-- Variantes --}}
+            @if($service->variants->count())
+                <div class="bg-white dark:bg-neutral-900 rounded-xl border border-neutral-100 dark:border-neutral-800 p-5">
+                    <h3 class="text-sm font-semibold text-neutral-800 dark:text-neutral-200 mb-3">Variantes</h3>
+                    <div class="space-y-2">
+                        @foreach($service->variants as $variant)
+                            <div class="flex items-center justify-between py-2 border-b border-neutral-50 dark:border-neutral-800 last:border-0">
+                                <div>
+                                    <p class="text-sm font-medium text-neutral-800 dark:text-neutral-200">{{ $variant->name }}</p>
+                                    @if($variant->duration_minutes)
+                                        <p class="text-xs text-neutral-400 dark:text-neutral-500">
+                                            {{ $variant->duration_minutes >= 60
+                                                ? floor($variant->duration_minutes / 60) . 'h ' . ($variant->duration_minutes % 60 ? ($variant->duration_minutes % 60) . 'min' : '')
+                                                : $variant->duration_minutes . 'min' }}
+                                        </p>
+                                    @endif
+                                </div>
+                                <div class="text-right">
+                                    <p class="text-sm font-semibold text-neutral-900 dark:text-neutral-100">$ {{ number_format($variant->price, 0, ',', '.') }}</p>
+                                    @if(!$variant->is_active)
+                                        <span class="text-xs text-neutral-400">Inactiva</span>
+                                    @endif
+                                </div>
+                            </div>
+                        @endforeach
+                    </div>
                 </div>
-                @if($locations->count())
+            @endif
+
+            {{-- Insumos --}}
+            @if($service->supplies->count())
+                <div class="bg-white dark:bg-neutral-900 rounded-xl border border-neutral-100 dark:border-neutral-800 p-5">
+                    <h3 class="text-sm font-semibold text-neutral-800 dark:text-neutral-200 mb-3">Insumos</h3>
                     <div class="space-y-1.5">
-                        @foreach($locations as $loc)
-                            <div class="flex justify-between items-center py-1.5 border-b border-neutral-50 dark:border-neutral-800 last:border-0 text-sm">
-                                <span class="text-neutral-600 dark:text-neutral-300">{{ $loc->branch->name ?? 'Sucursal ' . $loc->branch_id }}</span>
-                                <span class="font-medium {{ $loc->stock > 0 ? 'text-blue-600 dark:text-blue-300' : 'text-rose-500 dark:text-rose-400' }}">
-                                    {{ $loc->stock }}
+                        @foreach($service->supplies as $sup)
+                            <div class="flex items-center justify-between py-1.5 border-b border-neutral-50 dark:border-neutral-800 last:border-0 text-sm">
+                                <span class="text-neutral-700 dark:text-neutral-300">{{ $sup->supply->name ?? 'Insumo' }}</span>
+                                <span class="text-neutral-500 dark:text-neutral-400">
+                                    {{ $sup->qty }} {{ $sup->unit }}
+                                    @if($sup->waste_pct > 0)
+                                        <span class="text-xs text-neutral-400">(+{{ $sup->waste_pct }}% desperdicio)</span>
+                                    @endif
                                 </span>
                             </div>
                         @endforeach
                     </div>
-                @else
-                    <p class="text-sm text-neutral-500 dark:text-neutral-400">Sin stock en sucursales.</p>
-                @endif
-            </div>
+                </div>
+            @endif
 
             {{-- Botones --}}
             <div class="flex gap-2">
-                <a href="{{ route('products.index') }}" class="px-4 py-2 bg-neutral-200 dark:bg-neutral-800 rounded-lg text-sm text-neutral-700 dark:text-neutral-200 hover:bg-neutral-300 dark:hover:bg-neutral-700 transition-colors">
+                <a href="{{ route('services.index') }}" class="px-4 py-2 bg-neutral-200 dark:bg-neutral-800 rounded-lg text-sm text-neutral-700 dark:text-neutral-200 hover:bg-neutral-300 dark:hover:bg-neutral-700 transition-colors">
                     Volver
                 </a>
-                <a href="{{ route('products.edit', $product) }}" class="px-4 py-2 bg-indigo-600 rounded-lg text-sm text-white hover:bg-indigo-700 transition-colors">
+                <a href="{{ route('services.edit', $service) }}" class="px-4 py-2 bg-indigo-600 rounded-lg text-sm text-white hover:bg-indigo-700 transition-colors">
                     Editar
                 </a>
             </div>
@@ -144,7 +126,7 @@
                 <h3 class="text-base font-semibold text-neutral-900 dark:text-neutral-100">Rentabilidad</h3>
                 <div class="flex gap-1 text-xs">
                     @foreach([30 => '30 días', 90 => '90 días', 365 => '1 año'] as $p => $label)
-                        <a href="{{ route('products.show', ['product' => $product->id, 'period' => $p]) }}"
+                        <a href="{{ route('services.show', ['service' => $service->id, 'period' => $p]) }}"
                            class="px-3 py-1.5 rounded-lg border transition-colors
                                   {{ $period == $p
                                       ? 'bg-indigo-600 text-white border-indigo-600'
@@ -158,16 +140,11 @@
             {{-- Card: Costo por unidad --}}
             <div class="bg-white dark:bg-neutral-900 rounded-xl border border-neutral-100 dark:border-neutral-800 p-5">
                 @php
-                    $badgeClass = match($costSource) {
-                        'costing' => 'bg-indigo-100 text-indigo-700 dark:bg-indigo-900/30 dark:text-indigo-300',
-                        'recipe'  => 'bg-emerald-100 text-emerald-700 dark:bg-emerald-900/30 dark:text-emerald-300',
-                        default   => 'bg-neutral-100 text-neutral-600 dark:bg-neutral-800 dark:text-neutral-400',
-                    };
-                    $badgeLabel = match($costSource) {
-                        'costing' => 'Análisis de receta',
-                        'recipe'  => 'Receta simple',
-                        default   => 'Costo manual',
-                    };
+                    $badgeClass = $costSource === 'supplies'
+                        ? 'bg-emerald-100 text-emerald-700 dark:bg-emerald-900/30 dark:text-emerald-300'
+                        : 'bg-neutral-100 text-neutral-500 dark:bg-neutral-800 dark:text-neutral-400';
+                    $badgeLabel = $costSource === 'supplies' ? 'Insumos y gastos' : 'Sin datos de costo';
+
                     $barColor = match($marginHealth) {
                         'green'  => 'bg-emerald-500',
                         'yellow' => 'bg-amber-400',
@@ -192,15 +169,11 @@
                 <div class="space-y-2 text-sm">
                     <div class="flex justify-between">
                         <span class="text-neutral-500 dark:text-neutral-400">Precio de venta</span>
-                        <span class="font-medium text-neutral-900 dark:text-neutral-100">
-                            $ {{ number_format($salePrice, 0, ',', '.') }}
-                        </span>
+                        <span class="font-medium text-neutral-900 dark:text-neutral-100">$ {{ number_format($salePrice, 0, ',', '.') }}</span>
                     </div>
                     <div class="flex justify-between">
                         <span class="text-neutral-500 dark:text-neutral-400">Costo unitario</span>
-                        <span class="font-medium text-neutral-900 dark:text-neutral-100">
-                            $ {{ number_format($unitCost, 0, ',', '.') }}
-                        </span>
+                        <span class="font-medium text-neutral-900 dark:text-neutral-100">$ {{ number_format($unitCost, 0, ',', '.') }}</span>
                     </div>
                 </div>
 
@@ -242,21 +215,15 @@
                     <div class="grid grid-cols-2 gap-3">
                         <div class="bg-neutral-50 dark:bg-neutral-800 rounded-lg p-3">
                             <div class="text-xs text-neutral-500 dark:text-neutral-400 mb-1">Unidades</div>
-                            <div class="text-xl font-bold text-neutral-900 dark:text-neutral-100">
-                                {{ number_format($unitsSold, 0, ',', '.') }}
-                            </div>
+                            <div class="text-xl font-bold text-neutral-900 dark:text-neutral-100">{{ number_format($unitsSold, 0, ',', '.') }}</div>
                         </div>
                         <div class="bg-neutral-50 dark:bg-neutral-800 rounded-lg p-3">
                             <div class="text-xs text-neutral-500 dark:text-neutral-400 mb-1">Ingresos</div>
-                            <div class="text-xl font-bold text-neutral-900 dark:text-neutral-100">
-                                $ {{ number_format($revenue, 0, ',', '.') }}
-                            </div>
+                            <div class="text-xl font-bold text-neutral-900 dark:text-neutral-100">$ {{ number_format($revenue, 0, ',', '.') }}</div>
                         </div>
                         <div class="bg-neutral-50 dark:bg-neutral-800 rounded-lg p-3">
                             <div class="text-xs text-neutral-500 dark:text-neutral-400 mb-1">Costo total</div>
-                            <div class="text-xl font-bold text-neutral-900 dark:text-neutral-100">
-                                $ {{ number_format($cogs, 0, ',', '.') }}
-                            </div>
+                            <div class="text-xl font-bold text-neutral-900 dark:text-neutral-100">$ {{ number_format($cogs, 0, ',', '.') }}</div>
                         </div>
                         <div class="bg-neutral-50 dark:bg-neutral-800 rounded-lg p-3">
                             <div class="text-xs text-neutral-500 dark:text-neutral-400 mb-1">Ganancia bruta</div>
@@ -271,7 +238,7 @@
             {{-- Card: Nexum Analytics --}}
             <div class="bg-white dark:bg-neutral-900 rounded-xl border border-neutral-100 dark:border-neutral-800 p-5"
                  x-data="{ insight: null, loading: true, error: false }"
-                 x-init="fetch('{{ route('products.nexum-insight', $product) }}')
+                 x-init="fetch('{{ route('services.nexum-insight', $service) }}')
                      .then(r => r.json())
                      .then(d => { insight = d.insight; loading = false; })
                      .catch(() => { error = true; loading = false; })">
@@ -291,11 +258,11 @@
                             {{ $revenueSharePct }}% de ingresos
                         </span>
                     @endif
-                    @if($salesRank && $totalSoldProducts > 0)
+                    @if($salesRank && $totalSoldServices > 0)
                         <span class="inline-flex items-center gap-1 text-xs px-2.5 py-1 rounded-full font-medium
                             {{ $salesRank <= 3 ? 'bg-amber-100 text-amber-700 dark:bg-amber-900/30 dark:text-amber-300' : 'bg-sky-100 text-sky-700 dark:bg-sky-900/30 dark:text-sky-300' }}">
                             #{{ $salesRank }} en ventas
-                            <span class="opacity-60">/ {{ $totalSoldProducts }}</span>
+                            <span class="opacity-60">/ {{ $totalSoldServices }}</span>
                         </span>
                     @endif
                     @if(!$salesRank && $revenueSharePct == 0)

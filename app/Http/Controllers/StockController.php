@@ -497,6 +497,11 @@ class StockController extends Controller
      */
     public function exportCsv(Request $request): StreamedResponse
     {
+        $user = $request->user() ?? auth()->user();
+        if (!in_array($user->effectiveSubscriptionLevel(), ['premium', 'enterprise'])) {
+            abort(403, 'La exportación CSV está disponible en planes Premium y Enterprise.');
+        }
+
         [$query] = $this->buildProductsQuery($request);
         $ctx = $this->resolveViewingContext($request);
         
@@ -642,12 +647,15 @@ class StockController extends Controller
             'branch_name' => ($owner && $owner->representable_type === \App\Models\Branch::class) ? optional($owner->representable)->name : null,
         ];
 
+        $intel = (new \App\Services\StockIntelligenceService())->forProduct($product, auth()->user());
+
         return view('stock.show', [
-            'product' => $product,
-            'totalCompanyStock' => $totalCompanyStock,
-            'branchRows' => $branchRows,
-            'locations' => $locations,
-            'creator' => $creator,
+            'product'          => $product,
+            'totalCompanyStock'=> $totalCompanyStock,
+            'branchRows'       => $branchRows,
+            'locations'        => $locations,
+            'creator'          => $creator,
+            'intel'            => $intel,
         ]);
     }
 

@@ -172,6 +172,9 @@ Route::middleware([
         ]);
     })->name('user.receipt-logo');
 
+    // ============ RUTAS DE APP (requieren suscripción activa) ============
+    Route::middleware(['requires.subscription'])->group(function () {
+
     // ============ DASHBOARD (Livewire) ============
     Route::get('/dashboard', function () {
         return view('dashboard');
@@ -195,6 +198,7 @@ Route::middleware([
     // Resource DESPUÉS
     Route::resource('products', ProductController::class)->except('show');
     Route::get('products/{product}', [ProductController::class, 'show'])->name('products.show');
+    Route::get('products/{product}/nexum-insight', [ProductController::class, 'nexumInsight'])->name('products.nexum-insight');
 
     // ============ PEDIDOS ============
     // Rutas de pedidos (no hace falta re-aplicar 'auth' porque ya estamos dentro del grupo)
@@ -270,6 +274,7 @@ Route::middleware([
     // ============ INSUMOS ============
     Route::post('/supplies/quick-store', [SupplyController::class, 'quickStore'])->name('supplies.quick-store');
     Route::post('/supplies', [SupplyController::class, 'store'])->name('supplies.store');
+    Route::get('/supplies/{supply}', [SupplyController::class, 'show'])->name('supplies.show');
     Route::put('/supplies/{supply}', [SupplyController::class, 'update'])->name('supplies.update');
     Route::delete('/supplies/{supply}', [SupplyController::class, 'destroy'])->name('supplies.destroy');
     Route::post('/supplies/{supply}/purchase', [SupplyController::class, 'storePurchase'])->name('supplies.purchase.store');
@@ -298,6 +303,7 @@ Route::middleware([
 
     // ============ SERVICIOS ============
     Route::resource('services', ServiceController::class);
+    Route::get('services/{service}/nexum-insight', [ServiceController::class, 'nexumInsight'])->name('services.nexum-insight');
 
     // ============ ESTACIONAMIENTO ============
     // Solo accesible para empresas con módulo "parking" activo
@@ -674,4 +680,6 @@ Route::middleware(['auth:sanctum', config('jetstream.auth_session'), 'verified']
             'Content-Disposition' => 'inline; filename="nexum-' . $report->period_start->format('Y-m') . '.pdf"',
         ]);
     })->name('nexum.reports.view');
-});
+
+    }); // end requires.subscription group
+}); // end auth group

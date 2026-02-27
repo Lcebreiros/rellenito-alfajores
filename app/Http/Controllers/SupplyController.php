@@ -2,11 +2,15 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\ProductRecipe;
 use App\Models\Supply;
 use App\Models\SupplyPurchase;
+use App\Services\StockIntelligenceService;
 use App\Services\UnitConverter;
 use Illuminate\Http\Request;
+use Illuminate\Http\RedirectResponse;
 use Illuminate\Validation\Rule;
+use Illuminate\View\View;
 
 class SupplyController extends Controller
 {
@@ -146,6 +150,21 @@ public function destroy(Supply $supply)
             'message' => 'Error al eliminar insumo: ' . $e->getMessage()
         ], 500);
     }
+}
+
+public function show(Request $request, Supply $supply): View
+{
+    $supply->load(['supplier', 'purchases' => fn($q) => $q->latest()->limit(5)]);
+
+    $recipeItems = ProductRecipe::with('product')
+        ->where('supply_id', $supply->id)
+        ->get()
+        ->filter(fn($r) => $r->product !== null)
+        ->values();
+
+    $intel = (new StockIntelligenceService())->forSupply($supply, $request->user());
+
+    return view('supplies.show', compact('supply', 'recipeItems', 'intel'));
 }
 
 private function getConversionFactor($unit)

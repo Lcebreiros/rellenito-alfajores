@@ -76,7 +76,14 @@
     <div class="nexum-insights-panel">
       {{-- Header --}}
       <div class="nexum-insights-header">
-        <span class="nexum-label-sm">Diagnósticos activos</span>
+        @if($this->hasAiInsights)
+          <div class="nexum-ai-icon" style="width:16px;height:16px;flex-shrink:0;">
+            <span style="font-size:7px;">N</span>
+          </div>
+          <span class="nexum-label-sm">Diagnósticos · Nexum AI</span>
+        @else
+          <span class="nexum-label-sm">Diagnósticos activos</span>
+        @endif
         <span class="nexum-badge-count">{{ $this->stats['total'] ?? 0 }}</span>
       </div>
 
@@ -155,6 +162,17 @@
           </div>
         @endforelse
       </div>
+
+      {{-- Banner upgrade para usuarios Basic --}}
+      @if(!$this->hasAiInsights)
+        <div style="margin-top:.75rem; padding:.6rem .85rem; border-radius:.65rem; background:rgba(109,40,217,.06); border:1px solid rgba(139,92,246,.18); display:flex; align-items:center; justify-content:space-between; gap:.5rem;">
+          <div style="display:flex; align-items:center; gap:.45rem;">
+            <div class="nexum-ai-icon" style="width:16px;height:16px;flex-shrink:0;"><span style="font-size:7px;">N</span></div>
+            <span style="font-size:.72rem; color:var(--nx-t3);">Diagnósticos con IA disponibles en Premium</span>
+          </div>
+          <a href="{{ route('plans') }}" style="font-size:.7rem; font-weight:600; color:var(--nx-t2); text-decoration:none; white-space:nowrap;">Mejorar plan →</a>
+        </div>
+      @endif
     </div>
   </div>
 

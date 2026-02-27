@@ -60,6 +60,11 @@ public function index(Request $request)
      */
     public function downloadReport(Request $request)
     {
+        $user = $request->user() ?? auth()->user();
+        if (!in_array($user->effectiveSubscriptionLevel(), ['premium', 'enterprise'])) {
+            abort(403, 'La exportación de reportes está disponible en planes Premium y Enterprise.');
+        }
+
         @set_time_limit(0);
         @ini_set('output_buffering', 'off');
         @ini_set('zlib.output_compression', '0');

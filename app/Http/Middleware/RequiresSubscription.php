@@ -27,11 +27,11 @@ class RequiresSubscription
             return $next($request);
         }
 
-        // Verificar si el usuario tiene un plan de suscripción válido
+        // Verificar plan efectivo (empleados heredan el plan de su empresa raíz)
         $validPlans = ['basic', 'premium', 'enterprise'];
+        $level = $user->effectiveSubscriptionLevel();
 
-        if (!$user->subscription_level || !in_array($user->subscription_level, $validPlans)) {
-            // Redirigir a la página de planes con mensaje
+        if (!$level || !in_array($level, $validPlans)) {
             return redirect()->route('plans')
                 ->with('error', 'Necesitas un plan de suscripción activo para acceder al panel. Por favor, solicita acceso a un plan.');
         }

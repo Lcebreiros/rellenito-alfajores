@@ -416,6 +416,31 @@ class User extends Authenticatable
     }
 
     /**
+     * Nivel de suscripción efectivo: para empleados/admins usa el de la empresa raíz.
+     */
+    public function effectiveSubscriptionLevel(): ?string
+    {
+        if ($this->isMaster()) {
+            return 'enterprise';
+        }
+
+        if ($this->isCompany()) {
+            return $this->subscription_level;
+        }
+
+        // Empleado / admin: hereda el plan de la empresa
+        return $this->rootCompany()?->subscription_level ?? $this->subscription_level;
+    }
+
+    /**
+     * Verificar si el usuario tiene diagnósticos con IA habilitados
+     */
+    public function hasAiInsights(): bool
+    {
+        return in_array($this->effectiveSubscriptionLevel(), ['premium', 'enterprise']);
+    }
+
+    /**
      * Verificar si un módulo está activo
      */
     public function hasModule(string $module): bool

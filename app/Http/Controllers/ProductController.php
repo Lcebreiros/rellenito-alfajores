@@ -2,9 +2,13 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\Costing;
+use App\Models\Order;
 use App\Models\Product;
-use Illuminate\Http\Request;
+use App\Services\CostService;
 use App\Services\StockService;
+use Illuminate\Http\Request;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Facades\Http;
 
@@ -151,6 +155,15 @@ class ProductController extends Controller
     }
 
     // ➕ Crear nuevo producto
+    // Plan Basic: límite de 100 productos
+    $user = $request->user() ?? auth()->user();
+    if ($user->effectiveSubscriptionLevel() === 'basic') {
+        $productCount = Product::where('user_id', $user->id)->count();
+        if ($productCount >= 100) {
+            return back()->with('error', 'El plan Basic permite hasta 100 productos. Mejorá tu plan para agregar más.');
+        }
+    }
+
     $data = $request->validate([
         'name' => 'required|string|max:100',
         'sku' => 'required|string|max:50|unique:products,sku,NULL,id,user_id,' . $userId,
@@ -260,17 +273,200 @@ public function update(Request $request, Product $product)
     return back()->with('ok', 'Producto actualizado');
 }
 
-    public function show(Product $product)
+    public function show(Product $product, Request $request)
     {
         // Stock: replicar criterio de ProductCard: usar products.stock como stock principal visible
         $product->load(['user.parent','user.representable','company']);
-        $locations = $product->productLocations()->with('branch')->get();
+        $locations  = $product->productLocations()->with('branch')->get();
         $totalStock = (float) ($product->stock ?? 0);
 
-        return view('products.show', compact('product', 'locations', 'totalStock'));
+        // ── Rentabilidad ──────────────────────────────────────────────────────
+
+        // Período seleccionado (query param ?period=30|90|365)
+        $period = (int) $request->query('period', 30);
+        if (!in_array($period, [30, 90, 365])) {
+            $period = 30;
+        }
+        $from = now()->subDays($period)->startOfDay();
+
+        // Fuente del costo (prioridad: costing guardado → receta calculada → cost_price)
+        $latestCosting = Costing::where('product_id', $product->id)
+            ->orderByDesc('created_at')
+            ->first(['unit_total', 'created_at']);
+
+        $unitCost   = 0.0;
+        $costSource = 'manual';
+
+        if ($latestCosting && $latestCosting->unit_total > 0) {
+            $unitCost   = (float) $latestCosting->unit_total;
+            $costSource = 'costing';
+        } elseif ($product->recipeItems()->exists()) {
+            $costData   = CostService::productCost($product);
+            $unitCost   = (float) $costData['unit_cost'];
+            $costSource = 'recipe';
+        } elseif ($product->cost_price > 0) {
+            $unitCost   = (float) $product->cost_price;
+            $costSource = 'manual';
+        }
+
+        // Márgenes por unidad
+        $salePrice    = (float) $product->price;
+        $grossMargin  = $salePrice - $unitCost;
+        $marginPct    = $salePrice > 0 ? round(($grossMargin / $salePrice) * 100, 1) : 0.0;
+        $marginHealth = $marginPct >= 30 ? 'green' : ($marginPct >= 15 ? 'yellow' : 'red');
+
+        // Resumen de ventas del período (subquery respeta ownership del usuario)
+        $ordersSub = Order::query()
+            ->availableFor(auth()->user())
+            ->where('status', 'completed')
+            ->whereNotNull('sold_at')
+            ->where('sold_at', '>=', $from)
+            ->select('id');
+
+        $salesStats = DB::table('order_items as oi')
+            ->whereIn('oi.order_id', $ordersSub)
+            ->where('oi.product_id', $product->id)
+            ->selectRaw('
+                COALESCE(SUM(oi.quantity), 0)       as units_sold,
+                COALESCE(SUM(oi.subtotal), 0)       as revenue,
+                COALESCE(SUM(oi.quantity * ?), 0)   as cogs
+            ', [$unitCost])
+            ->first();
+
+        $unitsSold   = (float) $salesStats->units_sold;
+        $revenue     = (float) $salesStats->revenue;
+        $cogs        = (float) $salesStats->cogs;
+        $grossProfit = $revenue - $cogs;
+        $hasSales    = $unitsSold > 0;
+
+        // ── Nexum: badges comparativos (ventana fija 30 días) ──────────────
+        $compareFrom  = now()->subDays(30)->startOfDay();
+        $compOrdSub   = Order::query()
+            ->availableFor(auth()->user())
+            ->where('status', 'completed')
+            ->whereNotNull('sold_at')
+            ->where('sold_at', '>=', $compareFrom)
+            ->select('id');
+
+        $revByProduct = DB::table('order_items as oi')
+            ->whereIn('oi.order_id', $compOrdSub)
+            ->whereNotNull('oi.product_id')
+            ->selectRaw('oi.product_id, SUM(oi.subtotal) as total_rev, SUM(oi.quantity) as total_units')
+            ->groupBy('oi.product_id')
+            ->get();
+
+        $totalCompanyRev  = (float) $revByProduct->sum('total_rev');
+        $thisProductRow   = $revByProduct->firstWhere('product_id', $product->id);
+        $thisProductRev   = $thisProductRow ? (float) $thisProductRow->total_rev : 0.0;
+        $revenueSharePct  = $totalCompanyRev > 0
+            ? round(($thisProductRev / $totalCompanyRev) * 100, 1) : 0.0;
+
+        $sortedByUnits     = $revByProduct->sortByDesc('total_units')->values();
+        $salesRankIdx      = $sortedByUnits->search(fn($r) => $r->product_id == $product->id);
+        $salesRank         = $salesRankIdx !== false ? $salesRankIdx + 1 : null;
+        $totalSoldProducts = $sortedByUnits->count();
+
+        return view('products.show', compact(
+            'product', 'locations', 'totalStock',
+            'salePrice', 'unitCost', 'costSource', 'grossMargin', 'marginPct', 'marginHealth',
+            'unitsSold', 'revenue', 'cogs', 'grossProfit', 'hasSales', 'period',
+            'revenueSharePct', 'salesRank', 'totalSoldProducts',
+        ));
     }
 
 
+
+    public function nexumInsight(Product $product, Request $request)
+    {
+        $from = now()->subDays(30)->startOfDay();
+
+        // Costo básico
+        $latestCosting = Costing::where('product_id', $product->id)
+            ->orderByDesc('created_at')->first(['unit_total']);
+        $unitCost = 0.0;
+        if ($latestCosting && $latestCosting->unit_total > 0) {
+            $unitCost = (float) $latestCosting->unit_total;
+        } elseif ($product->cost_price > 0) {
+            $unitCost = (float) $product->cost_price;
+        }
+
+        $salePrice = (float) $product->price;
+        $marginPct = $salePrice > 0 ? round((($salePrice - $unitCost) / $salePrice) * 100, 1) : 0.0;
+
+        // Ventas + badges en una sola pasada
+        $ordersSub = Order::query()
+            ->availableFor(auth()->user())
+            ->where('status', 'completed')
+            ->whereNotNull('sold_at')
+            ->where('sold_at', '>=', $from)
+            ->select('id');
+
+        $sales = DB::table('order_items as oi')
+            ->whereIn('oi.order_id', $ordersSub)
+            ->where('oi.product_id', $product->id)
+            ->selectRaw('COALESCE(SUM(oi.quantity), 0) as units, COALESCE(SUM(oi.subtotal), 0) as rev')
+            ->first();
+        $unitsSold = (float) $sales->units;
+        $revenue   = (float) $sales->rev;
+
+        $revByProduct = DB::table('order_items as oi')
+            ->whereIn('oi.order_id', $ordersSub)
+            ->whereNotNull('oi.product_id')
+            ->selectRaw('oi.product_id, SUM(oi.subtotal) as total_rev, SUM(oi.quantity) as total_units')
+            ->groupBy('oi.product_id')
+            ->get();
+
+        $totalRev      = (float) $revByProduct->sum('total_rev');
+        $thisRev       = (float) ($revByProduct->firstWhere('product_id', $product->id)?->total_rev ?? 0);
+        $revenueShare  = $totalRev > 0 ? round(($thisRev / $totalRev) * 100, 1) : 0.0;
+        $sortedByUnits = $revByProduct->sortByDesc('total_units')->values();
+        $salesRankIdx  = $sortedByUnits->search(fn($r) => $r->product_id == $product->id);
+        $salesRank     = $salesRankIdx !== false ? $salesRankIdx + 1 : null;
+        $totalProducts = $sortedByUnits->count();
+
+        $apiKey = config('services.anthropic.key');
+        if (!$apiKey) {
+            return response()->json(['insight' => 'Nexum Analytics requiere configuración de API.']);
+        }
+
+        $lines = array_filter([
+            "Eres un asistente de análisis de negocios para pequeñas empresas. Analiza este producto y da UNA recomendación accionable concreta en 2 oraciones, en español:",
+            "",
+            "Producto: {$product->name}",
+            "Precio de venta: \${$salePrice}",
+            "Costo unitario: \${$unitCost}",
+            "Margen neto: {$marginPct}%",
+            "Unidades vendidas (30 días): {$unitsSold}",
+            "Ingresos (30 días): \${$revenue}",
+            $revenueShare > 0 ? "Representa el {$revenueShare}% de los ingresos totales" : '',
+            $salesRank ? "Posición en ventas: #{$salesRank} de {$totalProducts} productos" : 'Sin ventas registradas en el período',
+        ]);
+
+        try {
+            $response = Http::withHeaders([
+                'x-api-key'         => $apiKey,
+                'anthropic-version' => '2023-06-01',
+                'content-type'      => 'application/json',
+            ])->timeout(20)->post('https://api.anthropic.com/v1/messages', [
+                'model'      => 'claude-haiku-4-5-20251001',
+                'max_tokens' => 200,
+                'messages'   => [['role' => 'user', 'content' => implode("\n", $lines)]],
+            ]);
+
+            if (!$response->successful()) {
+                $errorType = $response->json('error.type');
+                $insight = $errorType === 'invalid_request_error' && str_contains($response->json('error.message', ''), 'credit')
+                    ? 'Sin crédito disponible en la cuenta Anthropic. Cargá créditos en console.anthropic.com.'
+                    : 'Error al generar el análisis.';
+            } else {
+                $insight = $response->json('content.0.text') ?? 'Sin análisis disponible.';
+            }
+        } catch (\Throwable $e) {
+            $insight = 'No se pudo conectar con el servicio de análisis.';
+        }
+
+        return response()->json(compact('insight'));
+    }
 
     // Actualizar stock desde panel
     public function updateStock(Request $request, Product $product, StockService $stock)
