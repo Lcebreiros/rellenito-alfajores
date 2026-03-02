@@ -32,7 +32,8 @@
       "/home/leandro/gestior/app/Http/Controllers/Auth",
       "/home/leandro/gestior/app/Models",
       "/home/leandro/gestior/routes",
-      "/home/leandro/gestior/resources/views/auth"
+      "/home/leandro/gestior/resources/views/auth",
+      "/home/leandro/gestior/resources/views"
     ]
   }
 }

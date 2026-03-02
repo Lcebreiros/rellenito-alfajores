@@ -2,13 +2,16 @@
 
 namespace App\Livewire;
 
+use App\Jobs\GenerateBusinessInsights;
 use App\Models\BusinessInsight;
 use App\Models\GeneratedReport;
 use App\Models\ReportConfiguration;
+use App\Models\User;
 use App\Services\HealthReportService;
 use App\Services\Insights\InsightService;
 use Carbon\Carbon;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\Storage;
 use Livewire\Component;
 
@@ -26,6 +29,21 @@ class Nexum extends Component
     // Reporte manual
     public bool   $requestingManual = false;
 
+    // ─── Multi-tenant: siempre operar sobre la empresa raíz ──────────────
+
+    private function companyUser(): User
+    {
+        $user = Auth::user();
+        return $user->isCompany() ? $user : ($user->rootCompany() ?? $user);
+    }
+
+    private function companyUserId(): int
+    {
+        return $this->companyUser()->id;
+    }
+
+    // ─── Mount ───────────────────────────────────────────────────────────
+
     public function mount(): void
     {
         $config = Auth::user()->reportConfiguration;
@@ -34,13 +52,18 @@ class Nexum extends Component
             $this->isActive      = $config->is_active;
             $this->emailDelivery = $config->email_delivery;
         }
+
+        // Si hay una generación en curso (page refresh mid-job), restaurar estado
+        if (Cache::has("nexum_pending_{$this->companyUserId()}")) {
+            $this->generating = true;
+        }
     }
 
     // ─── Insights ────────────────────────────────────────────────────────
 
     public function getInsightsProperty()
     {
-        $query = BusinessInsight::forUser(Auth::id())
+        $query = BusinessInsight::forUser($this->companyUserId())
             ->active()
             ->orderByPriority();
 
@@ -55,13 +78,13 @@ class Nexum extends Component
 
     public function getHasAiInsightsProperty(): bool
     {
-        return Auth::user()->hasAiInsights();
+        return $this->companyUser()->hasAiInsights();
     }
 
     public function getHealthReportProperty(): array
     {
         try {
-            return (new HealthReportService(Auth::user()))->generate();
+            return (new HealthReportService($this->companyUser()))->generate();
         } catch (\Throwable) {
             return ['overall_score' => 0, 'status' => 'Sin datos', 'status_color' => '#6b7280', 'categories' => []];
         }
@@ -69,7 +92,7 @@ class Nexum extends Component
 
     public function getReportsProperty()
     {
-        return GeneratedReport::forUser(Auth::id())
+        return GeneratedReport::forUser($this->companyUserId())
             ->orderByDesc('created_at')
             ->limit(10)
             ->get();
@@ -77,7 +100,7 @@ class Nexum extends Component
 
     public function getStatsProperty(): array
     {
-        return (new InsightService())->getStats(Auth::user());
+        return (new InsightService())->getStats($this->companyUser());
     }
 
     public function setFilter(string $filter): void
@@ -85,28 +108,73 @@ class Nexum extends Component
         $this->filter = $filter;
     }
 
+    // ─── Generación asíncrona ─────────────────────────────────────────────
+
     public function generate(): void
     {
-        $this->generating = true;
+        $userId = $this->companyUserId();
 
-        try {
-            $user    = Auth::user();
-            $service = new InsightService();
-            $service->generateInsights($user, null, true);
-            $msg = $user->hasAiInsights()
-                ? 'Diagnósticos IA actualizados.'
-                : 'Diagnósticos actualizados.';
-            session()->flash('nexum_success', $msg);
-        } catch (\Throwable $e) {
-            session()->flash('nexum_error', 'Error al generar insights: ' . $e->getMessage());
+        // Rate limiting: máximo 1 generación cada 90 segundos
+        $lastKey = "nexum_last_gen_{$userId}";
+        $lastGen = Cache::get($lastKey);
+        if ($lastGen) {
+            $elapsed   = now()->diffInSeconds($lastGen);
+            $cooldown  = 90;
+            if ($elapsed < $cooldown) {
+                $remaining = $cooldown - $elapsed;
+                session()->flash('nexum_error', "Esperá {$remaining}s antes de actualizar nuevamente.");
+                return;
+            }
         }
 
-        $this->generating = false;
+        // Evitar doble dispatch si ya hay uno en cola
+        if (Cache::has("nexum_pending_{$userId}")) {
+            session()->flash('nexum_error', 'Ya hay un análisis en curso, esperá que termine.');
+            return;
+        }
+
+        // Marcar como en progreso
+        $this->generating = true;
+        Cache::put("nexum_pending_{$userId}", true, 120);
+        Cache::put($lastKey, now(), 3600);
+        Cache::forget("nexum_result_{$userId}");
+
+        GenerateBusinessInsights::dispatch($this->companyUser(), null, true);
+    }
+
+    /**
+     * Polled desde el blade cada 2.5s mientras $generating = true.
+     * Lee el resultado que el Job deposita en cache y actualiza el estado.
+     */
+    public function checkGeneration(): void
+    {
+        if (!$this->generating) {
+            return;
+        }
+
+        $userId = $this->companyUserId();
+
+        $result = Cache::pull("nexum_result_{$userId}");
+        if ($result !== null) {
+            $this->generating = false;
+            if ($result['success']) {
+                session()->flash('nexum_success', $result['message']);
+            } else {
+                session()->flash('nexum_error', $result['message']);
+            }
+            return;
+        }
+
+        // Si la clave pending expiró sin resultado, el job falló silenciosamente
+        if (!Cache::has("nexum_pending_{$userId}")) {
+            $this->generating = false;
+            session()->flash('nexum_error', 'El análisis no pudo completarse. Intentá nuevamente.');
+        }
     }
 
     public function dismiss(int $id): void
     {
-        (new InsightService())->dismissInsight($id, Auth::user());
+        (new InsightService())->dismissInsight($id, $this->companyUser());
     }
 
     // ─── Config de reportes ──────────────────────────────────────────────
@@ -190,7 +258,7 @@ class Nexum extends Component
 
     public function downloadReport(int $id): mixed
     {
-        $report = GeneratedReport::forUser(Auth::id())->findOrFail($id);
+        $report = GeneratedReport::forUser($this->companyUserId())->findOrFail($id);
 
         if (!$report->isReady()) {
             session()->flash('nexum_error', 'El reporte no está disponible todavía.');
@@ -208,7 +276,7 @@ class Nexum extends Component
 
     public function deleteReport(int $id): void
     {
-        $report = GeneratedReport::forUser(Auth::id())->findOrFail($id);
+        $report = GeneratedReport::forUser($this->companyUserId())->findOrFail($id);
 
         if ($report->file_path && Storage::exists($report->file_path)) {
             Storage::delete($report->file_path);

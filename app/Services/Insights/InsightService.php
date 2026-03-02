@@ -59,17 +59,19 @@ class InsightService
                 try {
                     $generator = new $generatorClass($user, $organizationId);
 
-                    // Si el generador usa '*' (AI), borra todos los insights del usuario.
-                    // Si usa un tipo específico, solo borra los de ese tipo.
-                    $type = $generator->getInsightType();
-                    $deleteQuery = BusinessInsight::where('user_id', $user->id);
-                    if ($type !== '*') {
-                        $deleteQuery->where('type', $type);
+                    // Borrar insights previos del mismo tipo (o todos si es AI).
+                    // Solo si $clearExisting es true; si es false se acumulan (útil para scheduled).
+                    if ($clearExisting) {
+                        $type        = $generator->getInsightType();
+                        $deleteQuery = BusinessInsight::where('user_id', $user->id);
+                        if ($type !== '*') {
+                            $deleteQuery->where('type', $type);
+                        }
+                        if ($organizationId) {
+                            $deleteQuery->where('organization_id', $organizationId);
+                        }
+                        $deleteQuery->delete();
                     }
-                    if ($organizationId) {
-                        $deleteQuery->where('organization_id', $organizationId);
-                    }
-                    $deleteQuery->delete();
 
                     $insights = $generator->generate();
 

@@ -61,6 +61,9 @@
 
   /* ─── Links de navegación ────────────────────────────────────────── */
   .nav-link {
+    display: flex;
+    align-items: center;
+    gap: 0.625rem;
     color: rgba(255,255,255,0.78);
     border-radius: 0.875rem;
     position: relative;
@@ -154,33 +157,16 @@
   }
   .custom-scrollbar::-webkit-scrollbar { display: none; }
 
-  /* ─── Estado colapsado ───────────────────────────────────────────── */
-  aside[data-collapsed="true"] .sidebar-header {
-    justify-content: center;
-    padding-left: 1rem;
-    padding-right: 1rem;
+  /* ─── Etiquetas: se desvanecen al colapsar (header + nav) ──────── */
+  .nav-label {
+    opacity: 1;
+    transition: opacity 0.15s ease 0.1s;
+    white-space: nowrap;
+    min-width: 0;
   }
-  aside[data-collapsed="true"] .sidebar-header a {
-    justify-content: center;
-    width: 100%;
-  }
-  aside[data-collapsed="true"] .sidebar-header a > .user-info {
-    display: none !important;
-  }
-  aside[data-collapsed="true"] .nav-link {
-    justify-content: center;
-    padding-left: 0.75rem !important;
-    padding-right: 0.25rem !important;
-    gap: 0.5rem;
-  }
-
-  /* ─── Animación de entrada del texto ─────────────────────────────── */
-  .fade-slide-enter {
-    animation: fadeSlideIn .25s cubic-bezier(.34,1.56,.64,1) forwards;
-  }
-  @keyframes fadeSlideIn {
-    from { opacity: 0; transform: translateX(-6px); }
-    to   { opacity: 1; transform: translateX(0); }
+  aside[data-collapsed="true"] .nav-label {
+    opacity: 0;
+    transition: opacity 0.07s ease;
   }
 
   /* ─── Mobile ─────────────────────────────────────────────────────── */
@@ -262,12 +248,13 @@
     <!-- Área expandible: Header + Nav -->
     <div @mouseenter="expand()" class="flex-1 min-h-0 flex flex-col">
     <!-- Header -->
-    <div class="sidebar-header flex-shrink-0 h-16 flex items-center px-4">
+    <div class="sidebar-header flex-shrink-0 h-16 flex items-center px-3">
       <a href="{{ route('inicio') }}" wire:navigate data-turbo="false"
-         class="inline-flex items-center gap-3 transition-all duration-300 hover:scale-105" 
-         title="{{ $panelText }}" aria-label="{{ $panelText }}">
-        <x-application-mark x-bind:class="collapsed ? 'h-7 w-auto' : 'h-8 w-auto'" 
-                          class="transition-all duration-300 filter drop-shadow-sm" />
+         class="flex items-center gap-2.5 w-full transition-opacity duration-200 hover:opacity-90"
+         title="Gestior" aria-label="Gestior">
+        <span class="shrink-0 w-10 flex items-center justify-center">
+          <x-application-mark class="h-7 w-auto filter drop-shadow-sm" />
+        </span>
 @php
     // Determinar etiqueta legible para el nivel/rol
     $levelLabel = null;
@@ -305,111 +292,91 @@
     }
 @endphp
 
-<span x-show="!collapsed" x-transition:enter="fade-slide-enter" 
-      class="user-info font-bold text-lg truncate max-w-[8rem] sm:max-w-[10rem] lg:max-w-[12rem] flex items-baseline gap-1">
-  <span class="truncate">{{ $panelText }}</span>
-
-  @if($levelLabel)
-    <span class="text-lg text-neutral-500 dark:text-neutral-400 font-bold truncate"
-          style="margin-left: 0.25rem;">
-      {{ $levelLabel }}
-    </span>
-  @endif
-</span>
+        <span class="nav-label user-info flex flex-col leading-tight">
+          <span class="font-bold text-base text-white truncate">Gestior</span>
+          @if($levelLabel)
+            <span class="text-[11px] font-semibold text-white/70 truncate uppercase tracking-wide">{{ $levelLabel }}</span>
+          @endif
+        </span>
 
       </a>
     </div>
 
     <!-- NAV -->
-    <nav class="sidebar-nav flex-1 min-h-0 overflow-y-auto pt-4 pb-2 space-y-1 custom-scrollbar"
-         :class="collapsed ? 'px-0' : 'px-3'"
+    <nav class="sidebar-nav flex-1 min-h-0 overflow-y-auto pt-4 pb-2 space-y-1 custom-scrollbar px-3"
          :class="animating ? 'pointer-events-none select-none' : ''">
 
       <!-- Dashboard -->
       <a href="{{ route('dashboard') }}" wire:navigate data-turbo="false" data-module="dashboard"
          class="nav-link {{ request()->routeIs('dashboard') ? $active : $idle }}"
-         :class="collapsed ? 'justify-center flex items-center gap-3 p-3' : 'flex items-center gap-3 p-3'"
-         :title="collapsed ? 'Dashboard' : null">
-        <span class="shrink-0 flex items-center justify-center w-7 h-7">
+                  :title="collapsed ? 'Dashboard' : null">
+        <span class="shrink-0 w-10 flex items-center justify-center py-2.5">
           <img src="{{ asset('images/dashboard.png') }}" alt="Dashboard" class="nav-icon">
         </span>
-        <span x-show="!collapsed" x-transition:enter="fade-slide-enter"
-              class="text-sm font-semibold truncate relative z-1">Dashboard</span>
+        <span class="nav-label text-sm font-semibold pr-3">Dashboard</span>
       </a>
 
       <!-- Nexum -->
       <a href="{{ route('nexum') }}" wire:navigate data-turbo="false" data-module="nexum"
          class="nav-link {{ request()->routeIs('nexum') ? $active : $idle }}"
-         :class="collapsed ? 'justify-center flex items-center gap-3 p-3' : 'flex items-center gap-3 p-3'"
-         :title="collapsed ? 'Nexum' : null">
-        <span class="shrink-0 flex items-center justify-center w-7 h-7">
+                  :title="collapsed ? 'Nexum' : null">
+        <span class="shrink-0 w-10 flex items-center justify-center py-2.5">
           <span style="font-size:1.05rem; font-weight:900; letter-spacing:.04em; background:linear-gradient(135deg,#ffffff 0%,#d8ccff 100%); -webkit-background-clip:text; -webkit-text-fill-color:transparent; background-clip:text; display:inline-block; line-height:1;">N</span>
         </span>
-        <span x-show="!collapsed" x-transition:enter="fade-slide-enter"
-              class="text-sm font-semibold truncate relative z-1">Nexum</span>
+        <span class="nav-label text-sm font-semibold pr-3">Nexum</span>
       </a>
 
       <!-- Crear venta -->
       <a href="{{ route('orders.create') }}" wire:navigate data-turbo="false" data-module="orders"
          class="nav-link {{ request()->routeIs('orders.create') ? $active : $idle }}"
-         :class="collapsed ? 'justify-center flex items-center gap-3 p-3' : 'flex items-center gap-3 p-3'"
-         :title="collapsed ? 'Crear venta' : null">
-        <span class="shrink-0 flex items-center justify-center w-7 h-7">
+                  :title="collapsed ? 'Crear venta' : null">
+        <span class="shrink-0 w-10 flex items-center justify-center py-2.5">
           <img src="{{ asset('images/crear-venta.png') }}" alt="Crear venta" class="nav-icon">
         </span>
-        <span x-show="!collapsed" x-transition:enter="fade-slide-enter"
-              class="text-sm font-semibold truncate relative z-1">Crear venta</span>
+        <span class="nav-label text-sm font-semibold pr-3">Crear venta</span>
       </a>
 
       <!-- Lista de ventas -->
       <a href="{{ $ordersUrl }}" wire:navigate data-turbo="false" data-module="orders"
          class="nav-link {{ request()->routeIs('orders.index') ? $active : $idle }}"
-         :class="collapsed ? 'justify-center flex items-center gap-3 p-3' : 'flex items-center gap-3 p-3'"
-         :title="collapsed ? 'Lista de ventas' : null">
-        <span class="shrink-0 flex items-center justify-center w-7 h-7">
+                  :title="collapsed ? 'Lista de ventas' : null">
+        <span class="shrink-0 w-10 flex items-center justify-center py-2.5">
           <img src="{{ asset('images/ventas.png') }}" alt="Ventas" class="nav-icon">
         </span>
-        <span x-show="!collapsed" x-transition:enter="fade-slide-enter"
-              class="text-sm font-semibold truncate relative z-1">Lista de ventas</span>
+        <span class="nav-label text-sm font-semibold pr-3">Lista de ventas</span>
       </a>
 
       <!-- Productos -->
       @if(auth()->user()->hasModule('productos'))
       <a href="{{ route('products.index') }}" wire:navigate data-turbo="false" data-module="products"
          class="nav-link {{ request()->routeIs('products.*') ? $active : $idle }}"
-         :class="collapsed ? 'justify-center flex items-center gap-3 p-3' : 'flex items-center gap-3 p-3'"
-         :title="collapsed ? 'Productos' : null">
-        <span class="shrink-0 flex items-center justify-center w-7 h-7">
+                  :title="collapsed ? 'Productos' : null">
+        <span class="shrink-0 w-10 flex items-center justify-center py-2.5">
           <img src="{{ asset('images/productos.png') }}" alt="Productos" class="nav-icon">
         </span>
-        <span x-show="!collapsed" x-transition:enter="fade-slide-enter"
-              class="text-sm font-semibold truncate relative z-1">Productos</span>
+        <span class="nav-label text-sm font-semibold pr-3">Productos</span>
       </a>
       @endif
 
       <!-- Stock -->
       <a href="{{ route('stock.index') }}#stock" wire:navigate data-turbo="false" data-module="stock"
          class="nav-link {{ request()->fullUrlIs(route('stock.index').'#stock') ? $active : $idle }}"
-         :class="collapsed ? 'justify-center flex items-center gap-3 p-3' : 'flex items-center gap-3 p-3'"
-         :title="collapsed ? 'Stock' : null">
-        <span class="shrink-0 flex items-center justify-center w-7 h-7">
+                  :title="collapsed ? 'Stock' : null">
+        <span class="shrink-0 w-10 flex items-center justify-center py-2.5">
           <img src="{{ asset('images/stock.png') }}" alt="Stock" class="nav-icon">
         </span>
-        <span x-show="!collapsed" x-transition:enter="fade-slide-enter"
-              class="text-sm font-semibold truncate relative z-1">Stock</span>
+        <span class="nav-label text-sm font-semibold pr-3">Stock</span>
       </a>
 
       <!-- Servicios -->
       @if(auth()->user()->hasModule('servicios'))
       <a href="{{ route('services.index') }}" wire:navigate data-turbo="false" data-module="services"
          class="nav-link {{ request()->routeIs('services.*') ? $active : $idle }}"
-         :class="collapsed ? 'justify-center flex items-center gap-3 p-3' : 'flex items-center gap-3 p-3'"
-         :title="collapsed ? 'Servicios' : null">
-        <span class="shrink-0 flex items-center justify-center w-7 h-7">
+                  :title="collapsed ? 'Servicios' : null">
+        <span class="shrink-0 w-10 flex items-center justify-center py-2.5">
           <img src="{{ asset('images/servicios.png') }}" alt="Servicios" class="nav-icon">
         </span>
-        <span x-show="!collapsed" x-transition:enter="fade-slide-enter"
-              class="text-sm font-semibold truncate relative z-1">Servicios</span>
+        <span class="nav-label text-sm font-semibold pr-3">Servicios</span>
       </a>
       @endif
 
@@ -417,83 +384,71 @@
       @if(auth()->user()->hasModule('clientes'))
       <a href="{{ route('clients.index') }}" wire:navigate data-turbo="false" data-module="clients"
          class="nav-link {{ request()->routeIs('clients.*') ? $active : $idle }}"
-         :class="collapsed ? 'justify-center flex items-center gap-3 p-3' : 'flex items-center gap-3 p-3'"
-         :title="collapsed ? 'Clientes' : null">
-        <span class="shrink-0 flex items-center justify-center w-7 h-7">
+                  :title="collapsed ? 'Clientes' : null">
+        <span class="shrink-0 w-10 flex items-center justify-center py-2.5">
           <img src="{{ asset('images/clientes.png') }}" alt="Clientes" class="nav-icon">
         </span>
-        <span x-show="!collapsed" x-transition:enter="fade-slide-enter"
-              class="text-sm font-semibold truncate relative z-1">Clientes</span>
+        <span class="nav-label text-sm font-semibold pr-3">Clientes</span>
       </a>
       @endif
 
       <!-- Métodos de Pago -->
       <a href="{{ route('payment-methods.index') }}" wire:navigate data-turbo="false" data-module="payment"
          class="nav-link {{ request()->routeIs('payment-methods.*') ? $active : $idle }}"
-         :class="collapsed ? 'justify-center flex items-center gap-3 p-3' : 'flex items-center gap-3 p-3'"
-         :title="collapsed ? 'Métodos de Pago' : null">
-        <span class="shrink-0 flex items-center justify-center w-7 h-7">
+                  :title="collapsed ? 'Métodos de Pago' : null">
+        <span class="shrink-0 w-10 flex items-center justify-center py-2.5">
           <img src="{{ asset('images/payment.png') }}" alt="Métodos de Pago" class="nav-icon">
         </span>
-        <span x-show="!collapsed" x-transition:enter="fade-slide-enter"
-              class="text-sm font-semibold truncate relative z-1">Métodos de Pago</span>
+        <span class="nav-label text-sm font-semibold pr-3">Métodos de Pago</span>
       </a>
 
       <!-- Descuentos -->
       <a href="{{ route('discounts.index') }}" wire:navigate data-turbo="false" data-module="discounts"
          class="nav-link {{ request()->routeIs('discounts.*') ? $active : $idle }}"
-         :class="collapsed ? 'justify-center flex items-center gap-3 p-3' : 'flex items-center gap-3 p-3'"
-         :title="collapsed ? 'Descuentos' : null">
-        <span class="shrink-0 flex items-center justify-center w-7 h-7">
+                  :title="collapsed ? 'Descuentos' : null">
+        <span class="shrink-0 w-10 flex items-center justify-center py-2.5">
           <svg class="nav-icon w-5 h-5 text-neutral-600 dark:text-neutral-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 7h.01M7 3h5c.512 0 1.024.195 1.414.586l7 7a2 2 0 010 2.828l-7 7a2 2 0 01-2.828 0l-7-7A1.994 1.994 0 013 12V7a4 4 0 014-4z"></path>
           </svg>
         </span>
-        <span x-show="!collapsed" x-transition:enter="fade-slide-enter"
-              class="text-sm font-semibold truncate relative z-1">Descuentos</span>
+        <span class="nav-label text-sm font-semibold pr-3">Descuentos</span>
       </a>
 
       @if(auth()->user()->isMaster() || auth()->user()->hasModule('alquileres'))
       <!-- Calendario de alquileres -->
       <a href="{{ Route::has('rentals.calendar') ? route('rentals.calendar') : '#' }}" wire:navigate data-turbo="false" data-module="alquileres"
          class="nav-link {{ request()->routeIs('rentals.calendar') ? $active : $idle }}"
-         :class="collapsed ? 'justify-center flex items-center gap-3 p-3' : 'flex items-center gap-3 p-3'"
-         :title="collapsed ? 'Calendario' : null">
-        <span class="shrink-0 flex items-center justify-center w-7 h-7">
+                  :title="collapsed ? 'Calendario' : null">
+        <span class="shrink-0 w-10 flex items-center justify-center py-2.5">
           <svg class="nav-icon w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"/>
           </svg>
         </span>
-        <span x-show="!collapsed" x-transition:enter="fade-slide-enter"
-              class="text-sm font-semibold truncate relative z-1">Alquileres</span>
+        <span class="nav-label text-sm font-semibold pr-3">Alquileres</span>
       </a>
 
       <!-- Reservas -->
       <a href="{{ Route::has('rentals.bookings.index') ? route('rentals.bookings.index') : '#' }}" wire:navigate data-turbo="false" data-module="alquileres"
          class="nav-link {{ request()->routeIs('rentals.bookings.*') ? $active : $idle }}"
-         :class="collapsed ? 'justify-center flex items-center gap-3 p-3' : 'flex items-center gap-3 p-3'"
-         :title="collapsed ? 'Reservas' : null">
-        <span class="shrink-0 flex items-center justify-center w-7 h-7">
+                  :title="collapsed ? 'Reservas' : null">
+        <span class="shrink-0 w-10 flex items-center justify-center py-2.5">
           <svg class="nav-icon w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2"/>
           </svg>
         </span>
-        <span x-show="!collapsed" x-transition:enter="fade-slide-enter"
-              class="text-sm font-semibold truncate relative z-1">Reservas</span>
+        <span class="nav-label text-sm font-semibold pr-3">Reservas</span>
       </a>
 
       <!-- Espacios -->
       <a href="{{ Route::has('rentals.spaces.index') ? route('rentals.spaces.index') : '#' }}" wire:navigate data-turbo="false" data-module="alquileres"
          class="nav-link {{ request()->routeIs('rentals.spaces.*') ? $active : $idle }}"
-         :class="collapsed ? 'justify-center flex items-center gap-3 p-3' : 'flex items-center gap-3 p-3'"
-         :title="collapsed ? 'Espacios' : null">
-        <span class="shrink-0 flex items-center justify-center w-7 h-7">
+                  :title="collapsed ? 'Espacios' : null">
+        <span class="shrink-0 w-10 flex items-center justify-center py-2.5">
           <svg class="nav-icon w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4"/>
           </svg>
         </span>
-        <span x-show="!collapsed" x-transition:enter="fade-slide-enter"
-              class="text-sm font-semibold truncate relative z-1">Espacios</span>
+        <span class="nav-label text-sm font-semibold pr-3">Espacios</span>
       </a>
       @endif
 
@@ -501,13 +456,11 @@
       <!-- Facturación (BETA) -->
       <a href="{{ route('invoices.configuration') }}" wire:navigate data-turbo="false" data-module="dashboard"
          class="nav-link {{ request()->routeIs('invoices.*') ? $active : $idle }}"
-         :class="collapsed ? 'justify-center flex items-center gap-3 p-3' : 'flex items-center gap-3 p-3'"
-         :title="collapsed ? 'Facturación (BETA)' : null">
-        <span class="shrink-0 flex items-center justify-center w-7 h-7">
+                  :title="collapsed ? 'Facturación (BETA)' : null">
+        <span class="shrink-0 w-10 flex items-center justify-center py-2.5">
           <img src="{{ asset('images/arca.png') }}" alt="Facturación ARCA" class="nav-icon">
         </span>
-        <span x-show="!collapsed" x-transition:enter="fade-slide-enter"
-              class="text-sm font-semibold truncate relative z-1 flex items-center gap-1">
+        <span class="nav-label text-sm font-semibold pr-3 flex items-center gap-1">
           <span class="truncate">Facturación</span>
           <span class="px-1.5 py-0.5 rounded-full text-[9px] font-bold bg-neutral-200 text-neutral-700 dark:bg-neutral-800 dark:text-neutral-300 uppercase tracking-wide">BETA</span>
         </span>
@@ -517,26 +470,22 @@
       <!-- Calcular costos -->
       <a href="{{ route('expenses.index') }}"" wire:navigate data-turbo="false" data-module="expenses"
          class="nav-link {{ request()->routeIs('costs.*') ? $active : $idle }}"
-         :class="collapsed ? 'justify-center flex items-center gap-3 p-3' : 'flex items-center gap-3 p-3'"
-         :title="collapsed ? 'Calcular costos' : null">
-        <span class="shrink-0 flex items-center justify-center w-7 h-7">
+                  :title="collapsed ? 'Calcular costos' : null">
+        <span class="shrink-0 w-10 flex items-center justify-center py-2.5">
           <img src="{{ asset('images/calcular-costos.png') }}" alt="Calcular costos" class="nav-icon">
         </span>
-        <span x-show="!collapsed" x-transition:enter="fade-slide-enter"
-              class="text-sm font-semibold truncate relative z-1">Gastos</span>
+        <span class="nav-label text-sm font-semibold pr-3">Gastos</span>
       </a>
 
 @auth
     @if((auth()->user()->isMaster() || auth()->user()->isCompany()) && auth()->user()->hasModule('sucursales'))
         <a href="{{ route('company.branches.index') }}" wire:navigate data-turbo="false" data-module="company"
            class="nav-link {{ request()->routeIs('company.branches.*') ? $active : $idle }}"
-           :class="collapsed ? 'justify-center flex items-center gap-3 p-3' : 'flex items-center gap-3 p-3'"
-           :title="collapsed ? 'Sucursales' : null">
-          <span class="shrink-0 flex items-center justify-center w-7 h-7">
+                      :title="collapsed ? 'Sucursales' : null">
+          <span class="shrink-0 w-10 flex items-center justify-center py-2.5">
             <img src="{{ asset('images/sucursales.png') }}" alt="Sucursales" class="nav-icon">
           </span>
-          <span x-show="!collapsed" x-transition:enter="fade-slide-enter"
-                class="text-sm font-semibold truncate relative z-1">Sucursales</span>
+          <span class="nav-label text-sm font-semibold pr-3">Sucursales</span>
         </a>
     @endif
 @endauth
@@ -545,13 +494,11 @@
     @if((auth()->user()->isMaster() || auth()->user()->isCompany()) && auth()->user()->hasModule('empleados'))
         <a href="{{ route('company.employees.index') }}" wire:navigate data-turbo="false" data-module="employees"
            class="nav-link {{ request()->routeIs('company.branches.*') ? $active : $idle }}"
-           :class="collapsed ? 'justify-center flex items-center gap-3 p-3' : 'flex items-center gap-3 p-3'"
-           :title="collapsed ? 'Personal' : null">
-          <span class="shrink-0 flex items-center justify-center w-7 h-7">
+                      :title="collapsed ? 'Personal' : null">
+          <span class="shrink-0 w-10 flex items-center justify-center py-2.5">
             <img src="{{ asset('images/empleados.png') }}" alt="Personal" class="nav-icon">
           </span>
-          <span x-show="!collapsed" x-transition:enter="fade-slide-enter"
-                class="text-sm font-semibold truncate relative z-1">Personal</span>
+          <span class="nav-label text-sm font-semibold pr-3">Personal</span>
         </a>
     @endif
 @endauth
@@ -563,13 +510,11 @@
         <!-- Master - Agregar Usuarios -->
         <a href="{{ route('master.invitations.index') }}" wire:navigate data-turbo="false" data-module="company"
            class="nav-link {{ request()->routeIs('master.invitations.*') ? $active : $idle }}"
-           :class="collapsed ? 'justify-center flex items-center gap-3 p-3' : 'flex items-center gap-3 p-3'"
-           :title="collapsed ? 'Gestionar usuarios' : null">
-          <span class="shrink-0 flex items-center justify-center w-7 h-7">
+                      :title="collapsed ? 'Gestionar usuarios' : null">
+          <span class="shrink-0 w-10 flex items-center justify-center py-2.5">
             <img src="{{ asset('images/agregar-user.png') }}" alt="Generar usuarios" class="nav-icon">
           </span>
-          <span x-show="!collapsed" x-transition:enter="fade-slide-enter"
-                class="text-sm font-semibold truncate relative z-1">Generar usuarios</span>
+          <span class="nav-label text-sm font-semibold pr-3">Generar usuarios</span>
         </a>
     @endif
 @endauth
@@ -579,13 +524,11 @@
     <!-- Master - Gestionar usuarios -->
     <a href="{{ route('master.users.index') }}" wire:navigate data-turbo="false" data-module="company"
        class="nav-link {{ request()->routeIs('master.users.*') ? $active : $idle }}"
-       :class="collapsed ? 'justify-center flex items-center gap-3 p-3' : 'flex items-center gap-3 p-3'"
-       :title="collapsed ? 'Gestionar usuarios' : null">
-      <span class="shrink-0 flex items-center justify-center w-7 h-7">
+              :title="collapsed ? 'Gestionar usuarios' : null">
+      <span class="shrink-0 w-10 flex items-center justify-center py-2.5">
         <img src="{{ asset('images/gestionar-user.png') }}" alt="Gestionar usuarios" class="nav-icon">
       </span>
-      <span x-show="!collapsed" x-transition:enter="fade-slide-enter"
-            class="text-sm font-semibold truncate relative z-1">Gestionar usuarios</span>
+      <span class="nav-label text-sm font-semibold pr-3">Gestionar usuarios</span>
     </a>
 @endif
 @endauth
@@ -595,15 +538,13 @@
         @if(auth()->user()->isMaster() && Route::has('trial-requests'))
           <a href="{{ route('trial-requests') }}" wire:navigate data-turbo="false"
              class="nav-link {{ request()->routeIs('trial-requests') ? $active : $idle }}"
-             :class="collapsed ? 'justify-center flex items-center gap-3 p-3' : 'flex items-center gap-3 p-3'"
-             :title="collapsed ? 'Solicitudes de Prueba' : null">
-            <span class="shrink-0 flex items-center justify-center w-7 h-7">
+                          :title="collapsed ? 'Solicitudes de Prueba' : null">
+            <span class="shrink-0 w-10 flex items-center justify-center py-2.5">
               <svg class="w-6 h-6 text-neutral-600 dark:text-neutral-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/>
               </svg>
             </span>
-            <span x-show="!collapsed" x-transition:enter="fade-slide-enter"
-                  class="text-sm font-semibold truncate relative z-1">Solicitudes</span>
+            <span class="nav-label text-sm font-semibold pr-3">Solicitudes</span>
           </a>
         @endif
       @endauth
@@ -611,25 +552,21 @@
       <!-- Configuración -->
       <a href="{{ route('settings') }}" wire:navigate data-turbo="false" data-module="company"
          class="nav-link {{ request()->routeIs('settings') ? $active : $idle }}"
-         :class="collapsed ? 'justify-center flex items-center gap-3 p-3' : 'flex items-center gap-3 p-3'"
-         :title="collapsed ? 'Configuración' : null">
-        <span class="shrink-0 flex items-center justify-center w-7 h-7">
+                  :title="collapsed ? 'Configuración' : null">
+        <span class="shrink-0 w-10 flex items-center justify-center py-2.5">
           <img src="{{ asset('images/configuraciones.png') }}" alt="Configuración" class="nav-icon">
         </span>
-        <span x-show="!collapsed" x-transition:enter="fade-slide-enter"
-              class="text-sm font-semibold truncate relative z-1">Configuración</span>
+        <span class="nav-label text-sm font-semibold pr-3">Configuración</span>
       </a>
 
       <!-- Soporte -->
       <a href="{{ route('support.index') }}" wire:navigate data-turbo="false" data-module="company"
          class="nav-link {{ request()->routeIs('support.*') ? $active : $idle }}"
-         :class="collapsed ? 'justify-center flex items-center gap-3 p-3' : 'flex items-center gap-3 p-3'"
-         :title="collapsed ? 'Soporte' : null">
-        <span class="shrink-0 flex items-center justify-center w-7 h-7">
+                  :title="collapsed ? 'Soporte' : null">
+        <span class="shrink-0 w-10 flex items-center justify-center py-2.5">
           <img src="{{ asset('images/soporte.png') }}" alt="Soporte" class="nav-icon">
         </span>
-        <span x-show="!collapsed" x-transition:enter="fade-slide-enter"
-              class="text-sm font-semibold truncate relative z-1">Soporte</span>
+        <span class="nav-label text-sm font-semibold pr-3">Soporte</span>
       </a>
     </nav>
     </div>

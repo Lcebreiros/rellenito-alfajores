@@ -1,5 +1,19 @@
 <div class="nexum-wrap">
 
+  {{-- Breadcrumb --}}
+  <div class="mb-4">
+    <a href="{{ route('dashboard') }}"
+       class="inline-flex items-center gap-1.5 text-sm transition-colors"
+       style="color: var(--nx-t3)"
+       onmouseover="this.style.color='var(--nx-t1)'"
+       onmouseout="this.style.color='var(--nx-t3)'">
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" class="w-4 h-4">
+        <path fill-rule="evenodd" d="M11.78 5.22a.75.75 0 0 1 0 1.06L8.06 10l3.72 3.72a.75.75 0 1 1-1.06 1.06l-4.25-4.25a.75.75 0 0 1 0-1.06l4.25-4.25a.75.75 0 0 1 1.06 0Z" clip-rule="evenodd"/>
+      </svg>
+      Dashboard
+    </a>
+  </div>
+
   {{-- Flash messages --}}
   @if(session('nexum_success'))
     <div x-data="{show:true}" x-show="show" x-init="setTimeout(()=>show=false,5000)"
@@ -55,21 +69,40 @@
       </div>
 
       {{-- Botón generar --}}
-      <button wire:click="generate" wire:loading.attr="disabled" wire:loading.class="opacity-60"
-              class="nexum-gen-btn">
-        <span wire:loading.remove wire:target="generate" class="flex items-center gap-2">
-          <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"/>
-          </svg>
-          Actualizar análisis
-        </span>
-        <span wire:loading wire:target="generate" class="flex items-center gap-2">
-          <svg class="w-4 h-4 animate-spin" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"/>
-          </svg>
-          Analizando...
-        </span>
+      {{-- $generating = true: job corriendo en background → mostrar spinner y deshabilitar --}}
+      <button wire:click="generate"
+              wire:loading.attr="disabled" wire:loading.class="opacity-60"
+              @if($generating) disabled @endif
+              class="nexum-gen-btn {{ $generating ? 'opacity-60 cursor-not-allowed' : '' }}">
+        @if($generating)
+          {{-- Estado: job en cola, poll activo --}}
+          <span class="flex items-center gap-2">
+            <svg class="w-4 h-4 animate-spin" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"/>
+            </svg>
+            Analizando con IA...
+          </span>
+        @else
+          {{-- Estado normal --}}
+          <span wire:loading.remove wire:target="generate" class="flex items-center gap-2">
+            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"/>
+            </svg>
+            Actualizar análisis
+          </span>
+          <span wire:loading wire:target="generate" class="flex items-center gap-2">
+            <svg class="w-4 h-4 animate-spin" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"/>
+            </svg>
+            Iniciando...
+          </span>
+        @endif
       </button>
+
+      {{-- Polling: solo existe en el DOM mientras hay un job activo --}}
+      @if($generating)
+        <div wire:poll.2500ms="checkGeneration" style="display:none;" aria-hidden="true"></div>
+      @endif
     </div>
 
     {{-- INSIGHTS ──────────── --}}
@@ -114,6 +147,14 @@
             'label' => 'Clientes',
             'path'  => 'M17 21v-2a4 4 0 00-4-4H5a4 4 0 00-4 4v2M23 21v-2a4 4 0 00-3-3.87M16 3.13a4 4 0 010 7.75',
           ],
+          'trend' => [
+            'label' => 'Tendencias',
+            'path'  => 'M7 20l4-16m2 16l4-16M6 9h14M4 15h14',
+          ],
+          'prediction' => [
+            'label' => 'Predicciones',
+            'path'  => 'M11.049 2.927c.3-.921 1.603-.921 1.902 0l1.519 4.674a1 1 0 00.95.69h4.915c.969 0 1.371 1.24.588 1.81l-3.976 2.888a1 1 0 00-.363 1.118l1.518 4.674c.3.922-.755 1.688-1.538 1.118l-3.976-2.888a1 1 0 00-1.176 0l-3.976 2.888c-.783.57-1.838-.197-1.538-1.118l1.518-4.674a1 1 0 00-.363-1.118l-3.976-2.888c-.784-.57-.38-1.81.588-1.81h4.914a1 1 0 00.951-.69l1.519-4.674z',
+          ],
         ];
       @endphp
       <div class="nexum-filters">
@@ -137,7 +178,36 @@
               <div class="nexum-insight-content" @click="expanded=!expanded" style="cursor:pointer;">
                 <div class="nexum-insight-title">{{ $insight->title }}</div>
                 <div class="nexum-insight-desc" x-show="!expanded">{{ \Str::limit($insight->description, 80) }}</div>
-                <div class="nexum-insight-desc" x-show="expanded" x-cloak>{{ $insight->description }}</div>
+                <div x-show="expanded" x-cloak>
+                  <div class="nexum-insight-desc">{{ $insight->description }}</div>
+                  @if($insight->action_label)
+                    <div style="margin-top:.5rem;">
+                      @if($insight->action_route)
+                        <a href="{{ $insight->action_route }}"
+                           @click.stop
+                           style="display:inline-flex;align-items:center;gap:.3rem;font-size:.7rem;font-weight:600;
+                                  padding:.25rem .6rem;border-radius:.4rem;
+                                  background:{{ $insight->getPriorityColor() }}1a;
+                                  color:{{ $insight->getPriorityColor() }};
+                                  border:1px solid {{ $insight->getPriorityColor() }}33;
+                                  text-decoration:none;">
+                          {{ $insight->action_label }}
+                          <svg style="width:.65rem;height:.65rem;" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M9 5l7 7-7 7"/>
+                          </svg>
+                        </a>
+                      @else
+                        <span style="display:inline-flex;align-items:center;gap:.3rem;font-size:.7rem;font-weight:600;
+                                     padding:.25rem .6rem;border-radius:.4rem;
+                                     background:{{ $insight->getPriorityColor() }}1a;
+                                     color:{{ $insight->getPriorityColor() }};
+                                     border:1px solid {{ $insight->getPriorityColor() }}33;">
+                          {{ $insight->action_label }}
+                        </span>
+                      @endif
+                    </div>
+                  @endif
+                </div>
               </div>
               <div class="nexum-insight-meta">
                 <span class="nexum-priority-badge" style="background:{{ $insight->getPriorityColor() }}1a; color:{{ $insight->getPriorityColor() }}; border-color:{{ $insight->getPriorityColor() }}33;">

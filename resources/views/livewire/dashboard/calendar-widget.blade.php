@@ -1,12 +1,16 @@
-<div wire:poll.visible.60s class="h-full flex flex-col
-                                   bg-white dark:bg-neutral-900 border border-neutral-200 dark:border-neutral-800
-                                   rounded-2xl shadow-sm overflow-hidden"
+<div wire:poll.visible.60s class="h-full flex flex-col rounded-2xl overflow-hidden
+                                   bg-violet-50/50 dark:bg-neutral-900/65 backdrop-blur-sm
+                                   shadow-[0_4px_20px_-2px_rgba(109,40,217,0.07),0_1px_6px_-1px_rgba(109,40,217,0.03)]
+                                   dark:shadow-[0_4px_20px_-2px_rgba(0,0,0,0.45),0_1px_6px_-1px_rgba(0,0,0,0.25)]"
      x-data="{ showCalendar: false }">
   {{-- Header --}}
-  <div class="px-4 sm:px-5 py-3 border-b border-neutral-200 dark:border-neutral-800 flex items-center justify-between">
-    <div>
-      <h3 class="text-sm font-semibold text-neutral-900 dark:text-neutral-100">Calendario</h3>
-      <div class="text-xs text-neutral-500 dark:text-neutral-400 mt-0.5">{{ $currentMonth }}</div>
+  <div class="px-4 sm:px-5 py-3.5 border-b border-neutral-100 dark:border-neutral-800/60 flex items-center justify-between flex-shrink-0">
+    <div class="flex items-center gap-2">
+      <div class="w-1.5 h-4 rounded-full bg-indigo-500/80 dark:bg-indigo-400/70"></div>
+      <div>
+        <h3 class="text-sm font-semibold text-neutral-800 dark:text-neutral-100">Calendario</h3>
+        <div class="text-[11px] text-neutral-400 dark:text-neutral-500 mt-0.5">{{ $currentMonth }}</div>
+      </div>
     </div>
     <div class="flex items-center gap-2">
       @if(auth()->user()->google_access_token && auth()->user()->google_refresh_token)
@@ -39,16 +43,16 @@
   </div>
 
   {{-- Mini Stats --}}
-  <div class="px-4 sm:px-5 pt-4 pb-2 grid grid-cols-2 gap-3">
-    <div class="text-center">
-      <div class="text-[11px] text-neutral-500 dark:text-neutral-400 mb-1">Pagos Vencidos</div>
-      <div class="text-2xl font-bold tabular-nums {{ $totalPaymentsDue > 0 ? 'text-rose-600 dark:text-rose-400' : 'text-neutral-900 dark:text-white' }}">
+  <div class="px-4 sm:px-5 pt-3.5 pb-2 grid grid-cols-2 gap-2.5">
+    <div class="bg-neutral-50/70 dark:bg-neutral-800/30 rounded-xl p-2.5 text-center">
+      <div class="text-[10px] uppercase tracking-wide text-neutral-400 dark:text-neutral-500 mb-0.5">Pagos vencidos</div>
+      <div class="text-2xl font-bold tabular-nums {{ $totalPaymentsDue > 0 ? 'text-rose-500 dark:text-rose-400' : 'text-neutral-800 dark:text-white' }}">
         {{ $totalPaymentsDue }}
       </div>
     </div>
-    <div class="text-center">
-      <div class="text-[11px] text-neutral-500 dark:text-neutral-400 mb-1">Compras Este Mes</div>
-      <div class="text-2xl font-bold text-neutral-900 dark:text-white tabular-nums">
+    <div class="bg-neutral-50/70 dark:bg-neutral-800/30 rounded-xl p-2.5 text-center">
+      <div class="text-[10px] uppercase tracking-wide text-neutral-400 dark:text-neutral-500 mb-0.5">Compras este mes</div>
+      <div class="text-2xl font-bold text-neutral-800 dark:text-white tabular-nums">
         {{ $totalPurchases }}
       </div>
     </div>
@@ -74,7 +78,7 @@
             $isPast = $eventDate->isPast() && !$isToday;
           @endphp
 
-          <div class="flex items-start gap-2 p-2 rounded-lg {{ $isPast ? 'bg-rose-50 dark:bg-rose-900/20' : 'bg-neutral-50 dark:bg-neutral-800/50' }}">
+          <div class="flex items-start gap-2 p-2 rounded-xl {{ $isPast ? 'bg-rose-50/70 dark:bg-rose-900/20' : 'bg-neutral-50/60 dark:bg-neutral-800/25' }}">
             {{-- Icon --}}
             <div class="flex-shrink-0 mt-0.5">
               @if($event['type'] === 'payment')
@@ -165,7 +169,7 @@
   </div>
 
   {{-- Legend --}}
-  <div class="px-4 sm:px-5 py-2 border-t border-neutral-200 dark:border-neutral-800">
+  <div class="px-4 sm:px-5 py-2.5 border-t border-neutral-100 dark:border-neutral-800/60 flex-shrink-0">
     <div class="flex items-center justify-center gap-4 text-xs">
       <div class="flex items-center gap-1.5">
         <div class="w-2 h-2 rounded-full bg-blue-500 dark:bg-blue-600"></div>

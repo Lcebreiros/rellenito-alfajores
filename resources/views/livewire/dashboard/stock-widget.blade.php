@@ -1,38 +1,37 @@
-<div wire:poll.visible.15s
-     class="h-full flex flex-col
-            bg-white dark:bg-neutral-900 border border-neutral-200 dark:border-neutral-800
-            rounded-2xl shadow-sm overflow-hidden">
+<div wire:poll.visible.15s class="h-full flex flex-col rounded-2xl overflow-hidden
+     bg-violet-50/50 dark:bg-neutral-900/65 backdrop-blur-sm
+     shadow-[0_4px_20px_-2px_rgba(109,40,217,0.07),0_1px_6px_-1px_rgba(109,40,217,0.03)]
+     dark:shadow-[0_4px_20px_-2px_rgba(0,0,0,0.45),0_1px_6px_-1px_rgba(0,0,0,0.25)]">
 
-  {{-- Header minimal --}}
-  <div class="px-4 sm:px-5 py-4 border-b border-neutral-200/60 dark:border-neutral-800 flex items-center justify-between">
-    <div class="flex items-center gap-2 min-w-0">
-      <span class="inline-flex items-center justify-center w-8 h-8 rounded-xl bg-neutral-100 dark:bg-neutral-800 shrink-0">
-        {{-- ícono caja simple --}}
-        <svg viewBox="0 0 24 24" class="w-5 h-5 text-neutral-700 dark:text-neutral-300" fill="currentColor" aria-hidden="true">
+  {{-- Header --}}
+  <div class="px-4 sm:px-5 py-3.5 flex items-center justify-between flex-shrink-0
+              border-b border-neutral-100 dark:border-neutral-800/60">
+    <div class="flex items-center gap-2.5 min-w-0">
+      <div class="w-8 h-8 rounded-xl bg-emerald-50 dark:bg-emerald-900/20 flex items-center justify-center shrink-0">
+        <svg viewBox="0 0 24 24" class="w-4 h-4 text-emerald-600 dark:text-emerald-400" fill="currentColor">
           <path d="M21 8.5l-9-5-9 5V17l9 5 9-5V8.5zM12 5.15L18.74 9 12 12.85 5.26 9 12 5.15zM6 10.73l5 2.89v5.65l-5-2.78v-5.76zm12 0v5.76l-5 2.78v-5.65l5-2.89z"/>
         </svg>
-      </span>
+      </div>
       <div class="min-w-0">
-        <h3 class="text-sm font-semibold text-neutral-900 dark:text-neutral-100 truncate">Stock</h3>
-        <p class="text-xs text-neutral-500 dark:text-neutral-400 truncate">
-          {{ $hasMin ? 'Comparado con mínimo' : 'Sin mínimo definido' }}
+        <h3 class="text-sm font-semibold text-neutral-800 dark:text-neutral-100 truncate">Stock</h3>
+        <p class="text-[11px] text-neutral-400 dark:text-neutral-500 truncate">
+          {{ $hasMin ? 'vs. mínimo configurado' : 'Sin mínimo definido' }}
         </p>
       </div>
     </div>
 
-    {{-- En md/lg, mini KPIs laterales --}}
     @if(!$this->isSmall())
-      <div class="hidden sm:flex items-center gap-4 sm:gap-5">
+      <div class="hidden sm:flex items-center gap-4">
         <div class="text-right">
-          <div class="text-[11px] text-neutral-500 dark:text-neutral-400">Productos</div>
-          <div class="text-sm font-semibold text-neutral-900 dark:text-neutral-100 tabular-nums whitespace-nowrap">
+          <div class="text-[10px] uppercase tracking-wide text-neutral-400 dark:text-neutral-500">Productos</div>
+          <div class="text-sm font-bold text-neutral-800 dark:text-neutral-100 tabular-nums">
             {{ number_format($totals->total_products ?? 0) }}
           </div>
         </div>
         <div class="text-right">
-          <div class="text-[11px] text-neutral-500 dark:text-neutral-400">Bajo stock</div>
-          <div class="text-sm font-semibold tabular-nums whitespace-nowrap
-                      {{ ($totals->low_count ?? 0) > 0 ? 'text-rose-600 dark:text-rose-400' : 'text-emerald-600 dark:text-emerald-400' }}">
+          <div class="text-[10px] uppercase tracking-wide text-neutral-400 dark:text-neutral-500">Bajo stock</div>
+          <div class="text-sm font-bold tabular-nums
+                      {{ ($totals->low_count ?? 0) > 0 ? 'text-rose-500 dark:text-rose-400' : 'text-emerald-600 dark:text-emerald-400' }}">
             {{ number_format($totals->low_count ?? 0) }}
           </div>
         </div>
@@ -41,53 +40,60 @@
   </div>
 
   {{-- Body --}}
-  <div class="px-4 sm:px-5 py-5">
+  <div class="px-4 sm:px-5 py-4 flex-1 overflow-hidden flex flex-col">
 
-    {{-- Modo compacto (sm): número grande del stock total --}}
+    {{-- Compacto --}}
     @if($this->isSmall())
-      <div class="flex items-baseline justify-center">
+      <div class="flex-1 flex flex-col items-center justify-center gap-1">
         <div class="text-4xl font-extrabold tracking-tight text-neutral-900 dark:text-white tabular-nums">
           {{ number_format($totals->total_units ?? 0) }}
         </div>
-        <div class="ml-2 text-sm text-neutral-500 dark:text-neutral-400">unidades</div>
+        <div class="text-sm text-neutral-400 dark:text-neutral-500">unidades totales</div>
+        @if(($totals->low_count ?? 0) > 0)
+          <div class="mt-2 inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full
+                      bg-rose-50 dark:bg-rose-900/20 text-xs font-semibold text-rose-600 dark:text-rose-400">
+            <div class="w-1.5 h-1.5 rounded-full bg-rose-500 animate-pulse"></div>
+            {{ $totals->low_count }} bajo mínimo
+          </div>
+        @endif
       </div>
     @endif
 
-    {{-- Modo md: total grande + KPIs simples en fila (sin lista) --}}
+    {{-- Medio --}}
     @if($this->isMedium())
-      <div class="grid grid-cols-3 gap-4">
+      <div class="grid grid-cols-3 gap-2.5 mb-3">
         <div class="col-span-3">
-          <div class="text-[11px] text-neutral-500 dark:text-neutral-400 mb-1">Unidades totales</div>
+          <div class="text-[10px] uppercase tracking-wide text-neutral-400 dark:text-neutral-500 mb-0.5">Unidades totales</div>
           <div class="text-3xl font-bold text-neutral-900 dark:text-white tabular-nums">
             {{ number_format($totals->total_units ?? 0) }}
           </div>
         </div>
-        <div>
-          <div class="text-[11px] text-neutral-500 dark:text-neutral-400 mb-1">Productos</div>
-          <div class="text-lg font-semibold text-neutral-900 dark:text-white tabular-nums">
+        <div class="bg-neutral-50/70 dark:bg-neutral-800/30 rounded-xl p-2.5">
+          <div class="text-[10px] text-neutral-400 dark:text-neutral-500 mb-0.5">Productos</div>
+          <div class="text-lg font-bold text-neutral-800 dark:text-white tabular-nums">
             {{ number_format($totals->total_products ?? 0) }}
           </div>
         </div>
-        <div>
-          <div class="text-[11px] text-neutral-500 dark:text-neutral-400 mb-1">Bajo stock</div>
-          <div class="text-lg font-semibold tabular-nums
-                      {{ ($totals->low_count ?? 0) > 0 ? 'text-rose-600 dark:text-rose-400' : 'text-emerald-600 dark:text-emerald-400' }}">
+        <div class="bg-neutral-50/70 dark:bg-neutral-800/30 rounded-xl p-2.5 col-span-2">
+          <div class="text-[10px] text-neutral-400 dark:text-neutral-500 mb-0.5">Con stock bajo</div>
+          <div class="text-lg font-bold tabular-nums
+                      {{ ($totals->low_count ?? 0) > 0 ? 'text-rose-500 dark:text-rose-400' : 'text-emerald-600 dark:text-emerald-400' }}">
             {{ number_format($totals->low_count ?? 0) }}
           </div>
         </div>
       </div>
     @endif
 
-    {{-- Modo lg: total + listado por producto (top bajos) --}}
+    {{-- Grande: lista con barras --}}
     @if($this->isLarge())
-      <div class="mb-4">
-        <div class="text-[11px] text-neutral-500 dark:text-neutral-400 mb-1">Unidades totales</div>
+      <div class="mb-3">
+        <div class="text-[10px] uppercase tracking-wide text-neutral-400 dark:text-neutral-500 mb-0.5">Unidades totales</div>
         <div class="text-3xl font-bold text-neutral-900 dark:text-white tabular-nums">
           {{ number_format($totals->total_units ?? 0) }}
         </div>
       </div>
 
-      <div class="space-y-2 max-h-64 overflow-y-auto dashboard-widget-scroll">
+      <div class="flex-1 space-y-2.5 overflow-y-auto dashboard-widget-scroll">
         @forelse($items as $p)
           @php
             $min   = $hasMin ? (int)($p->min_stock ?? 0) : 0;
@@ -96,30 +102,32 @@
                 ? max(0, min(100, $min > 0 ? round(($p->stock / max(1,$min)) * 100) : 100))
                 : ((int)$p->stock > 0 ? 100 : 0);
           @endphp
-
           <div class="flex items-center gap-3">
             <div class="flex-1 min-w-0">
-              <div class="flex items-center gap-2 min-w-0">
-                <span class="truncate font-medium text-neutral-900 dark:text-neutral-100">{{ $p->name }}</span>
-                <span class="text-[11px] text-neutral-500 dark:text-neutral-400 truncate hidden sm:inline">SKU: {{ $p->sku }}</span>
+              <div class="flex items-center gap-1.5 min-w-0 mb-1">
+                @if($isLow)
+                  <div class="w-1.5 h-1.5 rounded-full bg-rose-500 shrink-0 animate-pulse"></div>
+                @endif
+                <span class="truncate text-[13px] font-medium text-neutral-800 dark:text-neutral-100">{{ $p->name }}</span>
               </div>
-              <div class="mt-1 h-1.5 bg-neutral-100 dark:bg-neutral-800 rounded-full overflow-hidden">
-                <div class="h-full rounded-full {{ $isLow ? 'bg-rose-500 dark:bg-rose-400' : 'bg-emerald-500 dark:bg-emerald-400' }}"
+              <div class="h-1.5 bg-neutral-100 dark:bg-neutral-800/60 rounded-full overflow-hidden">
+                <div class="h-full rounded-full transition-all
+                            {{ $isLow ? 'bg-rose-500 dark:bg-rose-400' : 'bg-emerald-500 dark:bg-emerald-400' }}"
                      style="width: {{ $ratio }}%"></div>
               </div>
             </div>
-            <div class="text-right w-20 shrink-0">
-              <div class="text-sm font-semibold tabular-nums whitespace-nowrap
-                          {{ $isLow ? 'text-rose-600 dark:text-rose-400' : 'text-neutral-900 dark:text-neutral-100' }}">
+            <div class="text-right w-16 shrink-0">
+              <div class="text-sm font-bold tabular-nums
+                          {{ $isLow ? 'text-rose-500 dark:text-rose-400' : 'text-neutral-800 dark:text-neutral-100' }}">
                 {{ (int)$p->stock }}
               </div>
               @if($hasMin)
-                <div class="text-[11px] text-neutral-500 dark:text-neutral-400">min {{ (int)$p->min_stock }}</div>
+                <div class="text-[10px] text-neutral-400 dark:text-neutral-500">mín {{ (int)$p->min_stock }}</div>
               @endif
             </div>
           </div>
         @empty
-          <div class="text-sm text-neutral-500 dark:text-neutral-400">Sin productos.</div>
+          <p class="text-sm text-neutral-400 dark:text-neutral-500">Sin productos.</p>
         @endforelse
       </div>
     @endif

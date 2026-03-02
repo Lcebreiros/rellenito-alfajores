@@ -6,97 +6,106 @@ use App\Models\User;
 use App\Services\Insights\InsightService;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Foundation\Queue\Queueable;
+use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\Log;
 
 /**
- * Job para generar insights de negocio de forma asíncrona
- *
- * Puede ejecutarse:
- * - Manualmente: dispatch(new GenerateBusinessInsights($user))
- * - Via cron: Schedule::job(new GenerateBusinessInsights($user))->daily()
+ * Job para generar insights de negocio de forma asíncrona.
+ * Deposita el resultado en cache para que Nexum::checkGeneration() lo consuma.
  */
 class GenerateBusinessInsights implements ShouldQueue
 {
     use Queueable;
 
-    /**
-     * The number of times the job may be attempted.
-     */
+    /** Reintentos solo para errores transitorios (network, timeout). */
     public int $tries = 3;
 
-    /**
-     * The number of seconds to wait before retrying the job.
-     */
-    public int $backoff = 10;
+    /** Segundos entre reintentos. */
+    public int $backoff = 15;
 
-    /**
-     * The maximum number of unhandled exceptions to allow before failing.
-     */
+    /** No reintentar si el job explota (RuntimeException ya cancela antes). */
     public int $maxExceptions = 3;
 
-    /**
-     * Create a new job instance.
-     */
     public function __construct(
         public User $user,
         public ?string $organizationId = null,
         public bool $clearExisting = false
-    ) {
-        //
-    }
+    ) {}
 
-    /**
-     * Execute the job.
-     */
     public function handle(InsightService $insightService): void
     {
+        $this->user->refresh();
+        $userId = $this->resolveCompanyUserId();
+
+        Log::info('Starting insight generation', [
+            'user_id'       => $userId,
+            'clear_existing'=> $this->clearExisting,
+        ]);
+
         try {
-            // Refrescar usuario para obtener datos actualizados
-            $this->user->refresh();
-
-            Log::info('Starting insight generation', [
-                'user_id' => $this->user->id,
-                'organization_id' => $this->organizationId,
-                'clear_existing' => $this->clearExisting,
-            ]);
-
-            // Generar insights
             $insights = $insightService->generateInsights(
                 $this->user,
                 $this->organizationId,
                 $this->clearExisting
             );
 
+            $count = $insights->count();
+            $msg   = $this->user->hasAiInsights()
+                ? "Nexum AI generó {$count} diagnósticos."
+                : "{$count} diagnósticos actualizados.";
+
+            Cache::put("nexum_result_{$userId}", ['success' => true, 'message' => $msg], 300);
+            Cache::forget("nexum_pending_{$userId}");
+
             Log::info('Insight generation completed', [
-                'user_id' => $this->user->id,
-                'insights_count' => $insights->count(),
+                'user_id'        => $userId,
+                'insights_count' => $count,
             ]);
+
+        } catch (\RuntimeException $e) {
+            // Error con mensaje para el usuario (sin API key, sin créditos, etc.)
+            // No tiene sentido reintentar — falla inmediatamente.
+            Log::warning('Insight generation: non-retryable error', [
+                'user_id' => $userId,
+                'error'   => $e->getMessage(),
+            ]);
+            Cache::put("nexum_result_{$userId}", ['success' => false, 'message' => $e->getMessage()], 300);
+            Cache::forget("nexum_pending_{$userId}");
+            $this->fail($e);
 
         } catch (\Exception $e) {
-            Log::error('Insight generation job failed', [
-                'user_id' => $this->user->id,
-                'organization_id' => $this->organizationId,
-                'error' => $e->getMessage(),
-                'trace' => $e->getTraceAsString(),
+            // Error transitorio — el job se reintentará automáticamente.
+            // Solo limpiar el estado en el último intento.
+            if ($this->attempts() >= $this->tries) {
+                Cache::put("nexum_result_{$userId}", [
+                    'success' => false,
+                    'message' => 'Error al generar diagnósticos. Intentá nuevamente más tarde.',
+                ], 300);
+                Cache::forget("nexum_pending_{$userId}");
+            }
+            Log::error('Insight generation job failed (attempt ' . $this->attempts() . ')', [
+                'user_id' => $userId,
+                'error'   => $e->getMessage(),
             ]);
-
-            // Re-lanzar excepción para que el job se marque como fallido
             throw $e;
         }
     }
 
-    /**
-     * Handle a job failure.
-     */
     public function failed(\Throwable $exception): void
     {
+        $userId = $this->resolveCompanyUserId();
+        // Asegurarse de limpiar el pending aunque fallen los catch internos
+        Cache::forget("nexum_pending_{$userId}");
         Log::error('Insight generation job permanently failed', [
-            'user_id' => $this->user->id,
-            'organization_id' => $this->organizationId,
-            'error' => $exception->getMessage(),
+            'user_id' => $userId,
+            'error'   => $exception->getMessage(),
         ]);
+    }
 
-        // Aquí podrías notificar al administrador o al usuario
-        // $this->user->notify(new InsightGenerationFailed($exception));
+    private function resolveCompanyUserId(): int
+    {
+        return $this->user->isCompany()
+            ? $this->user->id
+            : ($this->user->rootCompany()?->id ?? $this->user->id);
     }
 }

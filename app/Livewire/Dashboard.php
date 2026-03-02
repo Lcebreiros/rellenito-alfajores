@@ -2,146 +2,114 @@
 
 namespace App\Livewire;
 
-use Livewire\Attributes\On;
 use Livewire\Component;
 use Illuminate\Support\Facades\Auth;
-use Illuminate\Support\Facades\File;   // 👈 importa File
-use Illuminate\Support\Str;            // 👈 importa Str
-use App\Models\DashboardLayout;
+use Illuminate\Support\Facades\Cache;
+use Illuminate\Support\Facades\DB;
+use App\Models\BusinessInsight;
+use App\Models\Order;
+use App\Services\HealthReportService;
 
 class Dashboard extends Component
 {
-    /** @var array<int, array{id:string, key:string}> */
-    public array $layout = [];
-
-    /** @var array<string, array{component:string,label:string,size?:string}> */
-    public array $available = [];
-
-    public bool $editMode = false;
-
-    private function loadAvailable(): array
+    public function getCriticalAlertsProperty()
     {
-        $dir = app_path('Livewire/Dashboard');
-
-        if (!is_dir($dir)) return [];
-
-        $files = collect(File::files($dir))
-            ->filter(fn($f) => $f->getFilenameWithoutExtension() !== 'Dashboard') // evita el manager si está ahí
-            ->values();
-
-        // Si tienes subcarpeta Widgets, inclúyela:
-        if (is_dir($dir.'/Widgets')) {
-            $files = $files->merge(File::files($dir.'/Widgets'));
+        try {
+            $userId = Auth::id();
+            return Cache::remember("dash_alerts_{$userId}", 300, fn () =>
+                BusinessInsight::forUser($userId)
+                    ->active()
+                    ->ofPriority('critical')
+                    ->limit(3)
+                    ->get()
+            );
+        } catch (\Throwable) {
+            return collect();
         }
+    }
 
-        $out = [];
-        foreach ($files as $f) {
-            $class = $f->getFilenameWithoutExtension();
-            $fqcn  = str_contains($f->getPath(), 'Widgets')
-                ? "App\\Livewire\\Dashboard\\Widgets\\{$class}"
-                : "App\\Livewire\\Dashboard\\{$class}";
-
-            $key   = Str::kebab($class);
-            $label = Str::headline($class);
-
-            if (class_exists($fqcn)) {
-                $out[$key] = [
-                    'component' => $fqcn,
-                    'label'     => $label,
+    public function getHealthScoreProperty(): array
+    {
+        $userId = Auth::id();
+        return Cache::remember("dash_health_{$userId}", 900, function () {
+            try {
+                $report = (new HealthReportService(Auth::user()))->generate();
+                return [
+                    'score'  => $report['overall_score'],
+                    'status' => $report['status'],
+                    'color'  => $report['status_color'],
                 ];
+            } catch (\Throwable) {
+                return ['score' => null, 'status' => 'Sin datos', 'color' => '#6b7280'];
             }
-        }
-
-        return $out;
+        });
     }
 
-    public function mount(): void
+    public function getQuickStatsProperty(): array
     {
-        // 👇 usa autodescubrimiento (y si no encuentra nada, cae a config)
-        $this->available = $this->loadAvailable();
-        if (empty($this->available)) {
-            $this->available = config('dashboard.widgets', []);
-        }
+        $default = [
+            'revenue' => ['value' => 0, 'change' => null],
+            'costs'   => ['value' => 0, 'change' => null],
+            'profit'  => ['value' => 0, 'change' => null],
+        ];
 
-        $user  = Auth::user();
-        $saved = DashboardLayout::firstOrCreate(['user_id' => $user->id]);
-        // Persistimos en la columna correcta (layout_data)
-        $this->layout = (array) ($saved->layout_data ?? []);
+        try {
+            $userId = Auth::id();
+            return Cache::remember("dash_stats_{$userId}", 900, function () use ($default) {
+                try {
+                    $user = Auth::user();
+                    $now  = now();
+                    $from = $now->copy()->subDays(30)->startOfDay();
+                    $prev = $now->copy()->subDays(60)->startOfDay();
 
-        // Layout inicial por defecto con widgets clave
-        if (empty($this->layout) && !empty($this->available)) {
-            $wanted = ['recent-orders', 'stock-widget', 'revenue-widget', 'top-products'];
-            foreach ($wanted as $k) {
-                if (isset($this->available[$k])) {
-                    $this->layout[] = ['id' => uniqid('w_'), 'key' => $k];
+                    $orders = fn ($f, $t) => Order::availableFor($user)
+                        ->completed()
+                        ->whereNotNull('sold_at')
+                        ->where('sold_at', '>=', $f)
+                        ->where('sold_at', '<', $t);
+
+                    $rev30   = (float) $orders($from, $now)->sum('total');
+                    $revPrev = (float) $orders($prev, $from)->sum('total');
+
+                    $ids30   = $orders($from, $now)->pluck('id');
+                    $idsPrev = $orders($prev, $from)->pluck('id');
+
+                    $costQry = fn ($ids) => (float) DB::table('order_items as oi')
+                        ->join('products as p', 'p.id', '=', 'oi.product_id')
+                        ->whereIn('oi.order_id', $ids)
+                        ->selectRaw('COALESCE(SUM(oi.quantity * COALESCE(p.cost_price, 0)), 0) as c')
+                        ->value('c');
+
+                    $cost30   = $costQry($ids30);
+                    $costPrev = $costQry($idsPrev);
+
+                    $profit30   = $rev30   - $cost30;
+                    $profitPrev = $revPrev - $costPrev;
+
+                    $change = fn ($curr, $prev) => $prev > 0
+                        ? round(($curr - $prev) / $prev * 100, 1)
+                        : null;
+
+                    return [
+                        'revenue' => ['value' => $rev30,    'change' => $change($rev30,    $revPrev)],
+                        'costs'   => ['value' => $cost30,   'change' => $change($cost30,   $costPrev)],
+                        'profit'  => ['value' => $profit30, 'change' => $change($profit30, $profitPrev)],
+                    ];
+                } catch (\Throwable) {
+                    return $default;
                 }
-            }
-            // Si por algún motivo faltan, completa hasta 3 con los disponibles
-            if (count($this->layout) === 0) {
-                $keys = array_keys($this->available);
-                foreach (array_slice($keys, 0, 3) as $k) {
-                    $this->layout[] = ['id' => uniqid('w_'), 'key' => $k];
-                }
-            }
-            $this->persist();
+            });
+        } catch (\Throwable) {
+            return $default;
         }
-    }
-
-    public function toggleEdit(): void
-    {
-        $this->editMode = ! $this->editMode;
-        $this->dispatch('dashboard:editModeChanged', editMode: $this->editMode);
-    }
-
-    #[On('dashboard:toggleEdit')]
-    public function onToggleEdit(bool $editMode): void
-    {
-        $this->editMode = $editMode;
-    }
-
-    #[On('dashboard:addWidget')]
-    public function onAddWidget(string $key): void
-    {
-        if (! isset($this->available[$key])) return;
-        $this->layout[] = ['id' => uniqid('w_'), 'key' => $key];
-        $this->persist();
-    }
-
-    public function addWidget(string $key): void
-    {
-        if (! isset($this->available[$key])) return;
-        $this->layout[] = ['id' => uniqid('w_'), 'key' => $key];
-        $this->persist();
-    }
-
-    public function removeWidget(string $id): void
-    {
-        $this->layout = array_values(array_filter($this->layout, fn($w) => $w['id'] !== $id));
-        $this->persist();
-    }
-
-    #[On('dashboard-reorder')]
-    public function reorder(array $orderedIds): void
-    {
-        $map = collect($this->layout)->keyBy('id');
-        $this->layout = collect($orderedIds)
-            ->map(fn($id) => $map->get($id))
-            ->filter()
-            ->values()
-            ->all();
-        $this->persist();
-    }
-
-    protected function persist(): void
-    {
-        DashboardLayout::updateOrCreate(
-            ['user_id' => Auth::id()],
-            ['layout_data'  => $this->layout]
-        );
     }
 
     public function render()
     {
-        return view('livewire.dashboard');
+        return view('livewire.dashboard', [
+            'quickStats'     => $this->quickStats,
+            'healthScore'    => $this->healthScore,
+            'criticalAlerts' => $this->criticalAlerts,
+        ]);
     }
 }
