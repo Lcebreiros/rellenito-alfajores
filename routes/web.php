@@ -83,31 +83,6 @@ Route::get('/branding/default-receipt', function () {
 Route::redirect('/', '/login');
 
 //
-// RUTAS PÚBLICAS DE REGISTRO CON PLANES
-//
-use App\Http\Controllers\Auth\PlanRegisterController;
-
-Route::get('/plans', function () {
-    return view('plans');
-})->name('plans');
-
-Route::get('/register/{plan}', [PlanRegisterController::class, 'show'])
-    ->name('register.with-plan')
-    ->where('plan', 'basic|premium|enterprise');
-
-Route::post('/register/store', [PlanRegisterController::class, 'store'])
-    ->name('register.store');
-
-Route::get('/register/success', [PlanRegisterController::class, 'success'])
-    ->name('register.success');
-
-Route::get('/register-wizard', [PlanRegisterController::class, 'showWizard'])
-    ->name('register.wizard');
-
-Route::post('/register-wizard/store', [PlanRegisterController::class, 'storeWizard'])
-    ->name('register.wizard.store');
-
-//
 // ÁREA PRIVADA (Jetstream / Sanctum / verified)
 //
 Route::middleware([
@@ -471,7 +446,7 @@ Route::middleware([
             'message' => 'Notificación enviada. Revisa la consola del navegador para ver el evento.'
         ]);
     })->name('test.notification');
-});
+}); // end requires.subscription group
 
 // ------------------------ MASTER: Invitations (UI) ------------------------
 Route::prefix('master/invitations')

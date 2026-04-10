@@ -32,7 +32,7 @@ class RequiresSubscription
         $level = $user->effectiveSubscriptionLevel();
 
         if (!$level || !in_array($level, $validPlans)) {
-            return redirect()->route('plans')
+            return redirect()->route('login')
                 ->with('error', 'Necesitas un plan de suscripción activo para acceder al panel. Por favor, solicita acceso a un plan.');
         }
 
