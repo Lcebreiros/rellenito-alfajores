@@ -12,6 +12,14 @@ enum OrderStatus: string
 
     public function label(): string
     {
+        return __('enums.order_status.' . $this->value);
+    }
+
+    /**
+     * @deprecated Usar label() — mantenido por compatibilidad hasta migrar todas las vistas.
+     */
+    public function labelEs(): string
+    {
         return match($this) {
             self::DRAFT => 'Borrador',
             self::PENDING => 'Pendiente',

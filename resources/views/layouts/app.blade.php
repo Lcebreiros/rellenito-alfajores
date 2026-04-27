@@ -263,14 +263,14 @@
             </div>
             <div class="ml-3 flex-1">
                 <p class="text-sm text-yellow-800 dark:text-yellow-200">
-                    <span class="font-medium">Tu correo electrónico no está verificado.</span>
-                    Por favor verifica tu email para asegurar tu cuenta.
+                    <span class="font-medium">{{ __('auth.email_not_verified') }}</span>
+                    {{ __('auth.email_verify_message') }}
                 </p>
             </div>
             <div class="ml-3 flex-shrink-0">
                 <a href="https://gestior.com.ar/email/verify"
                    class="inline-flex items-center px-3 py-2 border border-transparent text-sm leading-4 font-medium rounded-md text-yellow-800 bg-yellow-100 hover:bg-yellow-200 dark:bg-yellow-800 dark:text-yellow-100 dark:hover:bg-yellow-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-yellow-500 transition-colors">
-                    Verificar ahora
+                    {{ __('auth.verify_now') }}
                 </a>
             </div>
         </div>
@@ -317,8 +317,8 @@
                       <svg class="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true">
                         <path stroke-linecap="round" stroke-linejoin="round" d="M15 12H3m12 0-4-4m4 4-4 4M21 3v18" />
                       </svg>
-                      <span class="hidden lg:inline">Cerrar sesión</span>
-                      <span class="lg:hidden">Salir</span>
+                      <span class="hidden lg:inline">{{ __('auth.logout') }}</span>
+                      <span class="lg:hidden">{{ __('auth.logout_short') }}</span>
                     </button>
                     <!-- Modal de confirmación logout -->
                     <div x-cloak x-show="open" class="fixed inset-0 z-50 flex items-center justify-center p-4">
@@ -371,13 +371,13 @@
                       <div x-cloak x-show="open" class="fixed inset-0 z-50 flex items-center justify-center p-4">
                         <div class="absolute inset-0 bg-black/50 backdrop-blur-sm" @click="open=false"></div>
                         <div class="relative w-full max-w-md rounded-2xl border border-neutral-200 dark:border-neutral-700 bg-white dark:bg-neutral-900 shadow-2xl p-6">
-                          <h3 class="text-lg font-semibold text-neutral-900 dark:text-neutral-100 mb-2">Confirmar salida</h3>
-                          <p class="text-sm text-neutral-600 dark:text-neutral-400 mb-5">¿Está seguro que desea cerrar sesión?</p>
+                          <h3 class="text-lg font-semibold text-neutral-900 dark:text-neutral-100 mb-2">{{ __('auth.confirm_logout') }}</h3>
+                          <p class="text-sm text-neutral-600 dark:text-neutral-400 mb-5">{{ __('auth.confirm_logout_message') }}</p>
                           <div class="flex items-center justify-end gap-2">
-                            <button type="button" @click="open=false" class="px-4 py-2 rounded-lg border border-neutral-300 dark:border-neutral-700 text-sm font-medium text-neutral-700 dark:text-neutral-200 hover:bg-neutral-50 dark:hover:bg-neutral-800 transition-colors">Cancelar</button>
+                            <button type="button" @click="open=false" class="px-4 py-2 rounded-lg border border-neutral-300 dark:border-neutral-700 text-sm font-medium text-neutral-700 dark:text-neutral-200 hover:bg-neutral-50 dark:hover:bg-neutral-800 transition-colors">{{ __('ui.cancel') }}</button>
                             <form method="POST" action="{{ route('logout') }}" class="inline">
                               @csrf
-                              <button type="submit" class="px-4 py-2 rounded-lg bg-rose-600 text-white text-sm font-medium hover:bg-rose-700 transition-colors shadow-sm">Cerrar sesión</button>
+                              <button type="submit" class="px-4 py-2 rounded-lg bg-rose-600 text-white text-sm font-medium hover:bg-rose-700 transition-colors shadow-sm">{{ __('auth.logout') }}</button>
                             </form>
                           </div>
                         </div>
@@ -425,7 +425,7 @@
             preventDefault();
 
             // Mostrar mensaje amigable
-            if (confirm('Su sesión ha expirado. ¿Desea recargar la página para iniciar sesión nuevamente?')) {
+            if (confirm('{{ __('auth.session_expired') }}')) {
               window.location.href = '{{ route('login') }}';
             }
           }
@@ -438,7 +438,7 @@
       if (event.reason?.status === 419 || event.reason?.response?.status === 419) {
         event.preventDefault();
 
-        if (confirm('Su sesión ha expirado. ¿Desea iniciar sesión nuevamente?')) {
+        if (confirm('{{ __('auth.session_expired_short') }}')) {
           window.location.href = '{{ route('login') }}';
         }
       }

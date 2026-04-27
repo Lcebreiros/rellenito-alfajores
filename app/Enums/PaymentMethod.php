@@ -12,6 +12,14 @@ enum PaymentMethod: string
 
     public function label(): string
     {
+        return __('enums.payment_method.' . $this->value);
+    }
+
+    /**
+     * @deprecated Usar label() — mantenido por compatibilidad hasta migrar todas las vistas.
+     */
+    public function labelEs(): string
+    {
         return match($this) {
             self::CASH => 'Efectivo',
             self::CARD => 'Tarjeta',

@@ -1,10 +1,10 @@
 <!DOCTYPE html>
-<html lang="es" class="h-full">
+<html lang="{{ str_replace('_', '-', app()->getLocale()) }}" class="h-full">
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
   <meta name="csrf-token" content="{{ csrf_token() }}">
-  <title>Iniciar sesión • Gestior</title>
+  <title>{{ __('auth.login_title') }} • Gestior</title>
 
   {{-- Fuentes --}}
   <link rel="preconnect" href="https://fonts.bunny.net">
@@ -99,9 +99,9 @@
         <section class="brand-pane p-8 md:p-12 flex items-center">
           <div class="relative z-10 w-full text-center md:text-left">
             <img src="{{ asset('images/Gestior.png') }}" alt="Gestior" class="h-28 md:h-32 w-auto select-none" />
-            <h1 class="mt-6 text-4xl md:text-5xl font-extrabold tracking-tight">¡Hola, bienvenido!</h1>
+            <h1 class="mt-6 text-4xl md:text-5xl font-extrabold tracking-tight">{{ __('auth.welcome') }}</h1>
             <p class="mt-3 text-slate-300/95 text-sm md:text-base">
-              Toda la gestión que necesitas, en un solo lugar
+              {{ __('auth.tagline') }}
             </p>
           </div>
         </section>
@@ -110,8 +110,8 @@
         <section class="bg-white text-slate-900 p-8 md:p-12 split-stroke">
           <div class="max-w-md mx-auto">
             <header class="mb-6">
-              <h2 class="text-2xl font-semibold tracking-tight">Acceder</h2>
-              <p class="text-sm text-slate-500 mt-1">Usá tu correo y contraseña</p>
+              <h2 class="text-2xl font-semibold tracking-tight">{{ __('auth.login_title') }}</h2>
+              <p class="text-sm text-slate-500 mt-1">{{ __('auth.login_subtitle') }}</p>
             </header>
 
 {{-- Errores --}}
@@ -138,7 +138,7 @@
     <svg class="w-4 h-4 mt-0.5 flex-shrink-0 text-orange-500" viewBox="0 0 20 20" fill="currentColor">
       <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm1-12a1 1 0 10-2 0v4a1 1 0 00.293.707l2.828 2.829a1 1 0 101.415-1.415L11 9.586V6z" clip-rule="evenodd"/>
     </svg>
-    <span>Demasiados intentos fallidos. Esperá unos segundos antes de intentar de nuevo.</span>
+    <span>{{ __('auth.too_many_attempts') }}</span>
   </div>
 @endif
 
@@ -148,7 +148,7 @@
     <svg class="w-4 h-4 mt-0.5 flex-shrink-0 text-red-500" viewBox="0 0 20 20" fill="currentColor">
       <path fill-rule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7 4a1 1 0 11-2 0 1 1 0 012 0zm-1-9a1 1 0 00-1 1v4a1 1 0 102 0V6a1 1 0 00-1-1z" clip-rule="evenodd"/>
     </svg>
-    <span>El email o la contraseña son incorrectos. Verificá tus datos e intentá de nuevo.</span>
+    <span>{{ __('auth.wrong_credentials') }}</span>
   </div>
 @endif
 
@@ -179,10 +179,9 @@
 
               {{-- Email --}}
               <div>
-                <label for="email" class="block text-sm font-medium text-slate-700 mb-1.5">Correo electrónico</label>
+                <label for="email" class="block text-sm font-medium text-slate-700 mb-1.5">{{ __('auth.email') }}</label>
                 <div class="relative">
                   <span class="pointer-events-none absolute inset-y-0 left-0 flex items-center pl-3 text-slate-400">
-                    {{-- Mail (SVG correcto) --}}
                     <svg class="w-5 h-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" aria-hidden="true">
                       <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5"
                             d="M3 7a2 2 0 012-2h14a2 2 0 012 2v.217a2 2 0 01-.894 1.664l-7 4.667a2 2 0 01-2.212 0l-7-4.667A2 2 0 013 7.217V7z"/>
@@ -192,23 +191,22 @@
                   </span>
                   <input id="email" name="email" type="email" value="{{ old('email') }}" required autofocus
                          class="txt focus-ring w-full pl-10 pr-3 py-2.5 border rounded-md bg-white placeholder-slate-400 {{ $isCredFailed ? 'border-red-400 bg-red-50' : 'border-slate-200' }}"
-                         placeholder="nombre@empresa.com">
+                         placeholder="{{ __('auth.email_placeholder') }}">
                 </div>
               </div>
 
               {{-- Password --}}
               <div x-data="{show:false}">
                 <div class="flex items-center justify-between mb-1.5">
-                  <label for="password" class="block text-sm font-medium text-slate-700">Contraseña</label>
+                  <label for="password" class="block text-sm font-medium text-slate-700">{{ __('auth.password') }}</label>
                   @if (Route::has('password.request'))
                     <a href="{{ route('password.request') }}" class="text-sm font-medium text-violet-700 hover:underline">
-                      ¿Olvidó su contraseña?
+                      {{ __('auth.forgot_password') }}
                     </a>
                   @endif
                 </div>
                 <div class="relative">
                   <span class="pointer-events-none absolute inset-y-0 left-0 flex items-center pl-3 text-slate-400">
-                    {{-- Lock (SVG correcto) --}}
                     <svg class="w-5 h-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" aria-hidden="true">
                       <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5"
                             d="M16 11V7a4 4 0 10-8 0v4m-2 0h12a2 2 0 012 2v6a2 2 0 01-2 2H6a2 2 0 01-2-2v-6a2 2 0 012-2z"/>
@@ -217,10 +215,9 @@
                   <input id="password" name="password" :type="show ? 'text' : 'password'" required
                          class="txt focus-ring w-full pl-10 pr-10 py-2.5 border rounded-md bg-white placeholder-slate-400 {{ $isCredFailed ? 'border-red-400 bg-red-50' : 'border-slate-200' }}"
                          placeholder="••••••••" autocomplete="current-password">
-                  {{-- Toggle mostrar/ocultar (SVG correctos + x-cloak) --}}
                   <button type="button" @click="show=!show"
                           class="absolute inset-y-0 right-0 pr-3 flex items-center"
-                          aria-label="Mostrar u ocultar contraseña">
+                          :aria-label="'{{ __('auth.show_hide_password') }}'">
                     <svg x-show="!show" class="h-5 w-5 text-slate-400" viewBox="0 0 24 24" fill="none" stroke="currentColor" aria-hidden="true">
                       <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5"
                             d="M2.458 12C3.732 7.943 7.523 5 12 5c4.477 0 8.268 2.943 9.542 7-1.274 4.057-5.065 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"/>
@@ -238,22 +235,22 @@
               <div class="flex items-center">
                 <input id="remember" name="remember" type="checkbox"
                        class="h-4 w-4 text-violet-700 border-slate-300 rounded focus:ring-violet-600">
-                <label for="remember" class="ml-2 block text-sm text-slate-700">Recordar sesión</label>
+                <label for="remember" class="ml-2 block text-sm text-slate-700">{{ __('auth.remember_me') }}</label>
               </div>
 
               {{-- Acción --}}
               <button type="submit"
                       class="btn w-full py-2.5 px-4 rounded-md text-white bg-slate-900 hover:bg-black focus:ring-2 focus:ring-violet-700 focus:ring-offset-2">
-                Iniciar sesión
+                {{ __('auth.login_button') }}
               </button>
             </form>
 
             {{-- Registro --}}
             <div class="mt-6 pt-6 border-t border-slate-200 text-center text-sm text-slate-500">
-              ¿No tiene una cuenta?
+              {{ __('auth.no_account') }}
               @if (Route::has('plans'))
                 <a href="{{ route('plans') }}" class="font-medium text-violet-700 hover:underline">
-                  Ver planes y registrarse
+                  {{ __('auth.view_plans') }}
                 </a>
               @endif
             </div>

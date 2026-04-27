@@ -26,6 +26,7 @@ use App\Http\Controllers\PaymentMethodController;
 use App\Http\Controllers\ExpenseController;
 use App\Http\Controllers\GoogleCalendarController;
 use App\Http\Controllers\InvoiceController;
+use App\Http\Controllers\LocaleController;
 
 // Company Controllers
 use App\Http\Controllers\Company\BranchController;
@@ -76,6 +77,13 @@ Route::get('/branding/default-receipt', function () {
         'Cache-Control' => 'public, max-age=604800',
     ]);
 })->name('branding.default-receipt');
+
+//
+// Idioma — accesible sin autenticación (también funciona en login/register)
+//
+Route::post('locale/{locale}', [LocaleController::class, 'switch'])
+    ->name('locale.switch')
+    ->where('locale', 'es|en|pt');
 
 //
 // Raíz => login (Jetstream)

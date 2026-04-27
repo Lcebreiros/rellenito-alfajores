@@ -4,6 +4,7 @@ use Illuminate\Foundation\Application;
 use Illuminate\Foundation\Configuration\Exceptions;
 use Illuminate\Foundation\Configuration\Middleware;
 use App\Http\Middleware\SetUserTimezone;
+use App\Http\Middleware\SetLocale;
 use App\Http\Middleware\RequiresSubscription;
 use App\Http\Middleware\ResolveIntegrator;
 use App\Http\Middleware\RequireInternalIntegrator;
@@ -33,11 +34,13 @@ return Application::configure(basePath: dirname(__DIR__))
     ->withMiddleware(function (Middleware $middleware): void {
         // Aplica el middleware en todas las requests
         $middleware->web(append: [
+            SetLocale::class,
             SetUserTimezone::class,
         ]);
 
         // Registrar middleware con alias
         $middleware->alias([
+            'locale'                => SetLocale::class,
             'requires.subscription' => RequiresSubscription::class,
             'integrator' => ResolveIntegrator::class,
             'internal.only' => RequireInternalIntegrator::class,
@@ -54,7 +57,7 @@ return Application::configure(basePath: dirname(__DIR__))
                 // Si es una petición AJAX o Livewire, devolver JSON
                 if ($request->expectsJson() || $request->header('X-Livewire')) {
                     return response()->json([
-                        'message' => 'Su sesión ha expirado. Por favor, recargue la página e inicie sesión nuevamente.',
+                        'message' => __('auth.session_expired_json'),
                         'redirect' => route('login')
                     ], 419);
                 }

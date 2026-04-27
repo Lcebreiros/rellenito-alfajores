@@ -52,11 +52,17 @@
 
         <div class="grid grid-cols-1 sm:grid-cols-2 gap-6">
           <div>
-            <label class="block text-sm font-medium text-neutral-700 dark:text-neutral-200 mb-1">Precio base (ARS)</label>
-            <input name="price" type="number" min="0" step="0.01" value="{{ old('price', (string)$service->price) }}" required
-                   class="w-full rounded-lg border-neutral-300 bg-white px-4 py-2.5 text-right
-                          text-neutral-900 placeholder:text-neutral-400 focus:border-indigo-500 focus:ring-indigo-500
-                          dark:border-neutral-700 dark:bg-neutral-900/50 dark:text-neutral-100 dark:placeholder:text-neutral-500" />
+            <label class="block text-sm font-medium text-neutral-700 dark:text-neutral-200 mb-1">Precio base</label>
+            <div class="flex">
+              <span class="inline-flex items-center px-3 rounded-l-lg border border-r-0 border-neutral-300 bg-neutral-50 text-neutral-600 text-sm
+                           dark:border-neutral-700 dark:bg-neutral-800 dark:text-neutral-300">
+                {{ currency_symbol() }}
+              </span>
+              <input name="price" type="number" min="0" step="0.01" value="{{ old('price', (string)$service->price) }}" required
+                     class="flex-1 rounded-none rounded-r-lg border-neutral-300 bg-white px-4 py-2.5 text-right
+                            text-neutral-900 placeholder:text-neutral-400 focus:border-indigo-500 focus:ring-indigo-500
+                            dark:border-neutral-700 dark:bg-neutral-900/50 dark:text-neutral-100 dark:placeholder:text-neutral-500" />
+            </div>
             <p class="text-xs text-neutral-500 dark:text-neutral-400 mt-1">Usado si no se selecciona variante.</p>
             @error('price') <p class="text-rose-600 text-sm mt-1">{{ $message }}</p> @enderror
           </div>

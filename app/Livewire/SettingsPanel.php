@@ -8,6 +8,7 @@ use Livewire\WithFileUploads;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Storage;
 use App\Models\Setting;
+use App\Services\CurrencyService;
 use Illuminate\Validation\Rule;
 
 class SettingsPanel extends Component
@@ -36,6 +37,9 @@ class SettingsPanel extends Component
     public string $rentalOpenTime = '08:00';
     public string $rentalCloseTime = '22:00';
 
+    // Moneda
+    public string $currency = 'ARS';
+
     public function mount()
     {
         $this->theme      = Setting::get('theme', 'light');
@@ -54,6 +58,9 @@ class SettingsPanel extends Component
         // Cargar horario operativo de alquileres
         $this->rentalOpenTime = $user?->rental_open_time ?? '08:00';
         $this->rentalCloseTime = $user?->rental_close_time ?? '22:00';
+
+        // Cargar moneda
+        $this->currency = CurrencyService::current();
 
         // Cargar color personalizado
         $this->custom_color = Setting::get('custom_color', '#6366f1');
@@ -268,8 +275,23 @@ class SettingsPanel extends Component
         $this->dispatch('stock-notifications-updated');
     }
 
+    // === CURRENCY ===
+    public function saveCurrency(): void
+    {
+        $this->validate([
+            'currency' => ['required', 'string', \Illuminate\Validation\Rule::in(CurrencyService::codes())],
+        ]);
+
+        Setting::set('currency', $this->currency);
+
+        session()->flash('ok', 'Moneda guardada.');
+        $this->dispatch('currency-updated', currency: $this->currency);
+    }
+
     public function render()
     {
-        return view('livewire.settings-panel');
+        return view('livewire.settings-panel', [
+            'availableCurrencies' => CurrencyService::CURRENCIES,
+        ]);
     }
 }

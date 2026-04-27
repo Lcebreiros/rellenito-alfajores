@@ -121,13 +121,19 @@
       <div class="grid grid-cols-1 sm:grid-cols-2 gap-5">
         <div>
           <label for="price" class="block text-sm font-medium text-neutral-700 dark:text-neutral-200 mb-1">
-            Precio (ARS) <span class="text-rose-600">*</span>
+            Precio <span class="text-rose-600">*</span>
           </label>
-          <input id="price" type="number" name="price" value="{{ old('price') }}" min="0" step="0.01" required
-                 class="w-full rounded-lg border-neutral-300 bg-white px-4 py-2.5 text-right
-                        text-neutral-900 placeholder:text-neutral-400 focus:border-indigo-500 focus:ring-indigo-500
-                        dark:border-neutral-700 dark:bg-neutral-900/50 dark:text-neutral-100 dark:placeholder:text-neutral-500"
-                 placeholder="0,00">
+          <div class="flex">
+            <span class="inline-flex items-center px-3 rounded-l-lg border border-r-0 border-neutral-300 bg-neutral-50 text-neutral-600 text-sm
+                         dark:border-neutral-700 dark:bg-neutral-800 dark:text-neutral-300">
+              {{ currency_symbol() }}
+            </span>
+            <input id="price" type="number" name="price" value="{{ old('price') }}" min="0" step="0.01" required
+                   class="flex-1 rounded-none rounded-r-lg border-neutral-300 bg-white px-4 py-2.5 text-right
+                          text-neutral-900 placeholder:text-neutral-400 focus:border-indigo-500 focus:ring-indigo-500
+                          dark:border-neutral-700 dark:bg-neutral-900/50 dark:text-neutral-100 dark:placeholder:text-neutral-500"
+                   placeholder="0,00">
+          </div>
           @error('price')
             <p class="mt-1 text-sm text-rose-600 dark:text-rose-400">{{ $message }}</p>
           @enderror

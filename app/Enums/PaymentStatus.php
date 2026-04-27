@@ -11,6 +11,14 @@ enum PaymentStatus: string
 
     public function label(): string
     {
+        return __('enums.payment_status.' . $this->value);
+    }
+
+    /**
+     * @deprecated Usar label() — mantenido por compatibilidad hasta migrar todas las vistas.
+     */
+    public function labelEs(): string
+    {
         return match($this) {
             self::PENDING => 'Pendiente',
             self::PAID => 'Pagado',

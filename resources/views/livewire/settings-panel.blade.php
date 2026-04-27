@@ -282,6 +282,173 @@
     </div>
   </div>
 
+  {{-- CARD: Idioma de la interfaz --}}
+  @php
+    $currentLocale = app()->getLocale();
+    $locales = [
+        'es' => ['flag' => '🇦🇷', 'name' => 'Español',   'region' => 'Latinoamérica'],
+        'en' => ['flag' => '🇺🇸', 'name' => 'English',   'region' => 'United States'],
+        'pt' => ['flag' => '🇧🇷', 'name' => 'Português', 'region' => 'Brasil'],
+    ];
+  @endphp
+  <div class="rounded-2xl border border-neutral-200 bg-white p-6 shadow
+              dark:border-neutral-800 dark:bg-neutral-900">
+
+    {{-- Header --}}
+    <div class="flex items-center gap-3 mb-2">
+      <div class="flex items-center justify-center w-10 h-10 rounded-xl bg-violet-100 dark:bg-violet-900/30">
+        <svg class="w-5 h-5 text-violet-600 dark:text-violet-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                d="M3 5h12M9 3v2m1.048 9.5A18.022 18.022 0 016.412 9m6.088 9h7M11 21l5-10 5 10M12.751 5C11.783 10.77 8.07 15.61 3 18.129"/>
+        </svg>
+      </div>
+      <div>
+        <h2 class="text-lg font-semibold text-neutral-900 dark:text-neutral-100">{{ __('ui.language') }}</h2>
+        <p class="text-xs text-neutral-500 dark:text-neutral-400">
+          @if($currentLocale === 'es') Elegí el idioma de la interfaz
+          @elseif($currentLocale === 'en') Choose your interface language
+          @else Escolha o idioma da interface
+          @endif
+        </p>
+      </div>
+    </div>
+
+    {{-- Grid de idiomas --}}
+    <div class="grid grid-cols-1 sm:grid-cols-3 gap-3 mt-5">
+      @foreach ($locales as $code => $info)
+        <form method="POST" action="{{ route('locale.switch', $code) }}">
+          @csrf
+          <button
+            type="submit"
+            class="relative w-full flex items-center gap-4 rounded-xl px-4 py-4 border-2 text-left
+                   transition-all duration-200 hover:shadow-md focus:outline-none focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:ring-violet-500
+                   {{ $currentLocale === $code
+                       ? 'border-violet-600 bg-violet-50 dark:bg-violet-900/20 shadow-sm'
+                       : 'border-neutral-200 dark:border-neutral-700 bg-white dark:bg-neutral-900 hover:border-neutral-300 dark:hover:border-neutral-600' }}"
+          >
+            {{-- Flag --}}
+            <span class="text-3xl leading-none flex-shrink-0">{{ $info['flag'] }}</span>
+
+            {{-- Labels --}}
+            <div class="min-w-0">
+              <span class="block font-semibold text-sm text-neutral-900 dark:text-neutral-100">
+                {{ $info['name'] }}
+              </span>
+              <span class="block text-xs text-neutral-500 dark:text-neutral-400 truncate">
+                {{ $info['region'] }}
+              </span>
+            </div>
+
+            {{-- Check activo --}}
+            @if ($currentLocale === $code)
+              <span class="absolute top-3 right-3 w-5 h-5 rounded-full bg-violet-600 flex items-center justify-center flex-shrink-0">
+                <svg class="w-3 h-3 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M5 13l4 4L19 7"/>
+                </svg>
+              </span>
+            @endif
+          </button>
+        </form>
+      @endforeach
+    </div>
+
+    <p class="mt-4 text-xs text-neutral-500 dark:text-neutral-400">
+      @if($currentLocale === 'es') El cambio se aplica de inmediato y se recuerda en tu dispositivo.
+      @elseif($currentLocale === 'en') The change takes effect immediately and is remembered on your device.
+      @else A mudança é aplicada imediatamente e lembrada no seu dispositivo.
+      @endif
+    </p>
+  </div>
+
+  {{-- CARD: Moneda --}}
+  <div class="rounded-2xl border border-neutral-200 bg-white p-6 shadow
+              dark:border-neutral-800 dark:bg-neutral-900">
+
+    {{-- Header --}}
+    <div class="flex items-center gap-3 mb-2">
+      <div class="flex items-center justify-center w-10 h-10 rounded-xl bg-emerald-100 dark:bg-emerald-900/30">
+        <svg class="w-5 h-5 text-emerald-600 dark:text-emerald-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/>
+        </svg>
+      </div>
+      <div>
+        <h2 class="text-lg font-semibold text-neutral-900 dark:text-neutral-100">Moneda</h2>
+        <p class="text-xs text-neutral-500 dark:text-neutral-400">Elegí la moneda que se usará en precios y montos</p>
+      </div>
+    </div>
+
+    {{-- Grid de monedas --}}
+    <div class="grid grid-cols-1 sm:grid-cols-3 xl:grid-cols-5 gap-3 mt-5">
+      @foreach ($availableCurrencies as $code => $info)
+        <button
+          type="button"
+          wire:click="$set('currency', '{{ $code }}')"
+          class="relative flex flex-col items-center gap-2 rounded-xl px-3 py-4 border-2 text-center
+                 transition-all duration-200 hover:shadow-md focus:outline-none focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:ring-emerald-500
+                 {{ $currency === $code
+                     ? 'border-emerald-600 bg-emerald-50 dark:bg-emerald-900/20 shadow-sm'
+                     : 'border-neutral-200 dark:border-neutral-700 bg-white dark:bg-neutral-900 hover:border-neutral-300 dark:hover:border-neutral-600' }}"
+        >
+          {{-- Bandera --}}
+          <span class="text-3xl leading-none">{{ $info['flag'] }}</span>
+
+          {{-- Símbolo --}}
+          <span class="font-bold text-base text-neutral-800 dark:text-neutral-100 tracking-tight">
+            {{ $info['symbol'] }}
+          </span>
+
+          {{-- Nombre --}}
+          <span class="text-xs text-neutral-500 dark:text-neutral-400 leading-tight">
+            {{ $info['name'] }}
+          </span>
+
+          {{-- Check activo --}}
+          @if ($currency === $code)
+            <span class="absolute top-2 right-2 w-4 h-4 rounded-full bg-emerald-600 flex items-center justify-center">
+              <svg class="w-2.5 h-2.5 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="3.5" d="M5 13l4 4L19 7"/>
+              </svg>
+            </span>
+          @endif
+        </button>
+      @endforeach
+    </div>
+
+    {{-- Botón guardar + preview --}}
+    <div class="flex items-center justify-between mt-5 pt-4 border-t border-neutral-200 dark:border-neutral-700">
+      <p class="text-sm text-neutral-600 dark:text-neutral-400">
+        Vista previa:
+        <span class="font-semibold text-neutral-900 dark:text-neutral-100 font-mono ml-1">
+          @php
+            $prev = \App\Services\CurrencyService::CURRENCIES[$currency] ?? \App\Services\CurrencyService::CURRENCIES['ARS'];
+            echo $prev['symbol'] . ' 1' . $prev['thousands'] . '234' . $prev['decimal'] . '56';
+          @endphp
+        </span>
+      </p>
+
+      <button wire:click="saveCurrency"
+              wire:loading.attr="disabled"
+              wire:loading.class="opacity-50 cursor-not-allowed"
+              class="px-5 py-2.5 rounded-xl bg-emerald-600 hover:bg-emerald-700
+                     text-white font-medium text-sm transition-all duration-200 shadow-sm hover:shadow-md
+                     focus:ring-2 focus:ring-emerald-500/20 disabled:opacity-60 disabled:cursor-not-allowed
+                     dark:bg-emerald-500 dark:hover:bg-emerald-600">
+        <span wire:loading.remove wire:target="saveCurrency">Guardar moneda</span>
+        <span wire:loading wire:target="saveCurrency" class="flex items-center gap-2">
+          <svg class="w-4 h-4 animate-spin" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"/>
+          </svg>
+          Guardando...
+        </span>
+      </button>
+    </div>
+
+    @error('currency')
+      <p class="mt-2 text-sm text-rose-600 dark:text-rose-400">{{ $message }}</p>
+    @enderror
+  </div>
+
   {{-- CARD: Módulos personalizables --}}
   @livewire('modulos-config')
 
