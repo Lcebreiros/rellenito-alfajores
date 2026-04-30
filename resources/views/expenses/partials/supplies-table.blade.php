@@ -4,11 +4,11 @@
       <table class="w-full">
         <thead class="bg-neutral-50 dark:bg-neutral-900/50">
           <tr>
-            <th class="px-6 py-3 text-left text-xs font-medium text-neutral-500 dark:text-neutral-400 uppercase">Insumo</th>
-            <th class="px-6 py-3 text-left text-xs font-medium text-neutral-500 dark:text-neutral-400 uppercase">Unidad Base</th>
-            <th class="px-6 py-3 text-left text-xs font-medium text-neutral-500 dark:text-neutral-400 uppercase">Stock</th>
-            <th class="px-6 py-3 text-left text-xs font-medium text-neutral-500 dark:text-neutral-400 uppercase">Costo Promedio</th>
-            <th class="px-6 py-3 text-left text-xs font-medium text-neutral-500 dark:text-neutral-400 uppercase">Valor Total</th>
+            <th class="px-6 py-3 text-left text-xs font-medium text-neutral-500 dark:text-neutral-400 uppercase">{{ __('expenses.supply_name') }}</th>
+            <th class="px-6 py-3 text-left text-xs font-medium text-neutral-500 dark:text-neutral-400 uppercase">{{ __('expenses.col_base_unit') }}</th>
+            <th class="px-6 py-3 text-left text-xs font-medium text-neutral-500 dark:text-neutral-400 uppercase">{{ __('expenses.col_stock') }}</th>
+            <th class="px-6 py-3 text-left text-xs font-medium text-neutral-500 dark:text-neutral-400 uppercase">{{ __('expenses.col_avg_cost') }}</th>
+            <th class="px-6 py-3 text-left text-xs font-medium text-neutral-500 dark:text-neutral-400 uppercase">{{ __('expenses.col_total_value') }}</th>
           </tr>
         </thead>
         <tbody class="divide-y divide-neutral-200 dark:divide-neutral-700">
@@ -42,8 +42,8 @@
     @if($supplies->count() > 10)
       <div class="px-6 py-3 bg-neutral-50 dark:bg-neutral-900/50 border-t border-neutral-200 dark:border-neutral-700">
         <p class="text-sm text-neutral-600 dark:text-neutral-400 text-center">
-          Mostrando 10 de {{ $supplies->count() }} insumos.
-          <a href="{{ route('expenses.supplies') }}" class="text-amber-600 dark:text-amber-400 hover:underline">Ver todos</a>
+          {{ __('expenses.showing_of_pre') }} 10 {{ __('expenses.showing_of_mid') }} {{ $supplies->count() }} {{ __('expenses.supplies_count_label') }}.
+          <a href="{{ route('expenses.supplies') }}" class="text-amber-600 dark:text-amber-400 hover:underline">{{ __('expenses.view_all') }}</a>
         </p>
       </div>
     @endif
@@ -53,7 +53,7 @@
     <svg class="mx-auto h-12 w-12 text-neutral-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
       <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4"/>
     </svg>
-    <h3 class="mt-4 text-sm font-medium text-neutral-900 dark:text-neutral-100">No hay insumos registrados</h3>
-    <p class="mt-1 text-sm text-neutral-500 dark:text-neutral-400">Comienza creando tu primer insumo.</p>
+    <h3 class="mt-4 text-sm font-medium text-neutral-900 dark:text-neutral-100">{{ __('expenses.no_supplies_table') }}</h3>
+    <p class="mt-1 text-sm text-neutral-500 dark:text-neutral-400">{{ __('expenses.create_first_supply') }}</p>
   </div>
 @endif

@@ -4,7 +4,7 @@
 <div class="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
   <div class="flex items-center gap-3">
     <h1 class="text-2xl font-bold text-neutral-900 dark:text-neutral-100 flex items-center gap-3">
-      <x-svg-icon name="document" size="6" class="text-indigo-600" /> Historial de Ventas
+      <x-svg-icon name="document" size="6" class="text-indigo-600" /> {{ __('orders.title') }}
     </h1>
   </div>
 
@@ -19,7 +19,7 @@
       @csrf
       <label class="inline-flex items-center gap-2 px-3 py-2 rounded-lg border border-neutral-300 dark:border-neutral-700 bg-white dark:bg-neutral-900 text-neutral-700 dark:text-neutral-200 hover:bg-neutral-50 dark:hover:bg-neutral-800 cursor-pointer transition-colors">
         <x-svg-icon name="document" size="5" />
-        <span class="hidden sm:inline">Importar CSV</span>
+        <span class="hidden sm:inline">{{ __('orders.import_csv') }}</span>
         <input type="file" name="csv" accept=".csv,text/csv" class="hidden" onchange="this.form.submit()" />
       </label>
     </form>
@@ -28,14 +28,14 @@
     <button data-modal-open="downloadModal" id="downloadReportBtn" type="button"
       class="inline-flex items-center gap-2 px-3 py-2 rounded-lg shadow-sm bg-green-600 text-white font-semibold hover:bg-green-700 transition-all duration-150 active:scale-[0.98]">
       <x-svg-icon name="download" size="5" />
-      <span class="hidden sm:inline">Descargar</span>
+      <span class="hidden sm:inline">{{ __('orders.download') }}</span>
     </button>
 
     {{-- Mostrar/Ocultar Filtros --}}
     <button id="toggleFilters" type="button"
             class="inline-flex items-center gap-2 px-3 py-2 rounded-lg border border-neutral-300 dark:border-neutral-700 bg-white dark:bg-neutral-900 text-neutral-700 dark:text-neutral-200 hover:bg-neutral-50 dark:hover:bg-neutral-800 transition-colors">
       <x-svg-icon name="filter" size="4" />
-      <span class="hidden sm:inline filter-text">Mostrar Filtros</span>
+      <span class="hidden sm:inline filter-text">{{ __('orders.show_filters') }}</span>
       <x-svg-icon name="chevron-down" size="3" class="transition-transform duration-200" id="filterChevron" />
     </button>
   </div>
@@ -64,7 +64,7 @@
   @endif
   @if(session('import_errors'))
     <div class="mb-6 rounded-xl bg-amber-50 text-amber-800 px-4 py-3 border border-amber-200 dark:bg-amber-900/30 dark:text-amber-200 dark:border-amber-800">
-      <div class="font-semibold mb-1">Errores de importación</div>
+      <div class="font-semibold mb-1">{{ __('orders.import_errors') }}</div>
       <ul class="list-disc ml-5 text-sm">
         @foreach(session('import_errors') as $e)
           <li>{{ $e }}</li>
@@ -77,14 +77,16 @@
   <div class="panel-glass shadow-sm p-4 mb-6">
     <div class="flex flex-wrap gap-2 mb-2">
       <span class="text-sm font-medium text-neutral-700 dark:text-neutral-300 flex items-center gap-2 py-2">
-        <x-svg-icon name="calendar" size="4" class="text-neutral-400" /> Período:
+        <x-svg-icon name="calendar" size="4" class="text-neutral-400" /> {{ __('orders.period_label') }}
       </span>
       @php
         $currentPeriod = request('period','');
         $periods = [
-          '' => 'Todos','today' => 'Hoy','yesterday' => 'Ayer','this_week' => 'Esta semana',
-          'last_week' => 'Semana pasada','last_7_days' => 'Últimos 7 días','this_month' => 'Este mes',
-          'last_month' => 'Mes pasado','last_30_days' => 'Últimos 30 días',
+          '' => __('orders.periods.all'), 'today' => __('orders.periods.today'),
+          'yesterday' => __('orders.periods.yesterday'), 'this_week' => __('orders.periods.this_week'),
+          'last_week' => __('orders.periods.last_week'), 'last_7_days' => __('orders.periods.last_7_days'),
+          'this_month' => __('orders.periods.this_month'), 'last_month' => __('orders.periods.last_month'),
+          'last_30_days' => __('orders.periods.last_30_days'),
         ];
       @endphp
       @foreach($periods as $period => $label)
@@ -106,7 +108,7 @@
             <div class="absolute left-3 top-1/2 -translate-y-1/2 text-neutral-400">
               <x-svg-icon name="search" size="5" />
             </div>
-            <input type="text" name="q" value="{{ request('q') }}" placeholder="Buscar por ID, cliente, notas…"
+            <input type="text" name="q" value="{{ request('q') }}" placeholder="{{ __('orders.search_placeholder') }}"
                    class="input-enhanced w-full pl-10 pr-4 py-2.5">
           </div>
           @foreach(['status','period','from','to','client','client_id'] as $keep)
@@ -121,8 +123,8 @@
       {{-- Filtros activos --}}
       @if(request()->anyFilled(['status','period','from','to','q','client','client_id']))
         <div class="flex flex-wrap items-center gap-2">
-          <span class="text-xs text-neutral-500 dark:text-neutral-400">Filtros activos:</span>
-          @foreach(['status'=>'Estado','period'=>'Período','from'=>'Desde','to'=>'Hasta','client'=>'Cliente','client_id'=>'Cliente ID'] as $key=>$label)
+          <span class="text-xs text-neutral-500 dark:text-neutral-400">{{ __('orders.active_filters') }}</span>
+          @foreach(['status'=>__('orders.filter_labels.status'),'period'=>__('orders.filter_labels.period'),'from'=>__('orders.filter_labels.from'),'to'=>__('orders.filter_labels.to'),'client'=>__('orders.filter_labels.client'),'client_id'=>__('orders.filter_labels.client_id')] as $key=>$label)
             @if(request($key))
               <span class="inline-flex items-center gap-1 px-2 py-1 rounded-full text-xs bg-neutral-100 dark:bg-neutral-800 text-neutral-700 dark:text-neutral-200">
                 {{ $label }}: {{ $key==='period' ? ($periods[request('period')] ?? request('period')) : request($key) }}
@@ -134,7 +136,7 @@
           @endforeach
           <a href="{{ route('orders.index') }}"
              class="inline-flex items-center gap-1 px-2 py-1 rounded-full text-xs bg-neutral-100 text-neutral-700 hover:bg-neutral-200 dark:bg-neutral-800 dark:text-neutral-200 dark:hover:bg-neutral-700 transition-colors">
-            <x-svg-icon name="x" size="3" /> Limpiar todo
+            <x-svg-icon name="x" size="3" /> {{ __('orders.clear_all') }}
           </a>
         </div>
       @endif
@@ -146,42 +148,42 @@
        aria-hidden="true">
     <div class="mb-4 pb-3 border-b border-neutral-200/50 dark:border-neutral-700/50">
       <h3 class="text-lg font-semibold text-neutral-800 dark:text-neutral-100 flex items-center gap-2">
-        <x-svg-icon name="filter" size="5" class="text-indigo-600" /> Filtros Avanzados
+        <x-svg-icon name="filter" size="5" class="text-indigo-600" /> {{ __('orders.advanced_filters') }}
       </h3>
     </div>
     <form method="GET" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 items-end">
       @if(request('q')) <input type="hidden" name="q" value="{{ request('q') }}"> @endif
       <div>
-        <label class="block text-sm font-medium text-neutral-700 dark:text-neutral-300 mb-2">Estado</label>
+        <label class="block text-sm font-medium text-neutral-700 dark:text-neutral-300 mb-2">{{ __('orders.filter_status') }}</label>
         <select name="status" class="input-enhanced w-full px-4 py-2.5">
-          <option value="">Todos</option>
-          <option value="completed" {{ request('status')==='completed'?'selected':'' }}>Completado</option>
-          <option value="draft"     {{ request('status')==='draft'?'selected':'' }}>Borrador</option>
-          <option value="canceled"  {{ request('status')==='canceled'?'selected':'' }}>Cancelado</option>
+          <option value="">{{ __('orders.filter_all') }}</option>
+          <option value="completed" {{ request('status')==='completed'?'selected':'' }}>{{ __('orders.filter_completed') }}</option>
+          <option value="draft"     {{ request('status')==='draft'?'selected':'' }}>{{ __('orders.filter_draft') }}</option>
+          <option value="canceled"  {{ request('status')==='canceled'?'selected':'' }}>{{ __('orders.filter_canceled') }}</option>
         </select>
       </div>
       <div>
-        <label class="block text-sm font-medium text-neutral-700 dark:text-neutral-300 mb-2">Fecha Desde</label>
+        <label class="block text-sm font-medium text-neutral-700 dark:text-neutral-300 mb-2">{{ __('orders.filter_from') }}</label>
         <input type="date" name="from" value="{{ request('from') }}"
                class="input-enhanced w-full px-4 py-2.5">
       </div>
       <div>
-        <label class="block text-sm font-medium text-neutral-700 dark:text-neutral-300 mb-2">Fecha Hasta</label>
+        <label class="block text-sm font-medium text-neutral-700 dark:text-neutral-300 mb-2">{{ __('orders.filter_to') }}</label>
         <input type="date" name="to" value="{{ request('to') }}"
                class="input-enhanced w-full px-4 py-2.5">
       </div>
       <div>
-        <label class="block text-sm font-medium text-neutral-700 dark:text-neutral-300 mb-2">Cliente (texto)</label>
-        <input type="text" name="client" value="{{ request('client') }}" placeholder="Nombre del cliente"
+        <label class="block text-sm font-medium text-neutral-700 dark:text-neutral-300 mb-2">{{ __('orders.filter_client') }}</label>
+        <input type="text" name="client" value="{{ request('client') }}" placeholder="{{ __('orders.filter_client_ph') }}"
                class="input-enhanced w-full px-4 py-2.5">
       </div>
       <div class="md:col-span-2 lg:col-span-4 flex gap-2">
         <button type="submit" class="flex-1 bg-indigo-600 text-white px-4 py-2.5 rounded-lg hover:bg-indigo-700 transition-all duration-150 active:scale-[0.98] flex items-center justify-center gap-2">
-          <x-svg-icon name="search" size="4" /> Aplicar
+          <x-svg-icon name="search" size="4" /> {{ __('orders.filter_apply') }}
         </button>
         <a href="{{ route('orders.index') }}"
            class="flex-1 text-center border border-neutral-300 dark:border-neutral-700 px-4 py-2.5 text-neutral-700 dark:text-neutral-200 rounded-lg hover:bg-neutral-50 dark:hover:bg-neutral-800 transition-colors flex items-center justify-center gap-2">
-          <x-svg-icon name="trash" size="4" /> Reset
+          <x-svg-icon name="trash" size="4" /> {{ __('orders.filter_reset') }}
         </a>
       </div>
     </form>
@@ -199,14 +201,14 @@
 
   {{-- Selector de orden --}}
   <div class="flex items-center gap-2">
-    <span class="text-neutral-500 dark:text-neutral-400 text-xs">Ordenar:</span>
+    <span class="text-neutral-500 dark:text-neutral-400 text-xs">{{ __('orders.sort') }}</span>
     <div class="relative">
       <select onchange="window.location.href=this.value"
               class="appearance-none text-xs border border-neutral-300 dark:border-neutral-700 bg-white dark:bg-neutral-900 text-neutral-900 dark:text-neutral-100 rounded-md pl-2 pr-6 py-1.5 focus:outline-none focus:ring-1 focus:ring-indigo-500 focus:border-indigo-500">
-        <option value="{{ request()->fullUrlWithQuery(['sort'=>'newest']) }}" {{ request('sort','newest')==='newest'?'selected':'' }}>Más recientes</option>
-        <option value="{{ request()->fullUrlWithQuery(['sort'=>'oldest']) }}" {{ request('sort')==='oldest'?'selected':'' }}>Más antiguos</option>
-        <option value="{{ request()->fullUrlWithQuery(['sort'=>'total_desc']) }}" {{ request('sort')==='total_desc'?'selected':'' }}>Mayor valor</option>
-        <option value="{{ request()->fullUrlWithQuery(['sort'=>'total_asc']) }}" {{ request('sort')==='total_asc'?'selected':'' }}>Menor valor</option>
+        <option value="{{ request()->fullUrlWithQuery(['sort'=>'newest']) }}" {{ request('sort','newest')==='newest'?'selected':'' }}>{{ __('orders.sort_newest') }}</option>
+        <option value="{{ request()->fullUrlWithQuery(['sort'=>'oldest']) }}" {{ request('sort')==='oldest'?'selected':'' }}>{{ __('orders.sort_oldest') }}</option>
+        <option value="{{ request()->fullUrlWithQuery(['sort'=>'total_desc']) }}" {{ request('sort')==='total_desc'?'selected':'' }}>{{ __('orders.sort_total_desc') }}</option>
+        <option value="{{ request()->fullUrlWithQuery(['sort'=>'total_asc']) }}" {{ request('sort')==='total_asc'?'selected':'' }}>{{ __('orders.sort_total_asc') }}</option>
       </select>
     </div>
   </div>
@@ -220,9 +222,9 @@
     $statusBadge = function($s){
       $key = ($s instanceof \BackedEnum) ? $s->value : (($s instanceof \UnitEnum) ? $s->name : (is_string($s) ? $s : (string) ($s ?? '')));
       return match($key){
-        'completed' => ['text'=>'Completado','cls'=>'bg-emerald-100 text-emerald-700 dark:bg-emerald-900/40 dark:text-emerald-300'],
-        'canceled'  => ['text'=>'Cancelado','cls'=>'bg-rose-100 text-rose-700 dark:bg-rose-900/40 dark:text-rose-300'],
-        'draft'     => ['text'=>'Borrador','cls'=>'bg-amber-100 text-amber-700 dark:bg-amber-900/40 dark:text-amber-300'],
+        'completed' => ['text'=>__('orders.status_completed'),'cls'=>'bg-emerald-100 text-emerald-700 dark:bg-emerald-900/40 dark:text-emerald-300'],
+        'canceled'  => ['text'=>__('orders.status_canceled'),'cls'=>'bg-rose-100 text-rose-700 dark:bg-rose-900/40 dark:text-rose-300'],
+        'draft'     => ['text'=>__('orders.status_draft'),'cls'=>'bg-amber-100 text-amber-700 dark:bg-amber-900/40 dark:text-amber-300'],
         default     => ['text'=>ucfirst($key ?: '—'),'cls'=>'bg-neutral-100 text-neutral-700 dark:bg-neutral-800 dark:text-neutral-100'],
       };
     };
@@ -252,20 +254,20 @@
                                       dark:border-neutral-700 dark:bg-neutral-700 dark:checked:bg-indigo-500
                                       hover:none focus:none">
                     </th>
-                    <th class="text-left px-6 py-3 font-medium text-neutral-600 dark:text-neutral-300">Venta</th>
-                    <th class="text-left px-3 py-3 font-medium text-neutral-600 dark:text-neutral-300">Cliente</th>
-                    <th class="text-left px-3 py-3 font-medium text-neutral-600 dark:text-neutral-300">Fecha</th>
+                    <th class="text-left px-6 py-3 font-medium text-neutral-600 dark:text-neutral-300">{{ __('orders.col_sale') }}</th>
+                    <th class="text-left px-3 py-3 font-medium text-neutral-600 dark:text-neutral-300">{{ __('orders.col_client') }}</th>
+                    <th class="text-left px-3 py-3 font-medium text-neutral-600 dark:text-neutral-300">{{ __('orders.col_date') }}</th>
                     @if(!empty($isCompany))
-                        <th class="text-left px-3 py-3 font-medium text-neutral-600 dark:text-neutral-300">Sucursal</th>
+                        <th class="text-left px-3 py-3 font-medium text-neutral-600 dark:text-neutral-300">{{ __('orders.col_branch') }}</th>
                     @endif
                     @if(!empty($isMaster))
-                        <th class="text-left px-3 py-3 font-medium text-neutral-600 dark:text-neutral-300">Usuario</th>
+                        <th class="text-left px-3 py-3 font-medium text-neutral-600 dark:text-neutral-300">{{ __('orders.col_user') }}</th>
                     @endif
-                    <th class="text-left px-3 py-3 font-medium text-neutral-600 dark:text-neutral-300">Items</th>
-                    <th class="text-left px-3 py-3 font-medium text-neutral-600 dark:text-neutral-300">Total</th>
-                    <th class="text-left px-4 py-3 font-medium text-neutral-600 dark:text-neutral-300">Pago</th>
-                    <th class="text-left px-2 py-3 font-medium text-neutral-600 dark:text-neutral-300 w-28">Estado</th>
-                    <th class="text-right px-3 py-3 font-medium text-neutral-600 dark:text-neutral-300">Acción</th>
+                    <th class="text-left px-3 py-3 font-medium text-neutral-600 dark:text-neutral-300">{{ __('orders.col_items') }}</th>
+                    <th class="text-left px-3 py-3 font-medium text-neutral-600 dark:text-neutral-300">{{ __('orders.col_total') }}</th>
+                    <th class="text-left px-4 py-3 font-medium text-neutral-600 dark:text-neutral-300">{{ __('orders.col_payment') }}</th>
+                    <th class="text-left px-2 py-3 font-medium text-neutral-600 dark:text-neutral-300 w-28">{{ __('orders.col_status') }}</th>
+                    <th class="text-right px-3 py-3 font-medium text-neutral-600 dark:text-neutral-300">{{ __('orders.col_action') }}</th>
                 </tr>
             </thead>
             <tbody class="divide-y divide-neutral-100 dark:divide-neutral-800">
@@ -279,7 +281,7 @@
                         <td class="px-3 py-3">
                             <div class="max-w-xs">
                                 <div class="font-medium text-neutral-800 dark:text-neutral-100 truncate">
-                                    {{ optional($o->client)->name ?? 'Sin cliente' }}
+                                    {{ optional($o->client)->name ?? __('orders.no_client') }}
                                 </div>
                                 @if(!empty($o->note))
                                     <div class="text-xs text-neutral-500 dark:text-neutral-400 truncate">
@@ -290,7 +292,7 @@
                         </td>
                         <td class="px-3 py-3 text-neutral-700 dark:text-neutral-200 whitespace-nowrap">{{ $o->created_at?->format('d/m/Y H:i') }}</td>
                         @if(!empty($isCompany))
-                            <td class="px-3 py-3 text-neutral-700 dark:text-neutral-200">{{ optional($o->branch)->name ?? 'Sin sucursal' }}</td>
+                            <td class="px-3 py-3 text-neutral-700 dark:text-neutral-200">{{ optional($o->branch)->name ?? __('orders.no_branch') }}</td>
                         @endif
                         @if(!empty($isMaster))
                             <td class="px-3 py-3 text-neutral-700 dark:text-neutral-200">#{{ $o->user_id }} — {{ $o->user?->name ?? 'N/D' }}</td>
@@ -334,11 +336,11 @@
                         <td class="px-4 py-3">
                             <div class="flex items-center justify-end gap-2">
                                 <a href="{{ route('orders.show',$o) }}" class="inline-flex items-center gap-2 px-3 py-1.5 rounded-lg text-xs font-medium bg-indigo-50 text-indigo-700 hover:bg-indigo-100 dark:bg-indigo-900/30 dark:text-indigo-300 dark:hover:bg-indigo-900/50 transition-colors">
-                                    <x-svg-icon name="eye" size="4" /> Ver
+                                    <x-svg-icon name="eye" size="4" /> {{ __('orders.view') }}
                                 </a>
                                 <a href="{{ $receiptRoute ? route('orders.ticket',$o) : '#' }}" @if(!$receiptRoute) aria-disabled="true" @endif
                                    class="inline-flex items-center gap-2 px-3 py-1.5 rounded-lg text-xs font-medium bg-emerald-50 text-emerald-700 hover:bg-emerald-100 dark:bg-emerald-900/30 dark:text-emerald-300 dark:hover:bg-emerald-900/50 transition-colors {{ $receiptRoute ? '' : 'opacity-50 cursor-not-allowed' }}">
-                                    <x-svg-icon name="document" size="4" /> Comprobante
+                                    <x-svg-icon name="document" size="4" /> {{ __('orders.receipt') }}
                                 </a>
                             </div>
                         </td>
@@ -348,14 +350,14 @@
                         <td colspan="{{ (!empty($isCompany) ? 10 : 9) + (!empty($isMaster) ? 1 : 0) }}" class="px-6 py-16 text-center text-neutral-500 dark:text-neutral-400">
                             <div class="flex flex-col items-center">
                                 <x-svg-icon name="search" size="12" class="text-neutral-300 dark:text-neutral-600 mb-3" />
-                                <div class="text-lg font-medium">No se encontraron ventas</div>
-                                <p class="text-neutral-500 dark:text-neutral-400">Ajustá los filtros para ver resultados.</p>
+                                <div class="text-lg font-medium">{{ __('orders.empty_title') }}</div>
+                                <p class="text-neutral-500 dark:text-neutral-400">{{ __('orders.empty_desc') }}</p>
                                 <div class="mt-4 flex justify-center gap-2">
                                     <a href="{{ route('orders.index') }}" class="inline-flex items-center gap-2 px-3 py-2 text-sm text-neutral-700 dark:text-neutral-200 bg-neutral-100 dark:bg-neutral-800 rounded-lg hover:bg-neutral-200 dark:hover:bg-neutral-700 transition-colors">
-                                        <x-svg-icon name="x" size="4" /> Limpiar filtros
+                                        <x-svg-icon name="x" size="4" /> {{ __('orders.clear_filters') }}
                                     </a>
                                     <a href="{{ route('orders.create') }}" class="inline-flex items-center gap-2 px-3 py-2 text-sm text-white bg-indigo-600 rounded-lg hover:bg-indigo-700 transition-all duration-150 active:scale-[0.98]">
-                                        <x-svg-icon name="plus" size="4" /> Crear venta
+                                        <x-svg-icon name="plus" size="4" /> {{ __('orders.create') }}
                                     </a>
                                 </div>
                             </div>
@@ -378,13 +380,13 @@
   <div class="bg-white dark:bg-neutral-900 rounded-xl p-6 w-full max-w-md border border-neutral-100 dark:border-neutral-800 shadow-2xl shadow-black/30" role="document">
     <div class="flex items-center justify-between mb-4">
       <h3 id="downloadTitle" class="text-lg font-semibold text-neutral-900 dark:text-neutral-100 flex items-center gap-2">
-        <x-svg-icon name="download" size="5" class="text-emerald-600" /> Descargar Reporte
+        <x-svg-icon name="download" size="5" class="text-emerald-600" /> {{ __('orders.download_modal_title') }}
       </h3>
       <button id="closeModal" type="button" class="text-neutral-400 hover:text-neutral-600 dark:hover:text-neutral-300 transition-colors" aria-label="Cerrar">
         <x-svg-icon name="x" size="5" />
       </button>
     </div>
-    <p class="text-neutral-600 dark:text-neutral-300 mb-4">Seleccioná el formato del reporte:</p>
+    <p class="text-neutral-600 dark:text-neutral-300 mb-4">{{ __('orders.download_modal_desc') }}</p>
     <div class="space-y-3">
       <a href="{{ route('orders.download-report', array_merge(request()->query(), ['format'=>'csv'])) }}"
          class="w-full flex items-center justify-between p-3 border border-neutral-300 dark:border-neutral-700 rounded-lg hover:bg-neutral-50 dark:hover:bg-neutral-800 transition-all duration-150 hover:scale-[1.02]">
@@ -393,8 +395,8 @@
             <x-svg-icon name="document" size="5" class="text-green-600 dark:text-emerald-300" />
           </div>
           <div>
-            <div class="font-medium text-neutral-900 dark:text-neutral-100">CSV (Excel)</div>
-            <div class="text-sm text-neutral-500 dark:text-neutral-400">UTF-8 con separador ;</div>
+            <div class="font-medium text-neutral-900 dark:text-neutral-100">{{ __('orders.csv_format') }}</div>
+            <div class="text-sm text-neutral-500 dark:text-neutral-400">{{ __('orders.csv_subtitle') }}</div>
           </div>
         </div>
         <x-svg-icon name="download" size="4" class="text-neutral-400" />
@@ -406,15 +408,15 @@
             <x-svg-icon name="document" size="5" class="text-blue-600 dark:text-blue-300" />
           </div>
           <div>
-            <div class="font-medium text-neutral-900 dark:text-neutral-100">Excel (XLS)</div>
-            <div class="text-sm text-neutral-500 dark:text-neutral-400">Tabla HTML compatible</div>
+            <div class="font-medium text-neutral-900 dark:text-neutral-100">{{ __('orders.excel_format') }}</div>
+            <div class="text-sm text-neutral-500 dark:text-neutral-400">{{ __('orders.excel_subtitle') }}</div>
           </div>
         </div>
         <x-svg-icon name="download" size="4" class="text-neutral-400" />
       </a>
     </div>
     <div class="mt-4 p-3 bg-blue-50 dark:bg-neutral-800/40 rounded-lg text-sm text-blue-700 dark:text-neutral-200">
-      Se incluirán: {{ $orders->total() }} ventas con los filtros actuales.
+      {{ __('orders.will_include', ['count' => $orders->total()]) }}
     </div>
   </div>
 </div>
@@ -526,13 +528,13 @@
                 .map(cb => cb.value);
 
             if (selectedIds.length === 0) {
-                alert('No hay ventas seleccionadas');
+                alert(@json(__('orders.none_selected')));
                 return;
             }
 
             const confirmMessage = selectedIds.length === 1
-                ? '¿Eliminar esta venta? Esta acción no se puede deshacer.'
-                : `¿Eliminar ${selectedIds.length} ventas? Esta acción no se puede deshacer.`;
+                ? @json(__('orders.confirm_delete'))
+                : @json(__('orders.confirm_delete_many')).replace(':count', selectedIds.length);
 
             if (!confirm(confirmMessage)) return;
 
@@ -671,7 +673,7 @@
                     newFilterChevron?.classList.add('rotate-180');
 
                     const filterText = newToggleBtn.querySelector('.filter-text');
-                    if (filterText) filterText.textContent = 'Ocultar Filtros';
+                    if (filterText) filterText.textContent = @json(__('orders.hide_filters'));
                 } else {
                     filtersPanel.classList.remove('show');
                     filtersPanel.classList.add('hidden');
@@ -679,7 +681,7 @@
                     newFilterChevron?.classList.remove('rotate-180');
 
                     const filterText = newToggleBtn.querySelector('.filter-text');
-                    if (filterText) filterText.textContent = 'Mostrar Filtros';
+                    if (filterText) filterText.textContent = @json(__('orders.show_filters'));
                 }
             });
         }

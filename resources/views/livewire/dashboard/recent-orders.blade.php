@@ -8,11 +8,11 @@
               border-b border-neutral-100 dark:border-neutral-800/60">
     <div class="flex items-center gap-2">
       <div class="w-1.5 h-4 rounded-full bg-indigo-500/80 dark:bg-indigo-400/70"></div>
-      <h3 class="text-sm font-semibold text-neutral-800 dark:text-neutral-100">Últimas ventas</h3>
+      <h3 class="text-sm font-semibold text-neutral-800 dark:text-neutral-100">{{ __('dashboard.recent_orders_title') }}</h3>
     </div>
     <a href="{{ route('orders.index') }}"
        class="text-[11px] font-medium text-indigo-500 dark:text-indigo-400 hover:text-indigo-700 dark:hover:text-indigo-300 transition-colors">
-      Ver todas →
+      {{ __('dashboard.view_all_link') }}
     </a>
   </div>
 
@@ -43,7 +43,7 @@
             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2"/>
           </svg>
         </div>
-        <p class="text-sm text-neutral-400 dark:text-neutral-500">Sin ventas recientes</p>
+        <p class="text-sm text-neutral-400 dark:text-neutral-500">{{ __('dashboard.no_recent_orders') }}</p>
       </div>
     @endforelse
   </div>

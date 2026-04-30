@@ -96,7 +96,7 @@
         <div class="mb-6">
             <h3 class="text-base font-bold text-neutral-800 dark:text-neutral-200 mb-4 flex items-center gap-2">
                 <x-heroicon-o-credit-card class="w-5 h-5 text-indigo-600 dark:text-indigo-400" />
-                Métodos de Pago
+                {{ __('settings.pm_select_title') }}
             </h3>
 
             <div class="flex flex-wrap gap-2">
@@ -110,7 +110,7 @@
                         role="button"
                         tabindex="0"
                         aria-pressed="{{ in_array($pm->id, $selectedPaymentMethods) ? 'true' : 'false' }}"
-                        aria-label="Seleccionar {{ $pm->name }}"
+                        aria-label="{{ __('settings.pm_select_aria', ['name' => $pm->name]) }}"
                     >
                         {{-- Checkmark en la esquina --}}
                         <div class="payment-checkmark absolute top-1 right-1 z-10">
@@ -147,10 +147,10 @@
                 <x-heroicon-o-exclamation-triangle class="w-6 h-6 text-amber-600 dark:text-amber-400 shrink-0 mt-0.5" />
                 <div>
                     <div class="text-sm font-bold text-amber-900 dark:text-amber-100">
-                        No hay métodos de pago configurados
+                        {{ __('settings.pm_no_methods') }}
                     </div>
                     <div class="text-xs text-amber-700 dark:text-amber-300 mt-1">
-                        Ve a <a href="{{ route('payment-methods.index') }}" class="underline hover:text-amber-900 dark:hover:text-amber-100 font-semibold">Métodos de Pago</a> para agregar algunos.
+                        {!! __('settings.pm_no_methods_hint', ['url' => route('payment-methods.index')]) !!}
                     </div>
                 </div>
             </div>

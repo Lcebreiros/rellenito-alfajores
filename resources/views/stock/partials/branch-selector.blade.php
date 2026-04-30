@@ -39,7 +39,7 @@
       @endforeach
 
       @if(empty($availableBranches) && ($user && (method_exists($user, 'isCompany') && $user->isCompany())))
-        <option disabled>(Sin sucursales)</option>
+        <option disabled>{{ __('stock.no_branches_opt') }}</option>
       @endif
     </select>
     <i class="fas fa-chevron-down absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-400 pointer-events-none" aria-hidden="true"></i>

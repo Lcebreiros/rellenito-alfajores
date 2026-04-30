@@ -48,7 +48,7 @@
         wire:click="skipWelcome"
         class="absolute right-3.5 top-3.5 z-10 rounded-full p-2 text-neutral-500 hover:text-neutral-900 hover:bg-neutral-100
                    dark:text-neutral-400 dark:hover:text-white dark:hover:bg-neutral-800 transition"
-        aria-label="Cerrar"
+        aria-label="{{ __('notifications.close') }}"
       >
         <svg class="w-5 h-5" viewBox="0 0 24 24" fill="none" stroke="currentColor">
           <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
@@ -126,7 +126,7 @@
             x-transition:enter-start="opacity-0"
             x-transition:enter-end="opacity-100"
           >
-            Anterior
+            {{ __('notifications.welcome_prev') }}
           </button>
 
           {{-- Botón principal --}}
@@ -140,7 +140,7 @@
               x-transition:enter-start="opacity-0 transform translate-y-2"
               x-transition:enter-end="opacity-100 transform translate-y-0"
             >
-              Siguiente
+              {{ __('notifications.welcome_next') }}
             </button>
           @else
             <button
@@ -152,7 +152,7 @@
               x-transition:enter-start="opacity-0 transform translate-y-2"
               x-transition:enter-end="opacity-100 transform translate-y-0"
             >
-              Comenzar
+              {{ __('notifications.welcome_start') }}
             </button>
           @endif
         </div>
@@ -162,7 +162,7 @@
             wire:click="skipWelcome"
             class="text-xs text-neutral-500 hover:text-neutral-800 dark:text-neutral-400 dark:hover:text-neutral-200 underline-offset-2 hover:underline transition"
           >
-            No gracias, quiero verlo más tarde
+            {{ __('notifications.welcome_skip') }}
           </button>
         </div>
       </footer>

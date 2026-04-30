@@ -21,14 +21,14 @@
         </div>
         <div>
           <h3 id="notification-modal-title" class="text-lg font-semibold text-gray-900 dark:text-neutral-100">
-            Configurar Notificaciones
+            {{ __('stock.notif_title') }}
           </h3>
-          <p class="text-xs text-gray-500 dark:text-neutral-400">Alertas de stock</p>
+          <p class="text-xs text-gray-500 dark:text-neutral-400">{{ __('stock.notif_subtitle') }}</p>
         </div>
       </div>
       <button type="button"
               id="closeNotificationModal"
-              aria-label="Cerrar modal"
+              aria-label="{{ __('stock.close_modal') }}"
               class="text-gray-400 hover:text-gray-600 dark:text-neutral-500 dark:hover:text-neutral-300 p-1.5 rounded-lg hover:bg-gray-100 dark:hover:bg-neutral-800 transition-colors">
         <i class="fas fa-times text-xl" aria-hidden="true"></i>
       </button>
@@ -43,10 +43,10 @@
             <div class="flex-1">
               <div class="flex items-center gap-2 mb-1.5">
                 <i class="fas fa-triangle-exclamation text-amber-600 dark:text-amber-400" aria-hidden="true"></i>
-                <h4 class="font-semibold text-gray-900 dark:text-neutral-100">Alerta de Stock Bajo</h4>
+                <h4 class="font-semibold text-gray-900 dark:text-neutral-100">{{ __('stock.low_alert_title') }}</h4>
               </div>
               <p class="text-sm text-gray-600 dark:text-neutral-400">
-                Notificación cuando el stock esté bajo
+                {{ __('stock.low_alert_desc') }}
               </p>
             </div>
 
@@ -68,7 +68,7 @@
           {{-- Threshold input --}}
           <div id="thresholdSection" class="{{ $notifyLowStock ? '' : 'hidden' }} mt-3 pt-3 border-t border-amber-200 dark:border-amber-900/30">
             <label for="low_stock_threshold" class="block text-sm font-medium text-gray-700 dark:text-neutral-300 mb-2">
-              Umbral de stock bajo
+              {{ __('stock.threshold_label') }}
             </label>
             <div class="flex items-center gap-3">
               <div class="relative flex-1">
@@ -84,13 +84,13 @@
                               focus:ring-2 focus:ring-amber-500 focus:border-amber-500"
                        placeholder="Ej: 5">
                 <div class="absolute right-3 top-1/2 -translate-y-1/2 text-sm text-gray-500 dark:text-neutral-400 pointer-events-none">
-                  unidades
+                  {{ __('stock.threshold_units') }}
                 </div>
               </div>
             </div>
             <p class="mt-2 text-xs text-gray-600 dark:text-neutral-400">
               <i class="fas fa-info-circle mr-1" aria-hidden="true"></i>
-              Alertar cuando queden <span id="thresholdDisplay">{{ $lowStockThreshold }}</span> o menos unidades
+              {{ __('stock.threshold_hint_pre') }} <span id="thresholdDisplay">{{ $lowStockThreshold }}</span> {{ __('stock.threshold_hint_suf') }}
             </p>
           </div>
         </div>
@@ -101,10 +101,10 @@
             <div class="flex-1">
               <div class="flex items-center gap-2 mb-1.5">
                 <i class="fas fa-circle-xmark text-rose-600 dark:text-rose-400" aria-hidden="true"></i>
-                <h4 class="font-semibold text-gray-900 dark:text-neutral-100">Alerta Sin Stock</h4>
+                <h4 class="font-semibold text-gray-900 dark:text-neutral-100">{{ __('stock.out_alert_title') }}</h4>
               </div>
               <p class="text-sm text-gray-600 dark:text-neutral-400">
-                Notificación cuando un producto se quede sin stock
+                {{ __('stock.out_alert_desc') }}
               </p>
             </div>
 
@@ -130,10 +130,10 @@
             <div class="flex-1">
               <div class="flex items-center gap-2 mb-1.5">
                 <i class="fas fa-envelope text-indigo-600 dark:text-indigo-400" aria-hidden="true"></i>
-                <h4 class="font-semibold text-gray-900 dark:text-neutral-100">Notificaciones por Email</h4>
+                <h4 class="font-semibold text-gray-900 dark:text-neutral-100">{{ __('stock.email_alert_title') }}</h4>
               </div>
               <p class="text-sm text-gray-600 dark:text-neutral-400">
-                Recibir notificaciones de stock por correo electrónico
+                {{ __('stock.email_alert_desc') }}
               </p>
             </div>
 
@@ -159,7 +159,7 @@
         <a href="{{ route('settings') }}"
            class="text-sm text-indigo-600 dark:text-indigo-400 hover:text-indigo-700 dark:hover:text-indigo-300 font-medium">
           <i class="fas fa-cog mr-1" aria-hidden="true"></i>
-          Ver configuración completa
+          {{ __('stock.full_settings') }}
         </a>
 
         <div class="flex items-center gap-2">
@@ -170,7 +170,7 @@
                          text-gray-700 dark:text-neutral-200
                          hover:bg-gray-50 dark:hover:bg-neutral-800
                          transition-colors">
-            Cancelar
+            {{ __('stock.cancel') }}
           </button>
           <button type="submit"
                   id="saveNotificationBtn"
@@ -180,7 +180,7 @@
                          focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2
                          transition-all duration-200">
             <i class="fas fa-save mr-1.5" aria-hidden="true"></i>
-            Guardar
+            {{ __('stock.save') }}
           </button>
         </div>
       </div>
@@ -190,7 +190,7 @@
     <div id="notificationLoadingOverlay" class="hidden absolute inset-0 bg-white/80 dark:bg-neutral-900/80 rounded-xl flex items-center justify-center">
       <div class="text-center">
         <i class="fas fa-spinner fa-spin text-3xl text-indigo-600 dark:text-indigo-400 mb-2"></i>
-        <p class="text-sm text-gray-600 dark:text-neutral-400">Guardando...</p>
+        <p class="text-sm text-gray-600 dark:text-neutral-400">{{ __('stock.saving') }}</p>
       </div>
     </div>
   </div>

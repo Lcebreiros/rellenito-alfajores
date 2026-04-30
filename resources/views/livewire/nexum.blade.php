@@ -80,7 +80,7 @@
             <svg class="w-4 h-4 animate-spin" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"/>
             </svg>
-            Analizando con IA...
+            {{ __('nexum.analyzing') }}
           </span>
         @else
           {{-- Estado normal --}}
@@ -88,13 +88,13 @@
             <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"/>
             </svg>
-            Actualizar análisis
+            {{ __('nexum.update_analysis') }}
           </span>
           <span wire:loading wire:target="generate" class="flex items-center gap-2">
             <svg class="w-4 h-4 animate-spin" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"/>
             </svg>
-            Iniciando...
+            {{ __('nexum.starting') }}
           </span>
         @endif
       </button>
@@ -113,9 +113,9 @@
           <div class="nexum-ai-icon" style="width:16px;height:16px;flex-shrink:0;">
             <span style="font-size:7px;">N</span>
           </div>
-          <span class="nexum-label-sm">Diagnósticos · Nexum AI</span>
+          <span class="nexum-label-sm">{{ __('nexum.diagnostics_ai') }}</span>
         @else
-          <span class="nexum-label-sm">Diagnósticos activos</span>
+          <span class="nexum-label-sm">{{ __('nexum.active_diagnostics') }}</span>
         @endif
         <span class="nexum-badge-count">{{ $this->stats['total'] ?? 0 }}</span>
       </div>
@@ -124,35 +124,35 @@
       @php
         $chips = [
           'all' => [
-            'label' => 'Todos',
+            'label' => __('nexum.chip_all'),
             'path'  => 'M4 6h16M4 10h16M4 14h16M4 18h7',
           ],
           'critical' => [
-            'label' => 'Urgentes',
+            'label' => __('nexum.chip_critical'),
             'path'  => 'M12 9v4m0 4h.01M10.29 3.86L1.82 18a2 2 0 001.71 3h16.94a2 2 0 001.71-3L13.71 3.86a2 2 0 00-3.42 0z',
           ],
           'stock_alert' => [
-            'label' => 'Stock',
+            'label' => __('nexum.chip_stock'),
             'path'  => 'M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4',
           ],
           'revenue_opportunity' => [
-            'label' => 'Ingresos',
+            'label' => __('nexum.chip_revenue'),
             'path'  => 'M13 7h8m0 0v8m0-8l-8 8-4-4-6 6',
           ],
           'cost_warning' => [
-            'label' => 'Costos',
+            'label' => __('nexum.chip_cost'),
             'path'  => 'M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z',
           ],
           'client_retention' => [
-            'label' => 'Clientes',
+            'label' => __('nexum.chip_clients'),
             'path'  => 'M17 21v-2a4 4 0 00-4-4H5a4 4 0 00-4 4v2M23 21v-2a4 4 0 00-3-3.87M16 3.13a4 4 0 010 7.75',
           ],
           'trend' => [
-            'label' => 'Tendencias',
+            'label' => __('nexum.chip_trend'),
             'path'  => 'M7 20l4-16m2 16l4-16M6 9h14M4 15h14',
           ],
           'prediction' => [
-            'label' => 'Predicciones',
+            'label' => __('nexum.chip_prediction'),
             'path'  => 'M11.049 2.927c.3-.921 1.603-.921 1.902 0l1.519 4.674a1 1 0 00.95.69h4.915c.969 0 1.371 1.24.588 1.81l-3.976 2.888a1 1 0 00-.363 1.118l1.518 4.674c.3.922-.755 1.688-1.538 1.118l-3.976-2.888a1 1 0 00-1.176 0l-3.976 2.888c-.783.57-1.838-.197-1.538-1.118l1.518-4.674a1 1 0 00-.363-1.118l-3.976-2.888c-.784-.57-.38-1.81.588-1.81h4.914a1 1 0 00.951-.69l1.519-4.674z',
           ],
         ];
@@ -214,7 +214,7 @@
                   {{ ucfirst($insight->priority) }}
                 </span>
                 <button wire:click="dismiss({{ $insight->id }})"
-                        class="nexum-dismiss-btn" title="Descartar">
+                        class="nexum-dismiss-btn" title="{{ __('nexum.dismiss_title') }}">
                   <svg class="w-2.5 h-2.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M6 18L18 6M6 6l12 12"/>
                   </svg>
@@ -227,8 +227,8 @@
             <svg class="w-10 h-10 mx-auto mb-3 opacity-30" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/>
             </svg>
-            <p>No hay diagnósticos en esta categoría.</p>
-            <p class="text-xs opacity-60 mt-1">Actualizá el análisis para ver nuevos diagnósticos.</p>
+            <p>{{ __('nexum.no_diagnostics') }}</p>
+            <p class="text-xs opacity-60 mt-1">{{ __('nexum.update_hint') }}</p>
           </div>
         @endforelse
       </div>
@@ -238,9 +238,9 @@
         <div style="margin-top:.75rem; padding:.6rem .85rem; border-radius:.65rem; background:rgba(109,40,217,.06); border:1px solid rgba(139,92,246,.18); display:flex; align-items:center; justify-content:space-between; gap:.5rem;">
           <div style="display:flex; align-items:center; gap:.45rem;">
             <div class="nexum-ai-icon" style="width:16px;height:16px;flex-shrink:0;"><span style="font-size:7px;">N</span></div>
-            <span style="font-size:.72rem; color:var(--nx-t3);">Diagnósticos con IA disponibles en Premium</span>
+            <span style="font-size:.72rem; color:var(--nx-t3);">{{ __('nexum.upgrade_hint') }}</span>
           </div>
-          <a href="{{ route('plans') }}" style="font-size:.7rem; font-weight:600; color:var(--nx-t2); text-decoration:none; white-space:nowrap;">Mejorar plan →</a>
+          <a href="{{ route('plans') }}" style="font-size:.7rem; font-weight:600; color:var(--nx-t2); text-decoration:none; white-space:nowrap;">{{ __('nexum.upgrade_btn') }}</a>
         </div>
       @endif
     </div>
@@ -250,8 +250,8 @@
   <div class="nexum-reports-section">
     <div class="nexum-reports-header">
       <div>
-        <h3 class="nexum-section-title">Reportes descargables</h3>
-        <p class="nexum-section-sub">PDFs con ventas, gastos, margen y health score del período.</p>
+        <h3 class="nexum-section-title">{{ __('nexum.reports_title') }}</h3>
+        <p class="nexum-section-sub">{{ __('nexum.reports_sub') }}</p>
       </div>
       <div class="flex items-center gap-2">
 
@@ -264,7 +264,7 @@
               <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/>
               </svg>
-              Generar reporte
+              {{ __('nexum.generate_report') }}
               <svg class="w-3 h-3 transition-transform duration-200" :class="open ? 'rotate-180' : ''"
                    fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M19 9l-7 7-7-7"/>
@@ -274,7 +274,7 @@
               <svg class="w-4 h-4 animate-spin" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"/>
               </svg>
-              Generando...
+              {{ __('nexum.generating') }}
             </span>
           </button>
 
@@ -287,11 +287,11 @@
                x-transition:leave-end="opacity-0 scale-95"
                class="nexum-period-dropdown">
             @foreach([
-              'weekly'     => ['Semanal',     'Últimos 7 días'],
-              'monthly'    => ['Mensual',      'Últimos 30 días'],
-              'quarterly'  => ['Trimestral',   'Últimos 3 meses'],
-              'semiannual' => ['Semestral',    'Últimos 6 meses'],
-              'annual'     => ['Anual',        'Último año'],
+              'weekly'     => [__('nexum.period_weekly'),     __('nexum.period_weekly_hint')],
+              'monthly'    => [__('nexum.period_monthly'),    __('nexum.period_monthly_hint')],
+              'quarterly'  => [__('nexum.period_quarterly'),  __('nexum.period_quarterly_hint')],
+              'semiannual' => [__('nexum.period_semiannual'), __('nexum.period_semiannual_hint')],
+              'annual'     => [__('nexum.period_annual'),     __('nexum.period_annual_hint')],
             ] as $value => [$label, $hint])
               <button @click="$dispatch('open-report-modal'); $wire.requestManualReport('{{ $value }}'); open = false"
                       class="nexum-period-item">
@@ -307,7 +307,7 @@
           <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"/>
           </svg>
-          Programar
+          {{ __('nexum.schedule_btn') }}
         </button>
       </div>
     </div>
@@ -315,34 +315,34 @@
     {{-- Config panel --}}
     @if($showConfig)
     <div class="nexum-config-panel">
-      <h4 class="nexum-config-title">Configuración de reportes automáticos</h4>
+      <h4 class="nexum-config-title">{{ __('nexum.config_title') }}</h4>
       <div class="nexum-config-grid">
         <div>
-          <label class="nexum-label-sm block mb-1">Frecuencia</label>
+          <label class="nexum-label-sm block mb-1">{{ __('nexum.frequency_label') }}</label>
           <select wire:model="frequency" class="nexum-select">
-            <option value="weekly">Semanal (últimos 7 días)</option>
-            <option value="monthly">Mensual (mes anterior)</option>
-            <option value="quarterly">Trimestral (últimos 3 meses)</option>
-            <option value="semiannual">Semestral (últimos 6 meses)</option>
-            <option value="annual">Anual (año anterior)</option>
+            <option value="weekly">{{ __('nexum.period_weekly') }} ({{ __('nexum.period_weekly_hint') }})</option>
+            <option value="monthly">{{ __('nexum.period_monthly') }} ({{ __('nexum.period_monthly_hint') }})</option>
+            <option value="quarterly">{{ __('nexum.period_quarterly') }} ({{ __('nexum.period_quarterly_hint') }})</option>
+            <option value="semiannual">{{ __('nexum.period_semiannual') }} ({{ __('nexum.period_semiannual_hint') }})</option>
+            <option value="annual">{{ __('nexum.period_annual') }} ({{ __('nexum.period_annual_hint') }})</option>
           </select>
         </div>
         <div class="flex items-center gap-6 pt-5">
           <label class="nexum-toggle-label">
             <input type="checkbox" wire:model="isActive" class="sr-only peer">
             <div class="nexum-toggle peer-checked:bg-violet-600"></div>
-            <span class="nexum-label-sm">Activo</span>
+            <span class="nexum-label-sm">{{ __('nexum.active_label') }}</span>
           </label>
           <label class="nexum-toggle-label">
             <input type="checkbox" wire:model="emailDelivery" class="sr-only peer">
             <div class="nexum-toggle peer-checked:bg-violet-600"></div>
-            <span class="nexum-label-sm">Email</span>
+            <span class="nexum-label-sm">{{ __('nexum.email_label') }}</span>
           </label>
         </div>
       </div>
       <div class="flex gap-2 mt-4">
-        <button wire:click="saveConfig" class="nexum-btn-primary">Guardar</button>
-        <button wire:click="$set('showConfig', false)" class="nexum-btn-cancel">Cancelar</button>
+        <button wire:click="saveConfig" class="nexum-btn-primary">{{ __('nexum.save_btn') }}</button>
+        <button wire:click="$set('showConfig', false)" class="nexum-btn-cancel">{{ __('nexum.cancel_btn') }}</button>
       </div>
     </div>
     @endif
@@ -354,18 +354,18 @@
           <svg class="w-8 h-8 mx-auto mb-2 opacity-30" fill="none" stroke="currentColor" viewBox="0 0 24 24">
             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/>
           </svg>
-          <p class="text-sm">Todavía no hay reportes generados.</p>
-          <p class="text-xs opacity-60 mt-1">Hacé clic en "Generar reporte" para crear el primero.</p>
+          <p class="text-sm">{{ __('nexum.no_reports') }}</p>
+          <p class="text-xs opacity-60 mt-1">{{ __('nexum.no_reports_hint') }}</p>
         </div>
       @else
         <table class="nexum-table">
           <thead>
             <tr>
-              <th>Período</th>
-              <th>Frecuencia</th>
-              <th>Generado</th>
-              <th>Tamaño</th>
-              <th>Estado</th>
+              <th>{{ __('nexum.col_period') }}</th>
+              <th>{{ __('nexum.col_frequency') }}</th>
+              <th>{{ __('nexum.col_generated') }}</th>
+              <th>{{ __('nexum.col_size') }}</th>
+              <th>{{ __('nexum.col_status') }}</th>
               <th></th>
             </tr>
           </thead>
@@ -378,16 +378,16 @@
               <td>{{ $report->fileSizeFormatted() }}</td>
               <td>
                 @if($report->status === 'ready')
-                  <span class="nexum-status-ok">Listo</span>
+                  <span class="nexum-status-ok">{{ __('nexum.status_ready') }}</span>
                 @elseif($report->status === 'generating' || $report->status === 'pending')
                   <span class="nexum-status-pending">
                     <svg class="w-3 h-3 animate-spin inline mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                       <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"/>
                     </svg>
-                    Generando...
+                    {{ __('nexum.status_generating') }}
                   </span>
                 @else
-                  <span class="nexum-status-error">Error</span>
+                  <span class="nexum-status-error">{{ __('nexum.status_error') }}</span>
                 @endif
               </td>
               <td>
@@ -404,7 +404,7 @@
                     </a>
                     <a href="{{ route('nexum.reports.download', $report) }}"
                        class="nexum-download-btn"
-                       title="Descargar PDF">
+                       title="{{ __('nexum.modal_download_btn') }}">
                       <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"/>
                       </svg>
@@ -412,10 +412,10 @@
                     </a>
                   @endif
                   <button wire:click="deleteReport({{ $report->id }})"
-                          wire:confirm="¿Eliminar este reporte? Esta acción no se puede deshacer."
+                          wire:confirm="{{ __('nexum.confirm_delete_report') }}"
                           wire:loading.attr="disabled"
                           class="nexum-delete-btn"
-                          title="Eliminar reporte">
+                          title="{{ __('nexum.confirm_delete_report') }}">
                     <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                       <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"/>
                     </svg>
@@ -463,7 +463,7 @@
     >
 
       {{-- X cerrar (solo cuando listo) --}}
-      <button x-show="done" @click="show = false" class="nexum-modal-x" title="Cerrar" x-cloak>
+      <button x-show="done" @click="show = false" class="nexum-modal-x" title="{{ __('nexum.modal_close_title') }}" x-cloak>
         <svg width="13" height="13" fill="none" stroke="currentColor" stroke-width="2.2" viewBox="0 0 24 24">
           <path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12"/>
         </svg>
@@ -472,8 +472,8 @@
       {{-- Estado: Generando ──────────────────────────── --}}
       <div x-show="!done">
         <div class="nexum-modal-spinner"></div>
-        <p class="nexum-modal-title">Generando reporte</p>
-        <p class="nexum-modal-sub">Analizando ventas, márgenes e inventario&hellip;</p>
+        <p class="nexum-modal-title">{{ __('nexum.modal_generating_title') }}</p>
+        <p class="nexum-modal-sub">{{ __('nexum.modal_generating_sub') }}</p>
       </div>
 
       {{-- Estado: Listo ──────────────────────────────── --}}
@@ -483,21 +483,21 @@
             <path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7"/>
           </svg>
         </div>
-        <p class="nexum-modal-title">Reporte listo</p>
-        <p class="nexum-modal-sub">Tu PDF ya está disponible.</p>
+        <p class="nexum-modal-title">{{ __('nexum.modal_ready_title') }}</p>
+        <p class="nexum-modal-sub">{{ __('nexum.modal_ready_sub') }}</p>
         <div class="nexum-modal-actions">
           <a :href="viewUrl" target="_blank" class="nexum-modal-btn-view">
             <svg width="15" height="15" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
               <path stroke-linecap="round" stroke-linejoin="round" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/>
               <path stroke-linecap="round" stroke-linejoin="round" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"/>
             </svg>
-            Ver
+            {{ __('nexum.modal_view_btn') }}
           </a>
           <a :href="downloadUrl" class="nexum-modal-btn-download">
             <svg width="15" height="15" fill="none" stroke="currentColor" stroke-width="2.2" viewBox="0 0 24 24">
               <path stroke-linecap="round" stroke-linejoin="round" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"/>
             </svg>
-            Descargar PDF
+            {{ __('nexum.modal_download_btn') }}
           </a>
         </div>
       </div>

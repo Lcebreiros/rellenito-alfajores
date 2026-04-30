@@ -29,14 +29,14 @@
 
             <!-- Placeholder -->
             <template x-if="!previewTemp && !previewUrl">
-                <span class="text-xs text-slate-500">Sin logo</span>
+                <span class="text-xs text-slate-500">{{ __('settings.logo_no_logo') }}</span>
             </template>
 
         </div>
 
         <div class="text-sm text-slate-600">
-            <p class="font-medium text-slate-800">Logo actual</p>
-            <p>Recomendado: PNG con fondo transparente, mínimo 128×128.</p>
+            <p class="font-medium text-slate-800">{{ __('settings.logo_current') }}</p>
+            <p>{{ __('settings.logo_hint') }}</p>
         </div>
     </div>
 
@@ -56,7 +56,7 @@
 
         {{-- Indicador de carga --}}
         <div class="mt-3" wire:loading wire:target="logo">
-            <p class="text-sm text-slate-500">Subiendo…</p>
+            <p class="text-sm text-slate-500">{{ __('settings.logo_uploading') }}</p>
         </div>
     </div>
 
@@ -68,14 +68,14 @@
                 wire:target="save,logo"
                 x-on:click="previewTemp = null" 
                 class="inline-flex items-center px-4 py-2 rounded-lg bg-slate-900 text-white text-sm font-medium hover:opacity-95 disabled:opacity-50">
-            Guardar logo
+            {{ __('settings.logo_save_btn') }}
         </button>
 
         <button type="button"
                 wire:click="remove"
                 wire:loading.attr="disabled"
                 class="inline-flex items-center px-4 py-2 rounded-lg border border-slate-200 text-slate-700 text-sm font-medium hover:bg-slate-50 disabled:opacity-50">
-            Quitar logo
+            {{ __('settings.logo_remove_btn') }}
         </button>
     </div>
 </div>

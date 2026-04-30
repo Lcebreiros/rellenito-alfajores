@@ -16,7 +16,7 @@
           <div class="flex-1">
             <h3 class="text-lg font-bold text-gray-900 dark:text-neutral-100 mb-1">
               <i class="fas fa-minus-circle text-rose-500 mr-2"></i>
-              Descontar Stock
+              {{ __('stock.discount_title') }}
             </h3>
             <p class="text-sm text-gray-600 dark:text-neutral-400">
               {{ $productName }}
@@ -42,7 +42,7 @@
                 </div>
                 <div>
                   <div class="text-xs text-blue-600 dark:text-blue-400 font-medium uppercase tracking-wide">
-                    Stock Actual
+                    {{ __('stock.discount_current') }}
                   </div>
                   <div class="text-2xl font-bold text-blue-900 dark:text-blue-100">
                     {{ number_format($currentStock) }}
@@ -56,7 +56,7 @@
           <div>
             <label for="quantity" class="block text-sm font-semibold text-gray-700 dark:text-neutral-300 mb-2">
               <i class="fas fa-hashtag text-xs mr-1"></i>
-              Cantidad a Descontar *
+              {{ __('stock.discount_qty_label') }}
             </label>
             <input type="number"
                    id="quantity"
@@ -68,7 +68,7 @@
                           text-gray-900 dark:text-neutral-100
                           rounded-xl focus:ring-2 focus:ring-rose-500 focus:border-rose-500
                           transition-colors"
-                   placeholder="Ingrese la cantidad"
+                   placeholder="{{ __('stock.discount_qty_ph') }}"
                    required>
             @error('quantity')
               <p class="mt-2 text-sm text-rose-600 dark:text-rose-400">
@@ -76,7 +76,7 @@
               </p>
             @enderror
             <p class="mt-2 text-xs text-gray-500 dark:text-neutral-400">
-              Máximo: {{ number_format($currentStock) }} unidades
+              {{ __('stock.discount_qty_max', ['count' => number_format($currentStock)]) }}
             </p>
           </div>
 
@@ -84,7 +84,7 @@
           <div>
             <label for="adjustmentDate" class="block text-sm font-semibold text-gray-700 dark:text-neutral-300 mb-2">
               <i class="fas fa-calendar text-xs mr-1"></i>
-              Fecha del Descuento *
+              {{ __('stock.discount_date_label') }}
             </label>
             <input type="date"
                    id="adjustmentDate"
@@ -102,7 +102,7 @@
               </p>
             @enderror
             <p class="mt-2 text-xs text-gray-500 dark:text-neutral-400">
-              La fecha no puede ser futura
+              {{ __('stock.discount_date_hint') }}
             </p>
           </div>
 
@@ -110,7 +110,7 @@
           <div>
             <label for="notes" class="block text-sm font-semibold text-gray-700 dark:text-neutral-300 mb-2">
               <i class="fas fa-note-sticky text-xs mr-1"></i>
-              Motivo del Descuento *
+              {{ __('stock.discount_notes_label') }}
             </label>
             <textarea id="notes"
                       wire:model.defer="notes"
@@ -121,7 +121,7 @@
                              text-gray-900 dark:text-neutral-100
                              rounded-xl focus:ring-2 focus:ring-rose-500 focus:border-rose-500
                              transition-colors resize-none"
-                      placeholder="Ejemplo: Producto dañado, vencido, usado para degustación, etc."
+                      placeholder="{{ __('stock.discount_notes_ph') }}"
                       required></textarea>
             @error('notes')
               <p class="mt-2 text-sm text-rose-600 dark:text-rose-400">
@@ -131,7 +131,7 @@
             <p class="mt-2 text-xs text-gray-500 dark:text-neutral-400">
               <span wire:ignore>
                 <span x-data="{ count: $wire.entangle('notes').length || 0 }"
-                      x-text="count + '/500 caracteres'"></span>
+                      x-text="count + {{ @json(__('stock.discount_chars')) }}"></span>
               </span>
             </p>
           </div>
@@ -142,7 +142,7 @@
               <div class="flex items-center justify-between">
                 <div>
                   <div class="text-xs text-amber-600 dark:text-amber-400 font-medium uppercase tracking-wide mb-1">
-                    Stock Resultante
+                    {{ __('stock.discount_result') }}
                   </div>
                   <div class="text-2xl font-bold text-amber-900 dark:text-amber-100">
                     {{ number_format($currentStock - $quantity) }}
@@ -150,7 +150,7 @@
                 </div>
                 <div class="text-right">
                   <div class="text-xs text-amber-600 dark:text-amber-400 font-medium">
-                    Se descontarán
+                    {{ __('stock.discount_will_deduct') }}
                   </div>
                   <div class="text-lg font-bold text-rose-600 dark:text-rose-400">
                     -{{ number_format($quantity) }}
@@ -173,7 +173,7 @@
                          focus:ring-2 focus:ring-gray-500 focus:ring-offset-2
                          transition-colors">
             <i class="fas fa-times mr-2"></i>
-            Cancelar
+            {{ __('stock.discount_cancel') }}
           </button>
           <button type="button"
                   wire:click="discount"
@@ -184,7 +184,7 @@
                          focus:ring-2 focus:ring-rose-500 focus:ring-offset-2
                          transition-all transform hover:-translate-y-0.5">
             <i class="fas fa-minus-circle mr-2"></i>
-            Descontar Stock
+            {{ __('stock.discount_btn') }}
           </button>
         </div>
       </div>

@@ -3,14 +3,14 @@
 @section('header')
   <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3 sm:gap-4">
     <div class="min-w-0 flex-1">
-      <h1 class="text-xl sm:text-2xl font-bold text-neutral-900 dark:text-neutral-100">Reclamo #{{ $ticket->id }}</h1>
-      <div class="text-xs sm:text-sm text-neutral-500 dark:text-neutral-400 truncate">{{ $ticket->subject ?: 'Sin asunto' }}</div>
+      <h1 class="text-xl sm:text-2xl font-bold text-neutral-900 dark:text-neutral-100">{{ __('support.ticket_title_prefix') }}{{ $ticket->id }}</h1>
+      <div class="text-xs sm:text-sm text-neutral-500 dark:text-neutral-400 truncate">{{ $ticket->subject ?: __('support.no_subject') }}</div>
     </div>
     <div class="flex items-center gap-2 flex-wrap sm:ml-auto">
       @php $map=['nuevo'=>'bg-amber-100 text-amber-700 dark:bg-amber-900/30 dark:text-amber-400','en_proceso'=>'bg-blue-100 text-blue-700 dark:bg-blue-900/30 dark:text-blue-400','solucionado'=>'bg-emerald-100 text-emerald-700 dark:bg-emerald-900/30 dark:text-emerald-400']; $tmap=['consulta'=>'bg-neutral-100 text-neutral-700 dark:bg-neutral-800 dark:text-neutral-300','problema'=>'bg-rose-100 text-rose-700 dark:bg-rose-900/30 dark:text-rose-400','sugerencia'=>'bg-emerald-100 text-emerald-700 dark:bg-emerald-900/30 dark:text-emerald-400']; @endphp
       <span class="text-[11px] sm:text-xs px-2 py-1 rounded-full {{ $tmap[$ticket->type] ?? 'bg-neutral-100 text-neutral-700' }} whitespace-nowrap">{{ ucfirst($ticket->type) }}</span>
       <span class="text-[11px] sm:text-xs px-2 py-1 rounded-full {{ $map[$ticket->status] ?? 'bg-neutral-100 text-neutral-700' }} whitespace-nowrap">{{ str_replace('_',' ',ucfirst($ticket->status)) }}</span>
-      <a href="{{ route('support.index') }}" class="px-3 py-1.5 sm:py-2 rounded-lg border border-neutral-300 dark:border-neutral-700 text-xs sm:text-sm hover:bg-neutral-50 dark:hover:bg-neutral-800 transition whitespace-nowrap touch-manipulation">Volver</a>
+      <a href="{{ route('support.index') }}" class="px-3 py-1.5 sm:py-2 rounded-lg border border-neutral-300 dark:border-neutral-700 text-xs sm:text-sm hover:bg-neutral-50 dark:hover:bg-neutral-800 transition whitespace-nowrap touch-manipulation">{{ __('support.back_btn') }}</a>
     </div>
   </div>
 @endsection
@@ -26,13 +26,13 @@
       <form method="POST" action="{{ route('support.status', $ticket) }}" class="flex flex-col sm:flex-row items-stretch sm:items-center gap-2">
         @csrf
         @method('PUT')
-        <label class="text-sm font-medium sm:font-normal">Estado:</label>
+        <label class="text-sm font-medium sm:font-normal">{{ __('support.status_change_label') }}</label>
         <select name="status" class="flex-1 sm:flex-none rounded-lg border-neutral-300 dark:border-neutral-700 bg-white dark:bg-neutral-900 px-3 py-2 text-sm touch-manipulation">
-          @foreach(['nuevo'=>'Nuevo','en_proceso'=>'En proceso','solucionado'=>'Solucionado'] as $k=>$label)
+          @foreach(['nuevo' => __('support.status_nuevo'), 'en_proceso' => __('support.status_en_proceso'), 'solucionado' => __('support.status_solucionado')] as $k => $label)
             <option value="{{ $k }}" @selected($ticket->status===$k)>{{ $label }}</option>
           @endforeach
         </select>
-        <button class="px-3 py-2.5 sm:py-2 rounded-lg bg-indigo-600 text-white text-sm font-medium hover:bg-indigo-700 active:bg-indigo-800 transition touch-manipulation">Actualizar</button>
+        <button class="px-3 py-2.5 sm:py-2 rounded-lg bg-indigo-600 text-white text-sm font-medium hover:bg-indigo-700 active:bg-indigo-800 transition touch-manipulation">{{ __('support.update_btn') }}</button>
       </form>
     </div>
   @endif
@@ -53,7 +53,7 @@
 
     @if($ticket->status === 'solucionado')
       <div class="border-t border-neutral-100 dark:border-neutral-800 p-4 bg-neutral-50 dark:bg-neutral-900/50 text-sm text-neutral-600 dark:text-neutral-300">
-        Este ticket está marcado como solucionado. No se pueden agregar más mensajes.
+        {{ __('support.resolved_notice') }}
       </div>
     @else
       <div class="border-t border-neutral-100 dark:border-neutral-800 p-3 sm:p-4 bg-neutral-50 dark:bg-neutral-900/50">
@@ -66,12 +66,12 @@
               rows="2"
               required
               class="w-full rounded-lg border-neutral-300 dark:border-neutral-700 bg-white dark:bg-neutral-900 px-3 py-2 text-sm focus:ring-2 focus:ring-indigo-500 focus:border-transparent resize-none touch-manipulation"
-              placeholder="Escribe tu mensaje..."
+              placeholder="{{ __('support.reply_placeholder') }}"
               maxlength="5000"
             ></textarea>
             <div class="text-[11px] sm:text-xs text-neutral-500 dark:text-neutral-400 mt-1 flex items-center justify-between">
               <span><span id="char-count">0</span> / 5000</span>
-              <span class="text-[10px] sm:text-[11px] opacity-60">Shift+Enter para nueva línea</span>
+              <span class="text-[10px] sm:text-[11px] opacity-60">{{ __('support.shift_enter_hint') }}</span>
             </div>
           </div>
           <button
@@ -82,7 +82,7 @@
             <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 19l9 2-9-18-9 18 9-2zm0 0v-8"></path>
             </svg>
-            <span class="font-medium">Enviar</span>
+            <span class="font-medium">{{ __('support.send_btn') }}</span>
           </button>
         </form>
       </div>
@@ -230,7 +230,7 @@
 
       isSubmitting = true;
       sendButton.disabled = true;
-      sendButton.querySelector('span').textContent = 'Enviando...';
+      sendButton.querySelector('span').textContent = @json(__('support.sending'));
 
       // Enviar con fetch (AJAX)
       const formData = new FormData(chatForm);
@@ -254,13 +254,13 @@
       .catch(error => {
         console.error('❌ Error al enviar mensaje:', error);
         // Mostrar error al usuario
-        alert('Error al enviar el mensaje. Por favor, intenta de nuevo.');
+        alert(@json(__('support.send_error')));
       })
       .finally(() => {
         // Resetear estado del botón
         isSubmitting = false;
         sendButton.disabled = false;
-        sendButton.querySelector('span').textContent = 'Enviar';
+        sendButton.querySelector('span').textContent = @json(__('support.send_btn'));
       });
     });
 

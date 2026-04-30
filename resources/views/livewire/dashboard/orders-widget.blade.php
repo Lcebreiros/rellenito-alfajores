@@ -52,7 +52,7 @@
           {{ $deltaAbs }}%
         @endif
       </span>
-      <span class="text-[11px] text-neutral-400 dark:text-neutral-500">vs. mes anterior</span>
+      <span class="text-[11px] text-neutral-400 dark:text-neutral-500">{{ __('dashboard.vs_prev_month') }}</span>
     </div>
   @endif
 </div>

@@ -29,7 +29,7 @@
         {{-- Logo y título --}}
         <a href="{{ route('inicio') }}" class="inline-flex items-center gap-2">
             <x-application-mark class="h-8 w-auto" />
-            <span class="font-semibold text-neutral-900 dark:text-neutral-100">Panel</span>
+            <span class="font-semibold text-neutral-900 dark:text-neutral-100">{{ __('nav.panel_label') }}</span>
             @if($levelLabel)
               <span class="ml-1 text-sm font-semibold text-neutral-500 dark:text-neutral-400">{{ $levelLabel }}</span>
             @endif
@@ -91,7 +91,7 @@
                                     {{ Auth::user()->email }}
                                 </p>
                             @else
-                                <p class="text-sm font-semibold text-neutral-900 dark:text-neutral-100">Invitado</p>
+                                <p class="text-sm font-semibold text-neutral-900 dark:text-neutral-100">{{ __('nav.guest_label') }}</p>
                             @endauth
                         </div>
                     </div>

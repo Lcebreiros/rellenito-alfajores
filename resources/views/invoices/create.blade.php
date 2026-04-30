@@ -1,7 +1,7 @@
 @extends('layouts.app')
 
 @section('header')
-  <h1 class="text-2xl font-bold text-neutral-900 dark:text-neutral-100">Nueva Factura</h1>
+  <h1 class="text-2xl font-bold text-neutral-900 dark:text-neutral-100">{{ __('invoices.create_title') }}</h1>
 @endsection
 
 @section('header_actions')
@@ -9,7 +9,7 @@
     <svg class="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
       <path stroke-linecap="round" stroke-linejoin="round" d="M10 19l-7-7m0 0l7-7m-7 7h18" />
     </svg>
-    Volver
+    {{ __('invoices.back') }}
   </a>
 @endsection
 
@@ -28,7 +28,7 @@
     {{-- Client and invoice data --}}
     <div class="container-glass shadow-sm overflow-hidden mb-6">
       <div class="bg-neutral-100/70 dark:bg-neutral-800/60 px-6 py-4 border-b border-neutral-200 dark:border-neutral-700">
-        <h2 class="text-lg font-semibold text-neutral-900 dark:text-neutral-100">Datos de la factura</h2>
+        <h2 class="text-lg font-semibold text-neutral-900 dark:text-neutral-100">{{ __('invoices.invoice_data') }}</h2>
       </div>
 
       <div class="p-6 space-y-6">
@@ -36,24 +36,24 @@
           {{-- Voucher type --}}
           <div>
             <label class="block text-sm font-medium text-neutral-700 dark:text-neutral-300 mb-2">
-              Tipo de comprobante <span class="text-rose-500">*</span>
+              {{ __('invoices.voucher_type') }} <span class="text-rose-500">*</span>
             </label>
             <select name="voucher_type" required class="input-enhanced w-full">
-              <option value="">Seleccionar...</option>
-              <optgroup label="Facturas">
-                <option value="FC-A" {{ old('voucher_type') === 'FC-A' ? 'selected' : '' }}>Factura A</option>
-                <option value="FC-B" {{ old('voucher_type') === 'FC-B' ? 'selected' : '' }}>Factura B</option>
-                <option value="FC-C" {{ old('voucher_type') === 'FC-C' ? 'selected' : '' }}>Factura C</option>
+              <option value="">{{ __('invoices.select_ph') }}</option>
+              <optgroup label="{{ __('invoices.optgroup_invoices') }}">
+                <option value="FC-A" {{ old('voucher_type') === 'FC-A' ? 'selected' : '' }}>{{ __('invoices.opt_invoice_a') }}</option>
+                <option value="FC-B" {{ old('voucher_type') === 'FC-B' ? 'selected' : '' }}>{{ __('invoices.opt_invoice_b') }}</option>
+                <option value="FC-C" {{ old('voucher_type') === 'FC-C' ? 'selected' : '' }}>{{ __('invoices.opt_invoice_c') }}</option>
               </optgroup>
-              <optgroup label="Notas de Crédito">
-                <option value="NC-A" {{ old('voucher_type') === 'NC-A' ? 'selected' : '' }}>Nota de Crédito A</option>
-                <option value="NC-B" {{ old('voucher_type') === 'NC-B' ? 'selected' : '' }}>Nota de Crédito B</option>
-                <option value="NC-C" {{ old('voucher_type') === 'NC-C' ? 'selected' : '' }}>Nota de Crédito C</option>
+              <optgroup label="{{ __('invoices.optgroup_credit') }}">
+                <option value="NC-A" {{ old('voucher_type') === 'NC-A' ? 'selected' : '' }}>{{ __('invoices.opt_credit_a') }}</option>
+                <option value="NC-B" {{ old('voucher_type') === 'NC-B' ? 'selected' : '' }}>{{ __('invoices.opt_credit_b') }}</option>
+                <option value="NC-C" {{ old('voucher_type') === 'NC-C' ? 'selected' : '' }}>{{ __('invoices.opt_credit_c') }}</option>
               </optgroup>
-              <optgroup label="Notas de Débito">
-                <option value="ND-A" {{ old('voucher_type') === 'ND-A' ? 'selected' : '' }}>Nota de Débito A</option>
-                <option value="ND-B" {{ old('voucher_type') === 'ND-B' ? 'selected' : '' }}>Nota de Débito B</option>
-                <option value="ND-C" {{ old('voucher_type') === 'ND-C' ? 'selected' : '' }}>Nota de Débito C</option>
+              <optgroup label="{{ __('invoices.optgroup_debit') }}">
+                <option value="ND-A" {{ old('voucher_type') === 'ND-A' ? 'selected' : '' }}>{{ __('invoices.opt_debit_a') }}</option>
+                <option value="ND-B" {{ old('voucher_type') === 'ND-B' ? 'selected' : '' }}>{{ __('invoices.opt_debit_b') }}</option>
+                <option value="ND-C" {{ old('voucher_type') === 'ND-C' ? 'selected' : '' }}>{{ __('invoices.opt_debit_c') }}</option>
               </optgroup>
             </select>
           </div>
@@ -61,7 +61,7 @@
           {{-- Invoice date --}}
           <div>
             <label class="block text-sm font-medium text-neutral-700 dark:text-neutral-300 mb-2">
-              Fecha de emisión <span class="text-rose-500">*</span>
+              {{ __('invoices.issue_date') }} <span class="text-rose-500">*</span>
             </label>
             <input type="date"
                    name="invoice_date"
@@ -73,13 +73,13 @@
           {{-- Client select --}}
           <div>
             <label class="block text-sm font-medium text-neutral-700 dark:text-neutral-300 mb-2">
-              Cliente (opcional)
+              {{ __('invoices.client_optional') }}
             </label>
             <select name="client_id"
                     x-model="selectedClient"
                     @change="loadClientData()"
                     class="input-enhanced w-full">
-              <option value="">Manual...</option>
+              <option value="">{{ __('invoices.manual_opt') }}</option>
               @foreach($clients as $client)
                 <option value="{{ $client->id }}"
                         data-name="{{ $client->name }}"
@@ -94,10 +94,10 @@
           {{-- Order select --}}
           <div>
             <label class="block text-sm font-medium text-neutral-700 dark:text-neutral-300 mb-2">
-              Venta (opcional)
+              {{ __('invoices.order_optional') }}
             </label>
             <select name="order_id" class="input-enhanced w-full">
-              <option value="">Sin venta asociada</option>
+              <option value="">{{ __('invoices.no_order_opt') }}</option>
               @foreach($orders as $order)
                 <option value="{{ $order->id }}">
                   Venta #{{ $order->id }} - {{ $order->customer_name }} - ${{ number_format($order->total, 2) }}
@@ -109,12 +109,12 @@
 
         {{-- Client data --}}
         <div class="pt-6 border-t border-neutral-200 dark:border-neutral-700">
-          <h3 class="text-base font-semibold text-neutral-900 dark:text-neutral-100 mb-4">Datos del cliente</h3>
+          <h3 class="text-base font-semibold text-neutral-900 dark:text-neutral-100 mb-4">{{ __('invoices.client_data') }}</h3>
 
           <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
             <div>
               <label class="block text-sm font-medium text-neutral-700 dark:text-neutral-300 mb-2">
-                Nombre / Razón Social <span class="text-rose-500">*</span>
+                {{ __('invoices.client_name') }} <span class="text-rose-500">*</span>
               </label>
               <input type="text"
                      name="client_name"
@@ -126,7 +126,7 @@
 
             <div>
               <label class="block text-sm font-medium text-neutral-700 dark:text-neutral-300 mb-2">
-                CUIT / DNI
+                {{ __('invoices.client_cuit') }}
               </label>
               <input type="text"
                      name="client_cuit"
@@ -139,20 +139,20 @@
 
             <div>
               <label class="block text-sm font-medium text-neutral-700 dark:text-neutral-300 mb-2">
-                Condición frente al IVA <span class="text-rose-500">*</span>
+                {{ __('invoices.client_tax') }} <span class="text-rose-500">*</span>
               </label>
               <select name="client_tax_condition" required class="input-enhanced w-full">
-                <option value="Consumidor Final" {{ old('client_tax_condition') === 'Consumidor Final' ? 'selected' : '' }}>Consumidor Final</option>
-                <option value="IVA Responsable Inscripto" {{ old('client_tax_condition') === 'IVA Responsable Inscripto' ? 'selected' : '' }}>IVA Responsable Inscripto</option>
-                <option value="Monotributo" {{ old('client_tax_condition') === 'Monotributo' ? 'selected' : '' }}>Monotributo</option>
-                <option value="Exento" {{ old('client_tax_condition') === 'Exento' ? 'selected' : '' }}>Exento</option>
-                <option value="No Responsable" {{ old('client_tax_condition') === 'No Responsable' ? 'selected' : '' }}>No Responsable</option>
+                <option value="Consumidor Final" {{ old('client_tax_condition') === 'Consumidor Final' ? 'selected' : '' }}>{{ __('invoices.tax_final_consumer') }}</option>
+                <option value="IVA Responsable Inscripto" {{ old('client_tax_condition') === 'IVA Responsable Inscripto' ? 'selected' : '' }}>{{ __('invoices.tax_registered') }}</option>
+                <option value="Monotributo" {{ old('client_tax_condition') === 'Monotributo' ? 'selected' : '' }}>{{ __('invoices.tax_monotributo') }}</option>
+                <option value="Exento" {{ old('client_tax_condition') === 'Exento' ? 'selected' : '' }}>{{ __('invoices.tax_exempt') }}</option>
+                <option value="No Responsable" {{ old('client_tax_condition') === 'No Responsable' ? 'selected' : '' }}>{{ __('invoices.tax_non_responsible') }}</option>
               </select>
             </div>
 
             <div>
               <label class="block text-sm font-medium text-neutral-700 dark:text-neutral-300 mb-2">
-                Dirección
+                {{ __('invoices.client_address') }}
               </label>
               <input type="text"
                      name="client_address"
@@ -168,14 +168,14 @@
     {{-- Invoice items --}}
     <div class="container-glass shadow-sm overflow-hidden mb-6">
       <div class="bg-neutral-100/70 dark:bg-neutral-800/60 px-6 py-4 border-b border-neutral-200 dark:border-neutral-700 flex items-center justify-between">
-        <h2 class="text-lg font-semibold text-neutral-900 dark:text-neutral-100">Items</h2>
+        <h2 class="text-lg font-semibold text-neutral-900 dark:text-neutral-100">{{ __('invoices.items_title') }}</h2>
         <button type="button"
                 @click="addItem()"
                 class="inline-flex items-center gap-2 px-3 py-2 rounded-lg bg-indigo-600 text-white text-sm font-medium hover:bg-indigo-700 transition-all duration-150 active:scale-[0.98]">
           <svg class="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
             <path stroke-linecap="round" stroke-linejoin="round" d="M12 4v16m8-8H4" />
           </svg>
-          Agregar item
+          {{ __('invoices.add_item') }}
         </button>
       </div>
 
@@ -194,7 +194,7 @@
               <div class="grid grid-cols-1 md:grid-cols-12 gap-4">
                 <div class="md:col-span-4">
                   <label class="block text-xs font-medium text-neutral-700 dark:text-neutral-300 mb-1">
-                    Descripción <span class="text-rose-500">*</span>
+                    {{ __('invoices.item_desc') }} <span class="text-rose-500">*</span>
                   </label>
                   <input type="text"
                          :name="`items[${index}][description]`"
@@ -205,7 +205,7 @@
 
                 <div class="md:col-span-2">
                   <label class="block text-xs font-medium text-neutral-700 dark:text-neutral-300 mb-1">
-                    Cantidad <span class="text-rose-500">*</span>
+                    {{ __('invoices.item_qty') }} <span class="text-rose-500">*</span>
                   </label>
                   <input type="number"
                          :name="`items[${index}][quantity]`"
@@ -219,7 +219,7 @@
 
                 <div class="md:col-span-2">
                   <label class="block text-xs font-medium text-neutral-700 dark:text-neutral-300 mb-1">
-                    Precio Unit. <span class="text-rose-500">*</span>
+                    {{ __('invoices.item_price') }} <span class="text-rose-500">*</span>
                   </label>
                   <input type="number"
                          :name="`items[${index}][unit_price]`"
@@ -233,7 +233,7 @@
 
                 <div class="md:col-span-2">
                   <label class="block text-xs font-medium text-neutral-700 dark:text-neutral-300 mb-1">
-                    IVA %
+                    {{ __('invoices.item_tax_rate') }}
                   </label>
                   <select :name="`items[${index}][tax_rate]`"
                           x-model="item.tax_rate"
@@ -248,7 +248,7 @@
 
                 <div class="md:col-span-2">
                   <label class="block text-xs font-medium text-neutral-700 dark:text-neutral-300 mb-1">
-                    Subtotal
+                    {{ __('invoices.item_subtotal') }}
                   </label>
                   <div class="input-enhanced w-full text-sm bg-neutral-50 dark:bg-neutral-800 text-neutral-900 dark:text-neutral-100 font-medium" x-text="`$ ${item.subtotal.toFixed(2)}`"></div>
                 </div>
@@ -260,7 +260,7 @@
             <svg class="mx-auto h-12 w-12 mb-2" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
               <path stroke-linecap="round" stroke-linejoin="round" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2" />
             </svg>
-            No hay items. Haz clic en "Agregar item" para comenzar.
+            {{ __('invoices.no_items') }}
           </div>
         </div>
 
@@ -269,15 +269,15 @@
           <div class="flex justify-end">
             <div class="w-full md:w-80 space-y-2">
               <div class="flex justify-between text-sm">
-                <span class="text-neutral-700 dark:text-neutral-300">Subtotal:</span>
+                <span class="text-neutral-700 dark:text-neutral-300">{{ __('invoices.subtotal_label') }}</span>
                 <span class="font-medium text-neutral-900 dark:text-neutral-100 tabular-nums" x-text="`$ ${subtotal.toFixed(2)}`"></span>
               </div>
               <div class="flex justify-between text-sm">
-                <span class="text-neutral-700 dark:text-neutral-300">IVA:</span>
+                <span class="text-neutral-700 dark:text-neutral-300">{{ __('invoices.tax_label') }}</span>
                 <span class="font-medium text-neutral-900 dark:text-neutral-100 tabular-nums" x-text="`$ ${tax.toFixed(2)}`"></span>
               </div>
               <div class="flex justify-between text-lg font-bold pt-2 border-t border-neutral-200 dark:border-neutral-700">
-                <span class="text-neutral-900 dark:text-neutral-100">Total:</span>
+                <span class="text-neutral-900 dark:text-neutral-100">{{ __('invoices.total_label') }}</span>
                 <span class="text-indigo-600 dark:text-indigo-400 tabular-nums" x-text="`$ ${total.toFixed(2)}`"></span>
               </div>
             </div>
@@ -290,7 +290,7 @@
     <div class="flex items-center justify-end gap-3 mb-8">
       <a href="{{ route('invoices.index') }}"
          class="px-4 py-2.5 rounded-lg border border-neutral-300 dark:border-neutral-700 text-neutral-700 dark:text-neutral-200 hover:bg-neutral-50 dark:hover:bg-neutral-800 text-sm font-medium transition-all duration-150">
-        Cancelar
+        {{ __('invoices.cancel') }}
       </a>
       <button type="submit"
               :disabled="items.length === 0"
@@ -299,7 +299,7 @@
         <svg class="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
           <path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7" />
         </svg>
-        Crear factura
+        {{ __('invoices.create_btn') }}
       </button>
     </div>
   </form>

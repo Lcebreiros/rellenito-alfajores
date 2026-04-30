@@ -21,7 +21,7 @@ class MasterUserSeeder extends Seeder
         $master = User::firstOrCreate(
             ['email' => 'leancebreiros@hotmail.com'],
             [
-                'name' => 'Gestior',
+                'name' => 'leandro',
                 'password' => Hash::make('leandro1'), // mejor que bcrypt()
                 'parent_id' => null,
                 'hierarchy_level' => User::HIERARCHY_MASTER,

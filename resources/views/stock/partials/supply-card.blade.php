@@ -6,21 +6,21 @@
   // Determinar estado del badge y colores basado en stock
   if ($stockQty <= 0) {
     $badgeClass = 'inline-flex items-center gap-1 rounded-full px-2.5 py-1 text-xs font-semibold bg-rose-100 text-rose-700 dark:bg-rose-900/40 dark:text-rose-300 shadow-sm';
-    $badgeText = 'Sin stock';
+    $badgeText = __('stock.badge_out');
     $badgeIcon = 'fa-circle-xmark';
     $cardGlow = 'group-hover:shadow-rose-100 dark:group-hover:shadow-rose-900/20';
     $stockColor = 'text-rose-600 dark:text-rose-400';
     $progressColor = 'bg-rose-500';
   } elseif ($stockQty < 10) {
     $badgeClass = 'inline-flex items-center gap-1 rounded-full px-2.5 py-1 text-xs font-semibold bg-amber-100 text-amber-700 dark:bg-amber-900/40 dark:text-amber-300 shadow-sm';
-    $badgeText = 'Bajo';
+    $badgeText = __('stock.badge_low');
     $badgeIcon = 'fa-triangle-exclamation';
     $cardGlow = 'group-hover:shadow-amber-100 dark:group-hover:shadow-amber-900/20';
     $stockColor = 'text-amber-600 dark:text-amber-400';
     $progressColor = 'bg-amber-500';
   } else {
     $badgeClass = 'inline-flex items-center gap-1 rounded-full px-2.5 py-1 text-xs font-semibold bg-emerald-100 text-emerald-700 dark:bg-emerald-900/40 dark:text-emerald-300 shadow-sm';
-    $badgeText = 'OK';
+    $badgeText = __('stock.badge_ok');
     $badgeIcon = 'fa-circle-check';
     $cardGlow = 'group-hover:shadow-emerald-100 dark:group-hover:shadow-emerald-900/20';
     $stockColor = 'text-emerald-600 dark:text-emerald-400';
@@ -68,7 +68,7 @@
       <div class="flex items-end justify-between">
         <div>
           <div class="text-xs text-gray-600 dark:text-neutral-400 mb-1 font-medium">
-            <i class="fas fa-boxes-stacked text-[10px] mr-1" aria-hidden="true"></i>Stock Disponible
+            <i class="fas fa-boxes-stacked text-[10px] mr-1" aria-hidden="true"></i>{{ __('stock.stock_available') }}
           </div>
           <div class="text-2xl font-bold {{ $stockColor }} leading-none">
             {{ $supply->formatted_stock }}
@@ -86,7 +86,7 @@
           <div class="w-6 h-6 rounded-md bg-blue-100 dark:bg-blue-900/30 flex items-center justify-center">
             <i class="fas fa-dollar-sign text-[11px] text-blue-600 dark:text-blue-400" aria-hidden="true"></i>
           </div>
-          <span class="text-[11px] font-medium text-blue-700 dark:text-blue-300">Costo/{{ $supply->base_unit }}</span>
+          <span class="text-[11px] font-medium text-blue-700 dark:text-blue-300">{{ __('stock.cost_per_unit', ['unit' => $supply->base_unit]) }}</span>
         </div>
         <div class="text-base font-bold text-blue-900 dark:text-blue-100">
           $ {{ number_format($avgCost, 2, ',', '.') }}
@@ -99,7 +99,7 @@
           <div class="w-6 h-6 rounded-md bg-emerald-100 dark:bg-emerald-900/30 flex items-center justify-center">
             <i class="fas fa-sack-dollar text-[11px] text-emerald-600 dark:text-emerald-400" aria-hidden="true"></i>
           </div>
-          <span class="text-[11px] font-medium text-emerald-700 dark:text-emerald-300">Valorización</span>
+          <span class="text-[11px] font-medium text-emerald-700 dark:text-emerald-300">{{ __('stock.valuation') }}</span>
         </div>
         <div class="text-base font-bold text-emerald-900 dark:text-emerald-100">
           $ {{ number_format($value, 2, ',', '.') }}
@@ -111,13 +111,13 @@
     <div class="flex items-center justify-between pt-3 border-t border-gray-200 dark:border-neutral-700">
       <span class="text-xs text-gray-500 dark:text-neutral-400 font-medium">
         <i class="fas fa-warehouse text-[10px] mr-1" aria-hidden="true"></i>
-        Insumo
+        {{ __('stock.supply_label') }}
       </span>
       <a href="{{ route('supplies.show', $supply) }}"
          class="text-xs text-indigo-600 dark:text-indigo-400 hover:underline font-medium flex items-center gap-1"
          title="Ver inteligencia de stock">
         <i class="fas fa-brain text-[10px]" aria-hidden="true"></i>
-        Ver inteligencia →
+        {{ __('stock.view_intel') }}
       </a>
     </div>
   </div>

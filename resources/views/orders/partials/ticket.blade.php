@@ -137,8 +137,8 @@
   {{-- Controles opcionales (se ocultan en iframe con controls=0) --}}
   @if($withControls)
     <div class="no-print actions">
-      <button class="btn" onclick="if(history.length>1){history.back()}else{location.href='{{ route('orders.index') }}'}">Volver</button>
-      <button class="btn" onclick="downloadTicketPdf('{{ $order->id }}')">Descargar PDF</button>
+      <button class="btn" onclick="if(history.length>1){history.back()}else{location.href='{{ route('orders.index') }}'}">{{ __('orders.ticket.back') }}</button>
+      <button class="btn" onclick="downloadTicketPdf('{{ $order->id }}')">{{ __('orders.ticket.download_pdf') }}</button>
     </div>
   @endif
 
@@ -149,7 +149,7 @@
       @else
         <div class="brand">{{ $appName }}</div>
       @endif
-      <div class="subtitle">Comprobante de Venta</div>
+      <div class="subtitle">{{ __('orders.ticket.sale_receipt') }}</div>
       <div class="badge">#{{ $order->id }}</div>
     </div>
 
@@ -157,21 +157,21 @@
 
     <div class="meta">
       <div class="row">
-        <span class="label">Fecha</span>
+        <span class="label">{{ __('orders.ticket.date') }}</span>
         <span class="value">{{ $order->created_at?->format('d/m/Y H:i') }}</span>
       </div>
 
       @php $cliente = $order->customer_name ?? $order->guest_name ?? null; @endphp
       @if($cliente)
         <div class="row">
-          <span class="label">Cliente</span>
+          <span class="label">{{ __('orders.ticket.client') }}</span>
           <span class="value">{{ $cliente }}</span>
         </div>
       @endif
 
       @if(!empty($paymentValue))
         <div class="row">
-          <span class="label">Pago</span>
+          <span class="label">{{ __('orders.ticket.payment') }}</span>
           <span class="value">{{ $paymentValue }}</span>
         </div>
       @endif
@@ -186,7 +186,7 @@
 
     @if($productItems->count() > 0)
       <div class="items">
-        <div class="muted" style="margin-bottom:4px;">Productos</div>
+        <div class="muted" style="margin-bottom:4px;">{{ __('orders.ticket.products') }}</div>
         @foreach($productItems as $it)
           @php
             $q = (float)$it->quantity;
@@ -210,7 +210,7 @@
 
     @if($serviceItems->count() > 0)
       <div class="items">
-        <div class="muted" style="margin:6px 14px 0;">Servicios</div>
+        <div class="muted" style="margin:6px 14px 0;">{{ __('orders.ticket.services') }}</div>
         @foreach($serviceItems as $it)
           @php
             $q = (float)$it->quantity;
@@ -234,7 +234,7 @@
 
     @if($productItems->count() === 0 && $serviceItems->count() === 0)
       <div class="items">
-        <div class="muted" style="text-align:center;padding:12px 0;">Sin ítems</div>
+        <div class="muted" style="text-align:center;padding:12px 0;">{{ __('orders.ticket.no_items') }}</div>
       </div>
     @endif
 
@@ -243,26 +243,26 @@
 
       <div class="totals">
         <div class="trow">
-          <span class="label">Subtotal</span>
+          <span class="label">{{ __('orders.ticket.subtotal') }}</span>
           <span class="tval">${{ number_format($subtotalValue, 2, ',', '.') }}</span>
         </div>
 
         @if(($order->discount ?? 0) > 0)
           <div class="trow">
-            <span class="label">Descuento</span>
+            <span class="label">{{ __('orders.ticket.discount') }}</span>
             <span class="tval">- ${{ number_format($discountValue, 2, ',', '.') }}</span>
           </div>
         @endif
 
         @if(($order->tax_rate ?? 0) > 0)
           <div class="trow">
-            <span class="label">IVA ({{ (float)$order->tax_rate }}%)</span>
+            <span class="label">{{ __('orders.ticket.tax') }} ({{ (float)$order->tax_rate }}%)</span>
             <span class="tval">${{ number_format($taxValue, 2, ',', '.') }}</span>
           </div>
         @endif
 
         <div class="trow total">
-          <span>Total</span>
+          <span>{{ __('orders.ticket.total') }}</span>
           <span class="tval">${{ number_format($totalValue, 2, ',', '.') }}</span>
         </div>
       </div>
@@ -271,7 +271,7 @@
     @if(!empty($order->notes ?? $order->note))
       <div class="rule"></div>
       <div class="notes">
-        <h4>Observaciones</h4>
+        <h4>{{ __('orders.ticket.notes') }}</h4>
         <p>{{ $order->notes ?? $order->note }}</p>
       </div>
     @endif
@@ -290,7 +290,7 @@
     @endif
 
     <div class="footer">
-      <div class="small">Gracias por su compra</div>
+      <div class="small">{{ __('orders.ticket.thanks') }}</div>
       <div class="small" style="margin-top:2px;">
         {{ config('app.url') ? parse_url(config('app.url'), PHP_URL_HOST) : request()->getHost() }}
       </div>

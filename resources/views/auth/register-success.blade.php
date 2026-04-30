@@ -4,7 +4,7 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
   <meta name="csrf-token" content="{{ csrf_token() }}">
-  <title>Solicitud Enviada • Gestior</title>
+  <title>{{ __('auth.request_sent_title') }} • Gestior</title>
 
   {{-- Fuentes --}}
   <link rel="preconnect" href="https://fonts.bunny.net">
@@ -71,11 +71,11 @@
 
         {{-- Mensaje Principal --}}
         <h1 class="text-3xl font-bold text-slate-900 mb-3">
-          ¡Solicitud enviada!
+          {{ __('auth.request_sent_heading') }}
         </h1>
 
         <p class="text-slate-600 mb-6">
-          {{ session('message', 'Tu solicitud de acceso ha sido enviada correctamente y será atendida tan pronto como sea posible.') }}
+          {{ session('message', __('auth.request_sent_heading')) }}
         </p>
 
         {{-- Info Box --}}
@@ -85,19 +85,19 @@
               <path fill-rule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7-4a1 1 0 11-2 0 1 1 0 012 0zM9 9a1 1 0 000 2v3a1 1 0 001 1h1a1 1 0 100-2v-3a1 1 0 00-1-1H9z" clip-rule="evenodd"/>
             </svg>
             <div class="text-sm text-blue-800">
-              <p class="font-semibold mb-2">¿Qué sigue ahora?</p>
+              <p class="font-semibold mb-2">{{ __('auth.whats_next') }}</p>
               <ul class="space-y-2 text-blue-700">
                 <li class="flex items-start gap-2">
                   <span class="flex-shrink-0">1.</span>
-                  <span>Nuestro equipo revisará tu solicitud en las próximas <strong>24 horas</strong></span>
+                  <span>{!! __('auth.review_step') !!}</span>
                 </li>
                 <li class="flex items-start gap-2">
                   <span class="flex-shrink-0">2.</span>
-                  <span>Te enviaremos un correo con tus <strong>credenciales de acceso</strong></span>
+                  <span>{!! __('auth.credentials_step') !!}</span>
                 </li>
                 <li class="flex items-start gap-2">
                   <span class="flex-shrink-0">3.</span>
-                  <span>Podrás comenzar a usar <strong>Gestior inmediatamente</strong></span>
+                  <span>{!! __('auth.start_step') !!}</span>
                 </li>
               </ul>
             </div>
@@ -108,26 +108,26 @@
         <div class="space-y-3">
           <a href="{{ route('login') }}"
              class="block w-full py-3 px-4 rounded-md text-white bg-slate-900 hover:bg-black font-semibold transition-all duration-200 shadow-lg">
-            Ir a inicio de sesión
+            {{ __('auth.go_to_login') }}
           </a>
 
           <a href="{{ route('plans') }}"
              class="block w-full py-3 px-4 rounded-md text-slate-700 bg-slate-100 hover:bg-slate-200 font-medium transition-all duration-200">
-            Ver otros planes
+            {{ __('auth.view_other_plans') }}
           </a>
         </div>
 
         {{-- Extra Info --}}
         <div class="mt-8 pt-6 border-t border-slate-200">
           <p class="text-sm text-slate-500">
-            ¿No recibiste el email? Revisa tu carpeta de spam o
-            <a href="mailto:soporte@gestior.com" class="text-violet-700 hover:underline font-medium">contacta con soporte</a>
+            {{ __('auth.no_email_received') }}
+            <a href="mailto:soporte@gestior.com" class="text-violet-700 hover:underline font-medium">{{ __('auth.contact_support') }}</a>
           </p>
         </div>
       </div>
 
       <div class="text-center mt-6">
-        <p class="text-xs text-slate-400">&copy; {{ date('Y') }} Gestior — Todos los derechos reservados.</p>
+        <p class="text-xs text-slate-400">&copy; {{ date('Y') }} Gestior — {{ __('auth.all_rights_reserved') }}</p>
       </div>
     </div>
   </div>

@@ -9,7 +9,7 @@
     <div class="flex items-center justify-between">
       <div class="flex items-center gap-2">
         <div class="w-1.5 h-4 rounded-full bg-emerald-500/80 dark:bg-emerald-400/70"></div>
-        <h3 class="text-sm font-semibold text-neutral-800 dark:text-neutral-100">Ingresos vs Costos</h3>
+        <h3 class="text-sm font-semibold text-neutral-800 dark:text-neutral-100">{{ __('dashboard.revenue_vs_costs_title') }}</h3>
       </div>
       <span class="text-[11px] font-medium text-neutral-400 dark:text-neutral-500">{{ $days }}d</span>
     </div>
@@ -18,19 +18,19 @@
   {{-- KPIs --}}
   <div class="px-4 sm:px-5 pt-3.5 pb-2 grid grid-cols-3 gap-2 flex-shrink-0">
     <div class="bg-emerald-50/60 dark:bg-emerald-900/10 rounded-xl p-2.5 text-center">
-      <div class="text-[10px] uppercase tracking-wide text-emerald-700 dark:text-emerald-400/70 mb-0.5">Ingresos</div>
+      <div class="text-[10px] uppercase tracking-wide text-emerald-700 dark:text-emerald-400/70 mb-0.5">{{ __('dashboard.revenue_label') }}</div>
       <div class="text-base font-bold text-emerald-600 dark:text-emerald-400 tabular-nums leading-tight">
         ${{ number_format($revenue, 0, ',', '.') }}
       </div>
     </div>
     <div class="bg-rose-50/60 dark:bg-rose-900/10 rounded-xl p-2.5 text-center">
-      <div class="text-[10px] uppercase tracking-wide text-rose-700 dark:text-rose-400/70 mb-0.5">Costos</div>
+      <div class="text-[10px] uppercase tracking-wide text-rose-700 dark:text-rose-400/70 mb-0.5">{{ __('dashboard.costs_label') }}</div>
       <div class="text-base font-bold text-rose-500 dark:text-rose-400 tabular-nums leading-tight">
         ${{ number_format($cost, 0, ',', '.') }}
       </div>
     </div>
     <div class="bg-neutral-50/70 dark:bg-neutral-800/30 rounded-xl p-2.5 text-center">
-      <div class="text-[10px] uppercase tracking-wide text-neutral-400 dark:text-neutral-500 mb-0.5">Ganancia</div>
+      <div class="text-[10px] uppercase tracking-wide text-neutral-400 dark:text-neutral-500 mb-0.5">{{ __('dashboard.profit_label') }}</div>
       <div class="text-base font-bold tabular-nums leading-tight
                   {{ $profit >= 0 ? 'text-neutral-800 dark:text-white' : 'text-rose-500 dark:text-rose-400' }}">
         ${{ number_format($profit, 0, ',', '.') }}
@@ -69,8 +69,8 @@
             <div class="absolute bottom-full mb-1.5 left-1/2 -translate-x-1/2 hidden group-hover:block z-10 pointer-events-none">
               <div class="bg-neutral-900/95 dark:bg-neutral-100 text-white dark:text-neutral-900 text-[10px] rounded-lg px-2 py-1.5 shadow-xl whitespace-nowrap ring-1 ring-black/10">
                 <div class="font-semibold text-[11px] mb-0.5">{{ $date->format('d/m') }}</div>
-                <div class="text-emerald-300 dark:text-emerald-600">Ing: ${{ number_format($rev, 0, ',', '.') }}</div>
-                <div class="text-rose-300 dark:text-rose-600">Cos: ${{ number_format($cst, 0, ',', '.') }}</div>
+                <div class="text-emerald-300 dark:text-emerald-600">{{ __('dashboard.rev_tooltip_prefix') }}{{ number_format($rev, 0, ',', '.') }}</div>
+                <div class="text-rose-300 dark:text-rose-600">{{ __('dashboard.cos_tooltip_prefix') }}{{ number_format($cst, 0, ',', '.') }}</div>
               </div>
             </div>
 
@@ -105,11 +105,11 @@
     <div class="flex items-center justify-center gap-4 mt-1.5 text-[11px]">
       <div class="flex items-center gap-1.5">
         <div class="w-2.5 h-2 rounded-sm bg-emerald-500/80"></div>
-        <span class="text-neutral-500 dark:text-neutral-400">Ingresos</span>
+        <span class="text-neutral-500 dark:text-neutral-400">{{ __('dashboard.revenue_label') }}</span>
       </div>
       <div class="flex items-center gap-1.5">
         <div class="w-2.5 h-2 rounded-sm bg-rose-400/70 dark:bg-rose-500"></div>
-        <span class="text-neutral-500 dark:text-neutral-400">Costos</span>
+        <span class="text-neutral-500 dark:text-neutral-400">{{ __('dashboard.costs_label') }}</span>
       </div>
     </div>
   </div>

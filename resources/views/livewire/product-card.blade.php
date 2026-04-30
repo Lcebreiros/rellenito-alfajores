@@ -30,17 +30,17 @@
     }
 
     if(!$isActive){
-      $badgeText = 'Inactivo';
+      $badgeText = __('products.status_inactive');
       $badgeDot  = 'bg-slate-400';
       $badgeRing = 'border-slate-200/80 dark:border-slate-600';
       $badgeTxt  = 'text-slate-600 dark:text-slate-300';
     } elseif(($currentStock ?? 0) > 0){
-      $badgeText = 'Stock: '.(int)$currentStock;
+      $badgeText = __('products.stock_label', ['count' => (int)$currentStock]);
       $badgeDot  = 'bg-emerald-500';
       $badgeRing = 'border-emerald-200/60 dark:border-emerald-800';
       $badgeTxt  = 'text-emerald-700 dark:text-emerald-300';
     } else {
-      $badgeText = 'Sin stock';
+      $badgeText = __('products.no_stock');
       $badgeDot  = 'bg-rose-500';
       $badgeRing = 'border-rose-200/60 dark:border-rose-800';
       $badgeTxt  = 'text-rose-700 dark:text-rose-300';
@@ -53,7 +53,7 @@
             wire:loading.attr="disabled"
             wire:target="add"
             @disabled(!$canAdd)
-            aria-label="Agregar {{ $name }} por {{ $priceLbl }}"
+            aria-label="{{ __('products.card_add_aria', ['name' => $name, 'price' => $priceLbl]) }}"
             class="relative w-full h-full min-h-[100px] max-h-[160px] rounded-2xl
                    bg-white dark:bg-neutral-900 ring-1 ring-violet-200/40 dark:ring-neutral-800
                    p-3 md:p-4 transition-all duration-200 text-left overflow-hidden
@@ -130,7 +130,7 @@
           <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"/>
           <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V2A10 10 0 002 12h2z"/>
         </svg>
-        <span class="truncate">Agregando…</span>
+        <span class="truncate">{{ __('products.card_adding') }}</span>
       </span>
     </button>
 
@@ -154,7 +154,7 @@
           <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"/>
           <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V2A10 10 0 002 12h2z"/>
         </svg>
-        <span class="truncate text-[10px] sm:text-xs">Agregando…</span>
+        <span class="truncate text-[10px] sm:text-xs">{{ __('products.card_adding') }}</span>
       </span>
     </button>
   @endif

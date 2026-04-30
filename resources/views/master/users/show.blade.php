@@ -1,7 +1,7 @@
 @extends('layouts.app')
 
 @section('header')
-  <h1 class="text-2xl font-bold">Usuario #{{ $user->id }}</h1>
+  <h1 class="text-2xl font-bold">{{ __('master.user_title_prefix') }}{{ $user->id }}</h1>
 @endsection
 
 @section('content')
@@ -14,13 +14,13 @@
       <div class="flex-1">
         <h2 class="text-xl font-semibold">{{ $user->name }}</h2>
         <p class="text-sm text-gray-600">{{ $user->email }}</p>
-        <p class="mt-3"><strong>Jerarquía:</strong> {{ $user->hierarchy_level }}</p>
-        <p><strong>Activo:</strong> {{ $user->is_active ? 'Sí' : 'No' }}</p>
-        <p><strong>Creado:</strong> {{ $user->created_at->toDayDateTimeString() }}</p>
+        <p class="mt-3"><strong>{{ __('master.hierarchy_label') }}</strong> {{ $user->hierarchy_level }}</p>
+        <p><strong>{{ __('master.active_label') }}</strong> {{ $user->is_active ? __('master.yes') : __('master.no') }}</p>
+        <p><strong>{{ __('master.created_label') }}</strong> {{ $user->created_at->toDayDateTimeString() }}</p>
 
         <div class="mt-4 space-x-2">
-          <a href="{{ route('master.users.edit', $user) }}" class="btn px-3 py-2 bg-indigo-600 text-white rounded">Editar</a>
-          <a href="{{ route('master.users.index') }}" class="btn px-3 py-2 bg-gray-200 rounded">Volver</a>
+          <a href="{{ route('master.users.edit', $user) }}" class="btn px-3 py-2 bg-indigo-600 text-white rounded">{{ __('master.edit_btn') }}</a>
+          <a href="{{ route('master.users.index') }}" class="btn px-3 py-2 bg-gray-200 rounded">{{ __('master.back_btn') }}</a>
         </div>
       </div>
     </div>

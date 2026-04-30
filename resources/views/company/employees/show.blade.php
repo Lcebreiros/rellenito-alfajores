@@ -2,14 +2,14 @@
 
 @section('header')
   <div class="flex items-center justify-between">
-    <h1 class="text-xl sm:text-2xl font-semibold text-neutral-800 dark:text-neutral-100">Ficha del empleado</h1>
+    <h1 class="text-xl sm:text-2xl font-semibold text-neutral-800 dark:text-neutral-100">{{ __('company.employee_show_title') }}</h1>
     <div class="flex items-center gap-2">
-      <a href="{{ route('company.employees.index') }}" class="inline-flex items-center gap-2 rounded-lg border border-neutral-300 px-3 py-2 text-sm font-medium text-neutral-700 hover:bg-neutral-50 dark:border-neutral-700 dark:text-neutral-200 dark:hover:bg-neutral-800">Volver</a>
+      <a href="{{ route('company.employees.index') }}" class="inline-flex items-center gap-2 rounded-lg border border-neutral-300 px-3 py-2 text-sm font-medium text-neutral-700 hover:bg-neutral-50 dark:border-neutral-700 dark:text-neutral-200 dark:hover:bg-neutral-800">{{ __('company.back_btn_short') }}</a>
       @can('update', $employee)
-      <a href="{{ route('company.employees.edit', $employee) }}" class="inline-flex items-center gap-2 rounded-lg bg-indigo-600 px-4 py-2 text-sm font-medium text-white hover:bg-indigo-700">Editar</a>
+      <a href="{{ route('company.employees.edit', $employee) }}" class="inline-flex items-center gap-2 rounded-lg bg-indigo-600 px-4 py-2 text-sm font-medium text-white hover:bg-indigo-700">{{ __('company.edit_btn') }}</a>
       @endcan
       <button id="openEmployeeCardBtn" type="button" class="inline-flex items-center gap-2 rounded-lg bg-emerald-600 px-4 py-2 text-sm font-medium text-white hover:bg-emerald-700">
-        Descargar ficha
+        {{ __('company.download_card_btn') }}
       </button>
     </div>
   </div>
@@ -40,13 +40,13 @@
       <div class="flex-1 min-w-0">
         <h2 class="text-xl font-semibold text-neutral-900 dark:text-neutral-100 truncate">{{ $fullName }}</h2>
         <div class="mt-1 text-sm text-neutral-500 dark:text-neutral-400 flex flex-wrap gap-x-3 gap-y-1">
-          <span>DNI: <span class="text-neutral-800 dark:text-neutral-200">{{ $employee->dni ?: '—' }}</span></span>
-          <span>Email: <span class="text-neutral-800 dark:text-neutral-200">{{ $employee->email ?: '—' }}</span></span>
+          <span>{{ __('company.label_dni') }} <span class="text-neutral-800 dark:text-neutral-200">{{ $employee->dni ?: '—' }}</span></span>
+          <span>{{ __('company.label_email') }} <span class="text-neutral-800 dark:text-neutral-200">{{ $employee->email ?: '—' }}</span></span>
         </div>
         <div class="mt-2 text-sm text-neutral-600 dark:text-neutral-300 flex flex-wrap gap-2">
-          <span class="inline-flex items-center rounded-full px-2 py-0.5 bg-blue-100 text-blue-700 dark:bg-blue-900/30 dark:text-blue-300 text-xs">Rol: {{ $employee->role ?: '—' }}</span>
-          <span class="inline-flex items-center rounded-full px-2 py-0.5 bg-neutral-100 text-neutral-700 dark:bg-neutral-800 dark:text-neutral-300 text-xs">Sucursal: {{ $branchName }}</span>
-          <span class="inline-flex items-center rounded-full px-2 py-0.5 bg-emerald-100 text-emerald-700 dark:bg-emerald-900/30 dark:text-emerald-300 text-xs">Empresa: {{ $companyName }}</span>
+          <span class="inline-flex items-center rounded-full px-2 py-0.5 bg-blue-100 text-blue-700 dark:bg-blue-900/30 dark:text-blue-300 text-xs">{{ __('company.label_role') }} {{ $employee->role ?: '—' }}</span>
+          <span class="inline-flex items-center rounded-full px-2 py-0.5 bg-neutral-100 text-neutral-700 dark:bg-neutral-800 dark:text-neutral-300 text-xs">{{ __('company.label_branch') }} {{ $branchName }}</span>
+          <span class="inline-flex items-center rounded-full px-2 py-0.5 bg-emerald-100 text-emerald-700 dark:bg-emerald-900/30 dark:text-emerald-300 text-xs">{{ __('company.label_company') }} {{ $companyName }}</span>
         </div>
       </div>
     </div>
@@ -54,22 +54,22 @@
     <div class="p-6 grid grid-cols-1 md:grid-cols-3 gap-6">
       <div class="space-y-4">
         <div class="rounded-xl border border-neutral-200 dark:border-neutral-800 p-4 bg-neutral-50 dark:bg-neutral-900/40">
-          <h3 class="text-sm font-semibold text-neutral-800 dark:text-neutral-200 mb-2">Contacto</h3>
+          <h3 class="text-sm font-semibold text-neutral-800 dark:text-neutral-200 mb-2">{{ __('company.contact_section') }}</h3>
           <div class="text-sm text-neutral-700 dark:text-neutral-300">
-            <div><span class="text-neutral-500 dark:text-neutral-400">Email:</span> {{ $employee->email ?: '—' }}</div>
-            <div><span class="text-neutral-500 dark:text-neutral-400">Dirección:</span> {{ $employee->address ?: '—' }}</div>
-            <div><span class="text-neutral-500 dark:text-neutral-400">Cobertura médica:</span> {{ $employee->medical_coverage ?: '—' }}</div>
-            <div><span class="text-neutral-500 dark:text-neutral-400">Inicio:</span> {{ optional($employee->start_date)->format('d/m/Y') ?: '—' }}</div>
-            <div><span class="text-neutral-500 dark:text-neutral-400">Contrato:</span> {{ $employee->contract_type ?: '—' }}</div>
-            <div><span class="text-neutral-500 dark:text-neutral-400">Computadora:</span> {{ $employee->has_computer ? 'Sí' : 'No' }}</div>
+            <div><span class="text-neutral-500 dark:text-neutral-400">{{ __('company.label_email') }}</span> {{ $employee->email ?: '—' }}</div>
+            <div><span class="text-neutral-500 dark:text-neutral-400">{{ __('company.label_address') }}</span> {{ $employee->address ?: '—' }}</div>
+            <div><span class="text-neutral-500 dark:text-neutral-400">{{ __('company.label_medical') }}</span> {{ $employee->medical_coverage ?: '—' }}</div>
+            <div><span class="text-neutral-500 dark:text-neutral-400">{{ __('company.label_start') }}</span> {{ optional($employee->start_date)->format('d/m/Y') ?: '—' }}</div>
+            <div><span class="text-neutral-500 dark:text-neutral-400">{{ __('company.label_contract') }}</span> {{ $employee->contract_type ?: '—' }}</div>
+            <div><span class="text-neutral-500 dark:text-neutral-400">{{ __('company.label_computer') }}</span> {{ $employee->has_computer ? __('company.yes') : __('company.no') }}</div>
           </div>
         </div>
 
         @if($employee->contract_file_path)
         <div class="rounded-xl border border-neutral-200 dark:border-neutral-800 p-4 bg-neutral-50 dark:bg-neutral-900/40">
-          <h3 class="text-sm font-semibold text-neutral-800 dark:text-neutral-200 mb-2">Archivo de contrato</h3>
+          <h3 class="text-sm font-semibold text-neutral-800 dark:text-neutral-200 mb-2">{{ __('company.contract_file_section') }}</h3>
           <a href="{{ Storage::disk('public')->url($employee->contract_file_path) }}" target="_blank"
-             class="inline-flex items-center gap-2 text-sm text-indigo-600 dark:text-indigo-400 hover:underline">Ver archivo</a>
+             class="inline-flex items-center gap-2 text-sm text-indigo-600 dark:text-indigo-400 hover:underline">{{ __('company.view_file_btn') }}</a>
         </div>
         @endif
       </div>
@@ -83,12 +83,12 @@
                 <svg class="w-5 h-5 text-neutral-600 dark:text-neutral-400 transition-transform" :class="openShifts ? 'rotate-90' : ''" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"></path>
                 </svg>
-                <h3 class="text-sm font-semibold text-neutral-800 dark:text-neutral-200">Historial de Turnos</h3>
+                <h3 class="text-sm font-semibold text-neutral-800 dark:text-neutral-200">{{ __('company.shifts_title') }}</h3>
                 @if(($shifts ?? collect())->count())
                   <span class="px-2 py-0.5 rounded-full text-xs font-medium bg-indigo-100 text-indigo-700 dark:bg-indigo-900/30 dark:text-indigo-300">{{ ($shifts ?? collect())->count() }}</span>
                 @endif
               </div>
-              <span class="text-xs text-neutral-500 dark:text-neutral-400" x-text="openShifts ? 'Ocultar' : 'Ver historial'"></span>
+              <span class="text-xs text-neutral-500 dark:text-neutral-400" x-text="openShifts ? @js(__('company.hide_label')) : @js(__('company.view_history_label'))"></span>
             </div>
           </button>
 
@@ -107,18 +107,18 @@
                             <div class="flex items-center gap-2 mb-1">
                               <span class="font-semibold text-neutral-900 dark:text-neutral-100">{{ optional($shift->started_at)->format('d/m/Y H:i') }}</span>
                               @if($shift->status === 'open')
-                                <span class="inline-flex items-center rounded-full px-2 py-0.5 bg-amber-100 text-amber-800 dark:bg-amber-900/30 dark:text-amber-300 text-xs font-medium">En curso</span>
+                                <span class="inline-flex items-center rounded-full px-2 py-0.5 bg-amber-100 text-amber-800 dark:bg-amber-900/30 dark:text-amber-300 text-xs font-medium">{{ __('company.shift_open') }}</span>
                               @else
-                                <span class="inline-flex items-center rounded-full px-2 py-0.5 bg-emerald-100 text-emerald-800 dark:bg-emerald-900/30 dark:text-emerald-300 text-xs font-medium">Cerrado</span>
+                                <span class="inline-flex items-center rounded-full px-2 py-0.5 bg-emerald-100 text-emerald-800 dark:bg-emerald-900/30 dark:text-emerald-300 text-xs font-medium">{{ __('company.shift_closed') }}</span>
                               @endif
                             </div>
                             <div class="flex items-center gap-4 text-xs text-neutral-600 dark:text-neutral-400">
-                              <span>{{ $shift->total_movements ?? 0 }} movimientos</span>
-                              <span class="font-semibold text-neutral-900 dark:text-neutral-100">Total: ${{ number_format((float) $shift->incomes_total, 0, ',', '.') }}</span>
+                              <span>{{ $shift->total_movements ?? 0 }} {{ __('company.movements_label') }}</span>
+                              <span class="font-semibold text-neutral-900 dark:text-neutral-100">{{ __('company.total_label') }} ${{ number_format((float) $shift->incomes_total, 0, ',', '.') }}</span>
                               @php $diff = (float) $shift->cash_difference; @endphp
                               @if($diff != 0)
                                 <span class="font-semibold {{ $diff > 0 ? 'text-emerald-600 dark:text-emerald-400' : 'text-rose-600 dark:text-rose-400' }}">
-                                  Diferencia: {{ $diff > 0 ? '+' : '-' }}${{ number_format(abs($diff), 0, ',', '.') }}
+                                  {{ __('company.diff_label') }} {{ $diff > 0 ? '+' : '-' }}${{ number_format(abs($diff), 0, ',', '.') }}
                                 </span>
                               @endif
                             </div>
@@ -128,27 +128,25 @@
                     </button>
 
                     <div x-show="expanded" x-collapse x-cloak class="px-4 pb-4 space-y-3 bg-neutral-50 dark:bg-neutral-900/20">
-                      {{-- Información del turno --}}
                       <div class="grid grid-cols-2 sm:grid-cols-4 gap-3 pt-3">
                         <div class="rounded-lg border border-neutral-200 dark:border-neutral-800 bg-white dark:bg-neutral-900 p-3">
-                          <div class="text-xs text-neutral-500 dark:text-neutral-400 mb-1">Efectivo Inicial</div>
+                          <div class="text-xs text-neutral-500 dark:text-neutral-400 mb-1">{{ __('company.cash_initial') }}</div>
                           <div class="font-semibold text-neutral-900 dark:text-neutral-100">${{ number_format((float) $shift->initial_cash, 0, ',', '.') }}</div>
                         </div>
                         <div class="rounded-lg border border-neutral-200 dark:border-neutral-800 bg-white dark:bg-neutral-900 p-3">
-                          <div class="text-xs text-neutral-500 dark:text-neutral-400 mb-1">Efectivo Esperado</div>
+                          <div class="text-xs text-neutral-500 dark:text-neutral-400 mb-1">{{ __('company.cash_expected') }}</div>
                           <div class="font-semibold text-neutral-900 dark:text-neutral-100">${{ number_format((float) $shift->expected_cash, 0, ',', '.') }}</div>
                         </div>
                         <div class="rounded-lg border border-neutral-200 dark:border-neutral-800 bg-white dark:bg-neutral-900 p-3">
-                          <div class="text-xs text-neutral-500 dark:text-neutral-400 mb-1">Efectivo Contado</div>
+                          <div class="text-xs text-neutral-500 dark:text-neutral-400 mb-1">{{ __('company.cash_counted') }}</div>
                           <div class="font-semibold text-neutral-900 dark:text-neutral-100">${{ number_format((float) $shift->cash_counted, 0, ',', '.') }}</div>
                         </div>
                         <div class="rounded-lg border border-neutral-200 dark:border-neutral-800 bg-white dark:bg-neutral-900 p-3">
-                          <div class="text-xs text-neutral-500 dark:text-neutral-400 mb-1">Fin del turno</div>
-                          <div class="font-semibold text-neutral-900 dark:text-neutral-100">{{ $shift->ended_at ? $shift->ended_at->format('d/m H:i') : 'En curso' }}</div>
+                          <div class="text-xs text-neutral-500 dark:text-neutral-400 mb-1">{{ __('company.shift_end') }}</div>
+                          <div class="font-semibold text-neutral-900 dark:text-neutral-100">{{ $shift->ended_at ? $shift->ended_at->format('d/m H:i') : __('company.shift_open_label') }}</div>
                         </div>
                       </div>
 
-                      {{-- Botón para ver detalle completo --}}
                       <div class="flex justify-end">
                         <a href="{{ route('parking.shifts.show', $shift) }}"
                            class="inline-flex items-center gap-2 rounded-lg bg-indigo-600 px-4 py-2 text-white text-sm font-medium hover:bg-indigo-700 transition-colors">
@@ -156,7 +154,7 @@
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"></path>
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"></path>
                           </svg>
-                          Ver detalle completo del turno
+                          {{ __('company.view_shift_btn') }}
                         </a>
                       </div>
                     </div>
@@ -165,7 +163,7 @@
               </div>
             @else
               <div class="px-4 py-8 text-center">
-                <p class="text-sm text-neutral-500 dark:text-neutral-400">Sin turnos registrados.</p>
+                <p class="text-sm text-neutral-500 dark:text-neutral-400">{{ __('company.no_shifts') }}</p>
               </div>
             @endif
           </div>
@@ -174,20 +172,20 @@
 
         @php
           $sections = [
-            'family_group' => 'Grupo familiar',
-            'objectives'   => 'Objetivos',
-            'tasks'        => 'Tareas',
-            'schedules'    => 'Horarios',
-            'benefits'     => 'Beneficios',
+            'family_group' => __('company.section_family_group'),
+            'objectives'   => __('company.section_objectives'),
+            'tasks'        => __('company.section_tasks'),
+            'schedules'    => __('company.section_schedules'),
+            'benefits'     => __('company.section_benefits'),
           ];
         @endphp
 
-        {{-- Evaluaciones con botón para modal --}}
+        {{-- Evaluaciones --}}
         <div class="rounded-xl border border-neutral-200 dark:border-neutral-800 p-4">
           <div class="flex items-center justify-between mb-2">
-            <h3 class="text-sm font-semibold text-neutral-800 dark:text-neutral-200">Evaluaciones</h3>
+            <h3 class="text-sm font-semibold text-neutral-800 dark:text-neutral-200">{{ __('company.evaluations_title') }}</h3>
             @can('update', $employee)
-            <button type="button" @click="openEval=true" class="inline-flex items-center gap-2 rounded-lg bg-indigo-600 px-3 py-1.5 text-white text-xs hover:bg-indigo-700">Agregar evaluación</button>
+            <button type="button" @click="openEval=true" class="inline-flex items-center gap-2 rounded-lg bg-indigo-600 px-3 py-1.5 text-white text-xs hover:bg-indigo-700">{{ __('company.add_evaluation_btn') }}</button>
             @endcan
           </div>
           @php $evals = $employee->evaluations; @endphp
@@ -203,16 +201,16 @@
               @endforeach
             </ul>
           @else
-            <p class="text-sm text-neutral-500 dark:text-neutral-400 mb-3">Sin evaluaciones</p>
+            <p class="text-sm text-neutral-500 dark:text-neutral-400 mb-3">{{ __('company.no_evaluations') }}</p>
           @endif
         </div>
 
-        {{-- Notas con botón para modal --}}
+        {{-- Notas --}}
         <div class="rounded-xl border border-neutral-200 dark:border-neutral-800 p-4">
           <div class="flex items-center justify-between mb-2">
-            <h3 class="text-sm font-semibold text-neutral-800 dark:text-neutral-200">Notas</h3>
+            <h3 class="text-sm font-semibold text-neutral-800 dark:text-neutral-200">{{ __('company.notes_title') }}</h3>
             @can('update', $employee)
-            <button type="button" @click="openNote=true" class="inline-flex items-center gap-2 rounded-lg bg-indigo-600 px-3 py-1.5 text-white text-xs hover:bg-indigo-700">Agregar nota</button>
+            <button type="button" @click="openNote=true" class="inline-flex items-center gap-2 rounded-lg bg-indigo-600 px-3 py-1.5 text-white text-xs hover:bg-indigo-700">{{ __('company.add_note_btn') }}</button>
             @endcan
           </div>
           @php $notes = $employee->notes; @endphp
@@ -228,7 +226,7 @@
               @endforeach
             </ul>
           @else
-            <p class="text-sm text-neutral-500 dark:text-neutral-400 mb-3">Sin notas</p>
+            <p class="text-sm text-neutral-500 dark:text-neutral-400 mb-3">{{ __('company.no_notes') }}</p>
           @endif
         </div>
 
@@ -246,7 +244,7 @@
                 @endforeach
               </ul>
             @else
-              <p class="text-sm text-neutral-500 dark:text-neutral-400">Sin información</p>
+              <p class="text-sm text-neutral-500 dark:text-neutral-400">{{ __('company.no_info') }}</p>
             @endif
           </div>
         @endforeach
@@ -255,10 +253,10 @@
 
     @can('delete', $employee)
     <div class="px-6 py-5 border-t border-neutral-200 dark:border-neutral-800 flex items-center justify-end">
-      <form action="{{ route('company.employees.destroy', $employee) }}" method="POST" onsubmit="return confirm('¿Eliminar empleado?');">
+      <form action="{{ route('company.employees.destroy', $employee) }}" method="POST" onsubmit="return confirm(@json(__('company.confirm_delete_employee')));">
         @csrf
         @method('DELETE')
-        <button type="submit" class="inline-flex items-center gap-2 rounded-lg bg-rose-600 px-4 py-2 text-sm font-medium text-white hover:bg-rose-700">Eliminar</button>
+        <button type="submit" class="inline-flex items-center gap-2 rounded-lg bg-rose-600 px-4 py-2 text-sm font-medium text-white hover:bg-rose-700">{{ __('company.action_delete') }}</button>
       </form>
     </div>
     @endcan
@@ -270,16 +268,16 @@
     <div class="absolute inset-0 bg-black/50" @click="openEval=false"></div>
     <div class="relative w-full max-w-lg mx-auto bg-white dark:bg-neutral-900 rounded-xl shadow-lg border border-neutral-200 dark:border-neutral-800 p-5">
       <div class="flex items-center justify-between mb-3">
-        <h3 class="text-base font-semibold text-neutral-900 dark:text-neutral-100">Agregar evaluación</h3>
+        <h3 class="text-base font-semibold text-neutral-900 dark:text-neutral-100">{{ __('company.add_eval_modal_title') }}</h3>
         <button class="text-neutral-500 hover:text-neutral-700 dark:text-neutral-400" @click="openEval=false">✕</button>
       </div>
       <form method="POST" action="{{ route('company.employees.evaluations.add', $employee) }}" class="space-y-3">
         @csrf
-        <textarea name="evaluation" rows="5" required placeholder="Escribe una evaluación"
+        <textarea name="evaluation" rows="5" required placeholder="{{ __('company.eval_placeholder') }}"
                   class="w-full rounded-lg border-neutral-300 bg-white px-3 py-2 text-sm text-neutral-900 placeholder:text-neutral-400 focus:border-indigo-500 focus:ring-indigo-500 dark:border-neutral-700 dark:bg-neutral-900 dark:text-neutral-100"></textarea>
         <div class="flex justify-end gap-2">
-          <button type="button" @click="openEval=false" class="inline-flex items-center gap-2 rounded-lg border border-neutral-300 px-3 py-2 text-sm text-neutral-700 hover:bg-neutral-50 dark:border-neutral-700 dark:text-neutral-200 dark:hover:bg-neutral-800">Cancelar</button>
-          <button type="submit" class="inline-flex items-center gap-2 rounded-lg bg-indigo-600 px-4 py-2 text-sm font-medium text-white hover:bg-indigo-700">Guardar</button>
+          <button type="button" @click="openEval=false" class="inline-flex items-center gap-2 rounded-lg border border-neutral-300 px-3 py-2 text-sm text-neutral-700 hover:bg-neutral-50 dark:border-neutral-700 dark:text-neutral-200 dark:hover:bg-neutral-800">{{ __('company.cancel_btn') }}</button>
+          <button type="submit" class="inline-flex items-center gap-2 rounded-lg bg-indigo-600 px-4 py-2 text-sm font-medium text-white hover:bg-indigo-700">{{ __('company.save_btn') }}</button>
         </div>
       </form>
     </div>
@@ -290,16 +288,16 @@
     <div class="absolute inset-0 bg-black/50" @click="openNote=false"></div>
     <div class="relative w-full max-w-lg mx-auto bg-white dark:bg-neutral-900 rounded-xl shadow-lg border border-neutral-200 dark:border-neutral-800 p-5">
       <div class="flex items-center justify-between mb-3">
-        <h3 class="text-base font-semibold text-neutral-900 dark:text-neutral-100">Agregar nota</h3>
+        <h3 class="text-base font-semibold text-neutral-900 dark:text-neutral-100">{{ __('company.add_note_modal_title') }}</h3>
         <button class="text-neutral-500 hover:text-neutral-700 dark:text-neutral-400" @click="openNote=false">✕</button>
       </div>
       <form method="POST" action="{{ route('company.employees.notes.add', $employee) }}" class="space-y-3">
         @csrf
-        <textarea name="note" rows="5" required placeholder="Escribe una nota"
+        <textarea name="note" rows="5" required placeholder="{{ __('company.note_placeholder') }}"
                   class="w-full rounded-lg border-neutral-300 bg-white px-3 py-2 text-sm text-neutral-900 placeholder:text-neutral-400 focus:border-indigo-500 focus:ring-indigo-500 dark:border-neutral-700 dark:bg-neutral-900 dark:text-neutral-100"></textarea>
         <div class="flex justify-end gap-2">
-          <button type="button" @click="openNote=false" class="inline-flex items-center gap-2 rounded-lg border border-neutral-300 px-3 py-2 text-sm text-neutral-700 hover:bg-neutral-50 dark:border-neutral-700 dark:text-neutral-200 dark:hover:bg-neutral-800">Cancelar</button>
-          <button type="submit" class="inline-flex items-center gap-2 rounded-lg bg-indigo-600 px-4 py-2 text-sm font-medium text-white hover:bg-indigo-700">Guardar</button>
+          <button type="button" @click="openNote=false" class="inline-flex items-center gap-2 rounded-lg border border-neutral-300 px-3 py-2 text-sm text-neutral-700 hover:bg-neutral-50 dark:border-neutral-700 dark:text-neutral-200 dark:hover:bg-neutral-800">{{ __('company.cancel_btn') }}</button>
+          <button type="submit" class="inline-flex items-center gap-2 rounded-lg bg-indigo-600 px-4 py-2 text-sm font-medium text-white hover:bg-indigo-700">{{ __('company.save_btn') }}</button>
         </div>
       </form>
     </div>
@@ -313,7 +311,7 @@
 <div id="employeeCardModal" class="fixed inset-0 bg-black/50 hidden items-center justify-center z-50">
   <div class="bg-white dark:bg-neutral-900 rounded-xl p-6 max-w-2xl w-full mx-4 border border-gray-100 dark:border-neutral-700 dark:ring-1 dark:ring-indigo-500/10">
     <div class="flex items-center justify-between mb-4">
-      <h3 class="text-lg font-semibold text-gray-900 dark:text-neutral-100">Ficha del empleado</h3>
+      <h3 class="text-lg font-semibold text-gray-900 dark:text-neutral-100">{{ __('company.card_modal_title') }}</h3>
       <button id="closeEmployeeCard" class="text-gray-400 hover:text-gray-600 dark:text-neutral-500 dark:hover:text-neutral-300">
         <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/></svg>
       </button>
@@ -336,44 +334,44 @@
 
       <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
         <div class="rounded-lg border border-neutral-200 dark:border-neutral-800 p-3">
-          <div class="text-xs text-neutral-500">Empresa</div>
+          <div class="text-xs text-neutral-500">{{ __('company.card_field_company') }}</div>
           <div class="font-medium text-neutral-800 dark:text-neutral-200">{{ $companyName }}</div>
         </div>
         <div class="rounded-lg border border-neutral-200 dark:border-neutral-800 p-3">
-          <div class="text-xs text-neutral-500">Sucursal</div>
+          <div class="text-xs text-neutral-500">{{ __('company.card_field_branch') }}</div>
           <div class="font-medium text-neutral-800 dark:text-neutral-200">{{ $branchName }}</div>
         </div>
         <div class="rounded-lg border border-neutral-200 dark:border-neutral-800 p-3">
-          <div class="text-xs text-neutral-500">DNI</div>
+          <div class="text-xs text-neutral-500">{{ __('company.card_field_dni') }}</div>
           <div class="font-medium text-neutral-800 dark:text-neutral-200">{{ $employee->dni ?: '—' }}</div>
         </div>
         <div class="rounded-lg border border-neutral-200 dark:border-neutral-800 p-3">
-          <div class="text-xs text-neutral-500">Email</div>
+          <div class="text-xs text-neutral-500">{{ __('company.card_field_email') }}</div>
           <div class="font-medium text-neutral-800 dark:text-neutral-200">{{ $employee->email ?: '—' }}</div>
         </div>
         <div class="rounded-lg border border-neutral-200 dark:border-neutral-800 p-3">
-          <div class="text-xs text-neutral-500">Inicio</div>
+          <div class="text-xs text-neutral-500">{{ __('company.card_field_start') }}</div>
           <div class="font-medium text-neutral-800 dark:text-neutral-200">{{ optional($employee->start_date)->format('d/m/Y') ?: '—' }}</div>
         </div>
         <div class="rounded-lg border border-neutral-200 dark:border-neutral-800 p-3">
-          <div class="text-xs text-neutral-500">Contrato</div>
+          <div class="text-xs text-neutral-500">{{ __('company.card_field_contract') }}</div>
           <div class="font-medium text-neutral-800 dark:text-neutral-200">{{ $employee->contract_type ?: '—' }}</div>
         </div>
         <div class="rounded-lg border border-neutral-200 dark:border-neutral-800 p-3">
-          <div class="text-xs text-neutral-500">Cobertura médica</div>
+          <div class="text-xs text-neutral-500">{{ __('company.card_field_medical') }}</div>
           <div class="font-medium text-neutral-800 dark:text-neutral-200">{{ $employee->medical_coverage ?: '—' }}</div>
         </div>
         <div class="rounded-lg border border-neutral-200 dark:border-neutral-800 p-3">
-          <div class="text-xs text-neutral-500">Salario</div>
+          <div class="text-xs text-neutral-500">{{ __('company.card_field_salary') }}</div>
           <div class="font-medium text-neutral-800 dark:text-neutral-200">{{ $employee->salary ? ('$ '.number_format($employee->salary, 2, ',', '.')) : '—' }}</div>
         </div>
       </div>
 
       @php
         $summarySections = [
-          'objectives' => 'Objetivos',
-          'tasks'      => 'Tareas',
-          'benefits'   => 'Beneficios',
+          'objectives' => __('company.section_objectives'),
+          'tasks'      => __('company.section_tasks'),
+          'benefits'   => __('company.section_benefits'),
         ];
       @endphp
       @foreach($summarySections as $field => $label)
@@ -387,19 +385,19 @@
               @endforeach
             </ul>
           @else
-            <div class="text-sm text-neutral-500">Sin datos</div>
+            <div class="text-sm text-neutral-500">{{ __('company.no_data') }}</div>
           @endif
         </div>
       @endforeach
     </div>
 
     <div class="mt-4 flex items-center justify-end gap-2 print:hidden">
-      <button id="printEmployeeCard" class="inline-flex items-center gap-2 rounded-lg bg-indigo-600 px-4 py-2 text-sm font-medium text-white hover:bg-indigo-700">Guardar como PDF</button>
+      <button id="printEmployeeCard" class="inline-flex items-center gap-2 rounded-lg bg-indigo-600 px-4 py-2 text-sm font-medium text-white hover:bg-indigo-700">{{ __('company.save_as_pdf_btn') }}</button>
     </div>
   </div>
 </div>
 
-{{-- Print styles para ficha --}}
+{{-- Print styles --}}
 <style>
 @media print {
   header, nav, .print\:hidden, #employeeCardModal .print\:hidden, #openEmployeeCardBtn, #closeEmployeeCard, #printEmployeeCard, [x-data] > *:not(#employeeCardModal) { display: none !important; }

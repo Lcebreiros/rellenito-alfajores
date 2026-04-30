@@ -103,7 +103,7 @@ class="relative">
             x-text="unreadCount > 99 ? '99+' : unreadCount">
       </span>
     </template>
-    <span class="sr-only">Notificaciones</span>
+    <span class="sr-only">{{ __('notifications.title') }}</span>
   </button>
 
   <template x-teleport="body">
@@ -121,8 +121,8 @@ class="relative">
          style="display:none"
          :style="dropdownStyle">
       <div class="notifications-header px-4 py-3 border-b border-neutral-200 dark:border-neutral-800 flex items-center justify-between bg-neutral-50 dark:bg-neutral-900">
-        <div class="text-sm font-semibold text-neutral-800 dark:text-neutral-100">Notificaciones</div>
-        <span class="text-xs text-neutral-600 dark:text-neutral-400" x-text="unreadCount + ' nuevas'"></span>
+        <div class="text-sm font-semibold text-neutral-800 dark:text-neutral-100">{{ __('notifications.title') }}</div>
+        <span class="text-xs text-neutral-600 dark:text-neutral-400" x-text="unreadCount + ' {{ __('notifications.n_new') }}'"></span>
       </div>
       <div class="notifications-list max-h-96 overflow-auto divide-y divide-neutral-100 dark:divide-neutral-800">
         @forelse($latest as $n)
@@ -297,12 +297,12 @@ class="relative">
             </div>
           </div>
         @empty
-          <div class="px-4 py-6 text-center text-sm text-neutral-600 dark:text-neutral-300">Sin notificaciones</div>
+          <div class="px-4 py-6 text-center text-sm text-neutral-600 dark:text-neutral-300">{{ __('notifications.empty') }}</div>
         @endforelse
       </div>
       @if($latest->isNotEmpty())
         <div class="notifications-footer px-4 py-2 border-t border-neutral-200 dark:border-neutral-800 bg-neutral-50 dark:bg-neutral-900 text-right">
-          <a href="{{ route('notifications.index') }}" class="text-xs font-medium text-indigo-600 dark:text-indigo-400 hover:underline">Ver todas</a>
+          <a href="{{ route('notifications.index') }}" class="text-xs font-medium text-indigo-600 dark:text-indigo-400 hover:underline">{{ __('notifications.view_all_short') }}</a>
         </div>
       @endif
     </div>

@@ -60,7 +60,7 @@
       <div class="card bg-white p-8 md:p-10">
         <div class="mb-6">
           <div class="flex items-center justify-between mb-2">
-            <h2 class="text-2xl font-semibold tracking-tight text-slate-900">Solicitar acceso</h2>
+            <h2 class="text-2xl font-semibold tracking-tight text-slate-900">{{ __('auth.request_access_title') }}</h2>
             <span class="px-3 py-1 rounded-full text-xs font-semibold
                        {{ $plan === 'basic' ? 'bg-slate-100 text-slate-700' : '' }}
                        {{ $plan === 'premium' ? 'bg-violet-100 text-violet-700' : '' }}
@@ -68,7 +68,7 @@
               Plan {{ $planName }}
             </span>
           </div>
-          <p class="text-sm text-slate-500">Complete sus datos para solicitar acceso gratuito</p>
+          <p class="text-sm text-slate-500">{{ __('auth.complete_data_subtitle') }}</p>
         </div>
 
         {{-- Errores --}}
@@ -88,7 +88,7 @@
 
           {{-- Nombre --}}
           <div>
-            <label for="name" class="block text-sm font-medium text-slate-700 mb-1.5">Nombre completo</label>
+            <label for="name" class="block text-sm font-medium text-slate-700 mb-1.5">{{ __('auth.full_name_label') }}</label>
             <input id="name" name="name" type="text" value="{{ old('name') }}" required autofocus
                    class="txt focus-ring w-full px-3 py-2.5 border border-slate-200 rounded-md bg-white placeholder-slate-400"
                    placeholder="Juan Pérez">
@@ -96,7 +96,7 @@
 
           {{-- Email --}}
           <div>
-            <label for="email" class="block text-sm font-medium text-slate-700 mb-1.5">Correo electrónico</label>
+            <label for="email" class="block text-sm font-medium text-slate-700 mb-1.5">{{ __('auth.email') }}</label>
             <div class="relative">
               <span class="pointer-events-none absolute inset-y-0 left-0 flex items-center pl-3 text-slate-400">
                 <svg class="w-5 h-5" viewBox="0 0 24 24" fill="none" stroke="currentColor">
@@ -114,15 +114,13 @@
 
           {{-- Tipo de negocio --}}
           <div>
-            <label for="business_type" class="block text-sm font-medium text-slate-700 mb-1.5">Tipo de negocio</label>
+            <label for="business_type" class="block text-sm font-medium text-slate-700 mb-1.5">{{ __('auth.business_type_label') }}</label>
             <select id="business_type" name="business_type" required
                     class="txt focus-ring w-full px-3 py-2.5 border border-slate-200 rounded-md bg-white text-sm">
-              <option value="comercio" @selected(old('business_type', 'comercio') === 'comercio')>Comercio / Tienda</option>
-              <option value="alquiler" @selected(old('business_type') === 'alquiler')>Alquiler / Estacionamiento</option>
+              <option value="comercio" @selected(old('business_type', 'comercio') === 'comercio')>{{ __('auth.business_comercio') }}</option>
+              <option value="alquiler" @selected(old('business_type') === 'alquiler')>{{ __('auth.business_alquiler') }}</option>
             </select>
-            <p class="mt-1.5 text-xs text-slate-500">
-              Seleccione el tipo que mejor describe su negocio. Esto personalizará su experiencia.
-            </p>
+            <p class="mt-1.5 text-xs text-slate-500">{{ __('auth.business_type_hint') }}</p>
           </div>
 
           {{-- Info --}}
@@ -132,11 +130,11 @@
                 <path fill-rule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7-4a1 1 0 11-2 0 1 1 0 012 0zM9 9a1 1 0 000 2v3a1 1 0 001 1h1a1 1 0 100-2v-3a1 1 0 00-1-1H9z" clip-rule="evenodd"/>
               </svg>
               <div class="text-sm text-blue-800">
-                <p class="font-semibold mb-1">¿Qué sucede después?</p>
+                <p class="font-semibold mb-1">{{ __('auth.whats_next_title') }}</p>
                 <ul class="space-y-1 text-blue-700">
-                  <li>• Revisaremos tu solicitud</li>
-                  <li>• Te enviaremos las credenciales de acceso por email</li>
-                  <li>• Podrás comenzar a usar Gestior inmediatamente</li>
+                  <li>• {{ __('auth.next_step_1') }}</li>
+                  <li>• {{ __('auth.next_step_2') }}</li>
+                  <li>• {{ __('auth.next_step_3') }}</li>
                 </ul>
               </div>
             </div>
@@ -149,23 +147,23 @@
                           ? 'bg-gradient-to-r from-violet-500 to-purple-500 hover:from-violet-600 hover:to-purple-600'
                           : 'bg-slate-900 hover:bg-black' }}
                        focus:ring-2 focus:ring-violet-700 focus:ring-offset-2 shadow-lg">
-            Solicitar acceso gratis
+            {{ __('auth.request_free_access') }}
           </button>
 
           <div class="text-center text-sm text-slate-500">
             <a href="{{ route('plans') }}" class="font-medium text-violet-700 hover:underline">
-              ← Volver a planes
+              {{ __('auth.back_to_plans') }}
             </a>
             <span class="mx-2">|</span>
             <a href="{{ route('login') }}" class="font-medium text-violet-700 hover:underline">
-              ¿Ya tienes cuenta? Inicia sesión
+              {{ __('auth.already_have_account') }}
             </a>
           </div>
         </form>
       </div>
 
       <div class="text-center mt-6">
-        <p class="text-xs text-slate-400">&copy; {{ date('Y') }} Gestior — Todos los derechos reservados.</p>
+        <p class="text-xs text-slate-400">&copy; {{ date('Y') }} Gestior — {{ __('auth.all_rights_reserved') }}</p>
       </div>
     </div>
   </div>

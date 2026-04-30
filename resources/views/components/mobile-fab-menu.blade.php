@@ -7,7 +7,7 @@
 <div
   id="mobile-fab-menu"
   class="md:hidden"
-  aria-label="Menú rápido móvil"
+  aria-label="{{ __('nav.settings') }}"
 >
   <!-- Botón flotante -->
   <button
@@ -37,55 +37,55 @@
     <div class="overflow-auto p-2 space-y-1" style="max-height: calc(100vh - 130px);">
       <a href="{{ route('dashboard') }}" wire:navigate data-turbo="false"
          class="flex items-center gap-3 px-3 py-2 rounded-lg text-sm font-medium hover:bg-neutral-50 dark:hover:bg-neutral-800 {{ request()->routeIs('dashboard') ? 'bg-neutral-100 dark:bg-neutral-800' : '' }}"
-         role="menuitem">Dashboard</a>
+         role="menuitem">{{ __('nav.dashboard') }}</a>
 
       <a href="{{ route('nexum') }}" wire:navigate data-turbo="false"
          class="flex items-center gap-3 px-3 py-2 rounded-lg text-sm font-medium hover:bg-neutral-50 dark:hover:bg-neutral-800 {{ request()->routeIs('nexum') ? 'bg-neutral-100 dark:bg-neutral-800' : '' }}"
          role="menuitem">
-        <span class="text-violet-500">✦</span> Nexum
+        <span class="text-violet-500">✦</span> {{ __('nav.nexum') }}
       </a>
 
       <a href="{{ route('orders.create') }}" wire:navigate data-turbo="false"
          class="flex items-center gap-3 px-3 py-2 rounded-lg text-sm font-medium hover:bg-neutral-50 dark:hover:bg-neutral-800 {{ request()->routeIs('orders.create') ? 'bg-neutral-100 dark:bg-neutral-800' : '' }}"
-         role="menuitem">Crear venta</a>
+         role="menuitem">{{ __('nav.create_sale') }}</a>
 
       <a href="{{ $ordersUrl }}" wire:navigate data-turbo="false"
          class="flex items-center gap-3 px-3 py-2 rounded-lg text-sm font-medium hover:bg-neutral-50 dark:hover:bg-neutral-800 {{ request()->routeIs('orders.index') ? 'bg-neutral-100 dark:bg-neutral-800' : '' }}"
-         role="menuitem">Lista de ventas</a>
+         role="menuitem">{{ __('nav.sales_list') }}</a>
 
       <a href="{{ route('products.index') }}" wire:navigate data-turbo="false"
          class="flex items-center gap-3 px-3 py-2 rounded-lg text-sm font-medium hover:bg-neutral-50 dark:hover:bg-neutral-800 {{ request()->routeIs('products.*') ? 'bg-neutral-100 dark:bg-neutral-800' : '' }}"
-         role="menuitem">Productos</a>
+         role="menuitem">{{ __('nav.products') }}</a>
 
       <a href="{{ route('services.index') }}" wire:navigate data-turbo="false"
          class="flex items-center gap-3 px-3 py-2 rounded-lg text-sm font-medium hover:bg-neutral-50 dark:hover:bg-neutral-800 {{ request()->routeIs('services.*') ? 'bg-neutral-100 dark:bg-neutral-800' : '' }}"
-         role="menuitem">Servicios</a>
+         role="menuitem">{{ __('nav.services') }}</a>
 
       <a href="{{ route('clients.index') }}" wire:navigate data-turbo="false"
          class="flex items-center gap-3 px-3 py-2 rounded-lg text-sm font-medium hover:bg-neutral-50 dark:hover:bg-neutral-800 {{ request()->routeIs('clients.*') ? 'bg-neutral-100 dark:bg-neutral-800' : '' }}"
-         role="menuitem">Clientes</a>
+         role="menuitem">{{ __('nav.clients') }}</a>
 
       <a href="{{ route('stock.index') }}#stock" wire:navigate data-turbo="false"
          class="flex items-center gap-3 px-3 py-2 rounded-lg text-sm font-medium hover:bg-neutral-50 dark:hover:bg-neutral-800 {{ request()->fullUrlIs(route('stock.index').'#stock') ? 'bg-neutral-100 dark:bg-neutral-800' : '' }}"
-         role="menuitem">Stock</a>
+         role="menuitem">{{ __('nav.stock') }}</a>
 
       <a href="{{ route('expenses.index') }}" wire:navigate data-turbo="false"
          class="flex items-center gap-3 px-3 py-2 rounded-lg text-sm font-medium hover:bg-neutral-50 dark:hover:bg-neutral-800 {{ request()->routeIs('costs.*') ? 'bg-neutral-100 dark:bg-neutral-800' : '' }}"
-         role="menuitem">Calcular costos</a>
+         role="menuitem">{{ __('nav.costing') }}</a>
 
       @auth
         @if(auth()->user()->isMaster() || auth()->user()->hasModule('alquileres'))
           <div class="h-px bg-neutral-200 dark:bg-neutral-800 my-1"></div>
-          <p class="px-3 pt-1 pb-0.5 text-[10px] font-semibold uppercase tracking-widest text-neutral-400 dark:text-neutral-500">Alquileres</p>
+          <p class="px-3 pt-1 pb-0.5 text-[10px] font-semibold uppercase tracking-widest text-neutral-400 dark:text-neutral-500">{{ __('nav.rentals') }}</p>
           <a href="{{ Route::has('rentals.calendar') ? route('rentals.calendar') : '#' }}" wire:navigate data-turbo="false"
              class="flex items-center gap-3 px-3 py-2 rounded-lg text-sm font-medium hover:bg-neutral-50 dark:hover:bg-neutral-800 {{ request()->routeIs('rentals.calendar') ? 'bg-neutral-100 dark:bg-neutral-800' : '' }}"
-             role="menuitem">Calendario</a>
+             role="menuitem">{{ __('nav.bookings') }}</a>
           <a href="{{ Route::has('rentals.bookings.index') ? route('rentals.bookings.index') : '#' }}" wire:navigate data-turbo="false"
              class="flex items-center gap-3 px-3 py-2 rounded-lg text-sm font-medium hover:bg-neutral-50 dark:hover:bg-neutral-800 {{ request()->routeIs('rentals.bookings.*') ? 'bg-neutral-100 dark:bg-neutral-800' : '' }}"
-             role="menuitem">Reservas</a>
+             role="menuitem">{{ __('nav.bookings') }}</a>
           <a href="{{ Route::has('rentals.spaces.index') ? route('rentals.spaces.index') : '#' }}" wire:navigate data-turbo="false"
              class="flex items-center gap-3 px-3 py-2 rounded-lg text-sm font-medium hover:bg-neutral-50 dark:hover:bg-neutral-800 {{ request()->routeIs('rentals.spaces.*') ? 'bg-neutral-100 dark:bg-neutral-800' : '' }}"
-             role="menuitem">Espacios</a>
+             role="menuitem">{{ __('nav.spaces') }}</a>
           <div class="h-px bg-neutral-200 dark:bg-neutral-800 my-1"></div>
         @endif
       @endauth
@@ -94,7 +94,7 @@
         @if(auth()->user()->isMaster() || auth()->user()->isCompany())
           <a href="{{ route('company.branches.index') }}" wire:navigate data-turbo="false"
              class="flex items-center gap-3 px-3 py-2 rounded-lg text-sm font-medium hover:bg-neutral-50 dark:hover:bg-neutral-800 {{ request()->routeIs('company.branches.*') ? 'bg-neutral-100 dark:bg-neutral-800' : '' }}"
-             role="menuitem">Sucursales</a>
+             role="menuitem">{{ __('nav.branches') }}</a>
         @endif
       @endauth
 
@@ -102,7 +102,7 @@
         @if(auth()->user()->isMaster() || auth()->user()->isCompany())
           <a href="{{ route('company.employees.index') }}" wire:navigate data-turbo="false"
              class="flex items-center gap-3 px-3 py-2 rounded-lg text-sm font-medium hover:bg-neutral-50 dark:hover:bg-neutral-800 {{ request()->routeIs('company.employees.*') ? 'bg-neutral-100 dark:bg-neutral-800' : '' }}"
-             role="menuitem">Personal</a>
+             role="menuitem">{{ __('nav.employees') }}</a>
         @endif
       @endauth
 
@@ -110,7 +110,7 @@
         @if(auth()->user()->isMaster())
           <a href="{{ route('master.invitations.index') }}" wire:navigate data-turbo="false"
              class="flex items-center gap-3 px-3 py-2 rounded-lg text-sm font-medium hover:bg-neutral-50 dark:hover:bg-neutral-800 {{ request()->routeIs('master.invitations.*') ? 'bg-neutral-100 dark:bg-neutral-800' : '' }}"
-             role="menuitem">Generar usuarios</a>
+             role="menuitem">{{ __('nav.generate_users') }}</a>
         @endif
       @endauth
 
@@ -118,7 +118,7 @@
         @if(auth()->user()->isMaster())
           <a href="{{ route('master.users.index') }}" wire:navigate data-turbo="false"
              class="flex items-center gap-3 px-3 py-2 rounded-lg text-sm font-medium hover:bg-neutral-50 dark:hover:bg-neutral-800 {{ request()->routeIs('master.users.*') ? 'bg-neutral-100 dark:bg-neutral-800' : '' }}"
-             role="menuitem">Gestionar usuarios</a>
+             role="menuitem">{{ __('nav.manage_users') }}</a>
         @endif
       @endauth
 
@@ -126,17 +126,17 @@
         @if(auth()->user()->isMaster())
           <a href="{{ route('trial-requests') }}" wire:navigate data-turbo="false"
              class="flex items-center gap-3 px-3 py-2 rounded-lg text-sm font-medium hover:bg-neutral-50 dark:hover:bg-neutral-800 {{ request()->routeIs('trial-requests') ? 'bg-neutral-100 dark:bg-neutral-800' : '' }}"
-             role="menuitem">Solicitudes</a>
+             role="menuitem">{{ __('nav.requests') }}</a>
         @endif
       @endauth
 
       <a href="{{ route('settings') }}" wire:navigate data-turbo="false"
          class="flex items-center gap-3 px-3 py-2 rounded-lg text-sm font-medium hover:bg-neutral-50 dark:hover:bg-neutral-800 {{ request()->routeIs('settings') ? 'bg-neutral-100 dark:bg-neutral-800' : '' }}"
-         role="menuitem">Configuración</a>
+         role="menuitem">{{ __('nav.settings') }}</a>
 
       <a href="{{ route('support.index') }}" wire:navigate data-turbo="false"
          class="flex items-center gap-3 px-3 py-2 rounded-lg text-sm font-medium hover:bg-neutral-50 dark:hover:bg-neutral-800 {{ request()->routeIs('support.*') ? 'bg-neutral-100 dark:bg-neutral-800' : '' }}"
-         role="menuitem">Soporte</a>
+         role="menuitem">{{ __('nav.support') }}</a>
 
       <div class="h-px bg-neutral-200 dark:bg-neutral-800 my-2"></div>
 
@@ -144,7 +144,7 @@
         @csrf
         <button type="submit"
                 class="w-full text-left flex items-center gap-3 px-3 py-2 rounded-lg text-sm font-medium hover:bg-red-50 dark:hover:bg-red-900/20 hover:text-red-600 dark:hover:text-red-400"
-                role="menuitem">Salir</button>
+                role="menuitem">{{ __('nav.logout') }}</button>
       </form>
     </div>
   </div>
@@ -155,7 +155,6 @@
 
 <script>
 (function() {
-  // Esperar a que el DOM esté listo
   if (document.readyState === 'loading') {
     document.addEventListener('DOMContentLoaded', initFabMenu);
   } else {
@@ -180,20 +179,17 @@
       isOpen = true;
       button.setAttribute('aria-expanded', 'true');
 
-      // Mostrar overlay
       overlay.style.display = 'block';
       requestAnimationFrame(() => {
         overlay.style.opacity = '1';
       });
 
-      // Mostrar panel con animación
       panel.style.display = 'block';
       requestAnimationFrame(() => {
         panel.style.opacity = '1';
         panel.style.transform = 'translateY(0)';
       });
 
-      // Cambiar iconos
       iconMenu.style.display = 'none';
       iconClose.style.display = 'block';
     }
@@ -202,20 +198,17 @@
       isOpen = false;
       button.setAttribute('aria-expanded', 'false');
 
-      // Ocultar overlay
       overlay.style.opacity = '0';
       setTimeout(() => {
         overlay.style.display = 'none';
       }, 150);
 
-      // Ocultar panel con animación
       panel.style.opacity = '0';
       panel.style.transform = 'translateY(0.5rem)';
       setTimeout(() => {
         panel.style.display = 'none';
       }, 150);
 
-      // Cambiar iconos
       iconMenu.style.display = 'block';
       iconClose.style.display = 'none';
     }
@@ -228,18 +221,15 @@
       }
     }
 
-    // Event listeners
     button.addEventListener('click', toggleMenu);
     overlay.addEventListener('click', closeMenu);
 
-    // Cerrar al hacer clic fuera del panel (pero dentro del overlay ya está cubierto)
     document.addEventListener('click', function(e) {
       if (isOpen && !panel.contains(e.target) && !button.contains(e.target)) {
         closeMenu();
       }
     });
 
-    // Cerrar con tecla Escape
     document.addEventListener('keydown', function(e) {
       if (isOpen && e.key === 'Escape') {
         closeMenu();

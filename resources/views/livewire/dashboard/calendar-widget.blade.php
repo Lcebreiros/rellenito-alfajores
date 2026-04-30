@@ -8,14 +8,14 @@
     <div class="flex items-center gap-2">
       <div class="w-1.5 h-4 rounded-full bg-indigo-500/80 dark:bg-indigo-400/70"></div>
       <div>
-        <h3 class="text-sm font-semibold text-neutral-800 dark:text-neutral-100">Calendario</h3>
+        <h3 class="text-sm font-semibold text-neutral-800 dark:text-neutral-100">{{ __('dashboard.widget_calendar_title') }}</h3>
         <div class="text-[11px] text-neutral-400 dark:text-neutral-500 mt-0.5">{{ $currentMonth }}</div>
       </div>
     </div>
     <div class="flex items-center gap-2">
       @if(auth()->user()->google_access_token && auth()->user()->google_refresh_token)
         {{-- Connected to Google Calendar --}}
-        <div class="flex items-center gap-1.5 px-2 py-1 bg-green-50 dark:bg-green-900/20 rounded-lg" title="Conectado con Google Calendar">
+        <div class="flex items-center gap-1.5 px-2 py-1 bg-green-50 dark:bg-green-900/20 rounded-lg" title="{{ __('dashboard.connected_google_title') }}">
           <svg class="w-3 h-3 text-green-600 dark:text-green-400" fill="currentColor" viewBox="0 0 20 20">
             <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd"></path>
           </svg>
@@ -25,16 +25,16 @@
         {{-- Not connected - show connect button --}}
         <a href="{{ route('google.connect') }}"
            class="flex items-center gap-1.5 px-2 py-1 bg-blue-50 dark:bg-blue-900/20 hover:bg-blue-100 dark:hover:bg-blue-900/30 rounded-lg transition-colors"
-           title="Conectar con Google Calendar">
+           title="{{ __('dashboard.connect_google_title') }}">
           <svg class="w-3 h-3 text-blue-600 dark:text-blue-400" fill="currentColor" viewBox="0 0 24 24">
             <path d="M12.48 10.92v3.28h7.84c-.24 1.84-.853 3.187-1.787 4.133-1.147 1.147-2.933 2.4-6.053 2.4-4.827 0-8.6-3.893-8.6-8.72s3.773-8.72 8.6-8.72c2.6 0 4.507 1.027 5.907 2.347l2.307-2.307C18.747 1.44 16.133 0 12.48 0 5.867 0 .307 5.387.307 12s5.56 12 12.173 12c3.573 0 6.267-1.173 8.373-3.36 2.16-2.16 2.84-5.213 2.84-7.667 0-.76-.053-1.467-.173-2.053H12.48z"/>
           </svg>
-          <span class="text-[10px] font-medium text-blue-700 dark:text-blue-300">Conectar</span>
+          <span class="text-[10px] font-medium text-blue-700 dark:text-blue-300">{{ __('dashboard.connect_btn') }}</span>
         </a>
       @endif
       <button @click="showCalendar = true"
               class="p-1.5 rounded-lg hover:bg-neutral-100 dark:hover:bg-neutral-800 transition-colors"
-              title="Ver calendario completo">
+              title="{{ __('dashboard.view_full_calendar') }}">
         <svg class="w-4 h-4 text-neutral-600 dark:text-neutral-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
           <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"></path>
         </svg>
@@ -45,13 +45,13 @@
   {{-- Mini Stats --}}
   <div class="px-4 sm:px-5 pt-3.5 pb-2 grid grid-cols-2 gap-2.5">
     <div class="bg-neutral-50/70 dark:bg-neutral-800/30 rounded-xl p-2.5 text-center">
-      <div class="text-[10px] uppercase tracking-wide text-neutral-400 dark:text-neutral-500 mb-0.5">Pagos vencidos</div>
+      <div class="text-[10px] uppercase tracking-wide text-neutral-400 dark:text-neutral-500 mb-0.5">{{ __('dashboard.overdue_payments') }}</div>
       <div class="text-2xl font-bold tabular-nums {{ $totalPaymentsDue > 0 ? 'text-rose-500 dark:text-rose-400' : 'text-neutral-800 dark:text-white' }}">
         {{ $totalPaymentsDue }}
       </div>
     </div>
     <div class="bg-neutral-50/70 dark:bg-neutral-800/30 rounded-xl p-2.5 text-center">
-      <div class="text-[10px] uppercase tracking-wide text-neutral-400 dark:text-neutral-500 mb-0.5">Compras este mes</div>
+      <div class="text-[10px] uppercase tracking-wide text-neutral-400 dark:text-neutral-500 mb-0.5">{{ __('dashboard.purchases_this_month') }}</div>
       <div class="text-2xl font-bold text-neutral-800 dark:text-white tabular-nums">
         {{ $totalPurchases }}
       </div>
@@ -60,14 +60,14 @@
 
   {{-- Events List --}}
   <div class="flex-1 px-4 sm:px-5 pb-4 overflow-y-auto dashboard-widget-scroll">
-    <div class="text-xs font-semibold text-neutral-700 dark:text-neutral-300 mb-2">Eventos</div>
+    <div class="text-xs font-semibold text-neutral-700 dark:text-neutral-300 mb-2">{{ __('dashboard.events_label') }}</div>
 
     @if($upcomingEvents->isEmpty())
       <div class="flex flex-col items-center justify-center py-8 text-center">
         <svg class="w-12 h-12 text-neutral-300 dark:text-neutral-600 mb-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
           <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"></path>
         </svg>
-        <p class="text-sm text-neutral-500 dark:text-neutral-400">No hay eventos próximos</p>
+        <p class="text-sm text-neutral-500 dark:text-neutral-400">{{ __('dashboard.no_upcoming_events') }}</p>
       </div>
     @else
       <div class="space-y-2">
@@ -126,11 +126,11 @@
                     </div>
                   @elseif($event['type'] === 'order')
                     <div class="text-[10px] text-neutral-500 dark:text-neutral-400 truncate">
-                      Agendado
+                      {{ __('dashboard.scheduled_label') }}
                     </div>
                   @elseif($event['type'] === 'booking')
                     <div class="text-[10px] text-neutral-500 dark:text-neutral-400">
-                      {{ $event['time'] ?? '' }} · {{ $event['status'] === 'confirmed' ? 'Confirmada' : 'Pendiente' }}
+                      {{ $event['time'] ?? '' }} · {{ $event['status'] === 'confirmed' ? __('dashboard.booking_confirmed') : __('dashboard.booking_pending') }}
                     </div>
                   @endif
                 </div>
@@ -150,7 +150,7 @@
                 </svg>
                 <span class="text-[10px] {{ $isToday ? 'text-indigo-600 dark:text-indigo-400 font-semibold' : 'text-neutral-500 dark:text-neutral-400' }}">
                   @if($isToday)
-                    Hoy
+                    {{ __('dashboard.today_label') }}
                   @elseif($isPast)
                     {{ $eventDate->diffForHumans() }}
                   @else
@@ -158,7 +158,7 @@
                   @endif
                 </span>
                 @if($event['type'] === 'payment' && ($isPast || ($event['is_overdue'] ?? false)))
-                  <span class="text-[10px] text-rose-600 dark:text-rose-400 font-semibold ml-1">• Vencido</span>
+                  <span class="text-[10px] text-rose-600 dark:text-rose-400 font-semibold ml-1">{{ __('dashboard.overdue_marker') }}</span>
                 @endif
               </div>
             </div>
@@ -173,19 +173,19 @@
     <div class="flex items-center justify-center gap-4 text-xs">
       <div class="flex items-center gap-1.5">
         <div class="w-2 h-2 rounded-full bg-blue-500 dark:bg-blue-600"></div>
-        <span class="text-neutral-600 dark:text-neutral-400">Pagos</span>
+        <span class="text-neutral-600 dark:text-neutral-400">{{ __('dashboard.legend_payments') }}</span>
       </div>
       <div class="flex items-center gap-1.5">
         <div class="w-2 h-2 rounded-full bg-emerald-500 dark:bg-emerald-600"></div>
-        <span class="text-neutral-600 dark:text-neutral-400">Compras</span>
+        <span class="text-neutral-600 dark:text-neutral-400">{{ __('dashboard.legend_purchases') }}</span>
       </div>
       <div class="flex items-center gap-1.5">
         <div class="w-2 h-2 rounded-full bg-indigo-500 dark:bg-indigo-600"></div>
-        <span class="text-neutral-600 dark:text-neutral-400">Agendados</span>
+        <span class="text-neutral-600 dark:text-neutral-400">{{ __('dashboard.legend_scheduled') }}</span>
       </div>
       <div class="flex items-center gap-1.5">
         <div class="w-2 h-2 rounded-full bg-rose-500 dark:bg-rose-600"></div>
-        <span class="text-neutral-600 dark:text-neutral-400">Vencidos</span>
+        <span class="text-neutral-600 dark:text-neutral-400">{{ __('dashboard.legend_overdue') }}</span>
       </div>
     </div>
   </div>
@@ -203,13 +203,13 @@
       {{-- Modal Header --}}
       <div class="px-3 sm:px-4 py-2 sm:py-3 border-b border-neutral-200 dark:border-neutral-800 flex items-center justify-between flex-shrink-0">
         <div class="flex items-center gap-2 sm:gap-3">
-          <h3 class="text-sm sm:text-base font-semibold text-neutral-900 dark:text-neutral-100">Calendario</h3>
+          <h3 class="text-sm sm:text-base font-semibold text-neutral-900 dark:text-neutral-100">{{ __('dashboard.widget_calendar_title') }}</h3>
 
           {{-- Month Navigation --}}
           <div class="flex items-center gap-1 sm:gap-2">
             <button wire:click="previousMonth"
                     class="p-1 rounded hover:bg-neutral-100 dark:hover:bg-neutral-800 transition-colors"
-                    title="Mes anterior">
+                    title="{{ __('dashboard.prev_month') }}">
               <svg class="w-3 h-3 sm:w-4 sm:h-4 text-neutral-600 dark:text-neutral-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"></path>
               </svg>
@@ -217,12 +217,12 @@
 
             <button wire:click="goToToday"
                     class="px-2 py-0.5 sm:px-3 sm:py-1 text-[10px] sm:text-xs font-medium rounded bg-neutral-100 dark:bg-neutral-800 hover:bg-neutral-200 dark:hover:bg-neutral-700 text-neutral-700 dark:text-neutral-300 transition-colors">
-              Hoy
+              {{ __('dashboard.today_btn') }}
             </button>
 
             <button wire:click="nextMonth"
                     class="p-1 rounded hover:bg-neutral-100 dark:hover:bg-neutral-800 transition-colors"
-                    title="Mes siguiente">
+                    title="{{ __('dashboard.next_month') }}">
               <svg class="w-3 h-3 sm:w-4 sm:h-4 text-neutral-600 dark:text-neutral-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"></path>
               </svg>
@@ -236,13 +236,13 @@
             <form action="{{ route('google.disconnect') }}" method="POST" class="inline">
               @csrf
               <button type="submit"
-                      onclick="return confirm('¿Deseas desconectar tu cuenta de Google Calendar?')"
+                      onclick="return confirm(@json(__('dashboard.google_disconnect_confirm')))"
                       class="flex items-center gap-1 px-2 py-1 text-[10px] sm:text-xs font-medium rounded bg-red-50 dark:bg-red-900/20 hover:bg-red-100 dark:hover:bg-red-900/30 text-red-700 dark:text-red-300 transition-colors"
                       title="Desconectar Google Calendar">
                 <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
                 </svg>
-                <span class="hidden sm:inline">Desconectar Google</span>
+                <span class="hidden sm:inline">{{ __('dashboard.disconnect_google') }}</span>
               </button>
             </form>
           @endif
@@ -318,19 +318,19 @@
           <div class="flex items-center justify-center gap-2 sm:gap-3 md:gap-4 text-[10px] sm:text-xs">
             <div class="flex items-center gap-1 sm:gap-1.5">
               <div class="w-2 h-2 sm:w-2.5 sm:h-2.5 rounded bg-blue-500 dark:bg-blue-600"></div>
-              <span class="text-neutral-600 dark:text-neutral-400">Pagos</span>
+              <span class="text-neutral-600 dark:text-neutral-400">{{ __('dashboard.legend_payments') }}</span>
             </div>
             <div class="flex items-center gap-1 sm:gap-1.5">
               <div class="w-2 h-2 sm:w-2.5 sm:h-2.5 rounded bg-emerald-500 dark:bg-emerald-600"></div>
-              <span class="text-neutral-600 dark:text-neutral-400">Compras</span>
+              <span class="text-neutral-600 dark:text-neutral-400">{{ __('dashboard.legend_purchases') }}</span>
             </div>
             <div class="flex items-center gap-1 sm:gap-1.5">
               <div class="w-2 h-2 sm:w-2.5 sm:h-2.5 rounded bg-indigo-500 dark:bg-indigo-600"></div>
-              <span class="text-neutral-600 dark:text-neutral-400">Agendados</span>
+              <span class="text-neutral-600 dark:text-neutral-400">{{ __('dashboard.legend_scheduled') }}</span>
             </div>
             <div class="flex items-center gap-1 sm:gap-1.5">
               <div class="w-2 h-2 sm:w-2.5 sm:h-2.5 rounded bg-rose-500 dark:bg-rose-600"></div>
-              <span class="text-neutral-600 dark:text-neutral-400">Vencidos</span>
+              <span class="text-neutral-600 dark:text-neutral-400">{{ __('dashboard.legend_overdue') }}</span>
             </div>
           </div>
         </div>

@@ -1,7 +1,7 @@
 @extends('layouts.app')
 
 @section('header')
-  <h1 class="text-2xl font-bold text-neutral-900 dark:text-neutral-100">Métodos de Pago</h1>
+  <h1 class="text-2xl font-bold text-neutral-900 dark:text-neutral-100">{{ __('payment_methods.title') }}</h1>
 @endsection
 
 @section('content')
@@ -23,8 +23,8 @@
     <div class="flex items-start gap-3">
       <x-heroicon-o-information-circle class="w-6 h-6 text-blue-600 dark:text-blue-400 flex-shrink-0 mt-0.5" />
       <div class="text-sm text-blue-800 dark:text-blue-200">
-        <p class="font-medium mb-1">Activa los métodos de pago que quieras ofrecer a tus clientes</p>
-        <p class="text-blue-700 dark:text-blue-300">Solo necesitas activar o desactivar con un click. La configuración técnica ya está lista.</p>
+        <p class="font-medium mb-1">{{ __('payment_methods.info_title') }}</p>
+        <p class="text-blue-700 dark:text-blue-300">{{ __('payment_methods.info_body') }}</p>
       </div>
     </div>
   </div>
@@ -47,7 +47,7 @@
                 <h3 class="font-semibold text-neutral-900 dark:text-neutral-100 truncate">{{ $method->name }}</h3>
                 @if($method->requires_gateway)
                   <span class="inline-flex items-center gap-1 px-1.5 py-0.5 rounded text-[10px] font-medium bg-blue-100 text-blue-700 dark:bg-blue-900/30 dark:text-blue-300">
-                    <x-heroicon-s-link class="w-2.5 h-2.5" /> Automático
+                    <x-heroicon-s-link class="w-2.5 h-2.5" /> {{ __('payment_methods.badge_automatic') }}
                   </span>
                 @endif
               </div>
@@ -77,7 +77,7 @@
           <div class="mt-3 pt-3 border-t border-neutral-200 dark:border-neutral-800">
             <div class="flex items-center gap-2 text-xs text-emerald-600 dark:text-emerald-400">
               <x-heroicon-s-check-circle class="w-4 h-4" />
-              <span class="font-medium">Activo y disponible para tus clientes</span>
+              <span class="font-medium">{{ __('payment_methods.status_active_text') }}</span>
             </div>
           </div>
         @endif
@@ -89,8 +89,8 @@
     <div class="bg-white dark:bg-neutral-900 rounded-xl shadow-sm border border-neutral-100 dark:border-neutral-800 p-8">
       <div class="text-center py-8">
         <x-heroicon-o-credit-card class="w-16 h-16 mx-auto text-neutral-300 dark:text-neutral-700 mb-4" />
-        <h3 class="text-lg font-medium text-neutral-900 dark:text-neutral-100 mb-2">No hay métodos de pago disponibles</h3>
-        <p class="text-neutral-600 dark:text-neutral-400">Contacta al administrador para habilitar métodos de pago</p>
+        <h3 class="text-lg font-medium text-neutral-900 dark:text-neutral-100 mb-2">{{ __('payment_methods.empty_title') }}</h3>
+        <p class="text-neutral-600 dark:text-neutral-400">{{ __('payment_methods.empty_body') }}</p>
       </div>
     </div>
   @endif

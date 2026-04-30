@@ -152,9 +152,9 @@
             </div>
           </div>
           <div class="flex items-center justify-between mt-3 text-xs font-medium">
-            <span :class="step >= 1 ? 'text-violet-600' : 'text-slate-400'">Tipo de negocio</span>
-            <span :class="step >= 2 ? 'text-violet-600' : 'text-slate-400'">Plan</span>
-            <span :class="step >= 3 ? 'text-violet-600' : 'text-slate-400'">Datos personales</span>
+            <span :class="step >= 1 ? 'text-violet-600' : 'text-slate-400'">{{ __('auth.step_business_type') }}</span>
+            <span :class="step >= 2 ? 'text-violet-600' : 'text-slate-400'">{{ __('auth.step_plan') }}</span>
+            <span :class="step >= 3 ? 'text-violet-600' : 'text-slate-400'">{{ __('auth.step_personal_data') }}</span>
           </div>
         </div>
 
@@ -175,8 +175,8 @@
           {{-- STEP 1: Business Type --}}
           <div x-show="step === 1" x-cloak>
             <div class="mb-6">
-              <h2 class="text-2xl font-semibold tracking-tight text-slate-900 mb-2">¿Qué tipo de negocio tienes?</h2>
-              <p class="text-sm text-slate-500">Selecciona el tipo que mejor describe tu actividad</p>
+              <h2 class="text-2xl font-semibold tracking-tight text-slate-900 mb-2">{{ __('auth.what_business_type') }}</h2>
+              <p class="text-sm text-slate-500">{{ __('auth.select_business_type') }}</p>
             </div>
 
             <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-8">
@@ -191,26 +191,26 @@
                     </svg>
                   </div>
                   <div class="flex-1">
-                    <h3 class="text-lg font-semibold text-slate-900 mb-1">Comercio / Tienda</h3>
-                    <p class="text-sm text-slate-600">Gestiona productos, ventas, stock y gastos para tu negocio</p>
+                    <h3 class="text-lg font-semibold text-slate-900 mb-1">{{ __('auth.business_comercio') }}</h3>
+                    <p class="text-sm text-slate-600">{{ __('auth.comercio_desc') }}</p>
                     <ul class="mt-3 space-y-1.5 text-xs text-slate-500">
                       <li class="flex items-center gap-2">
                         <svg class="w-4 h-4 text-violet-500" fill="currentColor" viewBox="0 0 20 20">
                           <path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd"/>
                         </svg>
-                        Control de inventario
+                        {{ __('auth.feature_inventory') }}
                       </li>
                       <li class="flex items-center gap-2">
                         <svg class="w-4 h-4 text-violet-500" fill="currentColor" viewBox="0 0 20 20">
                           <path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd"/>
                         </svg>
-                        Gestión de ventas
+                        {{ __('auth.feature_sales') }}
                       </li>
                       <li class="flex items-center gap-2">
                         <svg class="w-4 h-4 text-violet-500" fill="currentColor" viewBox="0 0 20 20">
                           <path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd"/>
                         </svg>
-                        Reportes de productos
+                        {{ __('auth.feature_reports') }}
                       </li>
                     </ul>
                   </div>
@@ -236,26 +236,26 @@
                     </svg>
                   </div>
                   <div class="flex-1">
-                    <h3 class="text-lg font-semibold text-slate-900 mb-1">Alquiler / Estacionamiento</h3>
-                    <p class="text-sm text-slate-600">Administra espacios, servicios, turnos y cobros de estacionamiento</p>
+                    <h3 class="text-lg font-semibold text-slate-900 mb-1">{{ __('auth.business_alquiler') }}</h3>
+                    <p class="text-sm text-slate-600">{{ __('auth.alquiler_desc') }}</p>
                     <ul class="mt-3 space-y-1.5 text-xs text-slate-500">
                       <li class="flex items-center gap-2">
                         <svg class="w-4 h-4 text-violet-500" fill="currentColor" viewBox="0 0 20 20">
                           <path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd"/>
                         </svg>
-                        Control de espacios
+                        {{ __('auth.feature_spaces') }}
                       </li>
                       <li class="flex items-center gap-2">
                         <svg class="w-4 h-4 text-violet-500" fill="currentColor" viewBox="0 0 20 20">
                           <path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd"/>
                         </svg>
-                        Gestión de turnos
+                        {{ __('auth.feature_shifts') }}
                       </li>
                       <li class="flex items-center gap-2">
                         <svg class="w-4 h-4 text-violet-500" fill="currentColor" viewBox="0 0 20 20">
                           <path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd"/>
                         </svg>
-                        Panel de operarios
+                        {{ __('auth.feature_operators') }}
                       </li>
                     </ul>
                   </div>
@@ -278,15 +278,15 @@
                     :disabled="!canProceedStep1()"
                     :class="canProceedStep1() ? 'bg-violet-600 hover:bg-violet-700 text-white' : 'bg-slate-200 text-slate-400 cursor-not-allowed'"
                     class="btn w-full py-3 px-4 rounded-lg font-semibold focus:ring-2 focus:ring-violet-700 focus:ring-offset-2 shadow-lg transition-all">
-              Siguiente: Elegir plan →
+              {{ __('auth.next_choose_plan') }}
             </button>
           </div>
 
           {{-- STEP 2: Plan Selection --}}
           <div x-show="step === 2" x-cloak>
             <div class="mb-6">
-              <h2 class="text-2xl font-semibold tracking-tight text-slate-900 mb-2">Elige tu plan</h2>
-              <p class="text-sm text-slate-500">Selecciona el plan que mejor se adapte a tus necesidades</p>
+              <h2 class="text-2xl font-semibold tracking-tight text-slate-900 mb-2">{{ __('auth.choose_your_plan') }}</h2>
+              <p class="text-sm text-slate-500">{{ __('auth.select_plan_subtitle') }}</p>
             </div>
 
             <div class="grid grid-cols-1 md:grid-cols-3 gap-4 mb-8">
@@ -296,8 +296,8 @@
                    @click="selectPlan('basic')">
                 <div class="flex items-start justify-between mb-3">
                   <div>
-                    <h3 class="text-lg font-bold text-slate-900">Básico</h3>
-                    <p class="text-xs text-slate-500 mt-0.5">Para empezar</p>
+                    <h3 class="text-lg font-bold text-slate-900">{{ __('auth.plan_basic') }}</h3>
+                    <p class="text-xs text-slate-500 mt-0.5">{{ __('auth.plan_basic_sub') }}</p>
                   </div>
                   <div class="w-5 h-5 rounded-full border-2 flex items-center justify-center transition-all"
                        :class="plan === 'basic' ? 'border-violet-600 bg-violet-600' : 'border-slate-300'">
@@ -307,26 +307,26 @@
                   </div>
                 </div>
                 <div class="mb-4">
-                  <span class="text-2xl font-bold text-slate-900">Gratis</span>
+                  <span class="text-2xl font-bold text-slate-900">{{ __('auth.plan_free') }}</span>
                 </div>
                 <ul class="space-y-2 text-xs text-slate-600">
                   <li class="flex items-start gap-2">
                     <svg class="w-4 h-4 text-violet-500 flex-shrink-0 mt-0.5" fill="currentColor" viewBox="0 0 20 20">
                       <path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd"/>
                     </svg>
-                    <span>Funcionalidades básicas</span>
+                    <span>{{ __('auth.plan_basic_feature_1') }}</span>
                   </li>
                   <li class="flex items-start gap-2">
                     <svg class="w-4 h-4 text-violet-500 flex-shrink-0 mt-0.5" fill="currentColor" viewBox="0 0 20 20">
                       <path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd"/>
                     </svg>
-                    <span>1 sucursal</span>
+                    <span>{{ __('auth.plan_basic_feature_2') }}</span>
                   </li>
                   <li class="flex items-start gap-2">
                     <svg class="w-4 h-4 text-violet-500 flex-shrink-0 mt-0.5" fill="currentColor" viewBox="0 0 20 20">
                       <path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd"/>
                     </svg>
-                    <span>Soporte por email</span>
+                    <span>{{ __('auth.plan_basic_feature_3') }}</span>
                   </li>
                 </ul>
               </div>
@@ -337,13 +337,13 @@
                    @click="selectPlan('premium')">
                 <div class="absolute -top-3 left-1/2 -translate-x-1/2">
                   <span class="px-3 py-1 bg-gradient-to-r from-violet-500 to-purple-500 text-white text-xs font-bold rounded-full shadow-lg">
-                    Recomendado
+                    {{ __('auth.plan_recommended') }}
                   </span>
                 </div>
                 <div class="flex items-start justify-between mb-3">
                   <div>
                     <h3 class="text-lg font-bold text-slate-900">Premium</h3>
-                    <p class="text-xs text-slate-500 mt-0.5">Más popular</p>
+                    <p class="text-xs text-slate-500 mt-0.5">{{ __('auth.plan_premium_sub') }}</p>
                   </div>
                   <div class="w-5 h-5 rounded-full border-2 flex items-center justify-center transition-all"
                        :class="plan === 'premium' ? 'border-violet-600 bg-violet-600' : 'border-slate-300'">
@@ -353,32 +353,32 @@
                   </div>
                 </div>
                 <div class="mb-4">
-                  <span class="text-2xl font-bold text-slate-900">Gratis</span>
+                  <span class="text-2xl font-bold text-slate-900">{{ __('auth.plan_free') }}</span>
                 </div>
                 <ul class="space-y-2 text-xs text-slate-600">
                   <li class="flex items-start gap-2">
                     <svg class="w-4 h-4 text-violet-500 flex-shrink-0 mt-0.5" fill="currentColor" viewBox="0 0 20 20">
                       <path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd"/>
                     </svg>
-                    <span>Todo del plan Básico</span>
+                    <span>{{ __('auth.plan_premium_feature_1') }}</span>
                   </li>
                   <li class="flex items-start gap-2">
                     <svg class="w-4 h-4 text-violet-500 flex-shrink-0 mt-0.5" fill="currentColor" viewBox="0 0 20 20">
                       <path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd"/>
                     </svg>
-                    <span>Hasta 3 sucursales</span>
+                    <span>{{ __('auth.plan_premium_feature_2') }}</span>
                   </li>
                   <li class="flex items-start gap-2">
                     <svg class="w-4 h-4 text-violet-500 flex-shrink-0 mt-0.5" fill="currentColor" viewBox="0 0 20 20">
                       <path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd"/>
                     </svg>
-                    <span>Reportes avanzados</span>
+                    <span>{{ __('auth.plan_premium_feature_3') }}</span>
                   </li>
                   <li class="flex items-start gap-2">
                     <svg class="w-4 h-4 text-violet-500 flex-shrink-0 mt-0.5" fill="currentColor" viewBox="0 0 20 20">
                       <path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd"/>
                     </svg>
-                    <span>Soporte prioritario</span>
+                    <span>{{ __('auth.plan_premium_feature_4') }}</span>
                   </li>
                 </ul>
               </div>
@@ -390,7 +390,7 @@
                 <div class="flex items-start justify-between mb-3">
                   <div>
                     <h3 class="text-lg font-bold text-slate-900">Enterprise</h3>
-                    <p class="text-xs text-slate-500 mt-0.5">Para empresas</p>
+                    <p class="text-xs text-slate-500 mt-0.5">{{ __('auth.plan_enterprise_sub') }}</p>
                   </div>
                   <div class="w-5 h-5 rounded-full border-2 flex items-center justify-center transition-all"
                        :class="plan === 'enterprise' ? 'border-violet-600 bg-violet-600' : 'border-slate-300'">
@@ -400,32 +400,32 @@
                   </div>
                 </div>
                 <div class="mb-4">
-                  <span class="text-2xl font-bold text-slate-900">Gratis</span>
+                  <span class="text-2xl font-bold text-slate-900">{{ __('auth.plan_free') }}</span>
                 </div>
                 <ul class="space-y-2 text-xs text-slate-600">
                   <li class="flex items-start gap-2">
                     <svg class="w-4 h-4 text-violet-500 flex-shrink-0 mt-0.5" fill="currentColor" viewBox="0 0 20 20">
                       <path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd"/>
                     </svg>
-                    <span>Todo del plan Premium</span>
+                    <span>{{ __('auth.plan_enterprise_feature_1') }}</span>
                   </li>
                   <li class="flex items-start gap-2">
                     <svg class="w-4 h-4 text-violet-500 flex-shrink-0 mt-0.5" fill="currentColor" viewBox="0 0 20 20">
                       <path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd"/>
                     </svg>
-                    <span>Sucursales ilimitadas</span>
+                    <span>{{ __('auth.plan_enterprise_feature_2') }}</span>
                   </li>
                   <li class="flex items-start gap-2">
                     <svg class="w-4 h-4 text-violet-500 flex-shrink-0 mt-0.5" fill="currentColor" viewBox="0 0 20 20">
                       <path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd"/>
                     </svg>
-                    <span>API completa</span>
+                    <span>{{ __('auth.plan_enterprise_feature_3') }}</span>
                   </li>
                   <li class="flex items-start gap-2">
                     <svg class="w-4 h-4 text-violet-500 flex-shrink-0 mt-0.5" fill="currentColor" viewBox="0 0 20 20">
                       <path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd"/>
                     </svg>
-                    <span>Soporte dedicado 24/7</span>
+                    <span>{{ __('auth.plan_enterprise_feature_4') }}</span>
                   </li>
                 </ul>
               </div>
@@ -437,14 +437,14 @@
               <button type="button"
                       @click="prevStep()"
                       class="btn flex-1 py-3 px-4 rounded-lg font-semibold bg-slate-100 hover:bg-slate-200 text-slate-700 focus:ring-2 focus:ring-slate-400 focus:ring-offset-2 transition-all">
-                ← Anterior
+                {{ __('auth.prev_btn') }}
               </button>
               <button type="button"
                       @click="nextStep()"
                       :disabled="!canProceedStep2()"
                       :class="canProceedStep2() ? 'bg-violet-600 hover:bg-violet-700 text-white' : 'bg-slate-200 text-slate-400 cursor-not-allowed'"
                       class="btn flex-1 py-3 px-4 rounded-lg font-semibold focus:ring-2 focus:ring-violet-700 focus:ring-offset-2 shadow-lg transition-all">
-              Siguiente: Datos personales →
+                {{ __('auth.next_personal_data') }}
               </button>
             </div>
           </div>
@@ -452,14 +452,14 @@
           {{-- STEP 3: Personal Data --}}
           <div x-show="step === 3" x-cloak>
             <div class="mb-6">
-              <h2 class="text-2xl font-semibold tracking-tight text-slate-900 mb-2">Datos personales</h2>
-              <p class="text-sm text-slate-500">Completa tus datos para finalizar el registro</p>
+              <h2 class="text-2xl font-semibold tracking-tight text-slate-900 mb-2">{{ __('auth.personal_data_title') }}</h2>
+              <p class="text-sm text-slate-500">{{ __('auth.personal_data_subtitle') }}</p>
             </div>
 
             <div class="space-y-5 mb-8">
               {{-- Nombre --}}
               <div>
-                <label for="name" class="block text-sm font-medium text-slate-700 mb-1.5">Nombre completo</label>
+                <label for="name" class="block text-sm font-medium text-slate-700 mb-1.5">{{ __('auth.full_name_label') }}</label>
                 <input id="name" name="name" type="text" x-model="name" value="{{ old('name') }}" required autofocus autocomplete="name"
                        class="txt focus-ring w-full px-3 py-2.5 border border-slate-200 rounded-md bg-white placeholder-slate-400"
                        placeholder="Juan Pérez">
@@ -467,7 +467,7 @@
 
               {{-- Email --}}
               <div>
-                <label for="email" class="block text-sm font-medium text-slate-700 mb-1.5">Correo electrónico</label>
+                <label for="email" class="block text-sm font-medium text-slate-700 mb-1.5">{{ __('auth.email') }}</label>
                 <div class="relative">
                   <span class="pointer-events-none absolute inset-y-0 left-0 flex items-center pl-3 text-slate-400">
                     <svg class="w-5 h-5" viewBox="0 0 24 24" fill="none" stroke="currentColor">
@@ -485,7 +485,7 @@
 
               {{-- Password --}}
               <div x-data="{showPass:false}">
-                <label for="password" class="block text-sm font-medium text-slate-700 mb-1.5">Contraseña</label>
+                <label for="password" class="block text-sm font-medium text-slate-700 mb-1.5">{{ __('auth.password') }}</label>
                 <div class="relative">
                   <span class="pointer-events-none absolute inset-y-0 left-0 flex items-center pl-3 text-slate-400">
                     <svg class="w-5 h-5" viewBox="0 0 24 24" fill="none" stroke="currentColor">
@@ -512,7 +512,7 @@
 
               {{-- Confirm Password --}}
               <div x-data="{showPass2:false}">
-                <label for="password_confirmation" class="block text-sm font-medium text-slate-700 mb-1.5">Confirmar contraseña</label>
+                <label for="password_confirmation" class="block text-sm font-medium text-slate-700 mb-1.5">{{ __('auth.confirm_password') }}</label>
                 <div class="relative">
                   <span class="pointer-events-none absolute inset-y-0 left-0 flex items-center pl-3 text-slate-400">
                     <svg class="w-5 h-5" viewBox="0 0 24 24" fill="none" stroke="currentColor">
@@ -545,11 +545,11 @@
                   <path fill-rule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7-4a1 1 0 11-2 0 1 1 0 012 0zM9 9a1 1 0 000 2v3a1 1 0 001 1h1a1 1 0 100-2v-3a1 1 0 00-1-1H9z" clip-rule="evenodd"/>
                 </svg>
                 <div class="text-sm text-blue-800">
-                  <p class="font-semibold mb-1">¿Qué sucede después?</p>
+                  <p class="font-semibold mb-1">{{ __('auth.whats_next_title') }}</p>
                   <ul class="space-y-1 text-blue-700">
-                    <li>• Revisaremos tu solicitud</li>
-                    <li>• Te enviaremos las credenciales de acceso por email</li>
-                    <li>• Podrás comenzar a usar Gestior inmediatamente</li>
+                    <li>• {{ __('auth.next_step_1') }}</li>
+                    <li>• {{ __('auth.next_step_2') }}</li>
+                    <li>• {{ __('auth.next_step_3') }}</li>
                   </ul>
                 </div>
               </div>
@@ -559,19 +559,19 @@
               <button type="button"
                       @click="prevStep()"
                       class="btn flex-1 py-3 px-4 rounded-lg font-semibold bg-slate-100 hover:bg-slate-200 text-slate-700 focus:ring-2 focus:ring-slate-400 focus:ring-offset-2 transition-all">
-                ← Anterior
+                {{ __('auth.prev_btn') }}
               </button>
               <button type="submit"
                       :disabled="!canProceedStep3()"
                       :class="canProceedStep3() ? 'bg-gradient-to-r from-violet-600 to-purple-600 hover:from-violet-700 hover:to-purple-700 text-white' : 'bg-slate-200 text-slate-400 cursor-not-allowed'"
                       class="btn flex-1 py-3 px-4 rounded-lg font-semibold focus:ring-2 focus:ring-violet-700 focus:ring-offset-2 shadow-lg transition-all">
-                Solicitar acceso gratis
+                {{ __('auth.request_free_access') }}
               </button>
             </div>
 
             <div class="text-center text-sm text-slate-500 mt-4">
               <a href="{{ route('login') }}" class="font-medium text-violet-700 hover:underline">
-                ¿Ya tienes cuenta? Inicia sesión
+                {{ __('auth.already_have_account') }}
               </a>
             </div>
           </div>
@@ -579,7 +579,7 @@
       </div>
 
       <div class="text-center mt-6">
-        <p class="text-xs text-slate-400">&copy; {{ date('Y') }} Gestior — Todos los derechos reservados.</p>
+        <p class="text-xs text-slate-400">&copy; {{ date('Y') }} Gestior — {{ __('auth.all_rights_reserved') }}</p>
       </div>
     </div>
   </div>

@@ -7,7 +7,7 @@
         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"/>
       </svg>
     </a>
-    <h1 class="text-xl sm:text-2xl font-semibold text-neutral-800 dark:text-neutral-100">Gastos de Proveedores</h1>
+    <h1 class="text-xl sm:text-2xl font-semibold text-neutral-800 dark:text-neutral-100">{{ __('expenses.supplier_page_title') }}</h1>
   </div>
 @endsection
 
@@ -30,7 +30,7 @@
 
   <!-- Formulario de nuevo gasto -->
   <div class="mb-6 bg-white dark:bg-neutral-800 rounded-lg shadow-sm border border-neutral-200 dark:border-neutral-700 p-6">
-    <h2 class="text-lg font-semibold text-neutral-900 dark:text-neutral-100 mb-4">Agregar Gasto de Proveedor</h2>
+    <h2 class="text-lg font-semibold text-neutral-900 dark:text-neutral-100 mb-4">{{ __('expenses.add_supplier_expense') }}</h2>
 
     <form method="POST" action="{{ route('expenses.suppliers.store') }}" class="space-y-4">
       @csrf
@@ -38,10 +38,10 @@
       <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
         <div>
           <label class="block text-sm font-medium text-neutral-700 dark:text-neutral-300 mb-1">
-            Producto (opcional)
+            {{ __('expenses.product_optional') }}
           </label>
           <select name="product_id" class="w-full rounded-lg border border-neutral-300 px-3 py-2 text-sm dark:border-neutral-700 dark:bg-neutral-900">
-            <option value="">Sin producto asociado</option>
+            <option value="">{{ __('expenses.no_product_opt') }}</option>
             @foreach($products as $product)
               <option value="{{ $product->id }}">{{ $product->name }}</option>
             @endforeach
@@ -50,22 +50,22 @@
 
         <div>
           <label class="block text-sm font-medium text-neutral-700 dark:text-neutral-300 mb-1">
-            Proveedor <span class="text-rose-500">*</span>
+            {{ __('expenses.supplier_label') }} <span class="text-rose-500">*</span>
           </label>
           <select name="supplier_id" required class="w-full rounded-lg border border-neutral-300 px-3 py-2 text-sm dark:border-neutral-700 dark:bg-neutral-900">
-            <option value="">Seleccionar proveedor</option>
+            <option value="">{{ __('expenses.select_supplier') }}</option>
             @foreach($suppliers as $supplier)
               <option value="{{ $supplier->id }}">{{ $supplier->name }}</option>
             @endforeach
           </select>
           <p class="mt-1 text-xs text-neutral-500 dark:text-neutral-400">
-            Si el proveedor no existe, primero créalo desde <a href="{{ route('suppliers.index') }}" class="text-indigo-600 hover:underline">Gestión de Proveedores</a>
+            {{ __('expenses.supplier_hint_pre') }} <a href="{{ route('suppliers.index') }}" class="text-indigo-600 hover:underline">{{ __('expenses.supplier_hint_link') }}</a>
           </p>
         </div>
 
         <div>
           <label class="block text-sm font-medium text-neutral-700 dark:text-neutral-300 mb-1">
-            Costo <span class="text-rose-500">*</span>
+            {{ __('expenses.cost_label') }} <span class="text-rose-500">*</span>
           </label>
           <input type="number" name="cost" required step="0.01" min="0"
                  class="w-full rounded-lg border border-neutral-300 px-3 py-2 text-sm dark:border-neutral-700 dark:bg-neutral-900"
@@ -74,7 +74,7 @@
 
         <div>
           <label class="block text-sm font-medium text-neutral-700 dark:text-neutral-300 mb-1">
-            Cantidad <span class="text-rose-500">*</span>
+            {{ __('expenses.qty_label') }} <span class="text-rose-500">*</span>
           </label>
           <input type="number" name="quantity" required step="0.001" min="0.001" value="1"
                  class="w-full rounded-lg border border-neutral-300 px-3 py-2 text-sm dark:border-neutral-700 dark:bg-neutral-900">
@@ -82,7 +82,7 @@
 
         <div>
           <label class="block text-sm font-medium text-neutral-700 dark:text-neutral-300 mb-1">
-            Unidad <span class="text-rose-500">*</span>
+            {{ __('expenses.unit_label') }} <span class="text-rose-500">*</span>
           </label>
           <input type="text" name="unit" required value="unidad"
                  class="w-full rounded-lg border border-neutral-300 px-3 py-2 text-sm dark:border-neutral-700 dark:bg-neutral-900"
@@ -91,25 +91,25 @@
 
         <div>
           <label class="block text-sm font-medium text-neutral-700 dark:text-neutral-300 mb-1">
-            Frecuencia <span class="text-rose-500">*</span>
+            {{ __('expenses.frequency_label') }} <span class="text-rose-500">*</span>
           </label>
           <select name="frequency" required class="w-full rounded-lg border border-neutral-300 px-3 py-2 text-sm dark:border-neutral-700 dark:bg-neutral-900">
-            <option value="mensual">Mensual</option>
-            <option value="semanal">Semanal</option>
-            <option value="diaria">Diaria</option>
-            <option value="anual">Anual</option>
-            <option value="unica">Única</option>
+            <option value="mensual">{{ __('expenses.freq_monthly') }}</option>
+            <option value="semanal">{{ __('expenses.freq_weekly') }}</option>
+            <option value="diaria">{{ __('expenses.freq_daily') }}</option>
+            <option value="anual">{{ __('expenses.freq_annual') }}</option>
+            <option value="unica">{{ __('expenses.freq_once') }}</option>
           </select>
         </div>
       </div>
 
       <div>
         <label class="block text-sm font-medium text-neutral-700 dark:text-neutral-300 mb-1">
-          Descripción (opcional)
+          {{ __('expenses.desc_optional') }}
         </label>
         <textarea name="description" rows="2"
                   class="w-full rounded-lg border border-neutral-300 px-3 py-2 text-sm dark:border-neutral-700 dark:bg-neutral-900"
-                  placeholder="Detalles adicionales..."></textarea>
+                  placeholder="{{ __('expenses.desc_placeholder') }}"></textarea>
       </div>
 
       <div class="flex justify-end">
@@ -118,7 +118,7 @@
           <svg class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"/>
           </svg>
-          Agregar Gasto
+          {{ __('expenses.add_expense_btn') }}
         </button>
       </div>
     </form>
@@ -127,7 +127,7 @@
   <!-- Lista de gastos -->
   <div class="bg-white dark:bg-neutral-800 rounded-lg shadow-sm border border-neutral-200 dark:border-neutral-700">
     <div class="px-6 py-4 border-b border-neutral-200 dark:border-neutral-700">
-      <h2 class="text-lg font-semibold text-neutral-900 dark:text-neutral-100">Gastos Registrados</h2>
+      <h2 class="text-lg font-semibold text-neutral-900 dark:text-neutral-100">{{ __('expenses.registered_expenses') }}</h2>
     </div>
 
     @if($expenses->count())
@@ -135,14 +135,14 @@
         <table class="w-full">
           <thead class="bg-neutral-50 dark:bg-neutral-900/50">
             <tr>
-              <th class="px-6 py-3 text-left text-xs font-medium text-neutral-500 dark:text-neutral-400 uppercase">Proveedor</th>
-              <th class="px-6 py-3 text-left text-xs font-medium text-neutral-500 dark:text-neutral-400 uppercase">Producto</th>
-              <th class="px-6 py-3 text-left text-xs font-medium text-neutral-500 dark:text-neutral-400 uppercase">Costo</th>
-              <th class="px-6 py-3 text-left text-xs font-medium text-neutral-500 dark:text-neutral-400 uppercase">Cantidad</th>
-              <th class="px-6 py-3 text-left text-xs font-medium text-neutral-500 dark:text-neutral-400 uppercase">Frecuencia</th>
-              <th class="px-6 py-3 text-left text-xs font-medium text-neutral-500 dark:text-neutral-400 uppercase">Costo Anual</th>
-              <th class="px-6 py-3 text-left text-xs font-medium text-neutral-500 dark:text-neutral-400 uppercase">Estado</th>
-              <th class="px-6 py-3 text-left text-xs font-medium text-neutral-500 dark:text-neutral-400 uppercase">Acciones</th>
+              <th class="px-6 py-3 text-left text-xs font-medium text-neutral-500 dark:text-neutral-400 uppercase">{{ __('expenses.col_supplier') }}</th>
+              <th class="px-6 py-3 text-left text-xs font-medium text-neutral-500 dark:text-neutral-400 uppercase">{{ __('expenses.col_product') }}</th>
+              <th class="px-6 py-3 text-left text-xs font-medium text-neutral-500 dark:text-neutral-400 uppercase">{{ __('expenses.col_cost') }}</th>
+              <th class="px-6 py-3 text-left text-xs font-medium text-neutral-500 dark:text-neutral-400 uppercase">{{ __('expenses.col_qty') }}</th>
+              <th class="px-6 py-3 text-left text-xs font-medium text-neutral-500 dark:text-neutral-400 uppercase">{{ __('expenses.col_frequency') }}</th>
+              <th class="px-6 py-3 text-left text-xs font-medium text-neutral-500 dark:text-neutral-400 uppercase">{{ __('expenses.col_annual_cost') }}</th>
+              <th class="px-6 py-3 text-left text-xs font-medium text-neutral-500 dark:text-neutral-400 uppercase">{{ __('expenses.col_status') }}</th>
+              <th class="px-6 py-3 text-left text-xs font-medium text-neutral-500 dark:text-neutral-400 uppercase">{{ __('expenses.col_actions') }}</th>
             </tr>
           </thead>
           <tbody class="divide-y divide-neutral-200 dark:divide-neutral-700">
@@ -169,7 +169,7 @@
                 <td class="px-6 py-4">
                   <span class="inline-flex rounded-full px-2 py-1 text-xs font-medium
                                {{ $expense->is_active ? 'bg-emerald-100 text-emerald-700 dark:bg-emerald-900/30 dark:text-emerald-300' : 'bg-neutral-200 text-neutral-700 dark:bg-neutral-800 dark:text-neutral-300' }}">
-                    {{ $expense->is_active ? 'Activo' : 'Inactivo' }}
+                    {{ $expense->is_active ? __('expenses.status_active') : __('expenses.status_inactive') }}
                   </span>
                 </td>
                 <td class="px-6 py-4 text-sm">
@@ -177,9 +177,9 @@
                     @csrf
                     @method('DELETE')
                     <button type="submit"
-                            onclick="return confirm('¿Estás seguro de eliminar este gasto?')"
+                            onclick="return confirm(@json(__('expenses.confirm_delete')))"
                             class="text-rose-600 hover:text-rose-800 dark:text-rose-400 dark:hover:text-rose-300">
-                      Eliminar
+                      {{ __('expenses.delete_btn') }}
                     </button>
                   </form>
                 </td>
@@ -190,7 +190,7 @@
       </div>
     @else
       <div class="px-6 py-12 text-center text-neutral-500 dark:text-neutral-400">
-        No hay gastos registrados aún
+        {{ __('expenses.no_expenses_yet') }}
       </div>
     @endif
   </div>

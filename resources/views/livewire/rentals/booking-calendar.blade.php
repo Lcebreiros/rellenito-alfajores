@@ -71,10 +71,10 @@
                 {{ $selectedDateLabel }}
               </h2>
               <p class="text-xs text-neutral-500 dark:text-neutral-400 mt-0.5 whitespace-nowrap">
-                <span class="text-emerald-600 dark:text-emerald-400 font-medium">{{ $totalFree }} libre{{ $totalFree !== 1 ? 's' : '' }}</span>
+                <span class="text-emerald-600 dark:text-emerald-400 font-medium">{{ $totalFree }} {{ $totalFree !== 1 ? __('rentals.slot_free_p') : __('rentals.slot_free_s') }}</span>
                 @if($totalOccupied)
                   <span class="mx-1 text-neutral-300 dark:text-neutral-600">·</span>
-                  <span class="text-violet-600 dark:text-violet-400 font-medium">{{ $totalOccupied }} ocupado{{ $totalOccupied !== 1 ? 's' : '' }}</span>
+                  <span class="text-violet-600 dark:text-violet-400 font-medium">{{ $totalOccupied }} {{ $totalOccupied !== 1 ? __('rentals.slot_occupied_p') : __('rentals.slot_occupied_s') }}</span>
                 @endif
               </p>
             </div>
@@ -84,7 +84,7 @@
               <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"/>
               </svg>
-              Nueva
+              {{ __('rentals.new_btn_short') }}
             </button>
           </div>
 
@@ -93,7 +93,7 @@
           <div class="lg:flex-shrink-0">
             <select wire:model.live="filterSpaceId"
                     class="w-full lg:w-auto text-xs rounded-lg border border-neutral-200 dark:border-neutral-700 bg-white dark:bg-neutral-800 text-neutral-700 dark:text-neutral-300 px-2.5 py-1.5 focus:outline-none focus:ring-1 focus:ring-violet-400">
-              <option value="">Todos los espacios</option>
+              <option value="">{{ __('rentals.all_spaces_opt') }}</option>
               @foreach($spaces as $sp)
                 <option value="{{ $sp->id }}">{{ $sp->name }}</option>
               @endforeach
@@ -105,13 +105,13 @@
           <div class="flex items-center bg-neutral-100 dark:bg-neutral-800 rounded-lg p-1 gap-0.5 lg:flex-shrink-0">
             <button @click="filter = 'all'"
                     :class="filter === 'all' ? 'bg-white dark:bg-neutral-700 shadow-sm text-neutral-900 dark:text-neutral-100' : 'text-neutral-500 dark:text-neutral-400'"
-                    class="flex-1 lg:flex-none text-xs px-3 py-1.5 rounded-md font-medium transition-all">Todos</button>
+                    class="flex-1 lg:flex-none text-xs px-3 py-1.5 rounded-md font-medium transition-all">{{ __('rentals.filter_all') }}</button>
             <button @click="filter = 'free'"
                     :class="filter === 'free' ? 'bg-white dark:bg-neutral-700 shadow-sm text-emerald-700 dark:text-emerald-400' : 'text-neutral-500 dark:text-neutral-400'"
-                    class="flex-1 lg:flex-none text-xs px-3 py-1.5 rounded-md font-medium transition-all">Libres</button>
+                    class="flex-1 lg:flex-none text-xs px-3 py-1.5 rounded-md font-medium transition-all">{{ __('rentals.filter_free_slots') }}</button>
             <button @click="filter = 'occupied'"
                     :class="filter === 'occupied' ? 'bg-white dark:bg-neutral-700 shadow-sm text-violet-700 dark:text-violet-400' : 'text-neutral-500 dark:text-neutral-400'"
-                    class="flex-1 lg:flex-none text-xs px-3 py-1.5 rounded-md font-medium transition-all">Ocupados</button>
+                    class="flex-1 lg:flex-none text-xs px-3 py-1.5 rounded-md font-medium transition-all">{{ __('rentals.filter_occupied_slots') }}</button>
           </div>
 
           {{-- Botón completo solo en desktop --}}
@@ -120,7 +120,7 @@
             <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"/>
             </svg>
-            Nueva reserva
+            {{ __('rentals.new_booking_btn') }}
           </button>
 
         </div>
@@ -132,8 +132,8 @@
           <svg class="w-10 h-10 text-neutral-300 dark:text-neutral-700 mb-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5"/>
           </svg>
-          <p class="text-sm font-medium text-neutral-500 dark:text-neutral-400">No hay espacios configurados</p>
-          <a href="{{ route('rentals.spaces.index') }}" class="text-sm text-violet-600 dark:text-violet-400 hover:underline mt-2">Crear un espacio →</a>
+          <p class="text-sm font-medium text-neutral-500 dark:text-neutral-400">{{ __('rentals.no_spaces_configured') }}</p>
+          <a href="{{ route('rentals.spaces.index') }}" class="text-sm text-violet-600 dark:text-violet-400 hover:underline mt-2">{{ __('rentals.create_space_cta') }}</a>
         </div>
       @else
         <div class="flex-1 overflow-y-auto px-4 py-3 space-y-3">
@@ -150,12 +150,12 @@
               @php $spaceFree = collect($slots)->filter(fn($s) => !$s['booking'] && !$s['is_past'])->count(); @endphp
               @if($spaceFree)
                 <span class="text-[10px] font-semibold px-1.5 py-0.5 rounded-full ml-1 text-white"
-                      style="background-color: {{ $space->color }}88;">{{ $spaceFree }} libres</span>
+                      style="background-color: {{ $space->color }}88;">{{ $spaceFree }} {{ __('rentals.slot_free_p') }}</span>
               @endif
             </div>
 
             @if(empty($slots))
-              <p class="text-xs text-neutral-400 pl-4">Configurá opciones de duración para este espacio.</p>
+              <p class="text-xs text-neutral-400 pl-4">{{ __('rentals.config_duration_hint') }}</p>
             @else
               <div class="space-y-2">
                 @foreach($slots as $slot)
@@ -219,19 +219,19 @@
                       </div>
                       <button wire:click="openDetailModal({{ $b->id }})"
                               class="flex-shrink-0 text-xs px-2.5 py-1 rounded-lg border border-neutral-200 dark:border-neutral-700 text-neutral-600 dark:text-neutral-400 hover:bg-neutral-100 dark:hover:bg-neutral-700 transition-colors">
-                        Ver
+                        {{ __('rentals.view_btn') }}
                       </button>
 
                     @elseif($isPastFree)
-                      <span class="text-xs text-neutral-400 italic">Sin reserva</span>
+                      <span class="text-xs text-neutral-400 italic">{{ __('rentals.no_booking_label') }}</span>
 
                     @else
-                      <span class="flex-1 text-sm text-neutral-400 dark:text-neutral-500">Disponible</span>
+                      <span class="flex-1 text-sm text-neutral-400 dark:text-neutral-500">{{ __('rentals.slot_available_label') }}</span>
                       <span class="text-xs font-medium text-emerald-600 dark:text-emerald-400 flex items-center gap-0.5">
                         <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                           <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M12 4v16m8-8H4"/>
                         </svg>
-                        Reservar
+                        {{ __('rentals.book_btn') }}
                       </span>
                     @endif
 
@@ -318,21 +318,21 @@
 
         {{-- Leyenda de estados --}}
         <div class="space-y-2">
-          <p class="text-[10px] font-bold uppercase tracking-widest text-neutral-400 dark:text-neutral-500">Estado</p>
+          <p class="text-[10px] font-bold uppercase tracking-widest text-neutral-400 dark:text-neutral-500">{{ __('rentals.legend_status_label') }}</p>
           <div class="flex items-center gap-2">
             <span class="w-2.5 h-2.5 rounded-full bg-emerald-400 flex-shrink-0"></span>
-            <span class="text-xs text-neutral-600 dark:text-neutral-400">Confirmada</span>
+            <span class="text-xs text-neutral-600 dark:text-neutral-400">{{ __('rentals.status_confirmed') }}</span>
           </div>
           <div class="flex items-center gap-2">
             <span class="w-2.5 h-2.5 rounded-full bg-amber-400 flex-shrink-0"></span>
-            <span class="text-xs text-neutral-600 dark:text-neutral-400">Pendiente</span>
+            <span class="text-xs text-neutral-600 dark:text-neutral-400">{{ __('rentals.status_pending') }}</span>
           </div>
         </div>
 
         {{-- Leyenda de espacios --}}
         @if($spaces->count())
           <div class="space-y-2">
-            <p class="text-[10px] font-bold uppercase tracking-widest text-neutral-400 dark:text-neutral-500">Espacios</p>
+            <p class="text-[10px] font-bold uppercase tracking-widest text-neutral-400 dark:text-neutral-500">{{ __('rentals.legend_spaces_label') }}</p>
             @foreach($spaces as $space)
               <div class="flex items-center gap-2">
                 <span class="w-2.5 h-2.5 rounded-full flex-shrink-0" style="background-color: {{ $space->color }};"></span>
@@ -356,7 +356,7 @@
 
         <div class="px-5 py-4 border-b border-neutral-200 dark:border-neutral-700 flex items-center justify-between">
           <h3 class="font-semibold text-neutral-900 dark:text-neutral-100">
-            Nueva reserva — {{ \Carbon\Carbon::parse($createDate)->locale('es')->translatedFormat('d \d\e F') }}
+            {{ __('rentals.new_booking_btn') }} — {{ \Carbon\Carbon::parse($createDate)->translatedFormat('d \d\e F') }}
           </h3>
           <button wire:click="$set('showCreateModal', false)" class="p-1 rounded-lg hover:bg-neutral-100 dark:hover:bg-neutral-800">
             <svg class="w-4 h-4 text-neutral-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -373,10 +373,10 @@
           @endif
 
           <div>
-            <label class="block text-sm font-medium text-neutral-700 dark:text-neutral-200 mb-1">Espacio *</label>
+            <label class="block text-sm font-medium text-neutral-700 dark:text-neutral-200 mb-1">{{ __('rentals.field_space') }} *</label>
             <select wire:model.live="createSpaceId"
                     class="w-full rounded-lg border border-neutral-300 dark:border-neutral-700 bg-white dark:bg-neutral-900 px-3 py-2 text-sm">
-              <option value="">Seleccioná un espacio</option>
+              <option value="">{{ __('rentals.select_space_ph') }}</option>
               @foreach($spaces as $space)
                 <option value="{{ $space->id }}">{{ $space->name }}</option>
               @endforeach
@@ -385,14 +385,14 @@
           </div>
 
           <div>
-            <label class="block text-sm font-medium text-neutral-700 dark:text-neutral-200 mb-1">Fecha y hora de inicio *</label>
+            <label class="block text-sm font-medium text-neutral-700 dark:text-neutral-200 mb-1">{{ __('rentals.field_start_datetime') }}</label>
             <input type="datetime-local" wire:model="createStartsAt"
                    class="w-full rounded-lg border border-neutral-300 dark:border-neutral-700 bg-white dark:bg-neutral-900 px-3 py-2 text-sm">
             @error('createStartsAt') <p class="text-xs text-rose-600 mt-1">{{ $message }}</p> @enderror
           </div>
 
           <div>
-            <label class="block text-sm font-medium text-neutral-700 dark:text-neutral-200 mb-1">Duración *</label>
+            <label class="block text-sm font-medium text-neutral-700 dark:text-neutral-200 mb-1">{{ __('rentals.duration_required_label') }}</label>
             @if($createDurationOptions->count())
               <div class="flex flex-wrap gap-2 mb-2">
                 @foreach($createDurationOptions as $option)
@@ -411,13 +411,13 @@
               <input type="number" wire:model="createDurationMinutes" min="15" max="1440" step="15"
                      class="w-24 rounded-lg border border-neutral-300 dark:border-neutral-700 bg-white dark:bg-neutral-900 px-3 py-2 text-sm"
                      placeholder="60">
-              <span class="text-sm text-neutral-500">minutos</span>
+              <span class="text-sm text-neutral-500">{{ __('rentals.minutes_label') }}</span>
             </div>
             @error('createDurationMinutes') <p class="text-xs text-rose-600 mt-1">{{ $message }}</p> @enderror
           </div>
 
           <div>
-            <label class="block text-sm font-medium text-neutral-700 dark:text-neutral-200 mb-1">Monto total</label>
+            <label class="block text-sm font-medium text-neutral-700 dark:text-neutral-200 mb-1">{{ __('rentals.field_total_amount') }}</label>
             <div class="relative">
               <span class="absolute left-3 top-2 text-sm text-neutral-500">$</span>
               <input type="number" wire:model="createTotalAmount" min="0" step="0.01"
@@ -426,41 +426,41 @@
           </div>
 
           <div>
-            <label class="block text-sm font-medium text-neutral-700 dark:text-neutral-200 mb-1">Cliente</label>
+            <label class="block text-sm font-medium text-neutral-700 dark:text-neutral-200 mb-1">{{ __('rentals.field_client') }}</label>
             <select wire:model.live="createClientId"
                     class="w-full rounded-lg border border-neutral-300 dark:border-neutral-700 bg-white dark:bg-neutral-900 px-3 py-2 text-sm mb-2">
-              <option value="">Nombre manual o seleccioná cliente</option>
+              <option value="">{{ __('rentals.select_client_hint_manual') }}</option>
               @foreach($clients as $client)
                 <option value="{{ $client->id }}">{{ $client->name }}{{ $client->phone ? ' · '.$client->phone : '' }}</option>
               @endforeach
             </select>
             @if(!$createClientId)
               <div class="grid grid-cols-2 gap-2">
-                <input type="text" wire:model="createClientName" placeholder="Nombre"
+                <input type="text" wire:model="createClientName" placeholder="{{ __('rentals.client_name_ph') }}"
                        class="rounded-lg border border-neutral-300 dark:border-neutral-700 bg-white dark:bg-neutral-900 px-3 py-2 text-sm">
-                <input type="text" wire:model="createClientPhone" placeholder="Teléfono"
+                <input type="text" wire:model="createClientPhone" placeholder="{{ __('rentals.client_phone_ph') }}"
                        class="rounded-lg border border-neutral-300 dark:border-neutral-700 bg-white dark:bg-neutral-900 px-3 py-2 text-sm">
               </div>
             @endif
           </div>
 
           <div>
-            <label class="block text-sm font-medium text-neutral-700 dark:text-neutral-200 mb-1">Notas</label>
+            <label class="block text-sm font-medium text-neutral-700 dark:text-neutral-200 mb-1">{{ __('rentals.field_notes') }}</label>
             <textarea wire:model="createNotes" rows="2"
                       class="w-full rounded-lg border border-neutral-300 dark:border-neutral-700 bg-white dark:bg-neutral-900 px-3 py-2 text-sm resize-none"
-                      placeholder="Observaciones..."></textarea>
+                      placeholder="{{ __('rentals.notes_ph_short') }}"></textarea>
           </div>
         </div>
 
         <div class="px-5 py-4 border-t border-neutral-200 dark:border-neutral-700 flex gap-2 justify-end">
           <button wire:click="$set('showCreateModal', false)"
                   class="px-4 py-2 text-sm rounded-lg border border-neutral-300 dark:border-neutral-700 text-neutral-700 dark:text-neutral-300 hover:bg-neutral-50 dark:hover:bg-neutral-800 transition-colors">
-            Cancelar
+            {{ __('rentals.cancel_btn') }}
           </button>
           <button wire:click="saveBooking" wire:loading.attr="disabled" wire:target="saveBooking"
                   class="px-4 py-2 text-sm font-medium rounded-lg bg-violet-600 hover:bg-violet-700 text-white transition-colors disabled:opacity-60">
-            <span wire:loading.remove wire:target="saveBooking">Guardar reserva</span>
-            <span wire:loading wire:target="saveBooking">Guardando...</span>
+            <span wire:loading.remove wire:target="saveBooking">{{ __('rentals.save_booking_btn') }}</span>
+            <span wire:loading wire:target="saveBooking">{{ __('rentals.saving') }}</span>
           </button>
         </div>
       </div>
@@ -493,12 +493,12 @@
               {{ $detailBooking->statusLabel() }}
             </span>
             <span class="text-xs text-neutral-500 dark:text-neutral-400">
-              {{ $detailBooking->starts_at->locale('es')->translatedFormat('d \d\e F, H:i') }} – {{ $detailBooking->ends_at->format('H:i') }}
+              {{ $detailBooking->starts_at->translatedFormat('d \d\e F, H:i') }} – {{ $detailBooking->ends_at->format('H:i') }}
             </span>
           </div>
 
           <div class="text-sm">
-            <span class="text-neutral-500 dark:text-neutral-400">Cliente: </span>
+            <span class="text-neutral-500 dark:text-neutral-400">{{ __('rentals.client_detail_label') }} </span>
             <span class="font-medium text-neutral-900 dark:text-neutral-100">{{ $detailBooking->getClientDisplayName() }}</span>
             @if($detailBooking->getClientDisplayPhone())
               <span class="text-neutral-500 dark:text-neutral-400"> · {{ $detailBooking->getClientDisplayPhone() }}</span>
@@ -527,18 +527,18 @@
           @if($detailBooking->status === 'pending')
             <button wire:click="confirmBooking({{ $detailBooking->id }})" wire:loading.attr="disabled"
                     class="flex-1 px-3 py-2 text-sm font-medium rounded-lg bg-emerald-600 hover:bg-emerald-700 text-white transition-colors">
-              Confirmar
+              {{ __('rentals.confirm_btn') }}
             </button>
           @endif
           @if(in_array($detailBooking->status, ['pending', 'confirmed']))
-            <button wire:click="cancelBooking({{ $detailBooking->id }})" wire:confirm="¿Cancelar esta reserva?"
+            <button wire:click="cancelBooking({{ $detailBooking->id }})" wire:confirm="{{ __('rentals.confirm_cancel') }}"
                     class="flex-1 px-3 py-2 text-sm font-medium rounded-lg border border-rose-300 text-rose-700 dark:border-rose-800 dark:text-rose-400 hover:bg-rose-50 dark:hover:bg-rose-900/20 transition-colors">
-              Cancelar
+              {{ __('rentals.cancel_btn') }}
             </button>
           @endif
           <a href="{{ route('rentals.bookings.show', $detailBooking) }}"
              class="px-3 py-2 text-sm rounded-lg border border-neutral-300 dark:border-neutral-700 text-neutral-700 dark:text-neutral-300 hover:bg-neutral-50 dark:hover:bg-neutral-800 transition-colors">
-            Ver detalle
+            {{ __('rentals.view_detail_btn') }}
           </a>
         </div>
       </div>

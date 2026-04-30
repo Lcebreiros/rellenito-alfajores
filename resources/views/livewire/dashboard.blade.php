@@ -53,12 +53,12 @@
 
     {{-- Ingresos --}}
     <div class="{{ $kpiBase }}">
-      <span class="text-[10px] font-semibold text-neutral-400 dark:text-neutral-500 uppercase tracking-widest">Ingresos</span>
+      <span class="text-[10px] font-semibold text-neutral-400 dark:text-neutral-500 uppercase tracking-widest">{{ __('dashboard.revenue_label') }}</span>
       <span class="text-xl sm:text-2xl font-bold text-neutral-900 dark:text-neutral-100 truncate tabular-nums">
         {{ $fmtMoney($qs['revenue']['value']) }}
       </span>
       <div class="flex items-center justify-between gap-1 mt-0.5">
-        <span class="text-[10px] text-neutral-400 dark:text-neutral-500">últimos 30 días</span>
+        <span class="text-[10px] text-neutral-400 dark:text-neutral-500">{{ __('dashboard.last_30_days') }}</span>
         @php $rc = $fmtChange($qs['revenue']['change']); @endphp
         @if($rc)
           <span class="text-[10px] font-bold px-1.5 py-0.5 rounded-full
@@ -72,12 +72,12 @@
 
     {{-- Costos --}}
     <div class="{{ $kpiBase }}">
-      <span class="text-[10px] font-semibold text-neutral-400 dark:text-neutral-500 uppercase tracking-widest">Costos</span>
+      <span class="text-[10px] font-semibold text-neutral-400 dark:text-neutral-500 uppercase tracking-widest">{{ __('dashboard.costs_label') }}</span>
       <span class="text-xl sm:text-2xl font-bold text-neutral-900 dark:text-neutral-100 truncate tabular-nums">
         {{ $fmtMoney($qs['costs']['value']) }}
       </span>
       <div class="flex items-center justify-between gap-1 mt-0.5">
-        <span class="text-[10px] text-neutral-400 dark:text-neutral-500">últimos 30 días</span>
+        <span class="text-[10px] text-neutral-400 dark:text-neutral-500">{{ __('dashboard.last_30_days') }}</span>
         @php $cc = $fmtChange($qs['costs']['change']); @endphp
         @if($cc)
           <span class="text-[10px] font-bold px-1.5 py-0.5 rounded-full
@@ -92,13 +92,13 @@
     {{-- Ganancia --}}
     @php $profit = $qs['profit']['value']; @endphp
     <div class="{{ $kpiBase }}">
-      <span class="text-[10px] font-semibold text-neutral-400 dark:text-neutral-500 uppercase tracking-widest">Ganancia</span>
+      <span class="text-[10px] font-semibold text-neutral-400 dark:text-neutral-500 uppercase tracking-widest">{{ __('dashboard.profit_label') }}</span>
       <span class="text-xl sm:text-2xl font-bold truncate tabular-nums
                    {{ $profit >= 0 ? 'text-emerald-600 dark:text-emerald-400' : 'text-rose-600 dark:text-rose-400' }}">
         {{ $fmtMoney($profit) }}
       </span>
       <div class="flex items-center justify-between gap-1 mt-0.5">
-        <span class="text-[10px] text-neutral-400 dark:text-neutral-500">últimos 30 días</span>
+        <span class="text-[10px] text-neutral-400 dark:text-neutral-500">{{ __('dashboard.last_30_days') }}</span>
         @php $pc = $fmtChange($qs['profit']['change']); @endphp
         @if($pc)
           <span class="text-[10px] font-bold px-1.5 py-0.5 rounded-full
@@ -125,11 +125,11 @@
         </span>
         <div class="flex items-center justify-between gap-1 mt-0.5">
           <span class="text-[10px] font-semibold" style="color: {{ $scoreColor }}">{{ $hs['status'] }}</span>
-          <span class="text-[10px] text-violet-500 dark:text-violet-400 group-hover:underline">Ver →</span>
+          <span class="text-[10px] text-violet-500 dark:text-violet-400 group-hover:underline">{{ __('dashboard.see_link') }}</span>
         </div>
       @else
         <span class="text-xl sm:text-2xl font-bold text-neutral-400 dark:text-neutral-600">—</span>
-        <span class="text-[10px] text-neutral-400 dark:text-neutral-500">Sin datos aún</span>
+        <span class="text-[10px] text-neutral-400 dark:text-neutral-500">{{ __('dashboard.no_data') }}</span>
       @endif
     </a>
 
@@ -150,7 +150,7 @@
              class="w-4 h-4 text-amber-500 dark:text-amber-400">
           <path fill-rule="evenodd" d="M8.485 2.495c.673-1.167 2.357-1.167 3.03 0l6.28 10.875c.673 1.167-.17 2.625-1.516 2.625H3.72c-1.347 0-2.189-1.458-1.515-2.625L8.485 2.495ZM10 5a.75.75 0 0 1 .75.75v3.5a.75.75 0 0 1-1.5 0v-3.5A.75.75 0 0 1 10 5Zm0 9a1 1 0 1 0 0-2 1 1 0 0 0 0 2Z" clip-rule="evenodd"/>
         </svg>
-        <span class="text-xs font-semibold text-amber-700 dark:text-amber-400">Alertas activas</span>
+        <span class="text-xs font-semibold text-amber-700 dark:text-amber-400">{{ __('dashboard.active_alerts') }}</span>
       </div>
       <div class="flex flex-wrap gap-2">
         @foreach($criticalAlerts as $alert)
@@ -163,7 +163,7 @@
       </div>
       <a href="{{ route('nexum') }}"
          class="ml-auto shrink-0 text-xs font-semibold text-amber-700 dark:text-amber-400 hover:underline whitespace-nowrap">
-        Ver en Nexum →
+        {{ __('dashboard.see_in_nexum') }}
       </a>
     </div>
   @endif

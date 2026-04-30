@@ -7,7 +7,7 @@
         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"/>
       </svg>
     </a>
-    <h1 class="text-xl sm:text-2xl font-semibold text-neutral-800 dark:text-neutral-100">Servicios de Terceros</h1>
+    <h1 class="text-xl sm:text-2xl font-semibold text-neutral-800 dark:text-neutral-100">{{ __('expenses.third_page_title') }}</h1>
   </div>
 @endsection
 
@@ -23,7 +23,7 @@
 
   <!-- Formulario de nuevo servicio -->
   <div class="mb-6 bg-white dark:bg-neutral-800 rounded-lg shadow-sm border border-neutral-200 dark:border-neutral-700 p-6">
-    <h2 class="text-lg font-semibold text-neutral-900 dark:text-neutral-100 mb-4">Agregar Servicio de Tercero</h2>
+    <h2 class="text-lg font-semibold text-neutral-900 dark:text-neutral-100 mb-4">{{ __('expenses.add_third_service') }}</h2>
 
     <form method="POST" action="{{ route('expenses.third-party.store') }}" class="space-y-4">
       @csrf
@@ -31,7 +31,7 @@
       <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
         <div>
           <label class="block text-sm font-medium text-neutral-700 dark:text-neutral-300 mb-1">
-            Nombre del Servicio <span class="text-rose-500">*</span>
+            {{ __('expenses.service_name') }} <span class="text-rose-500">*</span>
           </label>
           <input type="text" name="service_name" required
                  class="w-full rounded-lg border border-neutral-300 px-3 py-2 text-sm dark:border-neutral-700 dark:bg-neutral-900"
@@ -40,7 +40,7 @@
 
         <div>
           <label class="block text-sm font-medium text-neutral-700 dark:text-neutral-300 mb-1">
-            Proveedor
+            {{ __('expenses.provider_name') }}
           </label>
           <input type="text" name="provider_name"
                  class="w-full rounded-lg border border-neutral-300 px-3 py-2 text-sm dark:border-neutral-700 dark:bg-neutral-900"
@@ -49,7 +49,7 @@
 
         <div>
           <label class="block text-sm font-medium text-neutral-700 dark:text-neutral-300 mb-1">
-            Costo <span class="text-rose-500">*</span>
+            {{ __('expenses.cost_label') }} <span class="text-rose-500">*</span>
           </label>
           <input type="number" name="cost" required step="0.01" min="0"
                  class="w-full rounded-lg border border-neutral-300 px-3 py-2 text-sm dark:border-neutral-700 dark:bg-neutral-900"
@@ -58,20 +58,20 @@
 
         <div>
           <label class="block text-sm font-medium text-neutral-700 dark:text-neutral-300 mb-1">
-            Frecuencia de Pago <span class="text-rose-500">*</span>
+            {{ __('expenses.payment_frequency') }} <span class="text-rose-500">*</span>
           </label>
           <select name="frequency" required class="w-full rounded-lg border border-neutral-300 px-3 py-2 text-sm dark:border-neutral-700 dark:bg-neutral-900">
-            <option value="mensual">Mensual</option>
-            <option value="anual">Anual</option>
-            <option value="semanal">Semanal</option>
-            <option value="diaria">Diaria</option>
-            <option value="unica">Única</option>
+            <option value="mensual">{{ __('expenses.freq_monthly') }}</option>
+            <option value="anual">{{ __('expenses.freq_annual') }}</option>
+            <option value="semanal">{{ __('expenses.freq_weekly') }}</option>
+            <option value="diaria">{{ __('expenses.freq_daily') }}</option>
+            <option value="unica">{{ __('expenses.freq_once') }}</option>
           </select>
         </div>
 
         <div>
           <label class="block text-sm font-medium text-neutral-700 dark:text-neutral-300 mb-1">
-            Próxima Fecha de Pago
+            {{ __('expenses.next_payment') }}
           </label>
           <input type="date" name="next_payment_date"
                  class="w-full rounded-lg border border-neutral-300 px-3 py-2 text-sm dark:border-neutral-700 dark:bg-neutral-900">
@@ -80,11 +80,11 @@
 
       <div>
         <label class="block text-sm font-medium text-neutral-700 dark:text-neutral-300 mb-1">
-          Descripción (opcional)
+          {{ __('expenses.desc_optional') }}
         </label>
         <textarea name="description" rows="2"
                   class="w-full rounded-lg border border-neutral-300 px-3 py-2 text-sm dark:border-neutral-700 dark:bg-neutral-900"
-                  placeholder="Detalles adicionales..."></textarea>
+                  placeholder="{{ __('expenses.desc_placeholder') }}"></textarea>
       </div>
 
       <div class="flex justify-end">
@@ -93,7 +93,7 @@
           <svg class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"/>
           </svg>
-          Agregar Servicio
+          {{ __('expenses.add_service_btn') }}
         </button>
       </div>
     </form>
@@ -102,7 +102,7 @@
   <!-- Lista de servicios -->
   <div class="bg-white dark:bg-neutral-800 rounded-lg shadow-sm border border-neutral-200 dark:border-neutral-700">
     <div class="px-6 py-4 border-b border-neutral-200 dark:border-neutral-700">
-      <h2 class="text-lg font-semibold text-neutral-900 dark:text-neutral-100">Servicios Registrados</h2>
+      <h2 class="text-lg font-semibold text-neutral-900 dark:text-neutral-100">{{ __('expenses.registered_services') }}</h2>
     </div>
 
     @if($services->count())
@@ -110,14 +110,14 @@
         <table class="w-full">
           <thead class="bg-neutral-50 dark:bg-neutral-900/50">
             <tr>
-              <th class="px-6 py-3 text-left text-xs font-medium text-neutral-500 dark:text-neutral-400 uppercase">Servicio</th>
-              <th class="px-6 py-3 text-left text-xs font-medium text-neutral-500 dark:text-neutral-400 uppercase">Proveedor</th>
-              <th class="px-6 py-3 text-left text-xs font-medium text-neutral-500 dark:text-neutral-400 uppercase">Costo</th>
-              <th class="px-6 py-3 text-left text-xs font-medium text-neutral-500 dark:text-neutral-400 uppercase">Frecuencia</th>
-              <th class="px-6 py-3 text-left text-xs font-medium text-neutral-500 dark:text-neutral-400 uppercase">Costo Anual</th>
-              <th class="px-6 py-3 text-left text-xs font-medium text-neutral-500 dark:text-neutral-400 uppercase">Próximo Pago</th>
-              <th class="px-6 py-3 text-left text-xs font-medium text-neutral-500 dark:text-neutral-400 uppercase">Estado</th>
-              <th class="px-6 py-3 text-left text-xs font-medium text-neutral-500 dark:text-neutral-400 uppercase">Acciones</th>
+              <th class="px-6 py-3 text-left text-xs font-medium text-neutral-500 dark:text-neutral-400 uppercase">{{ __('expenses.col_service') }}</th>
+              <th class="px-6 py-3 text-left text-xs font-medium text-neutral-500 dark:text-neutral-400 uppercase">{{ __('expenses.provider_name') }}</th>
+              <th class="px-6 py-3 text-left text-xs font-medium text-neutral-500 dark:text-neutral-400 uppercase">{{ __('expenses.col_cost') }}</th>
+              <th class="px-6 py-3 text-left text-xs font-medium text-neutral-500 dark:text-neutral-400 uppercase">{{ __('expenses.col_frequency') }}</th>
+              <th class="px-6 py-3 text-left text-xs font-medium text-neutral-500 dark:text-neutral-400 uppercase">{{ __('expenses.col_annual_cost') }}</th>
+              <th class="px-6 py-3 text-left text-xs font-medium text-neutral-500 dark:text-neutral-400 uppercase">{{ __('expenses.col_next_payment') }}</th>
+              <th class="px-6 py-3 text-left text-xs font-medium text-neutral-500 dark:text-neutral-400 uppercase">{{ __('expenses.col_status') }}</th>
+              <th class="px-6 py-3 text-left text-xs font-medium text-neutral-500 dark:text-neutral-400 uppercase">{{ __('expenses.col_actions') }}</th>
             </tr>
           </thead>
           <tbody class="divide-y divide-neutral-200 dark:divide-neutral-700">
@@ -142,7 +142,7 @@
                 <td class="px-6 py-4">
                   <span class="inline-flex rounded-full px-2 py-1 text-xs font-medium
                                {{ $service->is_active ? 'bg-emerald-100 text-emerald-700 dark:bg-emerald-900/30 dark:text-emerald-300' : 'bg-neutral-200 text-neutral-700 dark:bg-neutral-800 dark:text-neutral-300' }}">
-                    {{ $service->is_active ? 'Activo' : 'Inactivo' }}
+                    {{ $service->is_active ? __('expenses.status_active') : __('expenses.status_inactive') }}
                   </span>
                 </td>
                 <td class="px-6 py-4 text-sm">
@@ -150,9 +150,9 @@
                     @csrf
                     @method('DELETE')
                     <button type="submit"
-                            onclick="return confirm('¿Estás seguro de eliminar este servicio?')"
+                            onclick="return confirm(@json(__('expenses.confirm_delete_service')))"
                             class="text-rose-600 hover:text-rose-800 dark:text-rose-400 dark:hover:text-rose-300">
-                      Eliminar
+                      {{ __('expenses.delete_btn') }}
                     </button>
                   </form>
                 </td>
@@ -163,7 +163,7 @@
       </div>
     @else
       <div class="px-6 py-12 text-center text-neutral-500 dark:text-neutral-400">
-        No hay servicios registrados aún
+        {{ __('expenses.no_services_yet') }}
       </div>
     @endif
   </div>

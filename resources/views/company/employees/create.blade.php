@@ -1,7 +1,7 @@
 @extends('layouts.app')
 
 @section('header')
-  <h1 class="text-xl sm:text-2xl font-semibold text-neutral-800 dark:text-neutral-100">Nuevo empleado</h1>
+  <h1 class="text-xl sm:text-2xl font-semibold text-neutral-800 dark:text-neutral-100">{{ __('company.new_employee_title') }}</h1>
 @endsection
 
 @section('content')
@@ -24,11 +24,11 @@
 
     <div class="px-6 py-5 border-b border-neutral-200/70 dark:border-neutral-800/70 flex items-center justify-between">
       <div>
-        <h2 class="text-lg font-semibold text-neutral-900 dark:text-neutral-100">Datos del empleado</h2>
-        <p class="text-sm text-neutral-500 dark:text-neutral-400">Completá los datos básicos y adjunta archivos opcionales.</p>
+        <h2 class="text-lg font-semibold text-neutral-900 dark:text-neutral-100">{{ __('company.employee_data_title') }}</h2>
+        <p class="text-sm text-neutral-500 dark:text-neutral-400">{{ __('company.employee_data_desc') }}</p>
       </div>
       <a href="{{ route('company.employees.index') }}" class="inline-flex items-center gap-2 rounded-lg border border-neutral-300 px-3 py-2 text-sm font-medium text-neutral-700 hover:bg-neutral-50 dark:border-neutral-700 dark:text-neutral-200 dark:hover:bg-neutral-800">
-        Volver
+        {{ __('company.back_btn_short') }}
       </a>
     </div>
 
@@ -37,12 +37,12 @@
       <div class="lg:col-span-2 space-y-5">
         <div class="grid grid-cols-1 sm:grid-cols-2 gap-5">
           <div>
-            <label class="block text-sm font-medium text-neutral-700 dark:text-neutral-200 mb-1">Nombre *</label>
+            <label class="block text-sm font-medium text-neutral-700 dark:text-neutral-200 mb-1">{{ __('company.field_first_name') }} *</label>
             <input name="first_name" value="{{ old('first_name') }}" required maxlength="120"
                    class="w-full rounded-lg border-neutral-300 bg-white px-4 py-2.5 text-neutral-900 placeholder:text-neutral-400 focus:border-indigo-500 focus:ring-indigo-500 dark:border-neutral-700 dark:bg-neutral-900/50 dark:text-neutral-100 dark:placeholder:text-neutral-500">
           </div>
           <div>
-            <label class="block text-sm font-medium text-neutral-700 dark:text-neutral-200 mb-1">Apellido *</label>
+            <label class="block text-sm font-medium text-neutral-700 dark:text-neutral-200 mb-1">{{ __('company.field_last_name') }} *</label>
             <input name="last_name" value="{{ old('last_name') }}" required maxlength="120"
                    class="w-full rounded-lg border-neutral-300 bg-white px-4 py-2.5 text-neutral-900 placeholder:text-neutral-400 focus:border-indigo-500 focus:ring-indigo-500 dark:border-neutral-700 dark:bg-neutral-900/50 dark:text-neutral-100 dark:placeholder:text-neutral-500">
           </div>
@@ -50,12 +50,12 @@
 
         <div class="grid grid-cols-1 sm:grid-cols-2 gap-5">
           <div>
-            <label class="block text-sm font-medium text-neutral-700 dark:text-neutral-200 mb-1">DNI</label>
+            <label class="block text-sm font-medium text-neutral-700 dark:text-neutral-200 mb-1">{{ __('company.field_dni') }}</label>
             <input name="dni" value="{{ old('dni') }}" maxlength="50"
                    class="w-full rounded-lg border-neutral-300 bg-white px-4 py-2.5 text-neutral-900 placeholder:text-neutral-400 focus:border-indigo-500 focus:ring-indigo-500 dark:border-neutral-700 dark:bg-neutral-900/50 dark:text-neutral-100 dark:placeholder:text-neutral-500">
           </div>
           <div>
-            <label class="block text-sm font-medium text-neutral-700 dark:text-neutral-200 mb-1">Email</label>
+            <label class="block text-sm font-medium text-neutral-700 dark:text-neutral-200 mb-1">{{ __('company.field_email') }}</label>
             <input name="email" type="email" value="{{ old('email') }}" maxlength="255"
                    class="w-full rounded-lg border-neutral-300 bg-white px-4 py-2.5 text-neutral-900 placeholder:text-neutral-400 focus:border-indigo-500 focus:ring-indigo-500 dark:border-neutral-700 dark:bg-neutral-900/50 dark:text-neutral-100 dark:placeholder:text-neutral-500">
           </div>
@@ -63,18 +63,18 @@
 
         <div class="grid grid-cols-1 sm:grid-cols-2 gap-5">
           <div>
-            <label class="block text-sm font-medium text-neutral-700 dark:text-neutral-200 mb-1">Rol</label>
+            <label class="block text-sm font-medium text-neutral-700 dark:text-neutral-200 mb-1">{{ __('company.field_role') }}</label>
             <select name="role" class="w-full rounded-lg border-neutral-300 bg-white px-4 py-2.5 text-neutral-900 focus:border-indigo-500 focus:ring-indigo-500 dark:border-neutral-700 dark:bg-neutral-900/50 dark:text-neutral-100">
-              <option value="">Seleccione</option>
+              <option value="">{{ __('company.select_placeholder') }}</option>
               @foreach(($roles ?? ['Empleado','Supervisor','Gerente']) as $r)
                 <option value="{{ $r }}" @selected(old('role')===$r)>{{ $r }}</option>
               @endforeach
             </select>
           </div>
           <div>
-            <label class="block text-sm font-medium text-neutral-700 dark:text-neutral-200 mb-1">Sucursal</label>
+            <label class="block text-sm font-medium text-neutral-700 dark:text-neutral-200 mb-1">{{ __('company.field_branch') }}</label>
             <select name="branch_id" class="w-full rounded-lg border-neutral-300 bg-white px-4 py-2.5 text-neutral-900 focus:border-indigo-500 focus:ring-indigo-500 dark:border-neutral-700 dark:bg-neutral-900/50 dark:text-neutral-100">
-              <option value="">Sin sucursal</option>
+              <option value="">{{ __('company.no_branch_opt') }}</option>
               @php($companyId = auth()->user()->rootCompany()?->id ?? auth()->id())
               @foreach(\App\Models\Branch::where('company_id', $companyId)->get() as $branch)
                 <option value="{{ $branch->id }}" @selected(old('branch_id')==$branch->id)>{{ $branch->name }}</option>
@@ -85,46 +85,46 @@
 
         <div class="grid grid-cols-1 sm:grid-cols-2 gap-5">
           <div>
-            <label class="block text-sm font-medium text-neutral-700 dark:text-neutral-200 mb-1">Fecha de inicio</label>
+            <label class="block text-sm font-medium text-neutral-700 dark:text-neutral-200 mb-1">{{ __('company.field_start_date') }}</label>
             <input type="date" name="start_date" value="{{ old('start_date') }}"
                    class="w-full rounded-lg border-neutral-300 bg-white px-4 py-2.5 text-neutral-900 focus:border-indigo-500 focus:ring-indigo-500 dark:border-neutral-700 dark:bg-neutral-900/50 dark:text-neutral-100">
           </div>
           <div>
-            <label class="block text-sm font-medium text-neutral-700 dark:text-neutral-200 mb-1">Tipo de contrato</label>
+            <label class="block text-sm font-medium text-neutral-700 dark:text-neutral-200 mb-1">{{ __('company.field_contract_type') }}</label>
             <input name="contract_type" value="{{ old('contract_type') }}" maxlength="100"
                    class="w-full rounded-lg border-neutral-300 bg-white px-4 py-2.5 text-neutral-900 placeholder:text-neutral-400 focus:border-indigo-500 focus:ring-indigo-500 dark:border-neutral-700 dark:bg-neutral-900/50 dark:text-neutral-100">
           </div>
         </div>
 
         <div>
-          <label class="block text-sm font-medium text-neutral-700 dark:text-neutral-200 mb-1">Cobertura médica</label>
+          <label class="block text-sm font-medium text-neutral-700 dark:text-neutral-200 mb-1">{{ __('company.field_medical_coverage') }}</label>
           <input name="medical_coverage" value="{{ old('medical_coverage') }}" maxlength="255"
                  class="w-full rounded-lg border-neutral-300 bg-white px-4 py-2.5 text-neutral-900 placeholder:text-neutral-400 focus:border-indigo-500 focus:ring-indigo-500 dark:border-neutral-700 dark:bg-neutral-900/50 dark:text-neutral-100">
         </div>
 
         <div>
-          <label class="block text-sm font-medium text-neutral-700 dark:text-neutral-200 mb-1">Dirección</label>
+          <label class="block text-sm font-medium text-neutral-700 dark:text-neutral-200 mb-1">{{ __('company.field_address') }}</label>
           <textarea name="address" rows="3" class="w-full rounded-lg border-neutral-300 bg-white px-4 py-2.5 text-neutral-900 placeholder:text-neutral-400 focus:border-indigo-500 focus:ring-indigo-500 dark:border-neutral-700 dark:bg-neutral-900/50 dark:text-neutral-100">{{ old('address') }}</textarea>
         </div>
 
         <div class="flex items-center gap-3">
           <input id="has_computer" type="checkbox" name="has_computer" value="1" @checked(old('has_computer'))
                  class="h-4 w-4 rounded border-neutral-300 text-indigo-600 focus:ring-indigo-600 dark:border-neutral-700">
-          <label for="has_computer" class="text-sm text-neutral-700 dark:text-neutral-300">Cuenta con computadora</label>
+          <label for="has_computer" class="text-sm text-neutral-700 dark:text-neutral-300">{{ __('company.field_has_computer') }}</label>
         </div>
       </div>
 
       {{-- Columna lateral --}}
       <div class="space-y-5">
         <div>
-          <label class="block text-sm font-medium text-neutral-700 dark:text-neutral-200 mb-1">Foto</label>
+          <label class="block text-sm font-medium text-neutral-700 dark:text-neutral-200 mb-1">{{ __('company.field_photo') }}</label>
           <label for="photo"
                  class="block cursor-pointer rounded-lg border-2 border-dashed border-neutral-300 p-5 text-center hover:border-indigo-400 transition-colors dark:border-neutral-700 dark:hover:border-indigo-500">
             <div class="flex flex-col items-center gap-2">
               <img id="photoPreview" src="{{ asset('images/default-avatar.png') }}" alt="Previsualización"
                    class="w-20 h-20 rounded-full object-cover ring-2 ring-neutral-200 dark:ring-neutral-700">
-              <div class="text-sm"><span class="font-medium text-indigo-600 dark:text-indigo-400">Subir foto</span></div>
-              <p class="text-xs text-neutral-500 dark:text-neutral-400">PNG, JPG (hasta 2MB)</p>
+              <div class="text-sm"><span class="font-medium text-indigo-600 dark:text-indigo-400">{{ __('company.upload_photo_btn') }}</span></div>
+              <p class="text-xs text-neutral-500 dark:text-neutral-400">{{ __('company.photo_hint') }}</p>
             </div>
             <input id="photo" name="photo" type="file" accept="image/*" class="sr-only">
           </label>
@@ -132,60 +132,60 @@
 
         <div class="grid grid-cols-1 sm:grid-cols-2 gap-5">
           <div>
-            <label class="block text-sm font-medium text-neutral-700 dark:text-neutral-200 mb-1">Salario</label>
+            <label class="block text-sm font-medium text-neutral-700 dark:text-neutral-200 mb-1">{{ __('company.field_salary') }}</label>
             <input name="salary" type="number" step="0.01" min="0" value="{{ old('salary') }}"
                    class="w-full rounded-lg border-neutral-300 bg-white px-4 py-2.5 text-neutral-900 placeholder:text-neutral-400 focus:border-indigo-500 focus:ring-indigo-500 dark:border-neutral-700 dark:bg-neutral-900/50 dark:text-neutral-100">
           </div>
         </div>
 
         <div class="space-y-4">
-          <h3 class="text-sm font-semibold text-neutral-800 dark:text-neutral-100">Datos opcionales (JSON)</h3>
-          <p class="text-xs text-neutral-500 dark:text-neutral-400">Podés dejar estos campos vacíos o pegar JSON válido.</p>
+          <h3 class="text-sm font-semibold text-neutral-800 dark:text-neutral-100">{{ __('company.json_section_title') }}</h3>
+          <p class="text-xs text-neutral-500 dark:text-neutral-400">{{ __('company.json_section_desc') }}</p>
 
           <div>
-            <label class="block text-sm font-medium text-neutral-700 dark:text-neutral-200 mb-1">Grupo familiar (JSON)</label>
+            <label class="block text-sm font-medium text-neutral-700 dark:text-neutral-200 mb-1">{{ __('company.field_family_group') }}</label>
             <textarea name="family_group_json" rows="3" placeholder='[{"nombre":"Juan","parentesco":"Hijo"}]'
                       class="w-full rounded-lg border-neutral-300 bg-white px-4 py-2.5 text-neutral-900 placeholder:text-neutral-400 focus:border-indigo-500 focus:ring-indigo-500 dark:border-neutral-700 dark:bg-neutral-900/50 dark:text-neutral-100">{{ old('family_group_json') }}</textarea>
           </div>
 
           <div>
-            <label class="block text-sm font-medium text-neutral-700 dark:text-neutral-200 mb-1">Objetivos (JSON)</label>
+            <label class="block text-sm font-medium text-neutral-700 dark:text-neutral-200 mb-1">{{ __('company.field_objectives') }}</label>
             <textarea name="objectives_json" rows="3" placeholder='[{"titulo":"Capacitación","estado":"pendiente"}]'
                       class="w-full rounded-lg border-neutral-300 bg-white px-4 py-2.5 text-neutral-900 placeholder:text-neutral-400 focus:border-indigo-500 focus:ring-indigo-500 dark:border-neutral-700 dark:bg-neutral-900/50 dark:text-neutral-100">{{ old('objectives_json') }}</textarea>
           </div>
 
           <div>
-            <label class="block text-sm font-medium text-neutral-700 dark:text-neutral-200 mb-1">Tareas (JSON)</label>
+            <label class="block text-sm font-medium text-neutral-700 dark:text-neutral-200 mb-1">{{ __('company.field_tasks') }}</label>
             <textarea name="tasks_json" rows="3" placeholder='[{"tarea":"Ordenar depósito","prioridad":"media"}]'
                       class="w-full rounded-lg border-neutral-300 bg-white px-4 py-2.5 text-neutral-900 placeholder:text-neutral-400 focus:border-indigo-500 focus:ring-indigo-500 dark:border-neutral-700 dark:bg-neutral-900/50 dark:text-neutral-100">{{ old('tasks_json') }}</textarea>
           </div>
 
           <div>
-            <label class="block text-sm font-medium text-neutral-700 dark:text-neutral-200 mb-1">Horarios (JSON)</label>
+            <label class="block text-sm font-medium text-neutral-700 dark:text-neutral-200 mb-1">{{ __('company.field_schedules') }}</label>
             <textarea name="schedules_json" rows="3" placeholder='{"lun":{"entrada":"09:00","salida":"18:00"}}'
                       class="w-full rounded-lg border-neutral-300 bg-white px-4 py-2.5 text-neutral-900 placeholder:text-neutral-400 focus:border-indigo-500 focus:ring-indigo-500 dark:border-neutral-700 dark:bg-neutral-900/50 dark:text-neutral-100">{{ old('schedules_json') }}</textarea>
           </div>
 
           <div>
-            <label class="block text-sm font-medium text-neutral-700 dark:text-neutral-200 mb-1">Beneficios (JSON)</label>
+            <label class="block text-sm font-medium text-neutral-700 dark:text-neutral-200 mb-1">{{ __('company.field_benefits') }}</label>
             <textarea name="benefits_json" rows="3" placeholder='[{"tipo":"Comedor","detalle":"Almuerzo incluido"}]'
                       class="w-full rounded-lg border-neutral-300 bg-white px-4 py-2.5 text-neutral-900 placeholder:text-neutral-400 focus:border-indigo-500 focus:ring-indigo-500 dark:border-neutral-700 dark:bg-neutral-900/50 dark:text-neutral-100">{{ old('benefits_json') }}</textarea>
           </div>
         </div>
 
         <div>
-          <label class="block text-sm font-medium text-neutral-700 dark:text-neutral-200 mb-1">Archivo de contrato</label>
+          <label class="block text-sm font-medium text-neutral-700 dark:text-neutral-200 mb-1">{{ __('company.field_contract_file') }}</label>
           <input type="file" name="contract_file" accept=".pdf,.doc,.docx"
                  class="w-full rounded-lg border-neutral-300 bg-white px-4 py-2.5 text-neutral-900 file:mr-3 file:rounded-md file:border file:border-neutral-300 file:px-3 file:py-1.5 file:text-sm dark:border-neutral-700 dark:bg-neutral-900/50 dark:text-neutral-100">
-          <p class="mt-1 text-xs text-neutral-500 dark:text-neutral-400">PDF, DOC, DOCX (hasta 5MB).</p>
+          <p class="mt-1 text-xs text-neutral-500 dark:text-neutral-400">{{ __('company.contract_file_hint') }}</p>
         </div>
       </div>
     </div>
 
     <div class="px-6 py-5 border-t border-neutral-200 dark:border-neutral-800 flex items-center justify-end gap-2">
-      <a href="{{ route('company.employees.index') }}" class="inline-flex items-center gap-2 rounded-lg border border-neutral-300 px-4 py-2 text-sm font-medium text-neutral-700 hover:bg-neutral-50 dark:border-neutral-700 dark:text-neutral-200 dark:hover:bg-neutral-800">Cancelar</a>
+      <a href="{{ route('company.employees.index') }}" class="inline-flex items-center gap-2 rounded-lg border border-neutral-300 px-4 py-2 text-sm font-medium text-neutral-700 hover:bg-neutral-50 dark:border-neutral-700 dark:text-neutral-200 dark:hover:bg-neutral-800">{{ __('company.cancel_btn') }}</a>
       <button type="submit" class="inline-flex items-center gap-2 rounded-lg bg-gradient-to-r from-indigo-600 to-purple-600 px-5 py-2.5 text-white hover:from-indigo-700 hover:to-purple-700 hover:shadow-lg hover:shadow-indigo-500/25 dark:hover:shadow-indigo-400/20 hover:-translate-y-0.5 active:scale-95 transition-all duration-200">
-        Guardar
+        {{ __('company.save_btn') }}
       </button>
     </div>
   </form>

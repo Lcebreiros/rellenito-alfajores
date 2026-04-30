@@ -1,7 +1,7 @@
 @extends('layouts.app')
 
 @section('header')
-  <h1 class="text-xl sm:text-2xl font-semibold text-neutral-800 dark:text-neutral-100">Servicios</h1>
+  <h1 class="text-xl sm:text-2xl font-semibold text-neutral-800 dark:text-neutral-100">{{ __('services.title') }}</h1>
 @endsection
 
 @section('content')
@@ -25,7 +25,7 @@
     <div class="flex items-center gap-2 text-sm">
       <span class="inline-flex items-center rounded-lg border border-neutral-200 bg-white px-2.5 py-1.5 text-neutral-600
                     dark:border-neutral-800 dark:bg-neutral-900 dark:text-neutral-300">
-        Mostrando {{ $services->firstItem() }}–{{ $services->lastItem() }} de {{ $services->total() }}
+        {{ __('services.showing', ['first' => $services->firstItem(), 'last' => $services->lastItem(), 'total' => $services->total()]) }}
       </span>
     </div>
 
@@ -36,7 +36,7 @@
             <circle cx="11" cy="11" r="7" stroke="currentColor" stroke-width="2"/>
             <path d="M21 21l-3.5-3.5" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
           </svg>
-          <input name="q" value="{{ request('q') }}" placeholder="Buscar servicio…"
+          <input name="q" value="{{ request('q') }}" placeholder="{{ __('services.search_placeholder') }}"
                  class="w-60 rounded-lg border border-neutral-300 bg-white pl-9 pr-3 py-2 text-sm text-neutral-700
                         placeholder:text-neutral-400 focus:border-indigo-500 focus:ring-indigo-500
                         dark:border-neutral-700 dark:bg-neutral-900 dark:text-neutral-200 dark:placeholder:text-neutral-400">
@@ -44,13 +44,13 @@
         <select name="service_category_id"
                 class="w-44 rounded-lg border border-neutral-300 bg-white px-3 py-2 text-sm text-neutral-700
                        dark:border-neutral-700 dark:bg-neutral-900 dark:text-neutral-200">
-          <option value="">Todas las categorías</option>
+          <option value="">{{ __('services.all_categories') }}</option>
           @foreach(($categories ?? collect()) as $category)
             <option value="{{ $category->id }}" @selected(request('service_category_id') == $category->id)>{{ $category->name }}</option>
           @endforeach
         </select>
         <button class="rounded-lg bg-indigo-600 px-3 py-2 text-sm font-medium text-white hover:bg-indigo-700">
-          Buscar
+          {{ __('services.search') }}
         </button>
       </form>
 
@@ -59,7 +59,7 @@
         <svg class="h-4 w-4" viewBox="0 0 24 24" fill="none">
           <path d="M12 5v14M5 12h14" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
         </svg>
-        Nuevo servicio
+        {{ __('services.new') }}
       </a>
     </div>
   </div>
@@ -93,10 +93,10 @@
                 @endif
               </div>
               <div class="shrink-0 text-[11px] sm:text-xs rounded-full px-2 py-0.5 font-medium
-                           {{ $isActive 
-                              ? 'bg-emerald-100 text-emerald-700 dark:bg-emerald-900/30 dark:text-emerald-300' 
+                           {{ $isActive
+                              ? 'bg-emerald-100 text-emerald-700 dark:bg-emerald-900/30 dark:text-emerald-300'
                               : 'bg-neutral-200 text-neutral-700 dark:bg-neutral-800 dark:text-neutral-300' }}">
-                {{ $isActive ? 'Activo' : 'Inactivo' }}
+                {{ $isActive ? __('services.status_active') : __('services.status_inactive') }}
               </div>
             </div>
 
@@ -109,15 +109,15 @@
                 <a href="{{ route('services.edit', $service) }}"
                    class="inline-flex items-center gap-2 rounded-lg border border-neutral-300 px-3 py-1.5 text-sm font-medium text-neutral-700 hover:bg-neutral-50
                           dark:border-neutral-700 dark:text-neutral-200 dark:hover:bg-neutral-800 whitespace-nowrap">
-                  Editar
+                  {{ __('services.edit') }}
                 </a>
 
-                <form action="{{ route('services.destroy', $service) }}" method="POST" onsubmit="return confirm('¿Eliminar servicio?')">
+                <form action="{{ route('services.destroy', $service) }}" method="POST" onsubmit="return confirm('{{ __('services.delete_confirm') }}')">
                   @csrf
                   @method('DELETE')
                   <button class="inline-flex items-center gap-2 rounded-lg border border-rose-300 px-3 py-1.5 text-sm font-medium text-rose-700 hover:bg-rose-50
                                  dark:border-rose-700 dark:text-rose-300 dark:hover:bg-rose-900/30 whitespace-nowrap">
-                    Eliminar
+                    {{ __('services.delete') }}
                   </button>
                 </form>
               </div>
@@ -132,7 +132,7 @@
     </div>
   @else
     <div class="text-center py-16">
-      <p class="text-neutral-600 dark:text-neutral-400">Aún no hay servicios.</p>
+      <p class="text-neutral-600 dark:text-neutral-400">{{ __('services.empty') }}</p>
     </div>
   @endif
 </div>

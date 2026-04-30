@@ -1,8 +1,8 @@
 <div class="min-h-screen w-full overflow-x-hidden">
   {{-- Header --}}
   <div class="mb-4 sm:mb-6">
-    <h1 class="text-xl sm:text-2xl font-semibold text-neutral-900 dark:text-neutral-100">Solicitudes de Prueba</h1>
-    <p class="text-xs sm:text-sm text-neutral-600 dark:text-neutral-400 mt-1">Gestiona las solicitudes de prueba gratis</p>
+    <h1 class="text-xl sm:text-2xl font-semibold text-neutral-900 dark:text-neutral-100">{{ __('nexum.trial_title') }}</h1>
+    <p class="text-xs sm:text-sm text-neutral-600 dark:text-neutral-400 mt-1">{{ __('nexum.trial_subtitle') }}</p>
   </div>
 
   {{-- Mensajes --}}
@@ -23,7 +23,7 @@
     <div class="rounded-xl border border-neutral-200 bg-white p-4 dark:border-neutral-800 dark:bg-neutral-900">
       <div class="flex items-center justify-between">
         <div>
-          <p class="text-sm text-neutral-600 dark:text-neutral-400">Pendientes</p>
+          <p class="text-sm text-neutral-600 dark:text-neutral-400">{{ __('nexum.trial_pending') }}</p>
           <p class="text-2xl font-semibold text-neutral-900 dark:text-neutral-100">{{ $stats['pending'] }}</p>
         </div>
         <div class="w-12 h-12 rounded-full bg-yellow-500/10 flex items-center justify-center">
@@ -37,7 +37,7 @@
     <div class="rounded-xl border border-neutral-200 bg-white p-4 dark:border-neutral-800 dark:bg-neutral-900">
       <div class="flex items-center justify-between">
         <div>
-          <p class="text-sm text-neutral-600 dark:text-neutral-400">Aprobadas</p>
+          <p class="text-sm text-neutral-600 dark:text-neutral-400">{{ __('nexum.trial_approved') }}</p>
           <p class="text-2xl font-semibold text-neutral-900 dark:text-neutral-100">{{ $stats['approved'] }}</p>
         </div>
         <div class="w-12 h-12 rounded-full bg-green-500/10 flex items-center justify-center">
@@ -51,7 +51,7 @@
     <div class="rounded-xl border border-neutral-200 bg-white p-4 dark:border-neutral-800 dark:bg-neutral-900">
       <div class="flex items-center justify-between">
         <div>
-          <p class="text-sm text-neutral-600 dark:text-neutral-400">Rechazadas</p>
+          <p class="text-sm text-neutral-600 dark:text-neutral-400">{{ __('nexum.trial_rejected') }}</p>
           <p class="text-2xl font-semibold text-neutral-900 dark:text-neutral-100">{{ $stats['rejected'] }}</p>
         </div>
         <div class="w-12 h-12 rounded-full bg-red-500/10 flex items-center justify-center">
@@ -67,19 +67,19 @@
   <div class="mb-4 flex flex-wrap gap-2">
     <button wire:click="setFilter('pending')"
             class="px-3 sm:px-4 py-2 rounded-lg text-xs sm:text-sm font-medium transition {{ $filter === 'pending' ? 'bg-yellow-500 text-white' : 'bg-neutral-200 text-neutral-700 dark:bg-neutral-800 dark:text-neutral-300' }}">
-      Pendientes
+      {{ __('nexum.trial_pending') }}
     </button>
     <button wire:click="setFilter('approved')"
             class="px-3 sm:px-4 py-2 rounded-lg text-xs sm:text-sm font-medium transition {{ $filter === 'approved' ? 'bg-green-500 text-white' : 'bg-neutral-200 text-neutral-700 dark:bg-neutral-800 dark:text-neutral-300' }}">
-      Aprobadas
+      {{ __('nexum.trial_approved') }}
     </button>
     <button wire:click="setFilter('rejected')"
             class="px-3 sm:px-4 py-2 rounded-lg text-xs sm:text-sm font-medium transition {{ $filter === 'rejected' ? 'bg-red-500 text-white' : 'bg-neutral-200 text-neutral-700 dark:bg-neutral-800 dark:text-neutral-300' }}">
-      Rechazadas
+      {{ __('nexum.trial_rejected') }}
     </button>
     <button wire:click="setFilter('all')"
             class="px-3 sm:px-4 py-2 rounded-lg text-xs sm:text-sm font-medium transition {{ $filter === 'all' ? 'bg-indigo-500 text-white' : 'bg-neutral-200 text-neutral-700 dark:bg-neutral-800 dark:text-neutral-300' }}">
-      Todas
+      {{ __('nexum.trial_all') }}
     </button>
   </div>
 
@@ -109,13 +109,13 @@
 
             @if($request->isApproved() && $request->user)
               <div class="text-sm text-green-600 dark:text-green-400">
-                ✅ Usuario creado: {{ $request->user->email }}
+                {{ __('nexum.trial_user_created') }} {{ $request->user->email }}
               </div>
             @endif
 
             @if($request->isRejected() && $request->notes)
               <div class="text-sm text-red-600 dark:text-red-400">
-                📝 Motivo: {{ $request->notes }}
+                {{ __('nexum.trial_reason_label') }} {{ $request->notes }}
               </div>
             @endif
           </div>
@@ -125,15 +125,15 @@
             <div class="flex flex-col sm:flex-row gap-2 w-full sm:w-auto sm:ml-4">
               <button wire:click="approve({{ $request->id }})"
                       wire:loading.attr="disabled"
-                      wire:confirm="¿Aprobar esta solicitud y crear el usuario?"
+                      wire:confirm="{{ __('nexum.trial_confirm_approve') }}"
                       class="px-3 sm:px-4 py-2 rounded-lg bg-green-600 hover:bg-green-700 text-white text-xs sm:text-sm font-medium transition disabled:opacity-50 w-full sm:w-auto">
-                ✅ Aprobar
+                {{ __('nexum.trial_approve_btn') }}
               </button>
               <button wire:click="reject({{ $request->id }})"
                       wire:loading.attr="disabled"
-                      wire:confirm="¿Rechazar esta solicitud?"
+                      wire:confirm="{{ __('nexum.trial_confirm_reject') }}"
                       class="px-3 sm:px-4 py-2 rounded-lg bg-red-600 hover:bg-red-700 text-white text-xs sm:text-sm font-medium transition disabled:opacity-50 w-full sm:w-auto">
-                ❌ Rechazar
+                {{ __('nexum.trial_reject_btn') }}
               </button>
             </div>
           @endif
@@ -141,7 +141,7 @@
       </div>
     @empty
       <div class="p-8 text-center text-neutral-500 dark:text-neutral-400">
-        No hay solicitudes {{ $filter !== 'all' ? $filter : '' }}
+        {{ __('nexum.trial_no_requests') }}
       </div>
     @endforelse
   </div>

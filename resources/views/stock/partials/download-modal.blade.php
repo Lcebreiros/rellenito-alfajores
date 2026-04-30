@@ -9,11 +9,11 @@
     <div class="flex items-center justify-between mb-4">
       <h3 id="modal-title" class="text-lg font-semibold text-gray-900 dark:text-neutral-100 flex items-center">
         <i class="fas fa-download text-emerald-600 dark:text-emerald-400 mr-2" aria-hidden="true"></i>
-        Descargar reporte
+        {{ __('stock.download_title') }}
       </h3>
       <button type="button"
               id="closeModal"
-              aria-label="Cerrar modal"
+              aria-label="{{ __('stock.close_modal') }}"
               class="text-gray-400 hover:text-gray-600 dark:text-neutral-500 dark:hover:text-neutral-300 p-1 rounded-lg hover:bg-gray-100 dark:hover:bg-neutral-800 transition-colors">
         <i class="fas fa-times text-xl" aria-hidden="true"></i>
       </button>
@@ -21,16 +21,16 @@
 
     {{-- Descripción --}}
     <p class="text-gray-600 dark:text-neutral-300 mb-4">
-      Selecciona el formato para guardar localmente:
+      {{ __('stock.download_desc') }}
       @if($branchId)
         <br><small class="text-xs text-indigo-600 dark:text-indigo-400 font-medium">
           <i class="fas fa-info-circle mr-1" aria-hidden="true"></i>
-          Se exportará solo la sucursal actual
+          {{ __('stock.export_branch') }}
         </small>
       @elseif($isCompanyView)
         <br><small class="text-xs text-indigo-600 dark:text-indigo-400 font-medium">
           <i class="fas fa-info-circle mr-1" aria-hidden="true"></i>
-          Se exportará vista consolidada de la empresa
+          {{ __('stock.export_consolidated') }}
         </small>
       @endif
     </p>
@@ -49,7 +49,7 @@
           </div>
           <div class="text-left">
             <div class="font-medium text-gray-900 dark:text-neutral-100">CSV</div>
-            <div class="text-sm text-gray-500 dark:text-neutral-400">Abrilo con Excel / Google Sheets</div>
+            <div class="text-sm text-gray-500 dark:text-neutral-400">{{ __('stock.csv_subtitle') }}</div>
           </div>
         </div>
         <i class="fas fa-download text-gray-400 dark:text-neutral-500 group-hover:text-green-600 dark:group-hover:text-emerald-400 transition-colors" aria-hidden="true"></i>
@@ -68,7 +68,7 @@
           </div>
           <div class="text-left">
             <div class="font-medium text-gray-900 dark:text-neutral-100">PDF</div>
-            <div class="text-sm text-gray-500 dark:text-neutral-400">Usa "Guardar como PDF" al imprimir</div>
+            <div class="text-sm text-gray-500 dark:text-neutral-400">{{ __('stock.pdf_subtitle') }}</div>
           </div>
         </div>
         <i class="fas fa-print text-gray-400 dark:text-neutral-500 group-hover:text-blue-600 dark:group-hover:text-blue-400 transition-colors" aria-hidden="true"></i>
@@ -80,7 +80,7 @@
       <div class="flex items-start">
         <i class="fas fa-info-circle text-blue-500 dark:text-blue-300 mt-0.5 mr-2 flex-shrink-0" aria-hidden="true"></i>
         <div class="text-sm text-blue-700 dark:text-blue-200">
-          Se exportan los productos con los filtros actuales aplicados.
+          {{ __('stock.export_info') }}
         </div>
       </div>
     </div>

@@ -14,7 +14,7 @@
         <path fill-rule="evenodd" d="M6.701 2.25c.577-1 2.02-1 2.598 0l5.196 9a1.5 1.5 0 0 1-1.299 2.25H2.804a1.5 1.5 0 0 1-1.3-2.25l5.197-9ZM8 4a.75.75 0 0 1 .75.75v3a.75.75 0 0 1-1.5 0v-3A.75.75 0 0 1 8 4Zm0 8a1 1 0 1 0 0-2 1 1 0 0 0 0 2Z" clip-rule="evenodd"/>
       </svg>
       <span class="text-[11px] font-semibold text-neutral-500 dark:text-neutral-400 uppercase tracking-wider">
-        Requiere atención
+        {{ __('dashboard.attention_label') }}
       </span>
       <span class="ml-auto text-[10px] font-semibold px-1.5 py-0.5 rounded-full bg-neutral-100 dark:bg-neutral-800 text-neutral-500 dark:text-neutral-400 tabular-nums">
         {{ count($items) }}
@@ -104,7 +104,7 @@
           <span class="shrink-0 text-xs text-neutral-400 dark:text-neutral-600
                        group-hover:text-neutral-600 dark:group-hover:text-neutral-400
                        transition-colors">
-            Ver →
+            {{ __('dashboard.see_link') }}
           </span>
         </a>
       @endforeach

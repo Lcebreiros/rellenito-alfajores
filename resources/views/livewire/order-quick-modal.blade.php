@@ -4,7 +4,7 @@
         wire:click="showModal"
         class="inline-flex items-center px-4 py-2 bg-indigo-600 border border-transparent rounded-lg font-semibold text-white hover:bg-indigo-700 transition-colors">
   <i class="fas fa-plus-circle mr-2"></i>
-  Nueva Venta
+  {{ __('orders.quick.new_sale') }}
 </button>
 
 
@@ -44,8 +44,8 @@
               </svg>
             </div>
             <div>
-              <h3 class="text-lg font-semibold text-gray-900 dark:text-gray-100">Nueva Venta</h3>
-              <p class="text-sm text-gray-500 dark:text-gray-400">Crear venta</p>
+              <h3 class="text-lg font-semibold text-gray-900 dark:text-gray-100">{{ __('orders.quick.new_sale') }}</h3>
+              <p class="text-sm text-gray-500 dark:text-gray-400">{{ __('orders.quick.create_subtitle') }}</p>
             </div>
           </div>
 
@@ -83,7 +83,7 @@
         {{-- Fecha en móvil --}}
         <div class="md:hidden px-6 py-3 border-b border-gray-200 dark:border-gray-700">
           <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-            Fecha y hora de la venta
+            {{ __('orders.quick.date_label') }}
           </label>
           <div class="flex items-center gap-2">
             <input type="datetime-local"
@@ -118,14 +118,14 @@
                         wire:click="setTab('products')"
                         class="px-4 py-2 text-sm font-medium rounded-lg transition-colors
                                {{ $currentTab === 'products' ? 'bg-indigo-600 text-white' : 'text-gray-600 dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-gray-800' }}">
-                  <i class="fas fa-box mr-2"></i>Productos
+                  <i class="fas fa-box mr-2"></i>{{ __('orders.quick.tab_products') }}
                   <span class="ml-2 px-2 py-0.5 bg-white/20 rounded text-xs">{{ $products->total() }}</span>
                 </button>
                 <button type="button"
                         wire:click="setTab('services')"
                         class="px-4 py-2 text-sm font-medium rounded-lg transition-colors
                                {{ $currentTab === 'services' ? 'bg-indigo-600 text-white' : 'text-gray-600 dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-gray-800' }}">
-                  <i class="fas fa-concierge-bell mr-2"></i>Servicios
+                  <i class="fas fa-concierge-bell mr-2"></i>{{ __('orders.quick.tab_services') }}
                   <span class="ml-2 px-2 py-0.5 bg-white/20 rounded text-xs">{{ $services->total() }}</span>
                 </button>
               </div>
@@ -138,7 +138,7 @@
                 </svg>
                 <input type="text"
                        wire:model.live.debounce.400ms="search"
-                       placeholder="Buscar {{ $currentTab === 'products' ? 'productos' : 'servicios' }}..."
+                       placeholder="{{ $currentTab === 'products' ? __('orders.quick.search_products_ph') : __('orders.quick.search_services_ph') }}"
                        class="w-full pl-10 pr-4 py-2 text-sm border border-gray-200 dark:border-gray-700 rounded
                               bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100
                               placeholder:text-gray-400 dark:placeholder:text-gray-500
@@ -165,8 +165,8 @@
                       <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20 13V6a2 2 0 00-2-2H6a2 2 0 00-2 2v7"/>
                     </svg>
                   </div>
-                  <p class="font-medium">No hay productos</p>
-                  <p class="text-sm opacity-75">Intentá con otros términos</p>
+                  <p class="font-medium">{{ __('orders.quick.no_products') }}</p>
+                  <p class="text-sm opacity-75">{{ __('orders.quick.no_results_hint') }}</p>
                 </div>
               @else
                 <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
@@ -187,8 +187,8 @@
                               wire:target="addProduct({{ $p->id }})"
                               class="w-full px-3 py-2 text-sm font-medium bg-gradient-to-r from-indigo-600 to-purple-600 text-white rounded
                                      hover:from-indigo-700 hover:to-purple-700 disabled:opacity-50 transition-colors">
-                        <span wire:loading.remove wire:target="addProduct({{ $p->id }})">Agregar</span>
-                        <span wire:loading wire:target="addProduct({{ $p->id }})">Agregando...</span>
+                        <span wire:loading.remove wire:target="addProduct({{ $p->id }})">{{ __('orders.quick.add_btn') }}</span>
+                        <span wire:loading wire:target="addProduct({{ $p->id }})">{{ __('orders.quick.adding_btn') }}</span>
                       </button>
                     </div>
                   @endforeach
@@ -213,8 +213,8 @@
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 13.255A23.931 23.931 0 0112 15c-3.183 0-6.22-.62-9-1.745M16 6V4a2 2 0 00-2-2h-4a2 2 0 00-2 2v2m4 6h.01M5 20h14a2 2 0 002-2V8a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"/>
                       </svg>
                     </div>
-                    <p class="font-medium">No hay servicios</p>
-                    <p class="text-sm opacity-75">Intentá con otros términos</p>
+                    <p class="font-medium">{{ __('orders.quick.no_services') }}</p>
+                    <p class="text-sm opacity-75">{{ __('orders.quick.no_results_hint') }}</p>
                   </div>
                 @else
                   <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
@@ -235,8 +235,8 @@
                                 wire:target="addService({{ $s->id }})"
                                 class="w-full px-3 py-2 text-sm font-medium bg-gradient-to-r from-indigo-600 to-purple-600 text-white rounded
                                        hover:from-indigo-700 hover:to-purple-700 disabled:opacity-50 transition-colors">
-                          <span wire:loading.remove wire:target="addService({{ $s->id }})">Agregar</span>
-                          <span wire:loading wire:target="addService({{ $s->id }})">Agregando...</span>
+                          <span wire:loading.remove wire:target="addService({{ $s->id }})">{{ __('orders.quick.add_btn') }}</span>
+                          <span wire:loading wire:target="addService({{ $s->id }})">{{ __('orders.quick.adding_btn') }}</span>
                         </button>
                       </div>
                     @endforeach
@@ -255,7 +255,7 @@
           {{-- Info y Carrito --}}
           <section class="flex flex-col min-h-0">
             <div class="px-6 py-4 border-b border-gray-200 dark:border-gray-700">
-              <h4 class="font-medium text-gray-900 dark:text-gray-100">Información de la venta</h4>
+              <h4 class="font-medium text-gray-900 dark:text-gray-100">{{ __('orders.quick.sale_info') }}</h4>
             </div>
 
             <div class="flex-1 overflow-y-auto p-6 space-y-6">
@@ -263,28 +263,28 @@
               <div>
                 <div class="flex items-center justify-between mb-4">
                   <label class="font-medium text-gray-900 dark:text-gray-100">
-                    Cliente <span class="text-sm text-gray-500 dark:text-gray-400 font-normal">(opcional)</span>
+                    {{ __('orders.quick.client_label') }} <span class="text-sm text-gray-500 dark:text-gray-400 font-normal">{{ __('orders.quick.optional') }}</span>
                   </label>
                   
                   <div class="flex rounded-md border border-gray-200 dark:border-gray-700">
                     <button type="button"
                             wire:click="toggleClientForm"
                             class="px-3 py-1 text-sm {{ !$showClientForm ? 'bg-gray-900 text-white' : 'text-gray-600 dark:text-gray-400' }} rounded-l-md">
-                      Buscar
+                      {{ __('orders.quick.search_mode') }}
                     </button>
                     <button type="button"
                             wire:click="toggleClientForm"
                             class="px-3 py-1 text-sm {{ $showClientForm ? 'bg-gray-900 text-white' : 'text-gray-600 dark:text-gray-400' }} rounded-r-md border-l border-gray-200 dark:border-gray-700">
-                      Crear
+                      {{ __('orders.quick.create_mode') }}
                     </button>
                   </div>
                 </div>
 
                 @if($showClientForm)
                   <div class="space-y-3">
-                    <input type="text" 
-                           wire:model="newClientName" 
-                           placeholder="Nombre del cliente *"
+                    <input type="text"
+                           wire:model="newClientName"
+                           placeholder="{{ __('orders.quick.client_name_ph') }}"
                            class="w-full px-3 py-2 text-sm border border-gray-200 dark:border-gray-700 rounded
                                   bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100
                                   placeholder:text-gray-400 dark:placeholder:text-gray-500
@@ -314,7 +314,7 @@
                   <div class="relative">
                     <input type="text"
                            wire:model.live.debounce.300ms="clientSearch"
-                           placeholder="Buscar cliente..."
+                           placeholder="{{ __('orders.quick.client_search_ph') }}"
                            class="w-full px-3 py-2 text-sm border border-gray-200 dark:border-gray-700 rounded
                                   bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100
                                   placeholder:text-gray-400 dark:placeholder:text-gray-500
@@ -347,7 +347,7 @@
                 <div class="flex items-center justify-between mb-4">
                   <label class="font-medium text-gray-900 dark:text-gray-100 flex items-center gap-2">
                     <i class="fas fa-calendar-clock text-indigo-600 dark:text-indigo-400"></i>
-                    Agendar venta
+                    {{ __('orders.quick.schedule_label') }}
                   </label>
 
                   <button type="button"
@@ -363,7 +363,7 @@
                   <div class="space-y-3">
                     <div>
                       <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-                        Fecha y hora del encargo
+                        {{ __('orders.quick.schedule_date_label') }}
                       </label>
                       <input type="datetime-local"
                              wire:model="scheduledFor"
@@ -374,18 +374,18 @@
                         <p class="text-sm text-red-600 dark:text-red-400 mt-1">{{ $message }}</p>
                       @enderror
                       <p class="text-xs text-gray-500 dark:text-gray-400 mt-1">
-                        Se enviará un recordatorio un día antes
+                        {{ __('orders.quick.schedule_reminder') }}
                       </p>
                     </div>
 
                     <div>
                       <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-                        Notas del encargo
+                        {{ __('orders.quick.schedule_notes_label') }}
                       </label>
                       <textarea
                         wire:model="orderNotes"
                         rows="3"
-                        placeholder="Ej: Torta de chocolate para 20 personas..."
+                        placeholder="{{ __('orders.quick.schedule_notes_ph') }}"
                         class="w-full px-3 py-2 text-sm border border-gray-200 dark:border-gray-700 rounded
                                bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100
                                placeholder:text-gray-400 dark:placeholder:text-gray-500
@@ -401,7 +401,7 @@
                           <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/>
                         </svg>
                         <div class="text-sm text-blue-800 dark:text-blue-200">
-                          <strong>Venta agendado:</strong> Se guardará como "Agendado" y podrás confirmarlo el día indicado.
+                          {{ __('orders.quick.schedule_info') }}
                         </div>
                       </div>
                     </div>
@@ -413,7 +413,7 @@
               <div>
                 <div class="flex items-center justify-between mb-4">
                   <h5 class="font-medium text-gray-900 dark:text-gray-100">
-                    Carrito
+                    {{ __('orders.quick.cart_label') }}
                     <span class="ml-2 px-2 py-1 bg-gray-100 dark:bg-gray-800 text-gray-600 dark:text-gray-400 rounded text-xs">
                       {{ count($items) }}
                     </span>
@@ -432,8 +432,8 @@
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 3h2l.4 2M7 13h10l4-8H5.4"/>
                       </svg>
                     </div>
-                    <p class="font-medium">Carrito vacío</p>
-                    <p class="text-sm">Agregá productos o servicios</p>
+                    <p class="font-medium">{{ __('orders.quick.cart_empty') }}</p>
+                    <p class="text-sm">{{ __('orders.quick.cart_empty_hint') }}</p>
                   </div>
                 @else
                   <div class="space-y-3">
@@ -446,12 +446,12 @@
                             @if(isset($item['type']))
                               <span class="text-xs px-1.5 py-0.5 rounded
                                            {{ $item['type'] === 'service' ? 'bg-purple-100 text-purple-700 dark:bg-purple-900/30 dark:text-purple-400' : 'bg-blue-100 text-blue-700 dark:bg-blue-900/30 dark:text-blue-400' }}">
-                                {{ $item['type'] === 'service' ? 'Servicio' : 'Producto' }}
+                                {{ $item['type'] === 'service' ? __('orders.quick.type_service') : __('orders.quick.type_product') }}
                               </span>
                             @endif
                           </div>
                           <div class="text-sm text-gray-500 dark:text-gray-400">
-                            ${{ number_format($item['price'], 2, ',', '.') }} c/u
+                            ${{ number_format($item['price'], 2, ',', '.') }} {{ __('orders.quick.unit_price') }}
                           </div>
                           <div class="text-sm font-semibold text-gray-900 dark:text-gray-100">
                             ${{ number_format($item['price'] * $item['quantity'], 2, ',', '.') }}
@@ -500,14 +500,14 @@
                   <div class="flex items-center justify-between mb-4">
                     <label class="font-medium text-gray-900 dark:text-gray-100 flex items-center gap-2">
                       <i class="fas fa-credit-card text-green-600 dark:text-green-400"></i>
-                      Medios de pago <span class="text-sm text-gray-500 dark:text-gray-400 font-normal">(opcional)</span>
+                      {{ __('orders.quick.payment_label') }} <span class="text-sm text-gray-500 dark:text-gray-400 font-normal">{{ __('orders.quick.optional') }}</span>
                     </label>
                   </div>
 
                   @if($availablePaymentMethods->count() > 0)
                     <div class="space-y-3">
                       <p class="text-xs text-gray-500 dark:text-gray-400 mb-2">
-                        Seleccioná cómo se pagó la venta
+                        {{ __('orders.quick.payment_hint') }}
                       </p>
 
                       <div class="grid grid-cols-2 gap-2">
@@ -526,14 +526,14 @@
                       @if(isset($paymentMethods[0]['payment_method_id']))
                         <div class="p-3 bg-green-50 dark:bg-green-900/20 border border-green-200 dark:border-green-800 rounded-lg">
                           <p class="text-sm text-green-800 dark:text-green-200">
-                            <strong>Método seleccionado:</strong> {{ $availablePaymentMethods->firstWhere('id', $paymentMethods[0]['payment_method_id'])->name ?? 'N/A' }}
+                            <strong>{{ __('orders.quick.payment_selected') }}</strong> {{ $availablePaymentMethods->firstWhere('id', $paymentMethods[0]['payment_method_id'])->name ?? 'N/A' }}
                           </p>
                         </div>
                       @endif
                     </div>
                   @else
                     <p class="text-sm text-gray-500 dark:text-gray-400">
-                      No hay medios de pago configurados
+                      {{ __('orders.quick.no_payment_methods') }}
                     </p>
                   @endif
                 </div>
@@ -547,15 +547,15 @@
           <div>
             @if(count($items))
               <div class="text-sm text-gray-600 dark:text-gray-400">
-                {{ count($items) }} {{ count($items) !== 1 ? 'items' : 'item' }} •
-                {{ array_sum(array_column($items, 'quantity')) }} unidad{{ array_sum(array_column($items, 'quantity')) !== 1 ? 'es' : '' }}
+                {{ count($items) }} {{ count($items) !== 1 ? __('orders.quick.item_plural') : __('orders.quick.item_singular') }} •
+                {{ array_sum(array_column($items, 'quantity')) }} {{ array_sum(array_column($items, 'quantity')) !== 1 ? __('orders.quick.unit_plural') : __('orders.quick.unit_singular') }}
               </div>
               <div class="font-semibold text-lg text-gray-900 dark:text-gray-100">
-                Total: ${{ number_format($this->total, 2, ',', '.') }}
+                {{ __('orders.quick.total_label') }} ${{ number_format($this->total, 2, ',', '.') }}
               </div>
             @else
               <div class="text-sm text-gray-500 dark:text-gray-400">
-                Agregá productos o servicios para continuar
+                {{ __('orders.quick.footer_empty') }}
               </div>
             @endif
           </div>
@@ -565,7 +565,7 @@
                     wire:click="hideModal"
                     class="px-4 py-2 text-sm font-medium border border-gray-200 dark:border-gray-700 text-gray-700 dark:text-gray-300 rounded
                            hover:bg-gray-50 dark:hover:bg-gray-800">
-              Cancelar
+              {{ __('orders.quick.cancel_btn') }}
             </button>
             <button type="submit"
                     wire:loading.attr="disabled"
@@ -573,8 +573,8 @@
                     @disabled(!count($items))
                     class="px-4 py-2 text-sm font-medium bg-gradient-to-r from-indigo-600 to-purple-600 text-white rounded
                            hover:from-indigo-700 hover:to-purple-700 disabled:opacity-50">
-              <span wire:loading.remove wire:target="save">Guardar Venta</span>
-              <span wire:loading wire:target="save">Guardando...</span>
+              <span wire:loading.remove wire:target="save">{{ __('orders.quick.save_btn') }}</span>
+              <span wire:loading wire:target="save">{{ __('orders.quick.saving_btn') }}</span>
             </button>
           </div>
         </footer>

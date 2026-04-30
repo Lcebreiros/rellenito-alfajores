@@ -3,7 +3,7 @@
     <button
         @click="open = !open"
         class="relative p-2 rounded-lg hover:bg-neutral-100 dark:hover:bg-neutral-800 transition-colors"
-        aria-label="Notificaciones"
+        aria-label="{{ __('notifications.title') }}"
     >
         <x-heroicon-o-bell class="w-6 h-6 text-neutral-700 dark:text-neutral-300" />
 
@@ -28,14 +28,14 @@
         style="display: none;"
     >
         <div class="p-4 border-b border-neutral-200 dark:border-neutral-800 flex items-center justify-between">
-            <h3 class="font-semibold text-neutral-900 dark:text-neutral-100">Notificaciones</h3>
+            <h3 class="font-semibold text-neutral-900 dark:text-neutral-100">{{ __('notifications.title') }}</h3>
 
             @if($unreadCount > 0)
                 <button
                     wire:click="markAllAsRead"
                     class="text-xs text-indigo-600 hover:text-indigo-700 dark:text-indigo-400 font-medium"
                 >
-                    Marcar todas
+                    {{ __('notifications.mark_all') }}
                 </button>
             @endif
         </div>
@@ -87,7 +87,7 @@
                 <div class="p-8 text-center">
                     <x-heroicon-o-bell-slash class="w-12 h-12 mx-auto text-neutral-300 dark:text-neutral-700 mb-2" />
                     <p class="text-sm text-neutral-500 dark:text-neutral-400">
-                        No tienes notificaciones
+                        {{ __('notifications.empty') }}
                     </p>
                 </div>
             @endforelse
@@ -99,7 +99,7 @@
                     href="#"
                     class="text-sm text-indigo-600 hover:text-indigo-700 dark:text-indigo-400 font-medium"
                 >
-                    Ver todas las notificaciones
+                    {{ __('notifications.view_all') }}
                 </a>
             </div>
         @endif

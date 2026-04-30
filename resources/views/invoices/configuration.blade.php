@@ -1,7 +1,7 @@
 @extends('layouts.app')
 
 @section('header')
-  <h1 class="text-2xl font-bold text-neutral-900 dark:text-neutral-100">Configuración ARCA</h1>
+  <h1 class="text-2xl font-bold text-neutral-900 dark:text-neutral-100">{{ __('invoices.config_title') }}</h1>
 @endsection
 
 @section('header_actions')
@@ -9,7 +9,7 @@
     <svg class="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
       <path stroke-linecap="round" stroke-linejoin="round" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
     </svg>
-    Ver facturas
+    {{ __('invoices.view_invoices') }}
   </a>
 @endsection
 
@@ -48,9 +48,9 @@
         <path stroke-linecap="round" stroke-linejoin="round" d="M12 16v-4m0-4h.01" />
       </svg>
       <div class="text-sm text-neutral-700 dark:text-neutral-300">
-        <p class="font-semibold mb-1">Configuración de facturación electrónica</p>
-        <p>Configure su certificado digital de ARCA para emitir facturas electrónicas. Esta configuración se guarda de forma segura y encriptada.</p>
-        <p class="mt-2 text-xs text-neutral-600 dark:text-neutral-400">Para obtener su certificado digital, visite <a href="https://www.afip.gob.ar" target="_blank" class="text-indigo-600 hover:underline">AFIP</a> o consulte la documentación.</p>
+        <p class="font-semibold mb-1">{{ __('invoices.config_info_title') }}</p>
+        <p>{{ __('invoices.config_info_desc') }}</p>
+        <p class="mt-2 text-xs text-neutral-600 dark:text-neutral-400">{{ __('invoices.config_info_link_pre') }} <a href="https://www.afip.gob.ar" target="_blank" class="text-indigo-600 hover:underline">AFIP</a> {{ __('invoices.config_info_link_suf') }}</p>
       </div>
     </div>
   </div>
@@ -63,11 +63,11 @@
           <path stroke-linecap="round" stroke-linejoin="round" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
         </svg>
         <div class="flex-1">
-          <p class="font-semibold text-emerald-900 dark:text-emerald-100">Configuración activa</p>
+          <p class="font-semibold text-emerald-900 dark:text-emerald-100">{{ __('invoices.config_active_title') }}</p>
           <p class="text-sm text-emerald-700 dark:text-emerald-300 mt-1">
-            CUIT: {{ $config->cuit }} | Ambiente: {{ $config->environment === 'production' ? 'Producción' : 'Testing' }}
+            {{ __('invoices.config_cuit_display') }} {{ $config->cuit }} | {{ __('invoices.config_env_display') }} {{ $config->environment === 'production' ? __('invoices.env_production') : __('invoices.env_testing') }}
             @if($config->certificate_expires_at)
-              | Certificado vence: {{ $config->certificate_expires_at->format('d/m/Y') }}
+              | {{ __('invoices.cert_expires_label') }} {{ $config->certificate_expires_at->format('d/m/Y') }}
             @endif
           </p>
         </div>
@@ -78,7 +78,7 @@
   {{-- Configuration form --}}
   <div class="container-glass shadow-sm overflow-hidden">
     <div class="bg-neutral-100/70 dark:bg-neutral-800/60 px-6 py-4 border-b border-neutral-200 dark:border-neutral-700">
-      <h2 class="text-lg font-semibold text-neutral-900 dark:text-neutral-100">Datos de la empresa y certificado</h2>
+      <h2 class="text-lg font-semibold text-neutral-900 dark:text-neutral-100">{{ __('invoices.company_cert_title') }}</h2>
     </div>
 
     <form action="{{ route('invoices.configuration.save') }}" method="POST" enctype="multipart/form-data" class="p-6">
@@ -88,7 +88,7 @@
         {{-- CUIT --}}
         <div>
           <label class="block text-sm font-medium text-neutral-700 dark:text-neutral-300 mb-2">
-            CUIT <span class="text-rose-500">*</span>
+            {{ __('invoices.cuit_label') }} <span class="text-rose-500">*</span>
           </label>
           <input type="text"
                  name="cuit"
@@ -97,13 +97,13 @@
                  maxlength="13"
                  required
                  class="input-enhanced w-full">
-          <p class="mt-1 text-xs text-neutral-500 dark:text-neutral-400">Ingrese el CUIT sin guiones</p>
+          <p class="mt-1 text-xs text-neutral-500 dark:text-neutral-400">{{ __('invoices.cuit_hint') }}</p>
         </div>
 
         {{-- Business name --}}
         <div>
           <label class="block text-sm font-medium text-neutral-700 dark:text-neutral-300 mb-2">
-            Razón Social <span class="text-rose-500">*</span>
+            {{ __('invoices.business_name') }} <span class="text-rose-500">*</span>
           </label>
           <input type="text"
                  name="business_name"
@@ -115,33 +115,33 @@
         {{-- Tax condition --}}
         <div>
           <label class="block text-sm font-medium text-neutral-700 dark:text-neutral-300 mb-2">
-            Condición frente al IVA <span class="text-rose-500">*</span>
+            {{ __('invoices.tax_condition') }} <span class="text-rose-500">*</span>
           </label>
           <select name="tax_condition" required class="input-enhanced w-full">
-            <option value="IVA Responsable Inscripto" {{ old('tax_condition', $config->tax_condition ?? '') === 'IVA Responsable Inscripto' ? 'selected' : '' }}>IVA Responsable Inscripto</option>
-            <option value="Monotributo" {{ old('tax_condition', $config->tax_condition ?? '') === 'Monotributo' ? 'selected' : '' }}>Monotributo</option>
-            <option value="Exento" {{ old('tax_condition', $config->tax_condition ?? '') === 'Exento' ? 'selected' : '' }}>Exento</option>
-            <option value="No Responsable" {{ old('tax_condition', $config->tax_condition ?? '') === 'No Responsable' ? 'selected' : '' }}>No Responsable</option>
-            <option value="Consumidor Final" {{ old('tax_condition', $config->tax_condition ?? '') === 'Consumidor Final' ? 'selected' : '' }}>Consumidor Final</option>
+            <option value="IVA Responsable Inscripto" {{ old('tax_condition', $config->tax_condition ?? '') === 'IVA Responsable Inscripto' ? 'selected' : '' }}>{{ __('invoices.tax_registered') }}</option>
+            <option value="Monotributo" {{ old('tax_condition', $config->tax_condition ?? '') === 'Monotributo' ? 'selected' : '' }}>{{ __('invoices.tax_monotributo') }}</option>
+            <option value="Exento" {{ old('tax_condition', $config->tax_condition ?? '') === 'Exento' ? 'selected' : '' }}>{{ __('invoices.tax_exempt') }}</option>
+            <option value="No Responsable" {{ old('tax_condition', $config->tax_condition ?? '') === 'No Responsable' ? 'selected' : '' }}>{{ __('invoices.tax_non_responsible') }}</option>
+            <option value="Consumidor Final" {{ old('tax_condition', $config->tax_condition ?? '') === 'Consumidor Final' ? 'selected' : '' }}>{{ __('invoices.tax_final_consumer') }}</option>
           </select>
         </div>
 
         {{-- Environment --}}
         <div>
           <label class="block text-sm font-medium text-neutral-700 dark:text-neutral-300 mb-2">
-            Ambiente <span class="text-rose-500">*</span>
+            {{ __('invoices.environment') }} <span class="text-rose-500">*</span>
           </label>
           <select name="environment" required class="input-enhanced w-full">
-            <option value="testing" {{ old('environment', $config->environment ?? 'testing') === 'testing' ? 'selected' : '' }}>Testing (Homologación)</option>
-            <option value="production" {{ old('environment', $config->environment ?? '') === 'production' ? 'selected' : '' }}>Producción</option>
+            <option value="testing" {{ old('environment', $config->environment ?? 'testing') === 'testing' ? 'selected' : '' }}>{{ __('invoices.env_testing_opt') }}</option>
+            <option value="production" {{ old('environment', $config->environment ?? '') === 'production' ? 'selected' : '' }}>{{ __('invoices.env_production_opt') }}</option>
           </select>
-          <p class="mt-1 text-xs text-neutral-500 dark:text-neutral-400">Comience en Testing para pruebas</p>
+          <p class="mt-1 text-xs text-neutral-500 dark:text-neutral-400">{{ __('invoices.env_hint') }}</p>
         </div>
 
         {{-- Default sale point --}}
         <div>
           <label class="block text-sm font-medium text-neutral-700 dark:text-neutral-300 mb-2">
-            Punto de venta <span class="text-rose-500">*</span>
+            {{ __('invoices.sale_point') }} <span class="text-rose-500">*</span>
           </label>
           <input type="number"
                  name="default_sale_point"
@@ -149,19 +149,19 @@
                  min="1"
                  required
                  class="input-enhanced w-full">
-          <p class="mt-1 text-xs text-neutral-500 dark:text-neutral-400">Punto de venta configurado en ARCA</p>
+          <p class="mt-1 text-xs text-neutral-500 dark:text-neutral-400">{{ __('invoices.sale_point_hint') }}</p>
         </div>
       </div>
 
       {{-- Certificate files --}}
       <div class="mt-6 pt-6 border-t border-neutral-200 dark:border-neutral-700">
-        <h3 class="text-base font-semibold text-neutral-900 dark:text-neutral-100 mb-4">Certificados digitales</h3>
+        <h3 class="text-base font-semibold text-neutral-900 dark:text-neutral-100 mb-4">{{ __('invoices.certs_title') }}</h3>
 
         <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
           {{-- Certificate file --}}
           <div>
             <label class="block text-sm font-medium text-neutral-700 dark:text-neutral-300 mb-2">
-              Certificado (.crt, .pem)
+              {{ __('invoices.cert_file') }}
               @if(!$config || !$config->certificate)
                 <span class="text-rose-500">*</span>
               @endif
@@ -178,14 +178,14 @@
                           dark:file:bg-indigo-900/20 dark:file:text-indigo-400
                           dark:hover:file:bg-indigo-900/30">
             @if($config && $config->certificate)
-              <p class="mt-1 text-xs text-emerald-600 dark:text-emerald-400">✓ Certificado cargado</p>
+              <p class="mt-1 text-xs text-emerald-600 dark:text-emerald-400">{{ __('invoices.cert_loaded') }}</p>
             @endif
           </div>
 
           {{-- Private key file --}}
           <div>
             <label class="block text-sm font-medium text-neutral-700 dark:text-neutral-300 mb-2">
-              Clave privada (.key)
+              {{ __('invoices.key_file') }}
               @if(!$config || !$config->private_key)
                 <span class="text-rose-500">*</span>
               @endif
@@ -202,20 +202,20 @@
                           dark:file:bg-indigo-900/20 dark:file:text-indigo-400
                           dark:hover:file:bg-indigo-900/30">
             @if($config && $config->private_key)
-              <p class="mt-1 text-xs text-emerald-600 dark:text-emerald-400">✓ Clave privada cargada</p>
+              <p class="mt-1 text-xs text-emerald-600 dark:text-emerald-400">{{ __('invoices.key_loaded') }}</p>
             @endif
           </div>
 
           {{-- Certificate password --}}
           <div>
             <label class="block text-sm font-medium text-neutral-700 dark:text-neutral-300 mb-2">
-              Contraseña del certificado
+              {{ __('invoices.cert_password') }}
             </label>
             <input type="password"
                    name="certificate_password"
                    placeholder="••••••••"
                    class="input-enhanced w-full">
-            <p class="mt-1 text-xs text-neutral-500 dark:text-neutral-400">Si el certificado tiene contraseña</p>
+            <p class="mt-1 text-xs text-neutral-500 dark:text-neutral-400">{{ __('invoices.cert_password_hint') }}</p>
           </div>
         </div>
       </div>
@@ -224,14 +224,14 @@
       <div class="mt-8 flex items-center justify-end gap-3">
         <a href="{{ route('inicio') }}"
            class="px-4 py-2.5 rounded-lg border border-neutral-300 dark:border-neutral-700 text-neutral-700 dark:text-neutral-200 hover:bg-neutral-50 dark:hover:bg-neutral-800 text-sm font-medium transition-all duration-150">
-          Cancelar
+          {{ __('invoices.cancel') }}
         </a>
         <button type="submit"
                 class="inline-flex items-center gap-2 px-6 py-2.5 rounded-lg bg-indigo-600 text-white text-sm font-medium hover:bg-indigo-700 transition-all duration-150 active:scale-[0.98]">
           <svg class="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
             <path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7" />
           </svg>
-          Guardar configuración
+          {{ __('invoices.save_config') }}
         </button>
       </div>
     </form>

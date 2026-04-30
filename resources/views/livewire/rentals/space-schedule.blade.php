@@ -17,10 +17,10 @@
               <span>{{ $space->category->name }}</span>
               <span>·</span>
             @endif
-            <span>Cap. {{ $space->capacity }}</span>
+            <span>{{ __('rentals.capacity_label') }} {{ $space->capacity }}</span>
             @if($space->activeDurationOptions->count())
               <span>·</span>
-              <span>Base {{ $space->activeDurationOptions->min('minutes') }} min</span>
+              <span>{{ __('rentals.base_duration_label') }} {{ $space->activeDurationOptions->min('minutes') }} {{ __('rentals.minutes_label') }}</span>
             @endif
           </div>
         </div>
@@ -52,7 +52,7 @@
         </h2>
         <button wire:click="goToToday"
                 class="text-xs px-2.5 py-1 rounded-lg bg-violet-100 dark:bg-violet-900/30 text-violet-700 dark:text-violet-300 hover:bg-violet-200 dark:hover:bg-violet-900/50 font-medium transition-colors">
-          Hoy
+          {{ __('rentals.today_btn') }}
         </button>
       </div>
 
@@ -66,7 +66,7 @@
 
     {{-- Cabecera días de la semana --}}
     <div class="grid grid-cols-7 border-b border-neutral-100 dark:border-neutral-800">
-      @foreach(['Lun','Mar','Mié','Jue','Vie','Sáb','Dom'] as $dayName)
+      @foreach(__('rentals.day_abbrevs') as $dayName)
         <div class="text-center text-xs font-semibold text-neutral-500 dark:text-neutral-400 py-2.5">
           {{ $dayName }}
         </div>
@@ -85,7 +85,6 @@
                            {{ $day['isSelected']
                                ? 'bg-violet-600 dark:bg-violet-600'
                                : 'hover:bg-violet-50 dark:hover:bg-violet-900/20' }}">
-              {{-- Número del día --}}
               <span class="text-sm font-semibold leading-none
                            {{ $day['isSelected']
                                ? 'text-white'
@@ -94,11 +93,9 @@
                                    : 'text-neutral-800 dark:text-neutral-200') }}">
                 {{ $day['dayNum'] }}
               </span>
-              {{-- Punto indicator de hoy (cuando no está seleccionado) --}}
               @if($day['isToday'] && !$day['isSelected'])
                 <span class="absolute bottom-1 left-1/2 -translate-x-1/2 w-1 h-1 rounded-full bg-violet-500"></span>
               @endif
-              {{-- Dot de reservas --}}
               @if($day['hasBookings'])
                 <span class="absolute bottom-1.5 left-1/2 -translate-x-1/2 w-1.5 h-1.5 rounded-full
                              {{ $day['isSelected'] ? 'bg-white/70' : 'bg-amber-400' }}
@@ -114,11 +111,11 @@
     <div class="px-5 py-2.5 border-t border-neutral-100 dark:border-neutral-800 flex items-center gap-4 text-xs text-neutral-500 dark:text-neutral-400">
       <span class="flex items-center gap-1.5">
         <span class="w-2 h-2 rounded-full bg-amber-400 flex-shrink-0"></span>
-        Día con reservas
+        {{ __('rentals.legend_booked_day') }}
       </span>
       <span class="flex items-center gap-1.5">
         <span class="w-2 h-2 rounded-full bg-violet-600 flex-shrink-0"></span>
-        Día seleccionado
+        {{ __('rentals.legend_selected_day') }}
       </span>
     </div>
   </div>
@@ -126,20 +123,20 @@
   {{-- ── FILTRO + FECHA SELECCIONADA ────────────────────────────────────── --}}
   <div class="container-glass shadow-sm mb-4 px-4 py-3 flex items-center justify-between gap-3 flex-wrap">
     <div>
-      <p class="text-xs text-neutral-500 dark:text-neutral-400">Horarios para</p>
+      <p class="text-xs text-neutral-500 dark:text-neutral-400">{{ __('rentals.slots_for_label') }}</p>
       <p class="text-sm font-semibold text-neutral-900 dark:text-neutral-100 capitalize">
         {{ \Carbon\Carbon::parse($selectedDate)->translatedFormat('l, d \d\e F') }}
       </p>
     </div>
     <div class="flex items-center gap-2">
-      <label class="text-xs text-neutral-500 dark:text-neutral-400">Ver:</label>
+      <label class="text-xs text-neutral-500 dark:text-neutral-400">{{ __('rentals.filter_view_label') }}</label>
       <select wire:model.live="filterStatus"
               class="text-sm rounded-lg border border-neutral-300 dark:border-neutral-700 bg-white dark:bg-neutral-900 px-3 py-1.5 text-neutral-700 dark:text-neutral-300">
-        <option value="active">Activas</option>
-        <option value="all">Todas</option>
-        <option value="pending">Solo pendientes</option>
-        <option value="confirmed">Solo confirmadas</option>
-        <option value="finished">Finalizadas</option>
+        <option value="active">{{ __('rentals.schedule_filter_active') }}</option>
+        <option value="all">{{ __('rentals.schedule_filter_all') }}</option>
+        <option value="pending">{{ __('rentals.schedule_filter_pending') }}</option>
+        <option value="confirmed">{{ __('rentals.schedule_filter_confirmed') }}</option>
+        <option value="finished">{{ __('rentals.schedule_filter_finished') }}</option>
       </select>
     </div>
   </div>
@@ -153,9 +150,9 @@
         <svg class="w-8 h-8 mx-auto mb-2 opacity-40" fill="none" stroke="currentColor" viewBox="0 0 24 24">
           <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"/>
         </svg>
-        No hay horarios configurados.<br>
+        {{ __('rentals.no_schedule_configured') }}<br>
         <a href="{{ route('settings.index') }}" class="text-violet-600 hover:underline text-xs mt-1 inline-block">
-          Configurar horario operativo en Ajustes
+          {{ __('rentals.config_schedule_link') }}
         </a>
       </div>
     @else
@@ -187,7 +184,7 @@
               <div class="flex-1 min-w-0">
                 <div class="flex items-center gap-2 flex-wrap">
                   <span class="text-sm font-medium text-neutral-900 dark:text-neutral-100 truncate">
-                    {{ $booking->getClientDisplayName() ?: 'Sin cliente' }}
+                    {{ $booking->getClientDisplayName() ?: __('rentals.no_client') }}
                   </span>
                   @if($booking->client_phone)
                     <span class="text-xs text-neutral-500 dark:text-neutral-400">· {{ $booking->client_phone }}</span>
@@ -196,7 +193,7 @@
                 <div class="flex items-center gap-2 mt-0.5">
                   <span class="text-xs text-neutral-500 dark:text-neutral-400">
                     {{ $booking->starts_at->format('H:i') }} – {{ $booking->ends_at->format('H:i') }}
-                    ({{ $booking->duration_minutes }} min)
+                    ({{ $booking->duration_minutes }} {{ __('rentals.minutes_label') }})
                   </span>
                   @if($booking->total_amount > 0)
                     <span class="text-xs text-neutral-600 dark:text-neutral-400">
@@ -207,13 +204,13 @@
               </div>
               <div class="flex-shrink-0">
                 @if($booking->status === 'pending')
-                  <span class="inline-flex items-center px-2 py-0.5 rounded-full text-[10px] font-semibold bg-amber-100 text-amber-800 dark:bg-amber-900/30 dark:text-amber-300">Pendiente</span>
+                  <span class="inline-flex items-center px-2 py-0.5 rounded-full text-[10px] font-semibold bg-amber-100 text-amber-800 dark:bg-amber-900/30 dark:text-amber-300">{{ __('rentals.status_pending') }}</span>
                 @elseif($booking->status === 'confirmed')
-                  <span class="inline-flex items-center px-2 py-0.5 rounded-full text-[10px] font-semibold bg-emerald-100 text-emerald-800 dark:bg-emerald-900/30 dark:text-emerald-300">Confirmada</span>
+                  <span class="inline-flex items-center px-2 py-0.5 rounded-full text-[10px] font-semibold bg-emerald-100 text-emerald-800 dark:bg-emerald-900/30 dark:text-emerald-300">{{ __('rentals.status_confirmed') }}</span>
                 @elseif($booking->status === 'finished')
-                  <span class="inline-flex items-center px-2 py-0.5 rounded-full text-[10px] font-semibold bg-neutral-100 text-neutral-600 dark:bg-neutral-700 dark:text-neutral-400">Finalizada</span>
+                  <span class="inline-flex items-center px-2 py-0.5 rounded-full text-[10px] font-semibold bg-neutral-100 text-neutral-600 dark:bg-neutral-700 dark:text-neutral-400">{{ __('rentals.status_finished') }}</span>
                 @elseif($booking->status === 'cancelled')
-                  <span class="inline-flex items-center px-2 py-0.5 rounded-full text-[10px] font-semibold bg-rose-100 text-rose-700 dark:bg-rose-900/30 dark:text-rose-400">Cancelada</span>
+                  <span class="inline-flex items-center px-2 py-0.5 rounded-full text-[10px] font-semibold bg-rose-100 text-rose-700 dark:bg-rose-900/30 dark:text-rose-400">{{ __('rentals.status_cancelled') }}</span>
                 @endif
               </div>
               <svg class="w-4 h-4 text-neutral-400 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -228,7 +225,7 @@
                 {{ $slot['time_label'] }}
               </div>
               <div class="w-0.5 self-stretch rounded-full flex-shrink-0 bg-neutral-200 dark:bg-neutral-700"></div>
-              <div class="flex-1 text-xs text-neutral-400 italic">Libre</div>
+              <div class="flex-1 text-xs text-neutral-400 italic">{{ __('rentals.slot_free_label') }}</div>
             </div>
 
           @else
@@ -243,7 +240,7 @@
                 <svg class="w-3.5 h-3.5 opacity-0 group-hover:opacity-100 transition-opacity" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"/>
                 </svg>
-                Disponible — click para reservar
+                {{ __('rentals.slot_available_cta') }}
               </div>
             </button>
           @endif
@@ -260,7 +257,7 @@
 
         <div class="sticky top-0 bg-white dark:bg-neutral-900 px-5 py-4 border-b border-neutral-200 dark:border-neutral-700 flex items-center justify-between">
           <div>
-            <h3 class="font-semibold text-neutral-900 dark:text-neutral-100">Nueva reserva</h3>
+            <h3 class="font-semibold text-neutral-900 dark:text-neutral-100">{{ __('rentals.new_booking_btn') }}</h3>
             <p class="text-xs text-neutral-500 dark:text-neutral-400 mt-0.5">
               {{ $space->name }} · {{ \Carbon\Carbon::parse($createStartsAt)->format('H:i') }}
               · {{ \Carbon\Carbon::parse($createStartsAt)->translatedFormat('d/m/Y') }}
@@ -283,7 +280,7 @@
 
           {{-- Duración --}}
           <div>
-            <label class="block text-sm font-medium text-neutral-700 dark:text-neutral-200 mb-2">Duración *</label>
+            <label class="block text-sm font-medium text-neutral-700 dark:text-neutral-200 mb-2">{{ __('rentals.duration_required_label') }}</label>
             @if($space->activeDurationOptions->count())
               <div class="flex flex-wrap gap-2 mb-3">
                 @foreach($space->activeDurationOptions as $option)
@@ -304,7 +301,7 @@
                      wire:model="createDurationMinutes"
                      min="15" max="1440" step="15"
                      class="w-24 rounded-lg border border-neutral-300 dark:border-neutral-700 bg-white dark:bg-neutral-900 px-3 py-2 text-sm">
-              <span class="text-sm text-neutral-500">minutos</span>
+              <span class="text-sm text-neutral-500">{{ __('rentals.minutes_label') }}</span>
             </div>
             @error('createDurationMinutes')
               <p class="text-xs text-rose-600 mt-1">{{ $message }}</p>
@@ -313,19 +310,19 @@
 
           {{-- Cliente --}}
           <div>
-            <label class="block text-sm font-medium text-neutral-700 dark:text-neutral-200 mb-1">Cliente</label>
+            <label class="block text-sm font-medium text-neutral-700 dark:text-neutral-200 mb-1">{{ __('rentals.field_client') }}</label>
             <select wire:model.live="createClientId"
                     class="w-full rounded-lg border border-neutral-300 dark:border-neutral-700 bg-white dark:bg-neutral-900 px-3 py-2 text-sm mb-2">
-              <option value="">Ingresá nombre o seleccioná cliente registrado</option>
+              <option value="">{{ __('rentals.select_client_hint') }}</option>
               @foreach($clients as $client)
                 <option value="{{ $client->id }}">{{ $client->name }}{{ $client->phone ? ' · '.$client->phone : '' }}</option>
               @endforeach
             </select>
             @if(!$createClientId)
               <div class="grid grid-cols-2 gap-2">
-                <input type="text" wire:model="createClientName" placeholder="Nombre"
+                <input type="text" wire:model="createClientName" placeholder="{{ __('rentals.client_name_ph') }}"
                        class="rounded-lg border border-neutral-300 dark:border-neutral-700 bg-white dark:bg-neutral-900 px-3 py-2 text-sm">
-                <input type="text" wire:model="createClientPhone" placeholder="Teléfono"
+                <input type="text" wire:model="createClientPhone" placeholder="{{ __('rentals.client_phone_ph') }}"
                        class="rounded-lg border border-neutral-300 dark:border-neutral-700 bg-white dark:bg-neutral-900 px-3 py-2 text-sm">
               </div>
             @endif
@@ -333,8 +330,8 @@
 
           {{-- Notas --}}
           <div>
-            <label class="block text-sm font-medium text-neutral-700 dark:text-neutral-200 mb-1">Notas</label>
-            <textarea wire:model="createNotes" rows="2" placeholder="Observaciones..."
+            <label class="block text-sm font-medium text-neutral-700 dark:text-neutral-200 mb-1">{{ __('rentals.field_notes') }}</label>
+            <textarea wire:model="createNotes" rows="2" placeholder="{{ __('rentals.notes_ph_short') }}"
                       class="w-full rounded-lg border border-neutral-300 dark:border-neutral-700 bg-white dark:bg-neutral-900 px-3 py-2 text-sm resize-none"></textarea>
           </div>
         </div>
@@ -342,14 +339,14 @@
         <div class="px-5 py-4 border-t border-neutral-200 dark:border-neutral-700 flex gap-2 justify-end">
           <button wire:click="$set('showCreateModal', false)"
                   class="px-4 py-2 text-sm rounded-lg border border-neutral-300 dark:border-neutral-700 text-neutral-700 dark:text-neutral-300 hover:bg-neutral-50 dark:hover:bg-neutral-800 transition-colors">
-            Cancelar
+            {{ __('rentals.cancel_btn') }}
           </button>
           <button wire:click="saveBooking"
                   wire:loading.attr="disabled"
                   wire:target="saveBooking"
                   class="px-5 py-2 text-sm font-medium rounded-lg bg-violet-600 hover:bg-violet-700 text-white transition-colors disabled:opacity-60">
-            <span wire:loading.remove wire:target="saveBooking">Reservar (pendiente)</span>
-            <span wire:loading wire:target="saveBooking">Guardando...</span>
+            <span wire:loading.remove wire:target="saveBooking">{{ __('rentals.save_pending_btn') }}</span>
+            <span wire:loading wire:target="saveBooking">{{ __('rentals.saving') }}</span>
           </button>
         </div>
       </div>
@@ -393,7 +390,7 @@
             </svg>
             <span class="text-neutral-700 dark:text-neutral-300">
               {{ $detailBooking->starts_at->format('H:i') }} – {{ $detailBooking->ends_at->format('H:i') }}
-              <span class="text-neutral-400 text-xs">({{ $detailBooking->duration_minutes }} min)</span>
+              <span class="text-neutral-400 text-xs">({{ $detailBooking->duration_minutes }} {{ __('rentals.minutes_label') }})</span>
             </span>
           </div>
 
@@ -434,7 +431,7 @@
           {{-- Enlace detalle --}}
           <a href="{{ route('rentals.bookings.show', $detailBooking) }}"
              class="inline-flex items-center gap-1 text-xs text-violet-600 hover:underline">
-            Ver detalle completo
+            {{ __('rentals.view_full_detail') }}
             <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/>
             </svg>
@@ -449,24 +446,24 @@
                       wire:loading.attr="disabled"
                       wire:target="confirmBooking({{ $detailBooking->id }})"
                       class="flex-1 py-2.5 text-sm font-medium rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white transition-colors disabled:opacity-60">
-                <span wire:loading.remove wire:target="confirmBooking({{ $detailBooking->id }})">Confirmar</span>
-                <span wire:loading wire:target="confirmBooking({{ $detailBooking->id }})">Confirmando...</span>
+                <span wire:loading.remove wire:target="confirmBooking({{ $detailBooking->id }})">{{ __('rentals.confirm_btn') }}</span>
+                <span wire:loading wire:target="confirmBooking({{ $detailBooking->id }})">{{ __('rentals.confirming') }}</span>
               </button>
             @endif
             <button wire:click="cancelBooking({{ $detailBooking->id }})"
                     wire:loading.attr="disabled"
                     wire:target="cancelBooking({{ $detailBooking->id }})"
-                    wire:confirm="¿Cancelar esta reserva?"
+                    wire:confirm="{{ __('rentals.confirm_cancel') }}"
                     class="{{ $detailBooking->status === 'confirmed' ? 'flex-1' : '' }} px-4 py-2.5 text-sm font-medium rounded-xl border border-rose-300 text-rose-600 hover:bg-rose-50 dark:border-rose-800 dark:text-rose-400 dark:hover:bg-rose-900/20 transition-colors disabled:opacity-60">
-              <span wire:loading.remove wire:target="cancelBooking({{ $detailBooking->id }})">Cancelar reserva</span>
-              <span wire:loading wire:target="cancelBooking({{ $detailBooking->id }})">Cancelando...</span>
+              <span wire:loading.remove wire:target="cancelBooking({{ $detailBooking->id }})">{{ __('rentals.cancel_booking_btn') }}</span>
+              <span wire:loading wire:target="cancelBooking({{ $detailBooking->id }})">{{ __('rentals.cancelling') }}</span>
             </button>
           </div>
         @else
           <div class="px-5 pb-5">
             <button wire:click="$set('showDetailModal', false)"
                     class="w-full py-2.5 text-sm rounded-xl border border-neutral-300 dark:border-neutral-700 text-neutral-700 dark:text-neutral-300 hover:bg-neutral-50 dark:hover:bg-neutral-800 transition-colors">
-              Cerrar
+              {{ __('rentals.close_btn') }}
             </button>
           </div>
         @endif

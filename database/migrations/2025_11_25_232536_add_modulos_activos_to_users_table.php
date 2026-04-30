@@ -18,7 +18,7 @@ return new class extends Migration
 
         if (!Schema::hasColumn('users', 'modulos_activos')) {
             Schema::table('users', function (Blueprint $table) {
-                $table->json('modulos_activos')->nullable()->after('google_calendar_sync_enabled');
+                $table->json('modulos_activos')->nullable();
             });
         }
 

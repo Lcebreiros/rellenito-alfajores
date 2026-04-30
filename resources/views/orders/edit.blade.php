@@ -6,7 +6,7 @@
     {{-- Información de la venta --}}
     <div>
         <h1 class="text-xl font-semibold text-neutral-800 dark:text-neutral-100">
-            Editar Venta #{{ $order->id }}
+            {{ __('orders.edit.title') }} #{{ $order->id }}
         </h1>
         <p class="text-xs sm:text-sm text-neutral-500 dark:text-neutral-400">
             {{ $order->created_at?->format('d/m/Y H:i') }}
@@ -18,17 +18,17 @@
         <a href="{{ route('orders.show', $order) }}"
            class="inline-flex items-center gap-2 px-3 py-1.5 rounded-lg border border-neutral-200 dark:border-neutral-600
                   text-neutral-700 dark:text-neutral-200 bg-white dark:bg-neutral-900 hover:bg-neutral-50 dark:hover:bg-neutral-800 transition-colors text-sm">
-            Volver
+            {{ __('orders.back') }}
         </a>
 
-        <form method="POST" action="{{ route('orders.destroy', $order) }}" 
-              onsubmit="return confirm('¿Seguro querés eliminar esta venta?');">
+        <form method="POST" action="{{ route('orders.destroy', $order) }}"
+              onsubmit="return confirm(@json(__('orders.confirm_delete')));">
             @csrf
             @method('DELETE')
-            <button type="submit" 
+            <button type="submit"
                     class="inline-flex items-center gap-2 px-3 py-1.5 rounded-lg border border-rose-600
                            text-white bg-rose-600 hover:bg-rose-700 transition-colors text-sm">
-                Eliminar Venta
+                {{ __('orders.delete') }}
             </button>
         </form>
     </div>
@@ -76,7 +76,7 @@
         <div class="bg-white dark:bg-neutral-900 rounded-2xl border border-neutral-200 dark:border-neutral-800 shadow-sm">
           
           <div class="px-5 sm:px-6 py-5 border-b border-neutral-100 dark:border-neutral-800/60 flex items-center justify-between">
-            <h2 class="text-lg font-semibold text-neutral-900 dark:text-neutral-100">Productos</h2>
+            <h2 class="text-lg font-semibold text-neutral-900 dark:text-neutral-100">{{ __('orders.show.products') }}</h2>
           </div>
 
 {{-- Lista de items --}}
@@ -87,7 +87,7 @@
       {{-- Nombre y precio unitario --}}
       <div class="flex-1 min-w-0">
         <div class="font-medium text-neutral-800 dark:text-neutral-100 truncate" x-text="item.name"></div>
-        <div class="text-xs text-neutral-500 dark:text-neutral-400 mt-0.5" x-text="'$' + (item.unit_price ?? 0).toFixed(2) + ' · Unidad'"></div>
+        <div class="text-xs text-neutral-500 dark:text-neutral-400 mt-0.5" x-text="'$' + (item.unit_price ?? 0).toFixed(2) + ' ' + @json(__('orders.edit.unit_label'))"></div>
       </div>
 
       {{-- Cantidad --}}
@@ -104,7 +104,7 @@
       <div class="flex-shrink-0">
         <button type="button" @click="items.splice(index,1)"
                 class="px-3 py-1 text-white bg-rose-600 rounded-lg hover:bg-rose-700 dark:hover:bg-rose-500 transition-colors shadow-sm hover:shadow-md">
-          Eliminar
+          {{ __('orders.edit.remove') }}
         </button>
       </div>
 
@@ -114,7 +114,7 @@
   {{-- Mensaje cuando no hay productos --}}
   <template x-if="items.length === 0">
     <div class="py-14 text-center text-neutral-500 dark:text-neutral-400">
-      No hay productos en esta venta
+      {{ __('orders.edit.no_items') }}
     </div>
   </template>
 </div>
@@ -122,7 +122,7 @@
 
           {{-- Agregar productos disponibles --}}
           <div class="px-5 sm:px-6 py-4 border-t border-neutral-100 dark:border-neutral-800/60">
-            <h3 class="text-sm font-medium text-neutral-700 dark:text-neutral-300 mb-2">Agregar productos</h3>
+            <h3 class="text-sm font-medium text-neutral-700 dark:text-neutral-300 mb-2">{{ __('orders.edit.add_products') }}</h3>
             <div class="grid grid-cols-2 sm:grid-cols-3 gap-2">
               <template x-for="prod in products" :key="prod.id">
                 <button type="button" @click="addProduct(prod)"
@@ -137,11 +137,11 @@
           <div class="px-5 sm:px-6 py-5 bg-neutral-50 dark:bg-neutral-950/40 border-t border-neutral-100 dark:border-neutral-800/60">
             <div class="grid grid-cols-1 sm:grid-cols-2 gap-3 text-sm">
               <div class="flex items-center justify-between">
-                <span class="text-neutral-600 dark:text-neutral-300">Subtotal</span>
+                <span class="text-neutral-600 dark:text-neutral-300">{{ __('orders.show.subtotal') }}</span>
                 <span class="font-medium text-neutral-900 dark:text-neutral-100" x-text="'$'+subtotal().toFixed(2)"></span>
               </div>
               <div class="sm:col-span-2 flex items-center justify-between pt-2 border-t border-neutral-100 dark:border-neutral-800/60">
-                <span class="text-base font-semibold text-neutral-900 dark:text-neutral-100">Total</span>
+                <span class="text-base font-semibold text-neutral-900 dark:text-neutral-100">{{ __('orders.show.total') }}</span>
                 <span class="text-lg sm:text-xl font-bold text-emerald-600" x-text="'$'+subtotal().toFixed(2)"></span>
               </div>
             </div>
@@ -154,30 +154,30 @@
 <div class="lg:col-span-5 xl:col-span-4 space-y-6">
   <div class="bg-white dark:bg-neutral-900 rounded-2xl border border-neutral-200 dark:border-neutral-800 shadow-sm">
     <div class="px-5 sm:px-6 py-5 border-b border-neutral-100 dark:border-neutral-800/60 flex items-center justify-between">
-      <h3 class="text-base font-semibold text-neutral-900 dark:text-neutral-100">Cliente</h3>
+      <h3 class="text-base font-semibold text-neutral-900 dark:text-neutral-100">{{ __('orders.show.client') }}</h3>
     </div>
     <div class="px-5 sm:px-6 py-5 space-y-4">
 
       <div>
-        <label class="text-xs text-neutral-500 dark:text-neutral-400 mb-1 block">Nombre</label>
+        <label class="text-xs text-neutral-500 dark:text-neutral-400 mb-1 block">{{ __('orders.show.client_name') }}</label>
         <input type="text" name="name" value="{{ $customerName }}"
                class="w-full border border-neutral-300 dark:border-neutral-700 bg-white dark:bg-neutral-800 text-neutral-900 dark:text-neutral-100 rounded px-2 py-1 focus:outline-none focus:ring-2 focus:ring-indigo-500 dark:focus:ring-indigo-400">
       </div>
 
       <div>
-        <label class="text-xs text-neutral-500 dark:text-neutral-400 mb-1 block">Email</label>
+        <label class="text-xs text-neutral-500 dark:text-neutral-400 mb-1 block">{{ __('orders.show.email') }}</label>
         <input type="email" name="email" value="{{ $customerEmail }}"
                class="w-full border border-neutral-300 dark:border-neutral-700 bg-white dark:bg-neutral-800 text-neutral-900 dark:text-neutral-100 rounded px-2 py-1 focus:outline-none focus:ring-2 focus:ring-indigo-500 dark:focus:ring-indigo-400">
       </div>
 
       <div>
-        <label class="text-xs text-neutral-500 dark:text-neutral-400 mb-1 block">Teléfono</label>
+        <label class="text-xs text-neutral-500 dark:text-neutral-400 mb-1 block">{{ __('orders.show.phone') }}</label>
         <input type="text" name="phone" value="{{ $customerPhone }}"
                class="w-full border border-neutral-300 dark:border-neutral-700 bg-white dark:bg-neutral-800 text-neutral-900 dark:text-neutral-100 rounded px-2 py-1 focus:outline-none focus:ring-2 focus:ring-indigo-500 dark:focus:ring-indigo-400">
       </div>
 
       <div>
-        <label class="text-xs text-neutral-500 dark:text-neutral-400 mb-1 block">Dirección</label>
+        <label class="text-xs text-neutral-500 dark:text-neutral-400 mb-1 block">{{ __('orders.show.address') }}</label>
         <input type="text" name="address" value="{{ $shippingAddr }}"
                class="w-full border border-neutral-300 dark:border-neutral-700 bg-white dark:bg-neutral-800 text-neutral-900 dark:text-neutral-100 rounded px-2 py-1 focus:outline-none focus:ring-2 focus:ring-indigo-500 dark:focus:ring-indigo-400">
       </div>
@@ -193,8 +193,8 @@
             <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
             <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
           </svg>
-          <span x-show="!loading">Guardar cambios</span>
-          <span x-show="loading">Guardando...</span>
+          <span x-show="!loading">{{ __('orders.edit.save') }}</span>
+          <span x-show="loading">{{ __('orders.edit.saving') }}</span>
         </button>
       </div>
 
@@ -205,13 +205,13 @@
   <div class="bg-white dark:bg-neutral-900 rounded-2xl border border-neutral-200 dark:border-neutral-800 shadow-sm"
        x-data="{ isScheduled: {{ $order->is_scheduled ? 'true' : 'false' }} }">
     <div class="px-5 sm:px-6 py-5 border-b border-neutral-100 dark:border-neutral-800/60">
-      <h3 class="text-base font-semibold text-neutral-900 dark:text-neutral-100">Agendamiento</h3>
+      <h3 class="text-base font-semibold text-neutral-900 dark:text-neutral-100">{{ __('orders.show.scheduled') }}</h3>
     </div>
     <div class="px-5 sm:px-6 py-5 space-y-4">
 
       {{-- Toggle agendar --}}
       <div class="flex items-center justify-between">
-        <label class="text-sm text-neutral-700 dark:text-neutral-300">Agendar venta</label>
+        <label class="text-sm text-neutral-700 dark:text-neutral-300">{{ __('orders.edit.schedule_toggle') }}</label>
         <button type="button" @click="isScheduled = !isScheduled"
                 :class="isScheduled ? 'bg-indigo-600' : 'bg-neutral-300 dark:bg-neutral-700'"
                 class="relative inline-flex h-6 w-11 items-center rounded-full transition-colors">
@@ -223,7 +223,7 @@
 
       {{-- Campo de fecha/hora --}}
       <div x-show="isScheduled" x-transition class="space-y-2">
-        <label class="text-xs text-neutral-500 dark:text-neutral-400 block">Fecha y hora</label>
+        <label class="text-xs text-neutral-500 dark:text-neutral-400 block">{{ __('orders.edit.scheduled_date') }}</label>
         <input type="datetime-local" name="scheduled_for"
                value="{{ $order->scheduled_for?->format('Y-m-d\TH:i') }}"
                class="w-full border border-neutral-300 dark:border-neutral-700 bg-white dark:bg-neutral-800 text-neutral-900 dark:text-neutral-100 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-indigo-500 dark:focus:ring-indigo-400">

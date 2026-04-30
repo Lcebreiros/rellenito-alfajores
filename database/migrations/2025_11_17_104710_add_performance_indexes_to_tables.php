@@ -109,13 +109,13 @@ return new class extends Migration
         // Índices para tabla supplies
         if (Schema::hasTable('supplies')) {
             Schema::table('supplies', function (Blueprint $table) {
-                if (!$this->indexExists('supplies', 'supplies_user_id_index')) {
+                if (!$this->indexExists('supplies', 'supplies_user_id_index') && Schema::hasColumn('supplies', 'user_id')) {
                     $table->index('user_id', 'supplies_user_id_index');
                 }
-                if (!$this->indexExists('supplies', 'supplies_supplier_id_index')) {
+                if (!$this->indexExists('supplies', 'supplies_supplier_id_index') && Schema::hasColumn('supplies', 'supplier_id')) {
                     $table->index('supplier_id', 'supplies_supplier_id_index');
                 }
-                if (!$this->indexExists('supplies', 'supplies_name_index')) {
+                if (!$this->indexExists('supplies', 'supplies_name_index') && Schema::hasColumn('supplies', 'name')) {
                     $table->index('name', 'supplies_name_index');
                 }
             });
@@ -136,16 +136,16 @@ return new class extends Migration
         // Índices para tabla supplier_expenses
         if (Schema::hasTable('supplier_expenses')) {
             Schema::table('supplier_expenses', function (Blueprint $table) {
-                if (!$this->indexExists('supplier_expenses', 'supplier_expenses_user_id_index')) {
+                if (!$this->indexExists('supplier_expenses', 'supplier_expenses_user_id_index') && Schema::hasColumn('supplier_expenses', 'user_id')) {
                     $table->index('user_id', 'supplier_expenses_user_id_index');
                 }
-                if (!$this->indexExists('supplier_expenses', 'supplier_expenses_supplier_id_index')) {
+                if (!$this->indexExists('supplier_expenses', 'supplier_expenses_supplier_id_index') && Schema::hasColumn('supplier_expenses', 'supplier_id')) {
                     $table->index('supplier_id', 'supplier_expenses_supplier_id_index');
                 }
-                if (!$this->indexExists('supplier_expenses', 'supplier_expenses_product_id_index')) {
+                if (!$this->indexExists('supplier_expenses', 'supplier_expenses_product_id_index') && Schema::hasColumn('supplier_expenses', 'product_id')) {
                     $table->index('product_id', 'supplier_expenses_product_id_index');
                 }
-                if (!$this->indexExists('supplier_expenses', 'supplier_expenses_is_active_index')) {
+                if (!$this->indexExists('supplier_expenses', 'supplier_expenses_is_active_index') && Schema::hasColumn('supplier_expenses', 'is_active')) {
                     $table->index('is_active', 'supplier_expenses_is_active_index');
                 }
             });

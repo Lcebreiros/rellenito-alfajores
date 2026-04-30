@@ -1,7 +1,7 @@
 @extends('layouts.app')
 
 @section('header')
-  <h1 class="text-2xl font-bold text-neutral-900 dark:text-neutral-100">Nuevo cliente</h1>
+  <h1 class="text-2xl font-bold text-neutral-900 dark:text-neutral-100">{{ __('clients.create_title') }}</h1>
 @endsection
 
 @section('content')
@@ -18,60 +18,59 @@
 
       <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
         <div>
-          <label class="block text-sm font-medium mb-1">Nombre *</label>
+          <label class="block text-sm font-medium mb-1">{{ __('clients.form.name_required') }}</label>
           <input name="name" value="{{ old('name') }}" required class="w-full rounded-lg border-neutral-300 dark:border-neutral-700 bg-white dark:bg-neutral-900 px-3 py-2.5">
         </div>
         <div>
-          <label class="block text-sm font-medium mb-1">Email</label>
+          <label class="block text-sm font-medium mb-1">{{ __('clients.form.email') }}</label>
           <input type="email" name="email" value="{{ old('email') }}" class="w-full rounded-lg border-neutral-300 dark:border-neutral-700 bg-white dark:bg-neutral-900 px-3 py-2.5">
         </div>
         <div>
-          <label class="block text-sm font-medium mb-1">Contacto</label>
+          <label class="block text-sm font-medium mb-1">{{ __('clients.form.phone') }}</label>
           <input name="phone" value="{{ old('phone') }}" class="w-full rounded-lg border-neutral-300 dark:border-neutral-700 bg-white dark:bg-neutral-900 px-3 py-2.5">
         </div>
         <div>
-          <label class="block text-sm font-medium mb-1">DNI (opcional)</label>
+          <label class="block text-sm font-medium mb-1">{{ __('clients.form.dni_opt') }}</label>
           <input name="document_number" value="{{ old('document_number') }}" class="w-full rounded-lg border-neutral-300 dark:border-neutral-700 bg-white dark:bg-neutral-900 px-3 py-2.5">
         </div>
       </div>
 
       <div class="grid grid-cols-1 sm:grid-cols-3 gap-4">
         <div>
-          <label class="block text-sm font-medium mb-1">Ciudad</label>
+          <label class="block text-sm font-medium mb-1">{{ __('clients.form.city') }}</label>
           <input name="city" value="{{ old('city') }}" class="w-full rounded-lg border-neutral-300 dark:border-neutral-700 bg-white dark:bg-neutral-900 px-3 py-2.5">
         </div>
         <div>
-          <label class="block text-sm font-medium mb-1">Provincia</label>
+          <label class="block text-sm font-medium mb-1">{{ __('clients.form.province') }}</label>
           <input name="province" value="{{ old('province') }}" class="w-full rounded-lg border-neutral-300 dark:border-neutral-700 bg-white dark:bg-neutral-900 px-3 py-2.5">
         </div>
         <div>
-          <label class="block text-sm font-medium mb-1">País</label>
+          <label class="block text-sm font-medium mb-1">{{ __('clients.form.country') }}</label>
           <input name="country" value="{{ old('country') }}" class="w-full rounded-lg border-neutral-300 dark:border-neutral-700 bg-white dark:bg-neutral-900 px-3 py-2.5">
         </div>
       </div>
 
       <div>
-        <label class="block text-sm font-medium mb-1">Dirección</label>
+        <label class="block text-sm font-medium mb-1">{{ __('clients.form.address') }}</label>
         <input name="address" value="{{ old('address') }}" class="w-full rounded-lg border-neutral-300 dark:border-neutral-700 bg-white dark:bg-neutral-900 px-3 py-2.5">
       </div>
 
       <div>
-        <label class="block text-sm font-medium mb-1">Tags (separar por coma)</label>
-        <input name="tags[]" value="" placeholder="vip, mayorista" class="w-full rounded-lg border-neutral-300 dark:border-neutral-700 bg-white dark:bg-neutral-900 px-3 py-2.5"
+        <label class="block text-sm font-medium mb-1">{{ __('clients.form.tags_hint') }}</label>
+        <input name="tags[]" value="" placeholder="{{ __('clients.form.tags_placeholder') }}" class="w-full rounded-lg border-neutral-300 dark:border-neutral-700 bg-white dark:bg-neutral-900 px-3 py-2.5"
                oninput="this.name='tags';">
       </div>
 
       <div>
-        <label class="block text-sm font-medium mb-1">Notas</label>
+        <label class="block text-sm font-medium mb-1">{{ __('clients.form.notes') }}</label>
         <textarea name="notes" rows="4" class="w-full rounded-lg border-neutral-300 dark:border-neutral-700 bg-white dark:bg-neutral-900 px-3 py-2.5">{{ old('notes') }}</textarea>
       </div>
 
       <div class="flex justify-end gap-2 pt-2">
-        <a href="{{ route('clients.index') }}" class="px-4 py-2 rounded-lg border border-neutral-300 dark:border-neutral-700 text-neutral-700 dark:text-neutral-200">Cancelar</a>
-        <button class="px-4 py-2 rounded-lg bg-gradient-to-r from-indigo-600 to-purple-600 text-white hover:from-indigo-700 hover:to-purple-700 hover:shadow-lg hover:shadow-indigo-500/25 dark:hover:shadow-indigo-400/20 hover:-translate-y-0.5 active:scale-95 transition-all duration-200">Guardar</button>
+        <a href="{{ route('clients.index') }}" class="px-4 py-2 rounded-lg border border-neutral-300 dark:border-neutral-700 text-neutral-700 dark:text-neutral-200">{{ __('clients.cancel') }}</a>
+        <button class="px-4 py-2 rounded-lg bg-gradient-to-r from-indigo-600 to-purple-600 text-white hover:from-indigo-700 hover:to-purple-700 hover:shadow-lg hover:shadow-indigo-500/25 dark:hover:shadow-indigo-400/20 hover:-translate-y-0.5 active:scale-95 transition-all duration-200">{{ __('clients.save') }}</button>
       </div>
     </form>
   </div>
 </div>
 @endsection
-

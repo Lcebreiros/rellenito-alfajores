@@ -7,7 +7,7 @@
         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"/>
       </svg>
     </a>
-    <h1 class="text-xl sm:text-2xl font-semibold text-neutral-800 dark:text-neutral-100">Insumos</h1>
+    <h1 class="text-xl sm:text-2xl font-semibold text-neutral-800 dark:text-neutral-100">{{ __('expenses.supplies_page_title') }}</h1>
   </div>
 @endsection
 
@@ -35,23 +35,22 @@
         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/>
       </svg>
       <div class="text-sm text-blue-800 dark:text-blue-300 flex-1">
-        <p class="font-medium mb-1">¿Qué son los insumos?</p>
-        <p>Los insumos son materiales como emboltorios, etiquetas, cajas, etc. que se utilizan al vender productos o servicios.
-           Cuando realizas una venta, el sistema automáticamente descuenta los insumos del stock. Asígnalos desde las vistas de crear/editar productos o servicios.</p>
+        <p class="font-medium mb-1">{{ __('expenses.supplies_info_title') }}</p>
+        <p>{{ __('expenses.supplies_info_desc') }}</p>
       </div>
       <a href="{{ route('suppliers.index') }}"
          class="flex-shrink-0 inline-flex items-center px-3 py-1.5 bg-white dark:bg-neutral-800 text-blue-700 dark:text-blue-300 rounded-lg hover:bg-blue-100 dark:hover:bg-neutral-700 transition text-xs font-medium border border-blue-300 dark:border-blue-700">
         <svg class="w-3.5 h-3.5 mr-1.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
           <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4"/>
         </svg>
-        Gestionar Proveedores
+        {{ __('expenses.manage_suppliers') }}
       </a>
     </div>
   </div>
 
   <!-- Formulario de nuevo insumo (con compra opcional) -->
   <div class="mb-6 bg-white dark:bg-neutral-800 rounded-lg shadow-sm border border-neutral-200 dark:border-neutral-700 p-6">
-    <h2 class="text-lg font-semibold text-neutral-900 dark:text-neutral-100 mb-4">Agregar Insumo</h2>
+    <h2 class="text-lg font-semibold text-neutral-900 dark:text-neutral-100 mb-4">{{ __('expenses.add_supply') }}</h2>
 
     <form method="POST" action="{{ route('expenses.supplies.store') }}" class="space-y-4">
       @csrf
@@ -59,7 +58,7 @@
       <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
         <div>
           <label class="block text-sm font-medium text-neutral-700 dark:text-neutral-300 mb-1">
-            Nombre <span class="text-rose-500">*</span>
+            {{ __('expenses.supply_name') }} <span class="text-rose-500">*</span>
           </label>
           <input type="text" name="name" required
                  class="w-full rounded-lg border border-neutral-300 px-3 py-2 text-sm dark:border-neutral-700 dark:bg-neutral-900"
@@ -68,10 +67,10 @@
 
         <div>
           <label class="block text-sm font-medium text-neutral-700 dark:text-neutral-300 mb-1">
-            Proveedor
+            {{ __('expenses.supplier_label') }}
           </label>
           <select name="supplier_id" class="w-full rounded-lg border border-neutral-300 px-3 py-2 text-sm dark:border-neutral-700 dark:bg-neutral-900">
-            <option value="">Sin proveedor</option>
+            <option value="">{{ __('expenses.no_supplier') }}</option>
             @foreach($suppliers as $supplier)
               <option value="{{ $supplier->id }}">{{ $supplier->name }}</option>
             @endforeach
@@ -80,32 +79,32 @@
 
         <div>
           <label class="block text-sm font-medium text-neutral-700 dark:text-neutral-300 mb-1">
-            Unidad Base <span class="text-rose-500">*</span>
+            {{ __('expenses.base_unit') }} <span class="text-rose-500">*</span>
           </label>
           <select name="base_unit" required class="w-full rounded-lg border border-neutral-300 px-3 py-2 text-sm dark:border-neutral-700 dark:bg-neutral-900">
-            <option value="u">Unidad (u)</option>
-            <option value="g">Gramos (g)</option>
-            <option value="ml">Mililitros (ml)</option>
+            <option value="u">{{ __('expenses.unit_u') }}</option>
+            <option value="g">{{ __('expenses.unit_g') }}</option>
+            <option value="ml">{{ __('expenses.unit_ml') }}</option>
           </select>
         </div>
 
         <div class="md:col-span-2">
           <label class="block text-sm font-medium text-neutral-700 dark:text-neutral-300 mb-1">
-            Descripción
+            {{ __('expenses.supply_desc') }}
           </label>
           <textarea name="description" rows="2"
                     class="w-full rounded-lg border border-neutral-300 px-3 py-2 text-sm dark:border-neutral-700 dark:bg-neutral-900"
-                    placeholder="Descripción opcional del insumo"></textarea>
+                    placeholder="{{ __('expenses.supply_desc_ph') }}"></textarea>
         </div>
       </div>
 
       <!-- Compra inicial (opcional) -->
       <div class="rounded-lg border border-neutral-200 dark:border-neutral-700 p-4">
-        <h3 class="text-sm font-semibold text-neutral-900 dark:text-neutral-100 mb-3">Compra inicial (opcional)</h3>
+        <h3 class="text-sm font-semibold text-neutral-900 dark:text-neutral-100 mb-3">{{ __('expenses.initial_purchase') }}</h3>
         <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
           <div>
             <label class="block text-sm font-medium text-neutral-700 dark:text-neutral-300 mb-1">
-              Cantidad
+              {{ __('expenses.purchase_qty') }}
             </label>
             <input type="number" step="0.001" min="0" name="qty"
                    class="w-full rounded-lg border border-neutral-300 px-3 py-2 text-sm dark:border-neutral-700 dark:bg-neutral-900"
@@ -113,7 +112,7 @@
           </div>
           <div>
             <label class="block text-sm font-medium text-neutral-700 dark:text-neutral-300 mb-1">
-              Unidad
+              {{ __('expenses.purchase_unit') }}
             </label>
             <select name="unit" class="w-full rounded-lg border border-neutral-300 px-3 py-2 text-sm dark:border-neutral-700 dark:bg-neutral-900">
               <optgroup label="Masa">
@@ -132,7 +131,7 @@
           </div>
           <div>
             <label class="block text-sm font-medium text-neutral-700 dark:text-neutral-300 mb-1">
-              Precio total ($)
+              {{ __('expenses.purchase_total_cost') }}
             </label>
             <input type="number" step="0.01" min="0" name="total_cost"
                    class="w-full rounded-lg border border-neutral-300 px-3 py-2 text-sm dark:border-neutral-700 dark:bg-neutral-900"
@@ -140,7 +139,7 @@
           </div>
         </div>
         <p class="mt-2 text-xs text-neutral-500 dark:text-neutral-400">
-          Si completas estos campos, se registrará una compra y se calcularán el stock y el costo promedio por unidad base, igual que en la calculadora.
+          {{ __('expenses.purchase_hint') }}
         </p>
       </div>
 
@@ -150,7 +149,7 @@
           <svg class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6"/>
           </svg>
-          Agregar Insumo
+          {{ __('expenses.add_supply_btn') }}
         </button>
       </div>
     </form>
@@ -159,9 +158,9 @@
   <!-- Listado de insumos -->
   <div class="rounded-lg border border-neutral-200 bg-white dark:border-neutral-800 dark:bg-neutral-900 overflow-hidden">
     <div class="px-6 py-4 border-b border-neutral-200 dark:border-neutral-800">
-      <h3 class="text-lg font-semibold text-neutral-900 dark:text-neutral-100">Insumos Registrados</h3>
+      <h3 class="text-lg font-semibold text-neutral-900 dark:text-neutral-100">{{ __('expenses.registered_supplies') }}</h3>
       <p class="text-sm text-neutral-600 dark:text-neutral-400 mt-1">
-        Total: {{ $supplies->count() }} insumos
+        {{ __('expenses.supplies_count') }} {{ $supplies->count() }} {{ __('expenses.tab_supplies') }}
       </p>
     </div>
 
@@ -170,9 +169,9 @@
         <svg class="mx-auto h-12 w-12 text-neutral-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
           <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4"/>
         </svg>
-        <h3 class="mt-2 text-sm font-medium text-neutral-900 dark:text-neutral-100">No hay insumos registrados</h3>
+        <h3 class="mt-2 text-sm font-medium text-neutral-900 dark:text-neutral-100">{{ __('expenses.no_supplies') }}</h3>
         <p class="mt-1 text-sm text-neutral-500 dark:text-neutral-400">
-          Comienza agregando insumos usando el formulario de arriba.
+          {{ __('expenses.no_supplies_desc') }}
         </p>
       </div>
     @else
@@ -181,28 +180,28 @@
           <thead class="bg-neutral-50 dark:bg-neutral-800/50">
             <tr>
               <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-neutral-500 dark:text-neutral-400 uppercase tracking-wider">
-                Nombre
+                {{ __('expenses.supply_name') }}
               </th>
               <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-neutral-500 dark:text-neutral-400 uppercase tracking-wider">
-                Proveedor
+                {{ __('expenses.supplier_label') }}
               </th>
               <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-neutral-500 dark:text-neutral-400 uppercase tracking-wider">
-                Unidad Base
+                {{ __('expenses.col_base_unit') }}
               </th>
               <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-neutral-500 dark:text-neutral-400 uppercase tracking-wider">
-                Stock
+                {{ __('expenses.col_stock') }}
               </th>
               <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-neutral-500 dark:text-neutral-400 uppercase tracking-wider">
-                Costo Promedio
+                {{ __('expenses.col_avg_cost') }}
               </th>
               <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-neutral-500 dark:text-neutral-400 uppercase tracking-wider">
-                Valor Total
+                {{ __('expenses.col_total_value') }}
               </th>
               <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-neutral-500 dark:text-neutral-400 uppercase tracking-wider">
-                Estado
+                {{ __('expenses.col_status') }}
               </th>
               <th scope="col" class="px-6 py-3 text-right text-xs font-medium text-neutral-500 dark:text-neutral-400 uppercase tracking-wider">
-                Acciones
+                {{ __('expenses.col_actions') }}
               </th>
             </tr>
           </thead>
@@ -242,11 +241,11 @@
                 <td class="px-6 py-4 whitespace-nowrap">
                   @if($supply->stock_base_qty > 0)
                     <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-emerald-100 text-emerald-800 dark:bg-emerald-900/30 dark:text-emerald-300">
-                      En Stock
+                      {{ __('expenses.supply_in_stock') }}
                     </span>
                   @else
                     <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-red-100 text-red-800 dark:bg-red-900/30 dark:text-red-300">
-                      Sin Stock
+                      {{ __('expenses.supply_no_stock') }}
                     </span>
                   @endif
                 </td>
@@ -259,7 +258,7 @@
                       </svg>
                     </button>
                     <form method="POST" action="{{ route('expenses.supplies.destroy', $supply) }}" class="inline"
-                          onsubmit="return confirm('¿Eliminar este insumo?')">
+                          onsubmit="return confirm(@json(__('expenses.confirm_delete_supply')))">
                       @csrf
                       @method('DELETE')
                       <button type="submit" class="text-rose-600 hover:text-rose-800 dark:text-rose-400 dark:hover:text-rose-300">
@@ -280,7 +279,7 @@
       <div class="px-6 py-4 bg-neutral-50 dark:bg-neutral-800/50 border-t border-neutral-200 dark:border-neutral-800">
         <div class="flex items-center justify-between text-sm">
           <span class="text-neutral-600 dark:text-neutral-400">
-            Valor total en stock:
+            {{ __('expenses.total_stock_value') }}
           </span>
           <span class="text-lg font-semibold text-neutral-900 dark:text-neutral-100 tabular-nums">
             ${{ number_format($supplies->sum(fn($s) => $s->stock_base_qty * $s->avg_cost_per_base), 2, ',', '.') }}
@@ -296,7 +295,7 @@
 <div id="editModal" class="hidden fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
   <div class="bg-white dark:bg-neutral-800 rounded-lg shadow-xl max-w-md w-full mx-4">
     <div class="px-6 py-4 border-b border-neutral-200 dark:border-neutral-700">
-      <h3 class="text-lg font-semibold text-neutral-900 dark:text-neutral-100">Editar Insumo</h3>
+      <h3 class="text-lg font-semibold text-neutral-900 dark:text-neutral-100">{{ __('expenses.edit_supply_title') }}</h3>
     </div>
     <form id="editForm" method="POST">
       @csrf
@@ -304,17 +303,17 @@
       <div class="px-6 py-4 space-y-4">
         <div>
           <label class="block text-sm font-medium text-neutral-700 dark:text-neutral-300 mb-1">
-            Nombre <span class="text-rose-500">*</span>
+            {{ __('expenses.supply_name') }} <span class="text-rose-500">*</span>
           </label>
           <input type="text" id="edit_name" name="name" required
                  class="w-full rounded-lg border border-neutral-300 px-3 py-2 text-sm dark:border-neutral-700 dark:bg-neutral-900">
         </div>
         <div>
           <label class="block text-sm font-medium text-neutral-700 dark:text-neutral-300 mb-1">
-            Proveedor
+            {{ __('expenses.supplier_label') }}
           </label>
           <select id="edit_supplier_id" name="supplier_id" class="w-full rounded-lg border border-neutral-300 px-3 py-2 text-sm dark:border-neutral-700 dark:bg-neutral-900">
-            <option value="">Sin proveedor</option>
+            <option value="">{{ __('expenses.no_supplier') }}</option>
             @foreach($suppliers as $supplier)
               <option value="{{ $supplier->id }}">{{ $supplier->name }}</option>
             @endforeach
@@ -322,17 +321,17 @@
         </div>
         <div>
           <label class="block text-sm font-medium text-neutral-700 dark:text-neutral-300 mb-1">
-            Unidad Base <span class="text-rose-500">*</span>
+            {{ __('expenses.base_unit') }} <span class="text-rose-500">*</span>
           </label>
           <select id="edit_base_unit" name="base_unit" required class="w-full rounded-lg border border-neutral-300 px-3 py-2 text-sm dark:border-neutral-700 dark:bg-neutral-900">
-            <option value="u">Unidad (u)</option>
-            <option value="g">Gramos (g)</option>
-            <option value="ml">Mililitros (ml)</option>
+            <option value="u">{{ __('expenses.unit_u') }}</option>
+            <option value="g">{{ __('expenses.unit_g') }}</option>
+            <option value="ml">{{ __('expenses.unit_ml') }}</option>
           </select>
         </div>
         <div>
           <label class="block text-sm font-medium text-neutral-700 dark:text-neutral-300 mb-1">
-            Descripción
+            {{ __('expenses.supply_desc') }}
           </label>
           <textarea id="edit_description" name="description" rows="2"
                     class="w-full rounded-lg border border-neutral-300 px-3 py-2 text-sm dark:border-neutral-700 dark:bg-neutral-900"></textarea>
@@ -341,11 +340,11 @@
       <div class="px-6 py-4 bg-neutral-50 dark:bg-neutral-800/50 flex justify-end gap-3">
         <button type="button" onclick="closeEditModal()"
                 class="px-4 py-2 text-sm font-medium text-neutral-700 dark:text-neutral-300 hover:text-neutral-900 dark:hover:text-neutral-100">
-          Cancelar
+          {{ __('expenses.cancel_btn') }}
         </button>
         <button type="submit"
                 class="px-4 py-2 rounded-lg bg-amber-600 text-sm font-medium text-white hover:bg-amber-700">
-          Guardar
+          {{ __('expenses.save_btn') }}
         </button>
       </div>
     </form>

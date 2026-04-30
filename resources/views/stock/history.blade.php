@@ -4,7 +4,7 @@
 @section('header')
 <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between">
   <h1 class="text-2xl font-bold text-gray-900 dark:text-neutral-100 flex items-center">
-    <i class="fas fa-clock-rotate-left text-indigo-600 dark:text-indigo-400 mr-3"></i> Historial de Stock
+    <i class="fas fa-clock-rotate-left text-indigo-600 dark:text-indigo-400 mr-3"></i> {{ __('stock.history_title') }}
   </h1>
 
 <div class="flex gap-2 mt-3 sm:mt-0 no-print">
@@ -12,7 +12,7 @@
           class="inline-flex items-center gap-2 px-4 py-2 rounded-lg font-medium transition-colors
                  bg-white border border-gray-300 text-gray-700 hover:bg-gray-50
                  dark:bg-neutral-800 dark:border-neutral-600 dark:text-neutral-200 dark:hover:bg-neutral-700">
-    <i class="fas fa-print"></i> <span>Imprimir</span>
+    <i class="fas fa-print"></i> <span>{{ __('stock.print') }}</span>
   </button>
 
     {{-- Botón de Volver al Reporte --}}
@@ -23,7 +23,7 @@
          viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
         <path stroke-linecap="round" stroke-linejoin="round" d="M15 19l-7-7 7-7"></path>
     </svg>
-    <span>Volver</span>
+    <span>{{ __('stock.back') }}</span>
   </a>
   </div>
 </div>
@@ -37,8 +37,8 @@
     <div class="text-center border-b border-gray-400 pb-1">
       {{-- Aquí puedes agregar tu logo --}}
       <img src="{{ asset('images/Gestior.png') }}" alt="Logo" class="mx-auto mb-1" style="max-height: 40px;">
-      <h1 class="text-lg font-bold text-gray-900 mb-0">Historial de Stock</h1>
-      <p class="text-gray-600 text-xs mb-0">Generado el {{ now()->format('d/m/Y H:i') }}</p>
+      <h1 class="text-lg font-bold text-gray-900 mb-0">{{ __('stock.history_title') }}</h1>
+      <p class="text-gray-600 text-xs mb-0">{{ __('stock.generated_at') }} {{ now()->format('d/m/Y H:i') }}</p>
     </div>
   </div>
 
@@ -56,7 +56,7 @@
       <div class="bg-white dark:bg-neutral-900 rounded-xl p-4 border border-gray-100 dark:border-neutral-700 dark:ring-1 dark:ring-indigo-500/10 shadow-sm">
         <div class="flex items-center justify-between">
           <div>
-            <p class="text-xs text-gray-500 dark:text-neutral-400">Movimientos</p>
+            <p class="text-xs text-gray-500 dark:text-neutral-400">{{ __('stock.movements') }}</p>
             <p class="text-xl font-bold text-gray-900 dark:text-neutral-100">{{ number_format($totalMovements) }}</p>
           </div>
           <div class="rounded-lg bg-indigo-50 dark:bg-indigo-500/10 p-2">
@@ -68,7 +68,7 @@
       <div class="bg-white dark:bg-neutral-900 rounded-xl p-4 border border-gray-100 dark:border-neutral-700 dark:ring-1 dark:ring-indigo-500/10 shadow-sm">
         <div class="flex items-center justify-between">
           <div>
-            <p class="text-xs text-gray-500 dark:text-neutral-400">Ingresos</p>
+            <p class="text-xs text-gray-500 dark:text-neutral-400">{{ __('stock.increases') }}</p>
             <p class="text-xl font-bold text-emerald-600 dark:text-emerald-400">+{{ number_format($totalIncrease) }}</p>
           </div>
           <div class="rounded-lg bg-emerald-50 dark:bg-emerald-500/10 p-2">
@@ -80,7 +80,7 @@
       <div class="bg-white dark:bg-neutral-900 rounded-xl p-4 border border-gray-100 dark:border-neutral-700 dark:ring-1 dark:ring-indigo-500/10 shadow-sm">
         <div class="flex items-center justify-between">
           <div>
-            <p class="text-xs text-gray-500 dark:text-neutral-400">Salidas</p>
+            <p class="text-xs text-gray-500 dark:text-neutral-400">{{ __('stock.decreases') }}</p>
             <p class="text-xl font-bold text-rose-600 dark:text-rose-400">-{{ number_format($totalDecrease) }}</p>
           </div>
           <div class="rounded-lg bg-rose-50 dark:bg-rose-500/10 p-2">
@@ -92,7 +92,7 @@
       <div class="bg-white dark:bg-neutral-900 rounded-xl p-4 border border-gray-100 dark:border-neutral-700 dark:ring-1 dark:ring-indigo-500/10 shadow-sm">
         <div class="flex items-center justify-between">
           <div>
-            <p class="text-xs text-gray-500 dark:text-neutral-400">Balance neto</p>
+            <p class="text-xs text-gray-500 dark:text-neutral-400">{{ __('stock.net_balance') }}</p>
             @php $netBalance = $totalIncrease - $totalDecrease; @endphp
             <p class="text-xl font-bold {{ $netBalance >= 0 ? 'text-emerald-600 dark:text-emerald-400' : 'text-rose-600 dark:text-rose-400' }}">
               {{ $netBalance >= 0 ? '+' : '' }}{{ number_format($netBalance) }}
@@ -110,11 +110,11 @@
   <div class="bg-white dark:bg-neutral-900 rounded-xl shadow-sm p-4 mb-6 border border-gray-100 dark:border-neutral-700 dark:ring-1 dark:ring-indigo-500/10 no-print">
     <div class="flex flex-wrap items-center gap-2 mb-3">
       <span class="text-sm font-medium text-gray-700 dark:text-neutral-300 flex items-center py-2">
-        <i class="fas fa-filter text-gray-500 dark:text-neutral-400 mr-2"></i> Tipo:
+        <i class="fas fa-filter text-gray-500 dark:text-neutral-400 mr-2"></i> {{ __('stock.type_label') }}
       </span>
 
       @php $currentType = request('type',''); @endphp
-      @foreach([''=>'Todos','increase'=>'Ingresos','decrease'=>'Salidas'] as $key=>$label)
+      @foreach(['' => __('stock.type_all'), 'increase' => __('stock.type_increase'), 'decrease' => __('stock.type_decrease')] as $key => $label)
         @php $is = $currentType===$key; @endphp
         <a href="{{ request()->fullUrlWithQuery(['type' => $key ?: null, 'page'=>null]) }}"
            class="inline-flex items-center px-3 py-1.5 rounded-full text-xs font-medium
@@ -129,7 +129,7 @@
         <form method="GET" class="flex">
           <div class="relative flex-1">
             <i class="fas fa-search absolute left-3 top-1/2 -translate-y-1/2 text-gray-400 dark:text-neutral-500 text-sm"></i>
-            <input type="text" name="q" value="{{ request('q') }}" placeholder="Buscar producto, SKU o razón…"
+            <input type="text" name="q" value="{{ request('q') }}" placeholder="{{ __('stock.search_history_ph') }}"
                    class="w-full pl-9 pr-3 py-2 rounded-lg text-sm
                           border-gray-300 focus:border-indigo-500 focus:ring-indigo-500
                           dark:bg-neutral-900 dark:border-neutral-700 dark:text-neutral-100 dark:placeholder-neutral-400">
@@ -140,14 +140,14 @@
           <input type="hidden" name="dir" value="{{ request('dir','desc') }}">
           <button class="ml-2 px-3 py-2 rounded-lg text-sm transition-colors
                          bg-indigo-600 text-white hover:bg-indigo-700">
-            Buscar
+            {{ __('stock.search') }}
           </button>
         </form>
       </div>
     </div>
 
     <div class="flex flex-wrap items-center gap-2">
-      <span class="text-xs text-gray-500 dark:text-neutral-400">Ordenar:</span>
+      <span class="text-xs text-gray-500 dark:text-neutral-400">{{ __('stock.sort_label') }}</span>
 
       @php
         $isFecha    = request('order_by','created_at')==='created_at';
@@ -160,7 +160,7 @@
                 {{ $isFecha
                     ? 'bg-indigo-50 border-indigo-200 text-indigo-700 dark:bg-indigo-900/30 dark:border-indigo-800 dark:text-indigo-300'
                     : 'border-gray-300 text-gray-700 hover:bg-gray-50 dark:border-neutral-600 dark:text-neutral-200 dark:hover:bg-neutral-700' }}">
-        Fecha {{ $isFecha ? (request('dir','desc')==='desc'?'↓':'↑') : '' }}
+        {{ __('stock.sort_date') }} {{ $isFecha ? (request('dir','desc')==='desc'?'↓':'↑') : '' }}
       </a>
 
       <a href="{{ request()->fullUrlWithQuery(['order_by'=>'product_name','dir'=> ($isProducto && request('dir','desc')==='desc') ? 'asc':'desc','page'=>null]) }}"
@@ -168,7 +168,7 @@
                 {{ $isProducto
                     ? 'bg-indigo-50 border-indigo-200 text-indigo-700 dark:bg-indigo-900/30 dark:border-indigo-800 dark:text-indigo-300'
                     : 'border-gray-300 text-gray-700 hover:bg-gray-50 dark:border-neutral-600 dark:text-neutral-200 dark:hover:bg-neutral-700' }}">
-        Producto {{ $isProducto ? (request('dir','desc')==='desc'?'↓':'↑') : '' }}
+        {{ __('stock.sort_product') }} {{ $isProducto ? (request('dir','desc')==='desc'?'↓':'↑') : '' }}
       </a>
 
       <a href="{{ request()->fullUrlWithQuery(['order_by'=>'quantity_change','dir'=> ($isCantidad && request('dir','desc')==='desc') ? 'asc':'desc','page'=>null]) }}"
@@ -176,14 +176,14 @@
                 {{ $isCantidad
                     ? 'bg-indigo-50 border-indigo-200 text-indigo-700 dark:bg-indigo-900/30 dark:border-indigo-800 dark:text-indigo-300'
                     : 'border-gray-300 text-gray-700 hover:bg-gray-50 dark:border-neutral-600 dark:text-neutral-200 dark:hover:bg-neutral-700' }}">
-        Cantidad {{ $isCantidad ? (request('dir','desc')==='desc'?'↓':'↑') : '' }}
+        {{ __('stock.sort_qty') }} {{ $isCantidad ? (request('dir','desc')==='desc'?'↓':'↑') : '' }}
       </a>
 
       <a href="{{ route('stock.history') }}"
          class="ml-auto inline-flex items-center px-2.5 py-1.5 rounded-lg text-xs
                 bg-gray-100 text-gray-700 hover:bg-gray-200
                 dark:bg-neutral-800 dark:text-neutral-200 dark:hover:bg-neutral-700">
-        <i class="fas fa-eraser mr-1"></i> Limpiar
+        <i class="fas fa-eraser mr-1"></i> {{ __('stock.clear') }}
       </a>
     </div>
   </div>
@@ -193,7 +193,7 @@
     @if($stockHistory->count() === 0)
       <div class="py-16 text-center">
         <i class="fas fa-clock text-gray-300 dark:text-neutral-600 text-5xl mb-3"></i>
-        <div class="text-gray-600 dark:text-neutral-300">No hay movimientos de stock para mostrar.</div>
+        <div class="text-gray-600 dark:text-neutral-300">{{ __('stock.empty_history') }}</div>
       </div>
     @else
       <div class="space-y-3">
@@ -235,14 +235,14 @@
                   {{-- Detalles del movimiento --}}
                   <div class="flex flex-wrap items-center gap-3 text-sm">
                     <div class="flex items-center gap-1">
-                      <span class="text-gray-500 dark:text-neutral-400">Cambio:</span>
+                      <span class="text-gray-500 dark:text-neutral-400">{{ __('stock.change_label') }}</span>
                       <span class="font-semibold {{ $change > 0 ? 'text-emerald-600 dark:text-emerald-400' : 'text-rose-600 dark:text-rose-400' }}">
                         {{ $changeText }}
                       </span>
                     </div>
                     
                     <div class="flex items-center gap-1">
-                      <span class="text-gray-500 dark:text-neutral-400">Stock final:</span>
+                      <span class="text-gray-500 dark:text-neutral-400">{{ __('stock.final_stock_label') }}</span>
                       <span class="font-semibold text-gray-900 dark:text-neutral-100">{{ $h->new_stock }}</span>
                     </div>
 
@@ -259,11 +259,11 @@
                     @endphp
                     @if($isCompany)
                       <span class="px-2.5 py-1 rounded-full text-xs font-medium bg-slate-100 text-slate-700 dark:bg-neutral-800 dark:text-neutral-200">
-                        Central
+                        {{ __('stock.origin_central') }}
                       </span>
                     @elseif($isBranch && $branchName)
                       <span class="px-2.5 py-1 rounded-full text-xs font-medium bg-blue-100 text-blue-700 dark:bg-blue-900/30 dark:text-blue-300">
-                        Sucursal: {{ $branchName }}
+                        {{ __('stock.origin_branch_prefix') }} {{ $branchName }}
                       </span>
                     @endif
 

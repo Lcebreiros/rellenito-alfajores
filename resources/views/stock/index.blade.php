@@ -4,7 +4,7 @@
 <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
   <h1 class="text-2xl font-bold text-gray-900 dark:text-neutral-100 flex flex-wrap items-center gap-2">
     <i class="fas fa-boxes-stacked text-indigo-600 dark:text-indigo-400"></i>
-    <span>Reporte de Stock</span>
+    <span>{{ __('stock.title') }}</span>
 
     @if($branchId && !empty($availableBranches))
       @php
@@ -16,14 +16,14 @@
         </span>
         @if(!empty($branchUsesCompanyInventory))
           <span class="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[11px] font-medium bg-indigo-50 text-indigo-700 dark:bg-indigo-900/30 dark:text-indigo-300">
-            <i class="fas fa-building"></i> Inventario de empresa
+            <i class="fas fa-building"></i> {{ __('stock.company_inventory') }}
           </span>
         @endif
       @endif
     @elseif($isCompanyView)
-      <span class="text-sm font-normal text-gray-500 dark:text-neutral-400">- Vista Consolidada</span>
+      <span class="text-sm font-normal text-gray-500 dark:text-neutral-400">- {{ __('stock.consolidated_view') }}</span>
     @elseif($isMasterView ?? false)
-      <span class="text-sm font-normal text-gray-500 dark:text-neutral-400">- Vista Global</span>
+      <span class="text-sm font-normal text-gray-500 dark:text-neutral-400">- {{ __('stock.global_view') }}</span>
     @endif
   </h1>
 
@@ -41,8 +41,8 @@
     {{-- Utilidades: icon-only --}}
     <button type="button"
             id="openNotificationSettingsBtn"
-            aria-label="Configurar notificaciones"
-            title="Configurar notificaciones"
+            aria-label="{{ __('stock.notif_settings') }}"
+            title="{{ __('stock.notif_settings') }}"
             class="inline-flex items-center justify-center w-9 h-9 rounded-lg
                    text-neutral-500 dark:text-neutral-400
                    hover:bg-neutral-100 dark:hover:bg-neutral-800
@@ -54,8 +54,8 @@
 
     <button type="button"
             onclick="window.print()"
-            aria-label="Imprimir reporte"
-            title="Imprimir reporte"
+            aria-label="{{ __('stock.print_report') }}"
+            title="{{ __('stock.print_report') }}"
             class="inline-flex items-center justify-center w-9 h-9 rounded-lg
                    text-neutral-500 dark:text-neutral-400
                    hover:bg-neutral-100 dark:hover:bg-neutral-800
@@ -77,19 +77,19 @@
               hover:bg-neutral-50 dark:hover:bg-neutral-800
               focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2">
        <i class="fas fa-clock text-xs"></i>
-       <span>Historial</span>
+       <span>{{ __('stock.history_link') }}</span>
     </a>
 
     {{-- Descargar: CTA primario --}}
     <button type="button"
             id="downloadReportBtn"
-            aria-label="Descargar reporte"
+            aria-label="{{ __('stock.download') }}"
             class="inline-flex items-center gap-2 px-3 py-2 rounded-lg text-sm
                    bg-green-600 text-white font-semibold hover:bg-green-700
                    focus:outline-none focus:ring-2 focus:ring-green-500 focus:ring-offset-2
                    transition-colors shadow-sm">
       <i class="fa-solid fa-download text-xs"></i>
-      <span>Descargar</span>
+      <span>{{ __('stock.download') }}</span>
     </button>
   </div>
 </div>
@@ -115,13 +115,13 @@
            class="@if(($tab ?? 'products') === 'products') border-indigo-500 text-indigo-600 dark:border-indigo-400 dark:text-indigo-400 @else border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300 dark:text-neutral-400 dark:hover:text-neutral-300 @endif
                   whitespace-nowrap py-4 px-1 border-b-2 font-medium text-sm transition-colors">
           <i class="fas fa-box mr-2"></i>
-          Productos
+          {{ __('stock.tab_products') }}
         </a>
         <a href="{{ route('stock.index', array_merge(request()->except('tab'), ['tab' => 'supplies'])) }}"
            class="@if(($tab ?? 'products') === 'supplies') border-indigo-500 text-indigo-600 dark:border-indigo-400 dark:text-indigo-400 @else border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300 dark:text-neutral-400 dark:hover:text-neutral-300 @endif
                   whitespace-nowrap py-4 px-1 border-b-2 font-medium text-sm transition-colors">
           <i class="fas fa-boxes-stacked mr-2"></i>
-          Insumos
+          {{ __('stock.tab_supplies') }}
         </a>
       </nav>
     </div>
@@ -159,7 +159,7 @@
       @if($products->count() === 0)
         <div class="py-16 text-center">
           <i class="fas fa-magnifying-glass text-gray-300 dark:text-neutral-600 text-5xl mb-3" aria-hidden="true"></i>
-          <div class="text-gray-600 dark:text-neutral-300">No hay productos para mostrar con los filtros actuales.</div>
+          <div class="text-gray-600 dark:text-neutral-300">{{ __('stock.empty_products') }}</div>
         </div>
       @else
         <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-3">
@@ -190,7 +190,7 @@
           <input type="text"
                  name="q"
                  value="{{ request('q') }}"
-                 placeholder="Buscar insumos..."
+                 placeholder="{{ __('stock.search_supplies_ph') }}"
                  class="w-full px-4 py-2 border border-gray-300 dark:border-neutral-600 rounded-lg
                         focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500
                         dark:bg-neutral-800 dark:text-neutral-100">
@@ -200,23 +200,23 @@
                 class="px-4 py-2 border border-gray-300 dark:border-neutral-600 rounded-lg
                        focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500
                        dark:bg-neutral-800 dark:text-neutral-100">
-          <option value="name" {{ request('order_by') === 'name' ? 'selected' : '' }}>Nombre</option>
-          <option value="stock" {{ request('order_by') === 'stock' ? 'selected' : '' }}>Stock</option>
-          <option value="value" {{ request('order_by') === 'value' ? 'selected' : '' }}>Valorización</option>
+          <option value="name" {{ request('order_by') === 'name' ? 'selected' : '' }}>{{ __('stock.sort_name') }}</option>
+          <option value="stock" {{ request('order_by') === 'stock' ? 'selected' : '' }}>{{ __('stock.sort_stock') }}</option>
+          <option value="value" {{ request('order_by') === 'value' ? 'selected' : '' }}>{{ __('stock.sort_valuation') }}</option>
         </select>
 
         <select name="dir"
                 class="px-4 py-2 border border-gray-300 dark:border-neutral-600 rounded-lg
                        focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500
                        dark:bg-neutral-800 dark:text-neutral-100">
-          <option value="asc" {{ request('dir') === 'asc' ? 'selected' : '' }}>Ascendente</option>
-          <option value="desc" {{ request('dir') === 'desc' ? 'selected' : '' }}>Descendente</option>
+          <option value="asc" {{ request('dir') === 'asc' ? 'selected' : '' }}>{{ __('stock.sort_asc') }}</option>
+          <option value="desc" {{ request('dir') === 'desc' ? 'selected' : '' }}>{{ __('stock.sort_desc') }}</option>
         </select>
 
         <button type="submit"
                 class="px-6 py-2 bg-indigo-600 text-white rounded-lg hover:bg-indigo-700
                        focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2 transition-colors">
-          Buscar
+          {{ __('stock.search') }}
         </button>
       </form>
     </div>
@@ -226,7 +226,7 @@
       @if($supplies->count() === 0)
         <div class="py-16 text-center">
           <i class="fas fa-magnifying-glass text-gray-300 dark:text-neutral-600 text-5xl mb-3" aria-hidden="true"></i>
-          <div class="text-gray-600 dark:text-neutral-300">No hay insumos para mostrar.</div>
+          <div class="text-gray-600 dark:text-neutral-300">{{ __('stock.empty_supplies') }}</div>
         </div>
       @else
         <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-3">

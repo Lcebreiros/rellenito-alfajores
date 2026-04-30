@@ -8,7 +8,7 @@
               border-b border-neutral-100 dark:border-neutral-800/60">
     <div class="flex items-center gap-2">
       <div class="w-1.5 h-4 rounded-full bg-amber-500/80 dark:bg-amber-400/70"></div>
-      <h3 class="text-sm font-semibold text-neutral-800 dark:text-neutral-100">Más vendidos</h3>
+      <h3 class="text-sm font-semibold text-neutral-800 dark:text-neutral-100">{{ __('dashboard.top_products_title') }}</h3>
     </div>
     <span class="text-[11px] font-medium text-neutral-400 dark:text-neutral-500">{{ $days }}d</span>
   </div>
@@ -46,7 +46,7 @@
             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M16 11V7a4 4 0 00-8 0v4M5 9h14l1 12H4L5 9z"/>
           </svg>
         </div>
-        <p class="text-sm text-neutral-400 dark:text-neutral-500">Sin datos aún</p>
+        <p class="text-sm text-neutral-400 dark:text-neutral-500">{{ __('dashboard.no_data') }}</p>
       </div>
     @endforelse
   </div>

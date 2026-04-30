@@ -3,15 +3,15 @@
 @section('header')
   <div class="flex items-center justify-between gap-3">
     <div>
-      <h1 class="text-xl sm:text-2xl font-bold text-neutral-900 dark:text-neutral-100">Espacios de alquiler</h1>
-      <p class="text-sm text-neutral-600 dark:text-neutral-400">Canchas, salones y todo lo que alquilás.</p>
+      <h1 class="text-xl sm:text-2xl font-bold text-neutral-900 dark:text-neutral-100">{{ __('rentals.spaces_title') }}</h1>
+      <p class="text-sm text-neutral-600 dark:text-neutral-400">{{ __('rentals.spaces_subtitle') }}</p>
     </div>
     <a href="{{ route('rentals.calendar') }}"
        class="text-sm px-3 py-1.5 rounded-lg border border-neutral-300 dark:border-neutral-700 text-neutral-700 dark:text-neutral-300 hover:bg-neutral-50 dark:hover:bg-neutral-800 transition-colors flex items-center gap-1.5">
       <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"/>
       </svg>
-      Calendario
+      {{ __('rentals.calendar_btn') }}
     </a>
   </div>
 @endsection
@@ -37,7 +37,7 @@
       <div class="container-glass shadow-sm overflow-hidden" x-data="{ open: true }">
         <div class="px-4 sm:px-5 py-3 bg-neutral-100/70 dark:bg-neutral-800/60 border-b border-neutral-200 dark:border-neutral-700 flex items-center justify-between cursor-pointer"
              @click="open = !open">
-          <h2 class="text-base font-semibold text-neutral-900 dark:text-neutral-100">Agregar espacio</h2>
+          <h2 class="text-base font-semibold text-neutral-900 dark:text-neutral-100">{{ __('rentals.add_space_title') }}</h2>
           <svg class="w-4 h-4 text-neutral-500 transition-transform" :class="open ? 'rotate-180' : ''" fill="none" stroke="currentColor" viewBox="0 0 24 24">
             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/>
           </svg>
@@ -46,30 +46,30 @@
         <form method="POST" action="{{ route('rentals.spaces.store') }}" x-show="open" class="p-4 sm:p-5 space-y-4">
           @csrf
           <div>
-            <label class="block text-sm font-medium text-neutral-700 dark:text-neutral-200 mb-1">Nombre <span class="text-rose-500">*</span></label>
+            <label class="block text-sm font-medium text-neutral-700 dark:text-neutral-200 mb-1">{{ __('rentals.field_name') }} <span class="text-rose-500">*</span></label>
             <input name="name" required maxlength="100"
                    class="w-full rounded-lg border border-neutral-300 dark:border-neutral-700 bg-white dark:bg-neutral-900 px-3 py-2 text-sm"
-                   placeholder="Cancha 1, Salón A...">
+                   placeholder="{{ __('rentals.field_name_ph') }}">
           </div>
           <div>
-            <label class="block text-sm font-medium text-neutral-700 dark:text-neutral-200 mb-1">Descripción <span class="text-neutral-400 font-normal text-xs">(opcional)</span></label>
+            <label class="block text-sm font-medium text-neutral-700 dark:text-neutral-200 mb-1">{{ __('rentals.field_description') }} <span class="text-neutral-400 font-normal text-xs">{{ __('rentals.field_description_opt') }}</span></label>
             <input name="description" maxlength="500"
                    class="w-full rounded-lg border border-neutral-300 dark:border-neutral-700 bg-white dark:bg-neutral-900 px-3 py-2 text-sm"
-                   placeholder="Cancha de pádel techada, 4 jugadores...">
+                   placeholder="{{ __('rentals.field_description_ph') }}">
           </div>
           <div class="grid grid-cols-2 gap-3">
             <div>
-              <label class="block text-sm font-medium text-neutral-700 dark:text-neutral-200 mb-1">Categoría</label>
+              <label class="block text-sm font-medium text-neutral-700 dark:text-neutral-200 mb-1">{{ __('rentals.field_category') }}</label>
               <select name="category_id"
                       class="w-full rounded-lg border border-neutral-300 dark:border-neutral-700 bg-white dark:bg-neutral-900 px-3 py-2 text-sm">
-                <option value="">Sin categoría</option>
+                <option value="">{{ __('rentals.no_category_opt') }}</option>
                 @foreach($categories as $cat)
                   <option value="{{ $cat->id }}">{{ $cat->name }}</option>
                 @endforeach
               </select>
             </div>
             <div>
-              <label class="block text-sm font-medium text-neutral-700 dark:text-neutral-200 mb-1">Color identificador</label>
+              <label class="block text-sm font-medium text-neutral-700 dark:text-neutral-200 mb-1">{{ __('rentals.field_color') }}</label>
               <input type="color" name="color" value="#6366f1"
                      class="w-full h-[38px] rounded-lg border border-neutral-300 dark:border-neutral-700 bg-white dark:bg-neutral-900 px-1 py-1 cursor-pointer">
             </div>
@@ -78,8 +78,8 @@
           {{-- Opciones de duración / Tarifas --}}
           <div x-data="{ options: [{label:'', minutes:60, price:''}] }">
             <div class="mb-2">
-              <p class="text-sm font-medium text-neutral-700 dark:text-neutral-200">Duraciones y tarifas <span class="text-rose-500">*</span></p>
-              <p class="text-xs text-neutral-400 mt-0.5">Definí las opciones de tiempo y su precio. Ej: "1 hora" → 60 min → $5.000</p>
+              <p class="text-sm font-medium text-neutral-700 dark:text-neutral-200">{{ __('rentals.durations_title') }} <span class="text-rose-500">*</span></p>
+              <p class="text-xs text-neutral-400 mt-0.5">{{ __('rentals.durations_hint') }}</p>
             </div>
 
             <div class="space-y-3">
@@ -93,21 +93,21 @@
                   </button>
                   <div class="grid grid-cols-1 gap-2 pr-4">
                     <div>
-                      <label class="block text-xs font-medium text-neutral-600 dark:text-neutral-400 mb-1">Nombre de la opción</label>
+                      <label class="block text-xs font-medium text-neutral-600 dark:text-neutral-400 mb-1">{{ __('rentals.opt_name_label') }}</label>
                       <input type="text" :name="`duration_options[${i}][label]`" x-model="opt.label"
-                             placeholder="Ej: 1 hora, Media jornada, Día completo..." maxlength="100"
+                             placeholder="{{ __('rentals.opt_name_ph') }}" maxlength="100"
                              class="w-full rounded-lg border border-neutral-300 dark:border-neutral-700 bg-white dark:bg-neutral-900 px-2.5 py-1.5 text-sm">
                     </div>
                     <div class="grid grid-cols-2 gap-2">
                       <div>
-                        <label class="block text-xs font-medium text-neutral-600 dark:text-neutral-400 mb-1">Duración (en minutos)</label>
+                        <label class="block text-xs font-medium text-neutral-600 dark:text-neutral-400 mb-1">{{ __('rentals.opt_duration_label') }}</label>
                         <input type="number" :name="`duration_options[${i}][minutes]`" x-model="opt.minutes"
                                min="15" max="1440" placeholder="60"
                                class="w-full rounded-lg border border-neutral-300 dark:border-neutral-700 bg-white dark:bg-neutral-900 px-2.5 py-1.5 text-sm">
                         <p class="text-xs text-neutral-400 mt-0.5" x-text="opt.minutes >= 60 ? Math.floor(opt.minutes/60)+'h '+(opt.minutes%60 ? opt.minutes%60+'min' : '') : (opt.minutes ? opt.minutes+'min' : '')"></p>
                       </div>
                       <div>
-                        <label class="block text-xs font-medium text-neutral-600 dark:text-neutral-400 mb-1">Precio</label>
+                        <label class="block text-xs font-medium text-neutral-600 dark:text-neutral-400 mb-1">{{ __('rentals.opt_price_label') }}</label>
                         <div class="relative">
                           <span class="absolute left-2.5 top-1/2 -translate-y-1/2 text-sm text-neutral-500 font-medium pointer-events-none">$</span>
                           <input type="number" :name="`duration_options[${i}][price]`" x-model="opt.price"
@@ -126,13 +126,13 @@
               <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"/>
               </svg>
-              Agregar otra opción
+              {{ __('rentals.add_option_btn') }}
             </button>
           </div>
 
           <button type="submit"
                   class="w-full py-2 text-sm font-medium rounded-lg bg-violet-600 hover:bg-violet-700 text-white transition-colors">
-            Crear espacio
+            {{ __('rentals.create_space_btn') }}
           </button>
         </form>
       </div>
@@ -140,23 +140,23 @@
       {{-- Categorías --}}
       <div class="container-glass shadow-sm overflow-hidden mt-4">
         <div class="px-4 sm:px-5 py-3 bg-neutral-100/70 dark:bg-neutral-800/60 border-b border-neutral-200 dark:border-neutral-700">
-          <h2 class="text-base font-semibold text-neutral-900 dark:text-neutral-100">Categorías</h2>
+          <h2 class="text-base font-semibold text-neutral-900 dark:text-neutral-100">{{ __('rentals.categories_title') }}</h2>
         </div>
         <div class="p-4 sm:p-5">
           <form method="POST" action="{{ route('rentals.space-categories.store') }}" class="flex gap-2 mb-3">
             @csrf
             <input name="name" required maxlength="100"
                    class="flex-1 rounded-lg border border-neutral-300 dark:border-neutral-700 bg-white dark:bg-neutral-900 px-3 py-2 text-sm"
-                   placeholder="Pádel, Fútbol 5...">
+                   placeholder="{{ __('rentals.category_name_ph') }}">
             <button type="submit"
                     class="px-3 py-2 text-sm rounded-lg bg-neutral-700 dark:bg-neutral-600 hover:bg-neutral-800 dark:hover:bg-neutral-500 text-white transition-colors">
-              Agregar
+              {{ __('rentals.add_btn') }}
             </button>
           </form>
           @foreach($categories as $cat)
             <div class="flex items-center justify-between py-1.5 border-b border-neutral-100 dark:border-neutral-800 last:border-0">
               <span class="text-sm text-neutral-700 dark:text-neutral-300">{{ $cat->name }}</span>
-              <span class="text-xs text-neutral-400">{{ $cat->spaces_count ?? 0 }} espacios</span>
+              <span class="text-xs text-neutral-400">{{ $cat->spaces_count ?? 0 }} {{ __('rentals.spaces_count_label') }}</span>
             </div>
           @endforeach
         </div>
@@ -185,11 +185,10 @@
             </div>
             <div class="flex items-center gap-1">
               <span class="text-xs px-2 py-0.5 rounded-full {{ $space->is_active ? 'bg-green-100 text-green-700 dark:bg-green-900/30 dark:text-green-400' : 'bg-neutral-100 text-neutral-500 dark:bg-neutral-800 dark:text-neutral-400' }}">
-                {{ $space->is_active ? 'Activo' : 'Inactivo' }}
+                {{ $space->is_active ? __('rentals.status_active') : __('rentals.status_inactive') }}
               </span>
               <a href="{{ route('rentals.spaces.show', $space) }}"
-                 class="p-1.5 rounded-lg hover:bg-violet-50 dark:hover:bg-violet-900/20 transition-colors"
-                 title="Ver horarios">
+                 class="p-1.5 rounded-lg hover:bg-violet-50 dark:hover:bg-violet-900/20 transition-colors">
                 <svg class="w-3.5 h-3.5 text-violet-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"/>
                 </svg>
@@ -201,7 +200,7 @@
                 </svg>
               </button>
               <form method="POST" action="{{ route('rentals.spaces.destroy', $space) }}" class="inline"
-                    onsubmit="return confirm('¿Eliminar este espacio?')">
+                    onsubmit="return confirm(@json(__('rentals.confirm_delete_space')))">
                 @csrf
                 @method('DELETE')
                 <button type="submit" class="p-1.5 rounded-lg hover:bg-rose-50 dark:hover:bg-rose-900/20 transition-colors">
@@ -238,25 +237,25 @@
                   class="flex flex-wrap gap-2 items-end">
               @csrf
               <div>
-                <label class="block text-xs text-neutral-500 mb-1">Nombre</label>
+                <label class="block text-xs text-neutral-500 mb-1">{{ __('rentals.opt_label_name') }}</label>
                 <input name="label" required maxlength="100" placeholder="1 hora y media"
                        class="rounded-lg border border-neutral-300 dark:border-neutral-700 bg-white dark:bg-neutral-900 px-3 py-1.5 text-sm w-40">
               </div>
               <div>
-                <label class="block text-xs text-neutral-500 mb-1">Minutos</label>
+                <label class="block text-xs text-neutral-500 mb-1">{{ __('rentals.opt_label_minutes') }}</label>
                 <input name="minutes" type="number" required min="15" max="1440" placeholder="90"
                        class="rounded-lg border border-neutral-300 dark:border-neutral-700 bg-white dark:bg-neutral-900 px-3 py-1.5 text-sm w-20">
               </div>
               <div>
-                <label class="block text-xs text-neutral-500 mb-1">Precio</label>
+                <label class="block text-xs text-neutral-500 mb-1">{{ __('rentals.opt_label_price') }}</label>
                 <input name="price" type="number" required min="0" step="0.01" placeholder="0"
                        class="rounded-lg border border-neutral-300 dark:border-neutral-700 bg-white dark:bg-neutral-900 px-3 py-1.5 text-sm w-24">
               </div>
               <button type="submit" class="px-3 py-1.5 text-sm rounded-lg bg-violet-600 hover:bg-violet-700 text-white">
-                Agregar
+                {{ __('rentals.add_btn') }}
               </button>
               <button type="button" @click="addOption=false" class="px-3 py-1.5 text-sm rounded-lg border border-neutral-300 dark:border-neutral-700 text-neutral-600 dark:text-neutral-400">
-                Cancelar
+                {{ __('rentals.cancel_btn') }}
               </button>
             </form>
           </div>
@@ -266,33 +265,33 @@
               <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"/>
               </svg>
-              Agregar opción de duración
+              {{ __('rentals.add_duration_btn') }}
             </button>
           </div>
 
           {{-- Form editar espacio --}}
           <div x-show="editing" class="border-t border-neutral-200 dark:border-neutral-700 p-4 sm:p-5">
-            <p class="text-xs font-semibold text-neutral-500 dark:text-neutral-400 uppercase tracking-wide mb-3">Editar espacio</p>
+            <p class="text-xs font-semibold text-neutral-500 dark:text-neutral-400 uppercase tracking-wide mb-3">{{ __('rentals.edit_space_label') }}</p>
             <form method="POST" action="{{ route('rentals.spaces.update', $space) }}" class="space-y-3">
               @csrf
               @method('PUT')
               <div>
-                <label class="block text-xs font-medium text-neutral-700 dark:text-neutral-200 mb-1">Nombre</label>
+                <label class="block text-xs font-medium text-neutral-700 dark:text-neutral-200 mb-1">{{ __('rentals.field_name') }}</label>
                 <input name="name" required maxlength="100" value="{{ $space->name }}"
                        class="w-full rounded-lg border border-neutral-300 dark:border-neutral-700 bg-white dark:bg-neutral-900 px-3 py-2 text-sm">
               </div>
               <div>
-                <label class="block text-xs font-medium text-neutral-700 dark:text-neutral-200 mb-1">Descripción</label>
+                <label class="block text-xs font-medium text-neutral-700 dark:text-neutral-200 mb-1">{{ __('rentals.field_description') }}</label>
                 <input name="description" maxlength="500" value="{{ $space->description }}"
                        class="w-full rounded-lg border border-neutral-300 dark:border-neutral-700 bg-white dark:bg-neutral-900 px-3 py-2 text-sm"
-                       placeholder="Descripción del espacio...">
+                       placeholder="{{ __('rentals.field_description_ph') }}">
               </div>
               <div class="grid grid-cols-2 gap-3">
                 <div>
-                  <label class="block text-xs font-medium text-neutral-700 dark:text-neutral-200 mb-1">Categoría</label>
+                  <label class="block text-xs font-medium text-neutral-700 dark:text-neutral-200 mb-1">{{ __('rentals.field_category') }}</label>
                   <select name="category_id"
                           class="w-full rounded-lg border border-neutral-300 dark:border-neutral-700 bg-white dark:bg-neutral-900 px-3 py-2 text-sm">
-                    <option value="">Sin categoría</option>
+                    <option value="">{{ __('rentals.no_category_opt') }}</option>
                     @foreach($categories as $cat)
                       <option value="{{ $cat->id }}" {{ $space->category_id == $cat->id ? 'selected' : '' }}>
                         {{ $cat->name }}
@@ -301,7 +300,7 @@
                   </select>
                 </div>
                 <div>
-                  <label class="block text-xs font-medium text-neutral-700 dark:text-neutral-200 mb-1">Color identificador</label>
+                  <label class="block text-xs font-medium text-neutral-700 dark:text-neutral-200 mb-1">{{ __('rentals.field_color') }}</label>
                   <input type="color" name="color" value="{{ $space->color }}"
                          class="w-full h-[38px] rounded-lg border border-neutral-300 dark:border-neutral-700 bg-white dark:bg-neutral-900 px-1 py-1 cursor-pointer">
                 </div>
@@ -311,16 +310,16 @@
                   <input type="hidden" name="is_active" value="0">
                   <input type="checkbox" name="is_active" value="1" {{ $space->is_active ? 'checked' : '' }}
                          class="rounded border-neutral-300 dark:border-neutral-700 text-violet-600">
-                  <span class="text-sm text-neutral-700 dark:text-neutral-300">Espacio activo</span>
+                  <span class="text-sm text-neutral-700 dark:text-neutral-300">{{ __('rentals.space_active_label') }}</span>
                 </label>
               </div>
               <div class="flex gap-2 justify-end pt-1">
                 <button type="button" @click="editing=false"
                         class="px-3 py-1.5 text-sm rounded-lg border border-neutral-300 dark:border-neutral-700 text-neutral-600 dark:text-neutral-400">
-                  Cancelar
+                  {{ __('rentals.cancel_btn') }}
                 </button>
                 <button type="submit" class="px-4 py-1.5 text-sm font-medium rounded-lg bg-violet-600 hover:bg-violet-700 text-white">
-                  Guardar cambios
+                  {{ __('rentals.save_changes_btn') }}
                 </button>
               </div>
             </form>
@@ -331,7 +330,7 @@
           <svg class="w-8 h-8 mx-auto mb-2 opacity-40" fill="none" stroke="currentColor" viewBox="0 0 24 24">
             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5"/>
           </svg>
-          <p class="text-sm">Todavía no tenés espacios. Creá uno desde el formulario.</p>
+          <p class="text-sm">{{ __('rentals.no_spaces') }}</p>
         </div>
       @endforelse
     </div>

@@ -1,12 +1,12 @@
 @extends('layouts.app')
 
-@section('title', 'Empleados')
+@section('title', __('company.employees_title'))
 
 @section('header')
 <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between">
   <h1 class="text-2xl font-bold text-gray-900 dark:text-neutral-100 flex items-center">
-    <i class="fas fa-users text-indigo-600 dark:text-indigo-400 mr-3"></i> 
-    Empleados
+    <i class="fas fa-users text-indigo-600 dark:text-indigo-400 mr-3"></i>
+    {{ __('company.employees_title') }}
     @if(isset($filters['branch_id']) && $filters['branch_id'])
       @php
         $currentBranch = \App\Models\Branch::find($filters['branch_id']);
@@ -24,7 +24,7 @@
        class="inline-flex items-center gap-2 px-4 py-2 rounded-lg shadow-sm
               bg-indigo-600 text-white font-semibold hover:bg-indigo-700 transition-colors whitespace-nowrap">
       <i class="fas fa-user-plus"></i>
-      <span>Nuevo empleado</span>
+      <span>{{ __('company.new_employee_btn') }}</span>
     </a>
   </div>
 </div>
@@ -47,7 +47,7 @@
     <div class="bg-white dark:bg-neutral-900 rounded-xl p-4 border border-gray-100 dark:border-neutral-700 dark:ring-1 dark:ring-indigo-500/10 shadow-sm">
       <div class="flex items-center justify-between">
         <div>
-          <p class="text-xs text-gray-500 dark:text-neutral-400">Total Empleados</p>
+          <p class="text-xs text-gray-500 dark:text-neutral-400">{{ __('company.stat_total_employees') }}</p>
           <p class="text-xl font-bold text-gray-900 dark:text-neutral-100">{{ $employees->total() }}</p>
         </div>
         <div class="rounded-lg bg-indigo-50 dark:bg-indigo-500/10 p-2">
@@ -55,11 +55,11 @@
         </div>
       </div>
     </div>
-    
+
     <div class="bg-white dark:bg-neutral-900 rounded-xl p-4 border border-gray-100 dark:border-neutral-700 dark:ring-1 dark:ring-indigo-500/10 shadow-sm">
       <div class="flex items-center justify-between">
         <div>
-          <p class="text-xs text-gray-500 dark:text-neutral-400">Sucursales</p>
+          <p class="text-xs text-gray-500 dark:text-neutral-400">{{ __('company.stat_branches') }}</p>
           <p class="text-xl font-bold text-gray-900 dark:text-neutral-100">
             @php($companyId = auth()->user()->rootCompany()?->id ?? auth()->id())
             {{ \App\Models\Branch::where('company_id', $companyId)->count() }}
@@ -70,11 +70,11 @@
         </div>
       </div>
     </div>
-    
+
     <div class="bg-white dark:bg-neutral-900 rounded-xl p-4 border border-gray-100 dark:border-neutral-700 dark:ring-1 dark:ring-indigo-500/10 shadow-sm">
       <div class="flex items-center justify-between">
         <div>
-          <p class="text-xs text-gray-500 dark:text-neutral-400">Con PC</p>
+          <p class="text-xs text-gray-500 dark:text-neutral-400">{{ __('company.stat_with_computer') }}</p>
           <p class="text-xl font-bold text-gray-900 dark:text-neutral-100">
             {{ $employees->getCollection()->where('has_computer', true)->count() }}
           </p>
@@ -84,11 +84,11 @@
         </div>
       </div>
     </div>
-    
+
     <div class="bg-white dark:bg-neutral-900 rounded-xl p-4 border border-gray-100 dark:border-neutral-700 dark:ring-1 dark:ring-indigo-500/10 shadow-sm">
       <div class="flex items-center justify-between">
         <div>
-          <p class="text-xs text-gray-500 dark:text-neutral-400">En esta página</p>
+          <p class="text-xs text-gray-500 dark:text-neutral-400">{{ __('company.stat_this_page') }}</p>
           <p class="text-xl font-bold text-gray-900 dark:text-neutral-100">{{ $employees->count() }}</p>
         </div>
         <div class="rounded-lg bg-purple-50 dark:bg-purple-500/10 p-2">
@@ -105,14 +105,14 @@
         {{-- Búsqueda --}}
         <div class="lg:col-span-2">
           <label class="block text-xs font-medium text-gray-700 dark:text-neutral-300 mb-1.5">
-            <i class="fas fa-search text-gray-500 dark:text-neutral-400 mr-1"></i> Buscar
+            <i class="fas fa-search text-gray-500 dark:text-neutral-400 mr-1"></i> {{ __('company.filter_search') }}
           </label>
           <div class="relative">
             <i class="fas fa-search absolute left-3 top-1/2 -translate-y-1/2 text-gray-400 dark:text-neutral-500 text-sm pointer-events-none"></i>
-            <input type="text" 
-                   name="q" 
-                   value="{{ $filters['q'] ?? '' }}" 
-                   placeholder="Nombre, DNI o email..."
+            <input type="text"
+                   name="q"
+                   value="{{ $filters['q'] ?? '' }}"
+                   placeholder="{{ __('company.filter_search_ph') }}"
                    class="w-full pl-9 pr-4 py-2.5 rounded-lg text-sm
                           border border-gray-300 focus:border-indigo-500 focus:ring-2 focus:ring-indigo-500
                           dark:bg-neutral-900 dark:border-neutral-700 dark:text-neutral-100 dark:placeholder-neutral-400">
@@ -122,14 +122,14 @@
         {{-- Sucursal --}}
         <div>
           <label class="block text-xs font-medium text-gray-700 dark:text-neutral-300 mb-1.5">
-            <i class="fas fa-building text-gray-500 dark:text-neutral-400 mr-1"></i> Sucursal
+            <i class="fas fa-building text-gray-500 dark:text-neutral-400 mr-1"></i> {{ __('company.filter_branch') }}
           </label>
           <div class="relative">
-            <select name="branch_id" 
+            <select name="branch_id"
                     class="w-full px-3 py-2.5 pr-8 rounded-lg text-sm appearance-none
                            border border-gray-300 focus:border-indigo-500 focus:ring-2 focus:ring-indigo-500
                            dark:bg-neutral-900 dark:border-neutral-700 dark:text-neutral-100">
-              <option value="">Todas</option>
+              <option value="">{{ __('company.filter_all_branches') }}</option>
               @foreach(\App\Models\Branch::where('company_id', $companyId)->get() as $branch)
                 <option value="{{ $branch->id }}" @selected(($filters['branch_id'] ?? '') == $branch->id)>
                   {{ $branch->name }}
@@ -143,14 +143,14 @@
         {{-- Rol --}}
         <div>
           <label class="block text-xs font-medium text-gray-700 dark:text-neutral-300 mb-1.5">
-            <i class="fas fa-user-tag text-gray-500 dark:text-neutral-400 mr-1"></i> Rol
+            <i class="fas fa-user-tag text-gray-500 dark:text-neutral-400 mr-1"></i> {{ __('company.filter_role') }}
           </label>
           <div class="relative">
-            <select name="role" 
+            <select name="role"
                     class="w-full px-3 py-2.5 pr-8 rounded-lg text-sm appearance-none
                            border border-gray-300 focus:border-indigo-500 focus:ring-2 focus:ring-indigo-500
                            dark:bg-neutral-900 dark:border-neutral-700 dark:text-neutral-100">
-              <option value="">Todos</option>
+              <option value="">{{ __('company.filter_all_roles') }}</option>
               @foreach(config('hr.roles', ['Empleado','Supervisor','Gerente']) as $role)
                 <option value="{{ $role }}" @selected(($filters['role'] ?? '') == $role)>{{ $role }}</option>
               @endforeach
@@ -162,16 +162,16 @@
         {{-- Equipo --}}
         <div>
           <label class="block text-xs font-medium text-gray-700 dark:text-neutral-300 mb-1.5">
-            <i class="fas fa-laptop text-gray-500 dark:text-neutral-400 mr-1"></i> Equipo
+            <i class="fas fa-laptop text-gray-500 dark:text-neutral-400 mr-1"></i> {{ __('company.filter_computer') }}
           </label>
           <div class="relative">
-            <select name="has_computer" 
+            <select name="has_computer"
                     class="w-full px-3 py-2.5 pr-8 rounded-lg text-sm appearance-none
                            border border-gray-300 focus:border-indigo-500 focus:ring-2 focus:ring-indigo-500
                            dark:bg-neutral-900 dark:border-neutral-700 dark:text-neutral-100">
-              <option value="">Todos</option>
-              <option value="1" @selected(($filters['has_computer'] ?? '') === "1")>Con PC</option>
-              <option value="0" @selected(($filters['has_computer'] ?? '') === "0")>Sin PC</option>
+              <option value="">{{ __('company.filter_all_computers') }}</option>
+              <option value="1" @selected(($filters['has_computer'] ?? '') === "1")>{{ __('company.filter_with_pc') }}</option>
+              <option value="0" @selected(($filters['has_computer'] ?? '') === "0")>{{ __('company.filter_no_pc') }}</option>
             </select>
             <i class="fas fa-chevron-down absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 pointer-events-none text-xs"></i>
           </div>
@@ -180,19 +180,19 @@
 
       {{-- Botones de acción --}}
       <div class="flex items-center gap-2">
-        <button type="submit" 
+        <button type="submit"
                 class="inline-flex items-center justify-center gap-2 px-4 py-2 rounded-lg text-sm font-medium transition-colors
                        bg-indigo-600 text-white hover:bg-indigo-700 whitespace-nowrap">
           <i class="fas fa-filter text-xs"></i>
-          Aplicar filtros
+          {{ __('company.apply_filters_btn') }}
         </button>
         @if(request()->has('q') || request()->has('branch_id') || request()->has('role') || request()->has('has_computer'))
-          <a href="{{ route('company.employees.index') }}" 
+          <a href="{{ route('company.employees.index') }}"
              class="inline-flex items-center justify-center gap-2 px-3 py-2 rounded-lg text-sm font-medium transition-colors
                     bg-gray-100 text-gray-700 hover:bg-gray-200
                     dark:bg-neutral-800 dark:text-neutral-200 dark:hover:bg-neutral-700 whitespace-nowrap">
             <i class="fas fa-eraser text-xs"></i>
-            Limpiar
+            {{ __('company.clear_filters_btn') }}
           </a>
         @endif
       </div>
@@ -205,20 +205,20 @@
       <div class="py-16 text-center">
         <i class="fas fa-user-slash text-gray-300 dark:text-neutral-600 text-5xl mb-3"></i>
         <div class="text-lg font-semibold text-gray-900 dark:text-neutral-100 mb-2">
-          No se encontraron empleados
+          {{ __('company.no_employees_found') }}
         </div>
         <p class="text-sm text-gray-600 dark:text-neutral-300 mb-6">
           @if(request()->has('q') || request()->has('branch_id') || request()->has('role') || request()->has('has_computer'))
-            Intenta ajustar los filtros para obtener resultados diferentes
+            {{ __('company.no_employees_try_filters') }}
           @else
-            Aún no hay empleados registrados en el sistema
+            {{ __('company.no_employees_system') }}
           @endif
         </p>
         @if(request()->has('q') || request()->has('branch_id') || request()->has('role') || request()->has('has_computer'))
-          <a href="{{ route('company.employees.index') }}" 
+          <a href="{{ route('company.employees.index') }}"
              class="inline-flex items-center justify-center gap-2 px-5 py-2.5 bg-gray-100 dark:bg-neutral-800 text-gray-700 dark:text-neutral-300 text-sm font-medium rounded-lg hover:bg-gray-200 dark:hover:bg-neutral-700 transition-colors whitespace-nowrap">
             <i class="fas fa-eraser"></i>
-            Limpiar filtros
+            {{ __('company.clear_filters_btn2') }}
           </a>
         @endif
       </div>
@@ -258,7 +258,7 @@
 
             <a href="{{ route('company.employees.show', $employee) }}"
                class="block w-full text-center px-3 py-2 bg-gray-50 dark:bg-neutral-800/60 text-gray-900 dark:text-neutral-100 text-sm font-medium rounded-lg hover:bg-indigo-600 hover:text-white dark:hover:bg-indigo-600 transition-all">
-              <i class="fas fa-eye mr-1"></i> Ver perfil
+              <i class="fas fa-eye mr-1"></i> {{ __('company.view_profile_btn') }}
             </a>
           </div>
         @endforeach

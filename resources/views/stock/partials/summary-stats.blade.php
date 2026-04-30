@@ -12,7 +12,7 @@
       return $s->stock_base_qty > 0 && $s->stock_base_qty < 10;
     })->count();
 
-    $label = 'Insumos';
+    $label = __('stock.stat_supplies');
   } else {
     // Estadísticas para productos
     $outOfStock = $products->getCollection()->filter(function($p) {
@@ -25,7 +25,7 @@
       return $stock > 0 && $stock <= $userThreshold;
     })->count();
 
-    $label = 'Productos';
+    $label = __('stock.stat_products');
   }
 
   $stats = [
@@ -36,13 +36,13 @@
       'color' => 'indigo'
     ],
     [
-      'label' => 'Unidades',
+      'label' => __('stock.stat_units'),
       'value' => number_format($totals['units'], 0, ',', '.'),
       'icon' => 'fa-layer-group',
       'color' => 'blue'
     ],
     [
-      'label' => 'Valorización',
+      'label' => __('stock.stat_valuation'),
       'value' => '$ ' . number_format($totals['value'], 2, ',', '.'),
       'icon' => 'fa-sack-dollar',
       'color' => 'emerald'
@@ -69,15 +69,15 @@
   <div class="bg-white dark:bg-neutral-900 rounded-xl p-4 border border-gray-100 dark:border-neutral-700 dark:ring-1 dark:ring-indigo-500/10 shadow-sm hover:shadow-md transition-shadow">
     <div class="flex items-center justify-between">
       <div class="flex-1 min-w-0">
-        <p class="text-xs text-gray-500 dark:text-neutral-400 mb-1">Alertas</p>
+        <p class="text-xs text-gray-500 dark:text-neutral-400 mb-1">{{ __('stock.stat_alerts') }}</p>
         <div class="text-xs sm:text-sm text-gray-700 dark:text-neutral-300 space-y-1">
           <div class="flex items-center">
             <span class="inline-block w-2 h-2 rounded-full bg-rose-500 mr-1.5 flex-shrink-0"></span>
-            <span class="truncate">Sin stock: <strong>{{ $outOfStock }}</strong></span>
+            <span class="truncate">{{ __('stock.stat_no_stock') }} <strong>{{ $outOfStock }}</strong></span>
           </div>
           <div class="flex items-center">
             <span class="inline-block w-2 h-2 rounded-full bg-amber-500 mr-1.5 flex-shrink-0"></span>
-            <span class="truncate">Bajo: <strong>{{ $lowStock }}</strong></span>
+            <span class="truncate">{{ __('stock.stat_low') }} <strong>{{ $lowStock }}</strong></span>
           </div>
         </div>
       </div>

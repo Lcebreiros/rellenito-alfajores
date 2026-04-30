@@ -4,12 +4,12 @@
 @section('header')
 @php
 $statusMap = [
-    'draft'     => ['label'=>'Borrador',   'bg'=>'bg-amber-100 dark:bg-amber-900/40',   'text'=>'text-amber-700 dark:text-amber-300'],
-    'pending'   => ['label'=>'Pendiente',  'bg'=>'bg-amber-100 dark:bg-amber-900/40',   'text'=>'text-amber-700 dark:text-amber-300'],
-    'paid'      => ['label'=>'Pagado',     'bg'=>'bg-emerald-100 dark:bg-emerald-900/40','text'=>'text-emerald-700 dark:text-emerald-300'],
-    'completed' => ['label'=>'Completado', 'bg'=>'bg-emerald-100 dark:bg-emerald-900/40','text'=>'text-emerald-700 dark:text-emerald-300'],
-    'canceled'  => ['label'=>'Cancelado',  'bg'=>'bg-rose-100 dark:bg-rose-900/40',      'text'=>'text-rose-700 dark:text-rose-300'],
-    'fulfilled' => ['label'=>'Entregado',  'bg'=>'bg-indigo-100 dark:bg-indigo-900/40',  'text'=>'text-indigo-700 dark:text-indigo-300'],
+    'draft'     => ['label'=>__('orders.status_draft'),     'bg'=>'bg-amber-100 dark:bg-amber-900/40',    'text'=>'text-amber-700 dark:text-amber-300'],
+    'pending'   => ['label'=>__('orders.status_pending'),   'bg'=>'bg-amber-100 dark:bg-amber-900/40',    'text'=>'text-amber-700 dark:text-amber-300'],
+    'paid'      => ['label'=>__('orders.status_paid'),      'bg'=>'bg-emerald-100 dark:bg-emerald-900/40','text'=>'text-emerald-700 dark:text-emerald-300'],
+    'completed' => ['label'=>__('orders.status_completed'), 'bg'=>'bg-emerald-100 dark:bg-emerald-900/40','text'=>'text-emerald-700 dark:text-emerald-300'],
+    'canceled'  => ['label'=>__('orders.status_canceled'),  'bg'=>'bg-rose-100 dark:bg-rose-900/40',      'text'=>'text-rose-700 dark:text-rose-300'],
+    'fulfilled' => ['label'=>__('orders.status_fulfilled'), 'bg'=>'bg-indigo-100 dark:bg-indigo-900/40',  'text'=>'text-indigo-700 dark:text-indigo-300'],
 ];
 
 // Obtener la configuración del status actual (normalizando enum -> string)
@@ -29,7 +29,7 @@ $s = $statusMap[$statusKey] ?? [
 
 <div class="flex flex-col sm:flex-row sm:items-end sm:justify-between gap-2">
     <div>
-        <h1 class="text-xl font-semibold text-neutral-800 dark:text-neutral-100">Venta #{{ $order->order_number ?? $order->id }}</h1>
+        <h1 class="text-xl font-semibold text-neutral-800 dark:text-neutral-100">{{ __('orders.show.title') }} #{{ $order->order_number ?? $order->id }}</h1>
         <p class="text-xs sm:text-sm text-neutral-500 dark:text-neutral-400">{{ $order->created_at?->format('d/m/Y H:i') }}</p>
     </div>
     <span class="inline-flex items-center gap-2 px-3 py-1.5 rounded-full text-sm font-medium {{ $s['bg'] }} {{ $s['text'] }}">
@@ -93,7 +93,7 @@ $s = $statusMap[$statusKey] ?? [
         <svg class="w-4 h-4" viewBox="0 0 24 24" fill="none">
             <path d="M15 6l-6 6 6 6" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
         </svg>
-        Volver
+        {{ __('orders.show.back') }}
     </a>
 
     {{-- Acciones de estado (centrado) --}}
@@ -104,7 +104,7 @@ $s = $statusMap[$statusKey] ?? [
           <button type="submit"
                   class="flex items-center gap-2 px-4 py-2 rounded-lg bg-emerald-600 text-white font-semibold hover:bg-emerald-700 focus:outline-none focus:ring-2 focus:ring-emerald-400 focus:ring-offset-1 text-sm">
             <svg class="w-4 h-4" viewBox="0 0 24 24" fill="none"><path d="M5 13l4 4L19 7" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
-            Confirmar venta
+            {{ __('orders.show.confirm_sale') }}
           </button>
         </form>
         <form action="{{ route('orders.cancel-scheduled', $order) }}" method="POST">
@@ -112,7 +112,7 @@ $s = $statusMap[$statusKey] ?? [
           <button type="submit"
                   class="flex items-center gap-2 px-4 py-2 rounded-lg bg-red-600 text-white font-semibold hover:bg-red-700 focus:outline-none focus:ring-2 focus:ring-red-400 focus:ring-offset-1 text-sm">
             <svg class="w-4 h-4" viewBox="0 0 24 24" fill="none"><path d="M6 18L18 6M6 6l12 12" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>
-            Cancelar venta
+            {{ __('orders.show.cancel_sale') }}
           </button>
         </form>
       </div>
@@ -120,14 +120,14 @@ $s = $statusMap[$statusKey] ?? [
       <form action="{{ route('orders.cancel', $order) }}" method="POST" class="mx-auto">
           @csrf
           <button type="submit"
-                  class="flex items-center gap-2 px-5 py-2 rounded-lg 
+                  class="flex items-center gap-2 px-5 py-2 rounded-lg
                          bg-red-600 text-white font-semibold tracking-wide
-                         hover:bg-red-700 transition-colors duration-200 
+                         hover:bg-red-700 transition-colors duration-200
                          focus:outline-none focus:ring-2 focus:ring-red-400 focus:ring-offset-1">
               <svg class="w-4 h-4" viewBox="0 0 24 24" fill="none">
                   <path d="M6 18L18 6M6 6l12 12" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
               </svg>
-              Cancelar venta
+              {{ __('orders.show.cancel_sale') }}
           </button>
       </form>
     @endif
@@ -146,7 +146,7 @@ $s = $statusMap[$statusKey] ?? [
                   text-indigo-700 dark:text-indigo-300 bg-indigo-50 dark:bg-indigo-500/10 
                   hover:bg-indigo-100 dark:hover:bg-indigo-500/20 transition text-sm">
             <img src="{{ asset('images/ticket.png') }}" alt="Ticket" class="w-4 h-4 dark:invert"/>
-            Comprobante
+            {{ __('orders.receipt') }}
         </a>
         @endif
 
@@ -156,14 +156,14 @@ $s = $statusMap[$statusKey] ?? [
         @if($canInvoice && empty($order->invoice_id))
         <a href="{{ route('invoices.create', ['order_id' => $order->id]) }}"
            class="inline-flex items-center gap-2 px-3 py-2 rounded-lg border border-emerald-200 dark:border-emerald-500/40
-                  text-emerald-700 dark:text-emerald-300 bg-emerald-50 dark:bg-emerald-500/10 
+                  text-emerald-700 dark:text-emerald-300 bg-emerald-50 dark:bg-emerald-500/10
                   hover:bg-emerald-100 dark:hover:bg-emerald-500/20 transition text-sm"
         >
             <svg class="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                 <path d="M9 4h11v16H4V4h5Z" stroke-linecap="round" stroke-linejoin="round"/>
                 <path d="M9 9h6M9 13h6M9 17h3" stroke-linecap="round"/>
             </svg>
-            Emitir factura
+            {{ __('orders.invoice') }}
         </a>
         @endif
 
@@ -171,25 +171,25 @@ $s = $statusMap[$statusKey] ?? [
         @if(Route::has('orders.edit'))
         <a href="{{ route('orders.edit', $order) }}"
            class="inline-flex items-center gap-2 px-3 py-2 rounded-lg border border-indigo-200 dark:border-indigo-500/40
-                  text-indigo-700 dark:text-indigo-300 bg-indigo-50 dark:bg-indigo-500/10 
+                  text-indigo-700 dark:text-indigo-300 bg-indigo-50 dark:bg-indigo-500/10
                   hover:bg-indigo-100 dark:hover:bg-indigo-500/20 transition text-sm">
             <svg class="w-4 h-4" viewBox="0 0 24 24" fill="none">
                 <path d="M16.5 3.5a2.121 2.121 0 1 1 3 3L8 18l-4 1 1-4 11.5-11.5Z" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
             </svg>
-            Editar
+            {{ __('orders.edit') }}
         </a>
         @endif
 
         {{-- Imprimir --}}
         <button onclick="window.print()"
                 class="inline-flex items-center gap-2 px-3 py-2 rounded-lg border border-indigo-200 dark:border-indigo-500/40
-                       text-indigo-700 dark:text-indigo-300 bg-indigo-50 dark:bg-indigo-500/10 
+                       text-indigo-700 dark:text-indigo-300 bg-indigo-50 dark:bg-indigo-500/10
                        hover:bg-indigo-100 dark:hover:bg-indigo-500/20 transition text-sm">
             <svg class="w-4 h-4" viewBox="0 0 24 24" fill="none">
                 <polyline points="6,9 6,2 18,2 18,9" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
                 <rect x="6" y="14" width="12" height="8" rx="1" stroke="currentColor" stroke-width="2"/>
             </svg>
-            Imprimir
+            {{ __('orders.print') }}
         </button>
     </div>
 </div>
@@ -202,8 +202,8 @@ $s = $statusMap[$statusKey] ?? [
         {{-- Encabezado --}}
         <div class="px-5 sm:px-6 py-5 border-b border-neutral-100 dark:border-neutral-800/60 flex items-center justify-between">
           <div>
-            <h2 class="text-lg font-semibold text-neutral-900 dark:text-neutral-100">Detalle de la venta</h2>
-            <p class="text-xs text-neutral-500 dark:text-neutral-400 mt-0.5">{{ $totalItems }} artículos</p>
+            <h2 class="text-lg font-semibold text-neutral-900 dark:text-neutral-100">{{ __('orders.show.sale_detail') }}</h2>
+            <p class="text-xs text-neutral-500 dark:text-neutral-400 mt-0.5">{{ $totalItems }} {{ __('orders.show.articles') }}</p>
           </div>
           <div class="text-right">
             <div class="text-2xl sm:text-3xl font-bold text-emerald-600">{{ $fmt($total) }}</div>
@@ -218,7 +218,7 @@ $s = $statusMap[$statusKey] ?? [
           @endphp
 
           @if($productItems->count())
-            <div class="text-xs uppercase tracking-wide text-neutral-500 dark:text-neutral-400 mb-2">Productos</div>
+            <div class="text-xs uppercase tracking-wide text-neutral-500 dark:text-neutral-400 mb-2">{{ __('orders.show.products') }}</div>
             @foreach ($productItems as $item)
               @php
                 $name = $item->product->name ?? $item->name ?? 'Producto';
@@ -237,7 +237,7 @@ $s = $statusMap[$statusKey] ?? [
                   @endif
                   <div class="min-w-0">
                     <div class="font-medium text-neutral-800 dark:text-neutral-100 truncate">{{ $name }}</div>
-                    <div class="text-xs text-neutral-500 dark:text-neutral-400">{{ $fmt($unit) }} · Unidad</div>
+                    <div class="text-xs text-neutral-500 dark:text-neutral-400">{{ $fmt($unit) }} · {{ __('orders.show.unit') }}</div>
                   </div>
                 </div>
                 <div class="sm:col-span-2 text-neutral-600 dark:text-neutral-300 text-sm">x {{ $qty }}</div>
@@ -247,7 +247,7 @@ $s = $statusMap[$statusKey] ?? [
           @endif
 
           @if($serviceItems->count())
-            <div class="text-xs uppercase tracking-wide text-neutral-500 dark:text-neutral-400 mt-4 mb-2">Servicios</div>
+            <div class="text-xs uppercase tracking-wide text-neutral-500 dark:text-neutral-400 mt-4 mb-2">{{ __('orders.show.services') }}</div>
             @foreach ($serviceItems as $item)
               @php
                 $name = $item->service->name ?? $item->name ?? 'Servicio';
@@ -262,7 +262,7 @@ $s = $statusMap[$statusKey] ?? [
                   </div>
                   <div class="min-w-0">
                     <div class="font-medium text-neutral-800 dark:text-neutral-100 truncate">{{ $name }}</div>
-                    <div class="text-xs text-neutral-500 dark:text-neutral-400">{{ $fmt($unit) }} · Servicio</div>
+                    <div class="text-xs text-neutral-500 dark:text-neutral-400">{{ $fmt($unit) }} · {{ __('orders.show.service_label') }}</div>
                   </div>
                 </div>
                 <div class="sm:col-span-2 text-neutral-600 dark:text-neutral-300 text-sm">x {{ $qty }}</div>
@@ -277,7 +277,7 @@ $s = $statusMap[$statusKey] ?? [
                 <circle cx="12" cy="12" r="10" stroke="currentColor" stroke-width="1.5"/>
                 <path d="M12 8v4m0 4h.01" stroke="currentColor" stroke-width="1.5"/>
               </svg>
-              <p class="text-neutral-500 dark:text-neutral-400">No hay ítems en esta venta</p>
+              <p class="text-neutral-500 dark:text-neutral-400">{{ __('orders.show.no_items') }}</p>
             </div>
           @endif
         </div>
@@ -287,35 +287,35 @@ $s = $statusMap[$statusKey] ?? [
           <div class="px-5 sm:px-6 py-5 bg-neutral-50 dark:bg-neutral-950/40 border-t border-neutral-100 dark:border-neutral-800/60">
             <div class="grid grid-cols-1 sm:grid-cols-2 gap-3 text-sm">
               <div class="flex items-center justify-between">
-                <span class="text-neutral-600 dark:text-neutral-300">Subtotal</span>
+                <span class="text-neutral-600 dark:text-neutral-300">{{ __('orders.show.subtotal') }}</span>
                 <span class="font-medium text-neutral-900 dark:text-neutral-100">{{ $fmt($subtotal) }}</span>
               </div>
               @if($discount > 0)
                 <div class="flex items-center justify-between">
-                  <span class="text-emerald-600 dark:text-emerald-300">Descuento</span>
+                  <span class="text-emerald-600 dark:text-emerald-300">{{ __('orders.show.discount') }}</span>
                   <span class="font-medium text-emerald-600 dark:text-emerald-300">-{{ $fmt($discount) }}</span>
                 </div>
               @endif
               @if($shipping > 0)
                 <div class="flex items-center justify-between">
-                  <span class="text-neutral-600 dark:text-neutral-300">Envío</span>
+                  <span class="text-neutral-600 dark:text-neutral-300">{{ __('orders.show.shipping') }}</span>
                   <span class="font-medium text-neutral-900 dark:text-neutral-100">{{ $fmt($shipping) }}</span>
                 </div>
               @endif
               @if($tax > 0)
                 <div class="flex items-center justify-between relative group">
-                  <span class="text-neutral-600 dark:text-neutral-300">IVA</span>
+                  <span class="text-neutral-600 dark:text-neutral-300">{{ __('orders.show.tax') }}</span>
                   <span class="font-medium text-neutral-900 dark:text-neutral-100">{{ $fmt($tax) }}</span>
                   <div class="hidden group-hover:flex absolute right-0 top-full mt-2 z-30 px-3 py-2 rounded-xl border border-neutral-200 dark:border-neutral-700 bg-white/95 dark:bg-neutral-900/95 shadow-xl shadow-black/10 backdrop-blur-md min-w-[220px] text-xs text-neutral-700 dark:text-neutral-200">
                     <div class="w-full">
-                      <p class="font-semibold mb-1 text-neutral-900 dark:text-neutral-100">Detalle de impuestos</p>
+                      <p class="font-semibold mb-1 text-neutral-900 dark:text-neutral-100">{{ __('orders.show.tax_detail') }}</p>
                       <div class="flex items-center justify-between text-neutral-600 dark:text-neutral-300">
-                        <span>IVA</span>
+                        <span>{{ __('orders.show.tax') }}</span>
                         <span class="font-semibold text-neutral-900 dark:text-neutral-100">{{ $fmt($tax) }}</span>
                       </div>
                       @if($shipping > 0)
                       <div class="flex items-center justify-between text-neutral-600 dark:text-neutral-300">
-                        <span>Base + envío</span>
+                        <span>{{ __('orders.show.base_shipping') }}</span>
                         <span>{{ $fmt($subtotal - $discount + $shipping) }}</span>
                       </div>
                       @endif
@@ -324,7 +324,7 @@ $s = $statusMap[$statusKey] ?? [
                 </div>
               @endif
               <div class="sm:col-span-2 flex items-center justify-between pt-2 border-t border-neutral-100 dark:border-neutral-800/60">
-                <span class="text-base font-semibold text-neutral-900 dark:text-neutral-100">Total</span>
+                <span class="text-base font-semibold text-neutral-900 dark:text-neutral-100">{{ __('orders.show.total') }}</span>
                 <span class="text-lg sm:text-xl font-bold text-emerald-600">{{ $fmt($total) }}</span>
               </div>
             </div>
@@ -339,7 +339,7 @@ $s = $statusMap[$statusKey] ?? [
       @if($order->is_scheduled && $order->scheduled_for)
       <div class="bg-white dark:bg-neutral-900 rounded-2xl border border-neutral-200 dark:border-neutral-800 shadow-sm">
         <div class="px-5 sm:px-6 py-5 border-b border-neutral-100 dark:border-neutral-800/60">
-          <h3 class="text-base font-semibold text-neutral-900 dark:text-neutral-100">Agendamiento</h3>
+          <h3 class="text-base font-semibold text-neutral-900 dark:text-neutral-100">{{ __('orders.show.scheduled') }}</h3>
         </div>
         <div class="px-5 sm:px-6 py-5">
           <div class="flex items-start gap-3">
@@ -349,7 +349,7 @@ $s = $statusMap[$statusKey] ?? [
               </svg>
             </div>
             <div class="flex-1">
-              <div class="text-xs text-neutral-500 dark:text-neutral-400 mb-1">Agendado para</div>
+              <div class="text-xs text-neutral-500 dark:text-neutral-400 mb-1">{{ __('orders.show.scheduled_for') }}</div>
               <div class="font-semibold text-neutral-900 dark:text-neutral-100">
                 {{ $order->scheduled_for->format('d/m/Y') }}
               </div>
@@ -363,7 +363,7 @@ $s = $statusMap[$statusKey] ?? [
           </div>
           <div class="mt-4 pt-4 border-t border-neutral-100 dark:border-neutral-800/60">
             <a href="{{ route('orders.edit', $order) }}" class="text-xs text-indigo-600 dark:text-indigo-400 hover:underline">
-              Cambiar fecha →
+              {{ __('orders.show.change_date') }}
             </a>
           </div>
         </div>
@@ -372,32 +372,32 @@ $s = $statusMap[$statusKey] ?? [
       {{-- Cliente --}}
       <div class="bg-white dark:bg-neutral-900 rounded-2xl border border-neutral-200 dark:border-neutral-800 shadow-sm">
         <div class="px-5 sm:px-6 py-5 border-b border-neutral-100 dark:border-neutral-800/60 flex items-center justify-between">
-          <h3 class="text-base font-semibold text-neutral-900 dark:text-neutral-100">Cliente</h3>
+          <h3 class="text-base font-semibold text-neutral-900 dark:text-neutral-100">{{ __('orders.show.client') }}</h3>
 
           @if(!$order->client && \Illuminate\Support\Facades\Route::has('clients.index'))
             <a href="{{ route('clients.index') }}"
                class="text-xs px-2 py-1 rounded-md bg-neutral-100 dark:bg-neutral-800 text-neutral-700 dark:text-neutral-200 hover:bg-neutral-200 dark:hover:bg-neutral-700">
-              Asignar cliente
+              {{ __('orders.show.assign_client') }}
             </a>
           @endif
         </div>
 
         <div class="px-5 sm:px-6 py-5 space-y-4">
           <div>
-            <div class="text-xs text-neutral-500 dark:text-neutral-400 mb-1">Nombre</div>
+            <div class="text-xs text-neutral-500 dark:text-neutral-400 mb-1">{{ __('orders.show.client_name') }}</div>
             <div class="font-medium text-neutral-900 dark:text-neutral-100 text-[15px]">
-              {{ $customerName ?: 'Sin cliente' }}
+              {{ $customerName ?: __('orders.show.no_client') }}
             </div>
           </div>
 
           @if($customerEmail)
             <div class="flex items-center justify-between gap-3">
               <div>
-                <div class="text-xs text-neutral-500 dark:text-neutral-400 mb-1">Email</div>
+                <div class="text-xs text-neutral-500 dark:text-neutral-400 mb-1">{{ __('orders.show.email') }}</div>
                 <div class="font-medium text-neutral-700 dark:text-neutral-200 text-sm break-all">{{ $customerEmail }}</div>
               </div>
               <a href="mailto:{{ $customerEmail }}" class="shrink-0 inline-flex items-center px-2 py-1.5 rounded-md bg-indigo-600 text-white text-xs hover:bg-indigo-700">
-                Enviar
+                {{ __('orders.show.send') }}
               </a>
             </div>
           @endif
@@ -405,25 +405,25 @@ $s = $statusMap[$statusKey] ?? [
           @if($customerPhone)
             <div class="flex items-center justify-between gap-3">
               <div>
-                <div class="text-xs text-neutral-500 dark:text-neutral-400 mb-1">Teléfono</div>
+                <div class="text-xs text-neutral-500 dark:text-neutral-400 mb-1">{{ __('orders.show.phone') }}</div>
                 <div class="font-medium text-neutral-700 dark:text-neutral-200">{{ $customerPhone }}</div>
               </div>
               <a href="tel:{{ preg_replace('/\s+/', '', $customerPhone) }}" class="shrink-0 inline-flex items-center px-2 py-1.5 rounded-md bg-emerald-600 text-white text-xs hover:bg-emerald-700">
-                Llamar
+                {{ __('orders.show.call') }}
               </a>
             </div>
           @endif
 
           @if($shippingAddr)
             <div>
-              <div class="text-xs text-neutral-500 dark:text-neutral-400 mb-1">Dirección</div>
+              <div class="text-xs text-neutral-500 dark:text-neutral-400 mb-1">{{ __('orders.show.address') }}</div>
               <div class="font-medium text-neutral-700 dark:text-neutral-200 text-sm leading-relaxed">{{ $shippingAddr }}</div>
             </div>
           @endif
 
           @if($notes)
             <div class="pt-2">
-              <div class="text-xs text-neutral-500 dark:text-neutral-400 mb-1">Notas</div>
+              <div class="text-xs text-neutral-500 dark:text-neutral-400 mb-1">{{ __('orders.show.notes') }}</div>
               <div class="text-neutral-700 dark:text-neutral-200 bg-neutral-50 dark:bg-neutral-950/40 border border-neutral-100 dark:border-neutral-800/60 rounded-lg p-3 text-sm leading-relaxed">
                 {{ \Illuminate\Support\Str::limit($notes, 200) }}
               </div>
@@ -431,7 +431,7 @@ $s = $statusMap[$statusKey] ?? [
           @endif
 
           <div class="pt-2 border-t border-neutral-100 dark:border-neutral-800/60">
-            <div class="text-xs text-neutral-500 dark:text-neutral-400">Actualizado</div>
+            <div class="text-xs text-neutral-500 dark:text-neutral-400">{{ __('orders.show.updated') }}</div>
             <div class="text-sm text-neutral-700 dark:text-neutral-200">{{ $order->updated_at?->format('d/m/Y H:i') }}</div>
           </div>
         </div>
@@ -441,7 +441,7 @@ $s = $statusMap[$statusKey] ?? [
       @if($order->paymentMethods && $order->paymentMethods->isNotEmpty())
         <div class="bg-white dark:bg-neutral-900 rounded-2xl border border-neutral-200 dark:border-neutral-800 shadow-sm">
           <div class="px-5 sm:px-6 py-5 border-b border-neutral-100 dark:border-neutral-800/60">
-            <h3 class="text-base font-semibold text-neutral-900 dark:text-neutral-100">Métodos de Pago</h3>
+            <h3 class="text-base font-semibold text-neutral-900 dark:text-neutral-100">{{ __('orders.show.payment_methods') }}</h3>
           </div>
 
           <div class="px-5 sm:px-6 py-5 space-y-3">
@@ -453,10 +453,10 @@ $s = $statusMap[$statusKey] ?? [
                 <div class="flex-1 min-w-0">
                   <div class="font-medium text-neutral-900 dark:text-neutral-100 text-sm">{{ $pm->name }}</div>
                   @if($pm->pivot->amount > 0)
-                    <div class="text-xs text-neutral-500 dark:text-neutral-400">Monto: {{ $fmt($pm->pivot->amount) }}</div>
+                    <div class="text-xs text-neutral-500 dark:text-neutral-400">{{ __('orders.show.amount') }}: {{ $fmt($pm->pivot->amount) }}</div>
                   @endif
                   @if($pm->pivot->reference)
-                    <div class="text-xs text-neutral-500 dark:text-neutral-400 font-mono">Ref: {{ $pm->pivot->reference }}</div>
+                    <div class="text-xs text-neutral-500 dark:text-neutral-400 font-mono">{{ __('orders.show.ref') }}: {{ $pm->pivot->reference }}</div>
                   @endif
                 </div>
                 @if($pm->requires_gateway)
@@ -474,11 +474,11 @@ $s = $statusMap[$statusKey] ?? [
       <div class="bg-white dark:bg-neutral-900 rounded-2xl border border-neutral-200 dark:border-neutral-800 shadow-sm lg:hidden">
         <div class="px-5 py-4 grid grid-cols-2 gap-3 text-sm">
           <div class="rounded-lg bg-neutral-50 dark:bg-neutral-950/40 border border-neutral-100 dark:border-neutral-800/60 p-3">
-            <div class="text-neutral-500 dark:text-neutral-400 text-xs">Artículos</div>
+            <div class="text-neutral-500 dark:text-neutral-400 text-xs">{{ __('orders.show.mobile_articles') }}</div>
             <div class="font-semibold text-neutral-900 dark:text-neutral-100 text-lg">{{ $totalItems }}</div>
           </div>
           <div class="rounded-lg bg-emerald-50 dark:bg-emerald-500/10 border border-emerald-100 dark:border-emerald-500/20 p-3">
-            <div class="text-emerald-600 dark:text-emerald-300 text-xs">Total</div>
+            <div class="text-emerald-600 dark:text-emerald-300 text-xs">{{ __('orders.show.mobile_total') }}</div>
             <div class="font-bold text-emerald-600 text-lg">{{ $fmt($total) }}</div>
           </div>
         </div>

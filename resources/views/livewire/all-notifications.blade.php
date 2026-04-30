@@ -16,19 +16,19 @@
                     wire:click="setFilter('all')"
                     class="px-3 py-2 text-sm rounded-lg transition-colors {{ $filter === 'all' ? 'bg-indigo-600 text-white' : 'bg-neutral-100 dark:bg-neutral-800 text-neutral-700 dark:text-neutral-300 hover:bg-neutral-200 dark:hover:bg-neutral-700' }}"
                 >
-                    Todas
+                    {{ __('notifications.filter_all') }}
                 </button>
                 <button
                     wire:click="setFilter('unread')"
                     class="px-3 py-2 text-sm rounded-lg transition-colors {{ $filter === 'unread' ? 'bg-indigo-600 text-white' : 'bg-neutral-100 dark:bg-neutral-800 text-neutral-700 dark:text-neutral-300 hover:bg-neutral-200 dark:hover:bg-neutral-700' }}"
                 >
-                    No leídas ({{ $unreadCount }})
+                    {{ __('notifications.filter_unread') }} ({{ $unreadCount }})
                 </button>
                 <button
                     wire:click="setFilter('read')"
                     class="px-3 py-2 text-sm rounded-lg transition-colors {{ $filter === 'read' ? 'bg-indigo-600 text-white' : 'bg-neutral-100 dark:bg-neutral-800 text-neutral-700 dark:text-neutral-300 hover:bg-neutral-200 dark:hover:bg-neutral-700' }}"
                 >
-                    Leídas
+                    {{ __('notifications.filter_read') }}
                 </button>
             </div>
 
@@ -39,29 +39,29 @@
                         wire:click="markSelectedAsRead"
                         class="px-3 py-2 text-sm rounded-lg bg-blue-600 hover:bg-blue-700 text-white transition-colors"
                     >
-                        Marcar seleccionadas como leídas
+                        {{ __('notifications.mark_selected') }}
                     </button>
                     <button
                         wire:click="deleteSelected"
-                        wire:confirm="¿Está seguro de eliminar las notificaciones seleccionadas?"
+                        wire:confirm="{{ __('notifications.confirm_delete_selected') }}"
                         class="px-3 py-2 text-sm rounded-lg bg-red-600 hover:bg-red-700 text-white transition-colors"
                     >
-                        Eliminar seleccionadas ({{ count($selected) }})
+                        {{ __('notifications.delete_selected') }} ({{ count($selected) }})
                     </button>
                 @else
                     <button
                         wire:click="markAllAsRead"
-                        wire:confirm="¿Marcar todas las notificaciones no leídas como leídas?"
+                        wire:confirm="{{ __('notifications.confirm_mark_all') }}"
                         class="px-3 py-2 text-sm rounded-lg bg-neutral-100 dark:bg-neutral-800 hover:bg-neutral-200 dark:hover:bg-neutral-700 text-neutral-700 dark:text-neutral-300 transition-colors"
                     >
-                        Marcar todas como leídas
+                        {{ __('notifications.mark_all_read') }}
                     </button>
                     <button
                         wire:click="deleteAll"
-                        wire:confirm="¿Está seguro de eliminar todas las notificaciones?"
+                        wire:confirm="{{ __('notifications.confirm_delete_all') }}"
                         class="px-3 py-2 text-sm rounded-lg bg-red-600 hover:bg-red-700 text-white transition-colors"
                     >
-                        Eliminar todas
+                        {{ __('notifications.delete_all') }}
                     </button>
                 @endif
             </div>
@@ -79,7 +79,7 @@
                         wire:model.live="selectAll"
                         class="w-4 h-4 text-indigo-600 rounded border-neutral-300 dark:border-neutral-700 focus:ring-indigo-500 dark:bg-neutral-800"
                     >
-                    <span class="text-sm text-neutral-700 dark:text-neutral-300">Seleccionar todas</span>
+                    <span class="text-sm text-neutral-700 dark:text-neutral-300">{{ __('notifications.select_all') }}</span>
                 </label>
             </div>
 
@@ -144,7 +144,7 @@
                                                     wire:click="markAsRead({{ $notification->id }})"
                                                     class="text-xs text-blue-600 dark:text-blue-400 hover:underline"
                                                 >
-                                                    Marcar como leída
+                                                    {{ __('notifications.mark_as_read') }}
                                                 </button>
                                             @endif
                                         </div>
@@ -167,15 +167,15 @@
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 17h5l-1.405-1.405A2.032 2.032 0 0118 14.158V11a6.002 6.002 0 00-4-5.659V5a2 2 0 10-4 0v.341C7.67 6.165 6 8.388 6 11v3.159c0 .538-.214 1.055-.595 1.436L4 17h5m6 0v1a3 3 0 11-6 0v-1m6 0H9"/>
                 </svg>
                 <h3 class="mt-4 text-lg font-semibold text-neutral-900 dark:text-neutral-100">
-                    No hay notificaciones
+                    {{ __('notifications.no_notifications') }}
                 </h3>
                 <p class="mt-1 text-sm text-neutral-600 dark:text-neutral-400">
                     @if ($filter === 'unread')
-                        No tienes notificaciones sin leer
+                        {{ __('notifications.no_unread') }}
                     @elseif ($filter === 'read')
-                        No tienes notificaciones leídas
+                        {{ __('notifications.no_read') }}
                     @else
-                        No tienes ninguna notificación aún
+                        {{ __('notifications.no_any') }}
                     @endif
                 </p>
             </div>

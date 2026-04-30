@@ -9,7 +9,7 @@
       </svg>
     </a>
     <div>
-      <h1 class="text-xl sm:text-2xl font-bold text-neutral-900 dark:text-neutral-100">Reserva #{{ $booking->id }}</h1>
+      <h1 class="text-xl sm:text-2xl font-bold text-neutral-900 dark:text-neutral-100">{{ __('rentals.booking_title_prefix') }}{{ $booking->id }}</h1>
       <p class="text-sm text-neutral-600 dark:text-neutral-400">
         {{ $booking->space->name ?? '—' }} · {{ $booking->starts_at->translatedFormat('d \d\e F \d\e Y, H:i') }}
       </p>
@@ -53,7 +53,7 @@
     <div class="p-5 grid grid-cols-1 sm:grid-cols-2 gap-4">
       {{-- Fecha/hora --}}
       <div>
-        <div class="text-xs font-semibold text-neutral-500 dark:text-neutral-400 uppercase tracking-wide mb-1">Horario</div>
+        <div class="text-xs font-semibold text-neutral-500 dark:text-neutral-400 uppercase tracking-wide mb-1">{{ __('rentals.section_schedule') }}</div>
         <div class="text-sm font-medium text-neutral-900 dark:text-neutral-100">
           {{ $booking->starts_at->translatedFormat('l d \d\e F \d\e Y') }}
         </div>
@@ -64,7 +64,7 @@
 
       {{-- Duración y monto --}}
       <div>
-        <div class="text-xs font-semibold text-neutral-500 dark:text-neutral-400 uppercase tracking-wide mb-1">Duración / Monto</div>
+        <div class="text-xs font-semibold text-neutral-500 dark:text-neutral-400 uppercase tracking-wide mb-1">{{ __('rentals.section_duration_amount') }}</div>
         <div class="text-sm font-medium text-neutral-900 dark:text-neutral-100">
           {{ $booking->durationOption?->label ?? ($booking->duration_minutes >= 60
              ? floor($booking->duration_minutes/60).'h '.($booking->duration_minutes%60?($booking->duration_minutes%60).'min':'')
@@ -77,7 +77,7 @@
 
       {{-- Cliente --}}
       <div>
-        <div class="text-xs font-semibold text-neutral-500 dark:text-neutral-400 uppercase tracking-wide mb-1">Cliente</div>
+        <div class="text-xs font-semibold text-neutral-500 dark:text-neutral-400 uppercase tracking-wide mb-1">{{ __('rentals.section_client') }}</div>
         <div class="text-sm font-medium text-neutral-900 dark:text-neutral-100">{{ $booking->getClientDisplayName() }}</div>
         @if($booking->getClientDisplayPhone())
           <div class="text-sm text-neutral-500 dark:text-neutral-400">{{ $booking->getClientDisplayPhone() }}</div>
@@ -85,7 +85,7 @@
         @if($booking->client)
           <a href="{{ route('clients.show', $booking->client) }}"
              class="text-xs text-violet-600 dark:text-violet-400 hover:underline mt-0.5 inline-block">
-            Ver perfil del cliente
+            {{ __('rentals.view_client_profile') }}
           </a>
         @endif
       </div>
@@ -93,7 +93,7 @@
       {{-- Notas --}}
       @if($booking->notes)
         <div>
-          <div class="text-xs font-semibold text-neutral-500 dark:text-neutral-400 uppercase tracking-wide mb-1">Notas</div>
+          <div class="text-xs font-semibold text-neutral-500 dark:text-neutral-400 uppercase tracking-wide mb-1">{{ __('rentals.section_notes') }}</div>
           <div class="text-sm text-neutral-700 dark:text-neutral-300">{{ $booking->notes }}</div>
         </div>
       @endif
@@ -105,7 +105,7 @@
             <svg class="w-3.5 h-3.5" fill="currentColor" viewBox="0 0 20 20">
               <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd"/>
             </svg>
-            Sincronizado con Google Calendar
+            {{ __('rentals.synced_google') }}
           </div>
         </div>
       @endif
@@ -116,7 +116,7 @@
   @if($booking->paymentMethods->count())
     <div class="container-glass shadow-sm overflow-hidden">
       <div class="px-5 py-3 border-b border-neutral-200 dark:border-neutral-700">
-        <h2 class="text-sm font-semibold text-neutral-900 dark:text-neutral-100">Pagos</h2>
+        <h2 class="text-sm font-semibold text-neutral-900 dark:text-neutral-100">{{ __('rentals.section_payments') }}</h2>
       </div>
       <div class="p-5 space-y-2">
         @foreach($booking->paymentMethods as $method)
@@ -137,7 +137,7 @@
       <form method="POST" action="{{ route('rentals.bookings.confirm', $booking) }}" class="inline">
         @csrf
         <button type="submit" class="px-4 py-2 text-sm font-medium rounded-lg bg-green-600 hover:bg-green-700 text-white transition-colors">
-          Confirmar reserva
+          {{ __('rentals.confirm_booking_btn') }}
         </button>
       </form>
     @endif
@@ -145,23 +145,23 @@
     @if(in_array($booking->status, ['pending', 'confirmed']))
       <a href="{{ route('rentals.bookings.edit', $booking) }}"
          class="px-4 py-2 text-sm font-medium rounded-lg border border-neutral-300 dark:border-neutral-700 text-neutral-700 dark:text-neutral-300 hover:bg-neutral-50 dark:hover:bg-neutral-800 transition-colors">
-        Editar
+        {{ __('rentals.edit_btn') }}
       </a>
       <form method="POST" action="{{ route('rentals.bookings.cancel', $booking) }}" class="inline"
-            onsubmit="return confirm('¿Cancelar esta reserva?')">
+            onsubmit="return confirm(@json(__('rentals.confirm_cancel')))">
         @csrf
         <button type="submit" class="px-4 py-2 text-sm font-medium rounded-lg border border-rose-300 text-rose-700 dark:border-rose-800 dark:text-rose-400 hover:bg-rose-50 dark:hover:bg-rose-900/20 transition-colors">
-          Cancelar reserva
+          {{ __('rentals.cancel_booking_btn') }}
         </button>
       </form>
     @endif
 
     <form method="POST" action="{{ route('rentals.bookings.destroy', $booking) }}" class="inline"
-          onsubmit="return confirm('¿Eliminar esta reserva permanentemente?')">
+          onsubmit="return confirm(@json(__('rentals.confirm_delete')))">
       @csrf
       @method('DELETE')
       <button type="submit" class="px-4 py-2 text-sm rounded-lg text-neutral-500 hover:text-rose-600 dark:hover:text-rose-400 transition-colors">
-        Eliminar
+        {{ __('rentals.delete_btn') }}
       </button>
     </form>
   </div>

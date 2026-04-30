@@ -8,16 +8,16 @@
     $isPremium    = in_array(auth()->user()->effectiveSubscriptionLevel(), ['premium', 'enterprise']);
     $isSupply     = $subject === 'supply';
     $dailyValue   = $isSupply ? ($intel['dailyConsumption'] ?? 0) : ($intel['dailyAvg'] ?? 0);
-    $velocityLabel = $isSupply ? 'Consumo diario estimado' : 'Velocidad de venta';
+    $velocityLabel = $isSupply ? __('stock.intel_velocity_supply') : __('stock.intel_velocity_product');
 
     $daysRemaining = $intel['daysRemaining'] ?? null;
 
     // ── Texto legible para días restantes ─────────────────────────────────
     if ($daysRemaining === null) {
-        $daysText  = 'Sin datos';
+        $daysText  = __('stock.intel_no_data');
         $daysShort = null;
     } elseif ($daysRemaining === 0) {
-        $daysText  = 'Sin stock disponible';
+        $daysText  = __('stock.intel_no_stock');
         $daysShort = 0;
     } elseif ($daysRemaining > 730) {
         $years     = (int) floor($daysRemaining / 365);
@@ -60,11 +60,11 @@
 
     // ── Rotación ──────────────────────────────────────────────────────────
     $rotConfig = [
-        'high'    => ['label' => 'Alta',           'dot' => 'background:#10b981', 'text' => 'color:#059669'],
-        'medium'  => ['label' => 'Media',          'dot' => 'background:#3b82f6', 'text' => 'color:#2563eb'],
-        'low'     => ['label' => 'Baja',           'dot' => 'background:#f97316', 'text' => 'color:#ea580c'],
-        'dead'    => ['label' => 'Sin movimiento', 'dot' => 'background:#ef4444', 'text' => 'color:#dc2626'],
-        'no_data' => ['label' => 'Sin datos',      'dot' => 'background:#9ca3af', 'text' => 'color:#6b7280'],
+        'high'    => ['label' => __('stock.intel_rot_high'),    'dot' => 'background:#10b981', 'text' => 'color:#059669'],
+        'medium'  => ['label' => __('stock.intel_rot_medium'),  'dot' => 'background:#3b82f6', 'text' => 'color:#2563eb'],
+        'low'     => ['label' => __('stock.intel_rot_low'),     'dot' => 'background:#f97316', 'text' => 'color:#ea580c'],
+        'dead'    => ['label' => __('stock.intel_rot_dead'),    'dot' => 'background:#ef4444', 'text' => 'color:#dc2626'],
+        'no_data' => ['label' => __('stock.intel_rot_no_data'), 'dot' => 'background:#9ca3af', 'text' => 'color:#6b7280'],
     ];
     $rot = $rotConfig[$intel['rotationLabel'] ?? 'no_data'] ?? $rotConfig['no_data'];
 
@@ -238,8 +238,8 @@
   <div class="nxi-header">
     <div class="nxi-n-icon"><span>N</span></div>
     <div>
-      <div class="nxi-title">Nexum Stock</div>
-      <div class="nxi-subtitle">Inteligencia de inventario · últimos 30 días</div>
+      <div class="nxi-title">{{ __('stock.intel_title') }}</div>
+      <div class="nxi-subtitle">{{ __('stock.intel_subtitle') }}</div>
     </div>
   </div>
 
@@ -258,7 +258,7 @@
       @if($dailyValue > 0)
         {{ number_format($dailyValue, 2, ',', '.') }}&thinsp;<span style="font-size:.7rem;color:var(--nx-t4)">{{ $isSupply ? $supply->base_unit : 'uds.' }}/día</span>
       @else
-        <span class="nxi-muted">Sin datos</span>
+        <span class="nxi-muted">{{ __('stock.intel_no_data') }}</span>
       @endif
     </div>
   </div>
@@ -270,11 +270,11 @@
         <rect x="2" y="3.5" width="12" height="10.5" rx="1.5" stroke="currentColor" stroke-width="1.4"/>
         <path d="M5 2v3M11 2v3M2 7h12" stroke="currentColor" stroke-width="1.4" stroke-linecap="round"/>
       </svg>
-      Días estimados de stock
+      {{ __('stock.intel_days_label') }}
     </div>
     <div>
       @if($daysRemaining === null)
-        <div class="nxi-muted">Sin datos</div>
+        <div class="nxi-muted">{{ __('stock.intel_no_data') }}</div>
       @else
         <div class="nxi-value" style="{{ $urgencyTextStyle }}">{{ $daysText }}</div>
       @endif
@@ -288,7 +288,7 @@
         <circle cx="8" cy="8" r="6.25" stroke="currentColor" stroke-width="1.4"/>
         <path d="M8 4.5v1M8 10.5v1M5.5 6.5c0-.83.67-1.5 1.5-1.5h2a1.5 1.5 0 0 1 0 3H7a1.5 1.5 0 0 0 0 3h2c.83 0 1.5-.67 1.5-1.5" stroke="currentColor" stroke-width="1.3" stroke-linecap="round"/>
       </svg>
-      Capital inmovilizado
+      {{ __('stock.intel_capital_label') }}
     </div>
     <div>
       @if($hasCapital)
@@ -296,10 +296,10 @@
           ${{ number_format($capital, 0, ',', '.') }}
         </div>
         @if($unitCost > 0)
-          <div class="nxi-hint">${{ number_format($unitCost, 2, ',', '.') }} / ud.</div>
+          <div class="nxi-hint">${{ number_format($unitCost, 2, ',', '.') }} {{ __('stock.intel_per_unit') }}</div>
         @endif
       @elseif(!$hasCost)
-        <div class="nxi-no-cost">Registrá el costo para calcular</div>
+        <div class="nxi-no-cost">{{ __('stock.intel_register_cost') }}</div>
       @else
         <div class="nxi-muted">—</div>
       @endif
@@ -313,7 +313,7 @@
         <path d="M13.5 5A6 6 0 1 0 14 8" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/>
         <path d="M14 3v2.5h-2.5" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
       </svg>
-      Rotación
+      {{ __('stock.intel_rotation_label') }}
     </div>
     <div class="nxi-rot-badge" style="{{ $rot['text'] }}">
       <span class="nxi-dot" style="{{ $rot['dot'] }}"></span>
@@ -328,16 +328,20 @@
         <svg width="13" height="13" viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg">
           <path d="M2 4.5h12M2 8.5h8M2 12.5h5" stroke="currentColor" stroke-width="1.4" stroke-linecap="round"/>
         </svg>
-        Última venta
+        {{ __('stock.intel_last_sale') }}
       </div>
       <div>
         @if($intel['lastSaleDate'])
           <div class="nxi-value">
-            hace {{ $intel['daysSinceLastSale'] }} día{{ $intel['daysSinceLastSale'] !== 1 ? 's' : '' }}
+            @if($intel['daysSinceLastSale'] === 1)
+              {{ __('stock.intel_days_ago', ['n' => 1]) }}
+            @else
+              {{ __('stock.intel_days_ago_plural', ['n' => $intel['daysSinceLastSale']]) }}
+            @endif
           </div>
           <div class="nxi-hint">{{ $intel['lastSaleDate']->format('d/m/Y') }}</div>
         @else
-          <span class="nxi-muted">Sin ventas registradas</span>
+          <span class="nxi-muted">{{ __('stock.intel_no_sales') }}</span>
         @endif
       </div>
     </div>
@@ -352,7 +356,7 @@
           <path d="M4.5 6V4.5a2.5 2.5 0 0 1 5 0V6" stroke="currentColor" stroke-width="1.3" stroke-linecap="round"/>
         </svg>
       @endif
-      <span class="nxi-premium-label">{{ $isPremium ? 'Predicciones' : 'Premium' }}</span>
+      <span class="nxi-premium-label">{{ $isPremium ? __('stock.intel_predictions') : __('stock.intel_premium_label') }}</span>
     </div>
 
     {{-- Quiebre estimado --}}
@@ -362,7 +366,7 @@
           <path d="M8 2L2 14h12L8 2z" stroke="currentColor" stroke-width="1.4" stroke-linejoin="round"/>
           <path d="M8 6.5v3M8 11.5h.01" stroke="currentColor" stroke-width="1.4" stroke-linecap="round"/>
         </svg>
-        Quiebre estimado
+        {{ __('stock.intel_stockout_label') }}
       </div>
       @if($isPremium)
         <div>
@@ -370,17 +374,17 @@
             <div class="nxi-value" style="color:#d97706;font-weight:600">
               {{ $intel['stockoutDate']->translatedFormat('j \d\e M') }}
             </div>
-            <div class="nxi-hint">en {{ $daysRemaining }} días</div>
+            <div class="nxi-hint">{{ __('stock.intel_in_days', ['n' => $daysRemaining]) }}</div>
           @elseif($daysRemaining === 0)
-            <div class="nxi-value" style="color:#ef4444;font-weight:600">Sin stock</div>
+            <div class="nxi-value" style="color:#ef4444;font-weight:600">{{ __('stock.badge_out') }}</div>
           @elseif($daysRemaining !== null)
-            <div class="nxi-value" style="color:#059669;font-size:.76rem">Sin riesgo de quiebre</div>
+            <div class="nxi-value" style="color:#059669;font-size:.76rem">{{ __('stock.intel_no_stockout') }}</div>
           @else
-            <div class="nxi-muted">Sin datos</div>
+            <div class="nxi-muted">{{ __('stock.intel_no_data') }}</div>
           @endif
         </div>
       @else
-        <a href="{{ route('plans') }}" class="nxi-premium-link">Mejorar plan →</a>
+        <a href="{{ route('plans') }}" class="nxi-premium-link">{{ __('stock.intel_upgrade') }}</a>
       @endif
     </div>
 
@@ -391,20 +395,20 @@
           <svg width="13" height="13" viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg">
             <path d="M2 12L6 7l3 3.5L11 6l3 6H2z" stroke="currentColor" stroke-width="1.3" stroke-linejoin="round"/>
           </svg>
-          Stock óptimo
+          {{ __('stock.intel_optimal_label') }}
         </div>
-        <span style="font-size:.65rem;color:var(--nx-t5);padding-left:1.25rem">14 días · promedio últimos 30 días</span>
+        <span style="font-size:.65rem;color:var(--nx-t5);padding-left:1.25rem">{{ __('stock.intel_optimal_desc') }}</span>
       </div>
       @if($isPremium)
         <div>
           @if($intel['optimalStock'] ?? null)
             <div class="nxi-value" style="font-weight:700">{{ $intel['optimalStock'] }}&thinsp;<span style="font-size:.72rem;font-weight:400;color:var(--nx-t4)">uds.</span></div>
           @else
-            <div class="nxi-muted">Sin datos</div>
+            <div class="nxi-muted">{{ __('stock.intel_no_data') }}</div>
           @endif
         </div>
       @else
-        <a href="{{ route('plans') }}" class="nxi-premium-link">Mejorar plan →</a>
+        <a href="{{ route('plans') }}" class="nxi-premium-link">{{ __('stock.intel_upgrade') }}</a>
       @endif
     </div>
   </div>

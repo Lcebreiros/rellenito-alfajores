@@ -3,8 +3,8 @@
 @section('header')
   <div class="flex items-center justify-between gap-3">
     <div>
-      <h1 class="text-xl sm:text-2xl font-bold text-neutral-900 dark:text-neutral-100">Reservas</h1>
-      <p class="text-sm text-neutral-600 dark:text-neutral-400">Historial y gestión de todas las reservas.</p>
+      <h1 class="text-xl sm:text-2xl font-bold text-neutral-900 dark:text-neutral-100">{{ __('rentals.bookings_title') }}</h1>
+      <p class="text-sm text-neutral-600 dark:text-neutral-400">{{ __('rentals.bookings_subtitle') }}</p>
     </div>
     <div class="flex items-center gap-2">
       <a href="{{ route('rentals.calendar') }}"
@@ -12,14 +12,14 @@
         <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
           <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"/>
         </svg>
-        Calendario
+        {{ __('rentals.calendar_btn') }}
       </a>
       <a href="{{ route('rentals.bookings.create') }}"
          class="text-sm px-3 py-1.5 rounded-lg bg-violet-600 hover:bg-violet-700 text-white font-medium transition-colors flex items-center gap-1.5">
         <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
           <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"/>
         </svg>
-        Nueva reserva
+        {{ __('rentals.new_booking_btn') }}
       </a>
     </div>
   </div>
@@ -38,21 +38,21 @@
   <form method="GET" action="{{ route('rentals.bookings.index') }}"
         class="container-glass shadow-sm p-3 sm:p-4 flex flex-wrap gap-2 items-end">
     <div>
-      <label class="block text-xs text-neutral-500 mb-1">Estado</label>
+      <label class="block text-xs text-neutral-500 mb-1">{{ __('rentals.filter_status') }}</label>
       <select name="status"
               class="rounded-lg border border-neutral-300 dark:border-neutral-700 bg-white dark:bg-neutral-900 px-3 py-2 text-sm">
-        <option value="">Todos</option>
-        <option value="pending"   {{ request('status') === 'pending'    ? 'selected' : '' }}>Pendiente</option>
-        <option value="confirmed" {{ request('status') === 'confirmed'  ? 'selected' : '' }}>Confirmada</option>
-        <option value="finished"  {{ request('status') === 'finished'   ? 'selected' : '' }}>Finalizada</option>
-        <option value="cancelled" {{ request('status') === 'cancelled'  ? 'selected' : '' }}>Cancelada</option>
+        <option value="">{{ __('rentals.filter_all') }}</option>
+        <option value="pending"   {{ request('status') === 'pending'    ? 'selected' : '' }}>{{ __('rentals.status_pending') }}</option>
+        <option value="confirmed" {{ request('status') === 'confirmed'  ? 'selected' : '' }}>{{ __('rentals.status_confirmed') }}</option>
+        <option value="finished"  {{ request('status') === 'finished'   ? 'selected' : '' }}>{{ __('rentals.status_finished') }}</option>
+        <option value="cancelled" {{ request('status') === 'cancelled'  ? 'selected' : '' }}>{{ __('rentals.status_cancelled') }}</option>
       </select>
     </div>
     <div>
-      <label class="block text-xs text-neutral-500 mb-1">Espacio</label>
+      <label class="block text-xs text-neutral-500 mb-1">{{ __('rentals.filter_space') }}</label>
       <select name="space_id"
               class="rounded-lg border border-neutral-300 dark:border-neutral-700 bg-white dark:bg-neutral-900 px-3 py-2 text-sm">
-        <option value="">Todos</option>
+        <option value="">{{ __('rentals.filter_all') }}</option>
         @foreach($spaces as $space)
           <option value="{{ $space->id }}" {{ request('space_id') == $space->id ? 'selected' : '' }}>
             {{ $space->name }}
@@ -61,21 +61,21 @@
       </select>
     </div>
     <div>
-      <label class="block text-xs text-neutral-500 mb-1">Desde</label>
+      <label class="block text-xs text-neutral-500 mb-1">{{ __('rentals.filter_from') }}</label>
       <input type="date" name="date_from" value="{{ request('date_from') }}"
              class="rounded-lg border border-neutral-300 dark:border-neutral-700 bg-white dark:bg-neutral-900 px-3 py-2 text-sm">
     </div>
     <div>
-      <label class="block text-xs text-neutral-500 mb-1">Hasta</label>
+      <label class="block text-xs text-neutral-500 mb-1">{{ __('rentals.filter_to') }}</label>
       <input type="date" name="date_to" value="{{ request('date_to') }}"
              class="rounded-lg border border-neutral-300 dark:border-neutral-700 bg-white dark:bg-neutral-900 px-3 py-2 text-sm">
     </div>
     <button type="submit" class="px-4 py-2 text-sm rounded-lg bg-neutral-700 dark:bg-neutral-600 text-white hover:bg-neutral-800 dark:hover:bg-neutral-500 transition-colors">
-      Filtrar
+      {{ __('rentals.filter_btn') }}
     </button>
     @if(request()->hasAny(['status','space_id','date_from','date_to']))
       <a href="{{ route('rentals.bookings.index') }}" class="px-4 py-2 text-sm rounded-lg border border-neutral-300 dark:border-neutral-700 text-neutral-600 dark:text-neutral-400 hover:bg-neutral-50 dark:hover:bg-neutral-800">
-        Limpiar
+        {{ __('rentals.clear_btn') }}
       </a>
     @endif
   </form>
@@ -87,12 +87,12 @@
         <table class="w-full text-sm">
           <thead class="bg-neutral-50 dark:bg-neutral-800/60 border-b border-neutral-200 dark:border-neutral-700">
             <tr>
-              <th class="px-4 py-3 text-left text-xs font-semibold text-neutral-600 dark:text-neutral-400">Espacio</th>
-              <th class="px-4 py-3 text-left text-xs font-semibold text-neutral-600 dark:text-neutral-400">Inicio</th>
-              <th class="px-4 py-3 text-left text-xs font-semibold text-neutral-600 dark:text-neutral-400 hidden sm:table-cell">Duración</th>
-              <th class="px-4 py-3 text-left text-xs font-semibold text-neutral-600 dark:text-neutral-400">Cliente</th>
-              <th class="px-4 py-3 text-left text-xs font-semibold text-neutral-600 dark:text-neutral-400">Estado</th>
-              <th class="px-4 py-3 text-right text-xs font-semibold text-neutral-600 dark:text-neutral-400">Monto</th>
+              <th class="px-4 py-3 text-left text-xs font-semibold text-neutral-600 dark:text-neutral-400">{{ __('rentals.col_space') }}</th>
+              <th class="px-4 py-3 text-left text-xs font-semibold text-neutral-600 dark:text-neutral-400">{{ __('rentals.col_start') }}</th>
+              <th class="px-4 py-3 text-left text-xs font-semibold text-neutral-600 dark:text-neutral-400 hidden sm:table-cell">{{ __('rentals.col_duration') }}</th>
+              <th class="px-4 py-3 text-left text-xs font-semibold text-neutral-600 dark:text-neutral-400">{{ __('rentals.col_client') }}</th>
+              <th class="px-4 py-3 text-left text-xs font-semibold text-neutral-600 dark:text-neutral-400">{{ __('rentals.col_status') }}</th>
+              <th class="px-4 py-3 text-right text-xs font-semibold text-neutral-600 dark:text-neutral-400">{{ __('rentals.col_amount') }}</th>
               <th class="px-4 py-3 text-right text-xs font-semibold text-neutral-600 dark:text-neutral-400"></th>
             </tr>
           </thead>
@@ -133,7 +133,7 @@
                 <td class="px-4 py-3 text-right">
                   <a href="{{ route('rentals.bookings.show', $booking) }}"
                      class="text-xs text-violet-600 dark:text-violet-400 hover:underline">
-                    Ver
+                    {{ __('rentals.view_btn') }}
                   </a>
                 </td>
               </tr>
@@ -152,7 +152,7 @@
         <svg class="w-8 h-8 mx-auto mb-2 opacity-40" fill="none" stroke="currentColor" viewBox="0 0 24 24">
           <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"/>
         </svg>
-        <p class="text-sm">No hay reservas con los filtros seleccionados.</p>
+        <p class="text-sm">{{ __('rentals.no_bookings') }}</p>
       </div>
     @endif
   </div>

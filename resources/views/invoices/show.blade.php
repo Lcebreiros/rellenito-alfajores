@@ -2,7 +2,7 @@
 
 @section('header')
   <h1 class="text-2xl font-bold text-neutral-900 dark:text-neutral-100">
-    Factura {{ $invoice->full_number }}
+    {{ __('invoices.show_title_prefix') }} {{ $invoice->full_number }}
   </h1>
 @endsection
 
@@ -14,7 +14,7 @@
         <svg class="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
           <path stroke-linecap="round" stroke-linejoin="round" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
         </svg>
-        Editar
+        {{ __('invoices.action_edit') }}
       </a>
     @endif
 
@@ -24,7 +24,7 @@
         <svg class="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
           <path stroke-linecap="round" stroke-linejoin="round" d="M7 21h10a2 2 0 002-2V9.414a1 1 0 00-.293-.707l-5.414-5.414A1 1 0 0012.586 3H7a2 2 0 00-2 2v14a2 2 0 002 2z" />
         </svg>
-        Descargar PDF
+        {{ __('invoices.download_pdf') }}
       </a>
     @endif
 
@@ -33,7 +33,7 @@
       <svg class="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
         <path stroke-linecap="round" stroke-linejoin="round" d="M10 19l-7-7m0 0l7-7m-7 7h18" />
       </svg>
-      Volver
+      {{ __('invoices.back') }}
     </a>
   </div>
 @endsection
@@ -67,10 +67,10 @@
           <path stroke-linecap="round" stroke-linejoin="round" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
         </svg>
         <div class="flex-1">
-          <p class="font-semibold text-emerald-900 dark:text-emerald-100">Factura aprobada por ARCA</p>
+          <p class="font-semibold text-emerald-900 dark:text-emerald-100">{{ __('invoices.banner_approved') }}</p>
           <p class="text-sm text-emerald-700 dark:text-emerald-300 mt-1">
-            CAE: <span class="font-mono">{{ $invoice->cae }}</span> |
-            Vencimiento: {{ $invoice->cae_expiration ? \Carbon\Carbon::parse($invoice->cae_expiration)->format('d/m/Y') : 'N/A' }}
+            {{ __('invoices.cae_label') }}: <span class="font-mono">{{ $invoice->cae }}</span> |
+            {{ __('invoices.banner_cae_expiry') }} {{ $invoice->cae_expiration ? \Carbon\Carbon::parse($invoice->cae_expiration)->format('d/m/Y') : 'N/A' }}
           </p>
         </div>
       </div>
@@ -82,13 +82,13 @@
           <path stroke-linecap="round" stroke-linejoin="round" d="M10 14l2-2m0 0l2-2m-2 2l-2-2m2 2l2 2m7-2a9 9 0 11-18 0 9 9 0 0118 0z" />
         </svg>
         <div class="flex-1">
-          <p class="font-semibold text-rose-900 dark:text-rose-100">Factura rechazada por ARCA</p>
+          <p class="font-semibold text-rose-900 dark:text-rose-100">{{ __('invoices.banner_rejected') }}</p>
           @if($invoice->arca_errors || $invoice->arca_observations)
             <p class="text-sm text-rose-700 dark:text-rose-300 mt-1">
               {{ $invoice->arca_errors ?: $invoice->arca_observations }}
             </p>
           @else
-            <p class="text-sm text-rose-700 dark:text-rose-300 mt-1">Revise los detalles de la respuesta de ARCA</p>
+            <p class="text-sm text-rose-700 dark:text-rose-300 mt-1">{{ __('invoices.banner_rejected_desc') }}</p>
           @endif
         </div>
       </div>
@@ -100,9 +100,9 @@
           <path stroke-linecap="round" stroke-linejoin="round" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
         </svg>
         <div class="flex-1">
-          <p class="font-semibold text-blue-900 dark:text-blue-100">Pendiente de autorización</p>
+          <p class="font-semibold text-blue-900 dark:text-blue-100">{{ __('invoices.banner_pending') }}</p>
           <p class="text-sm text-blue-700 dark:text-blue-300 mt-1">
-            {{ $invoice->arca_observations ?: 'ARCA está procesando la solicitud. Intenta consultar el estado en unos minutos.' }}
+            {{ $invoice->arca_observations ?: __('invoices.banner_pending_desc') }}
           </p>
         </div>
       </div>
@@ -114,8 +114,8 @@
           <path stroke-linecap="round" stroke-linejoin="round" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
         </svg>
         <div class="flex-1">
-          <p class="font-semibold text-amber-900 dark:text-amber-100">Borrador</p>
-          <p class="text-sm text-amber-700 dark:text-amber-300 mt-1">Esta factura no ha sido enviada a ARCA aún</p>
+          <p class="font-semibold text-amber-900 dark:text-amber-100">{{ __('invoices.banner_draft') }}</p>
+          <p class="text-sm text-amber-700 dark:text-amber-300 mt-1">{{ __('invoices.banner_draft_desc') }}</p>
         </div>
       </div>
     </div>
@@ -128,7 +128,7 @@
       <div class="container-glass shadow-sm overflow-hidden">
         <div class="bg-neutral-100/70 dark:bg-neutral-800/60 px-6 py-4 border-b border-neutral-200 dark:border-neutral-700">
           <div class="flex items-center justify-between">
-            <h2 class="text-lg font-semibold text-neutral-900 dark:text-neutral-100">Información del comprobante</h2>
+            <h2 class="text-lg font-semibold text-neutral-900 dark:text-neutral-100">{{ __('invoices.voucher_info') }}</h2>
             <span class="inline-flex items-center px-3 py-1.5 rounded-full text-sm font-medium
               {{ str_starts_with($invoice->voucher_type, 'FC') ? 'bg-blue-100 text-blue-700 dark:bg-blue-900/30 dark:text-blue-400' : '' }}
               {{ str_starts_with($invoice->voucher_type, 'NC') ? 'bg-rose-100 text-rose-700 dark:bg-rose-900/30 dark:text-rose-400' : '' }}
@@ -140,39 +140,39 @@
 
         <div class="p-6 grid grid-cols-2 gap-6">
           <div>
-            <p class="text-xs text-neutral-600 dark:text-neutral-400 uppercase tracking-wide mb-1">Número</p>
+            <p class="text-xs text-neutral-600 dark:text-neutral-400 uppercase tracking-wide mb-1">{{ __('invoices.col_number') }}</p>
             <p class="text-lg font-bold text-neutral-900 dark:text-neutral-100 font-mono">{{ $invoice->full_number }}</p>
           </div>
 
           <div>
-            <p class="text-xs text-neutral-600 dark:text-neutral-400 uppercase tracking-wide mb-1">Fecha de emisión</p>
+            <p class="text-xs text-neutral-600 dark:text-neutral-400 uppercase tracking-wide mb-1">{{ __('invoices.issue_date') }}</p>
             <p class="text-lg font-semibold text-neutral-900 dark:text-neutral-100">
               {{ \Carbon\Carbon::parse($invoice->invoice_date)->format('d/m/Y') }}
             </p>
           </div>
 
           <div>
-            <p class="text-xs text-neutral-600 dark:text-neutral-400 uppercase tracking-wide mb-1">Punto de venta</p>
+            <p class="text-xs text-neutral-600 dark:text-neutral-400 uppercase tracking-wide mb-1">{{ __('invoices.col_sale_point') }}</p>
             <p class="text-base font-medium text-neutral-900 dark:text-neutral-100">{{ $invoice->sale_point }}</p>
           </div>
 
           <div>
-            <p class="text-xs text-neutral-600 dark:text-neutral-400 uppercase tracking-wide mb-1">Estado</p>
+            <p class="text-xs text-neutral-600 dark:text-neutral-400 uppercase tracking-wide mb-1">{{ __('invoices.col_status') }}</p>
             @if($invoice->status === 'approved')
               <span class="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-emerald-100 text-emerald-700 dark:bg-emerald-900/30 dark:text-emerald-400">
-                Aprobada
+                {{ __('invoices.status_approved') }}
               </span>
             @elseif($invoice->status === 'draft')
               <span class="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-neutral-100 text-neutral-700 dark:bg-neutral-800 dark:text-neutral-300">
-                Borrador
+                {{ __('invoices.status_draft') }}
               </span>
             @elseif($invoice->status === 'pending')
               <span class="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-amber-100 text-amber-700 dark:bg-amber-900/30 dark:text-amber-400">
-                Pendiente
+                {{ __('invoices.status_pending') }}
               </span>
             @elseif($invoice->status === 'rejected')
               <span class="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-rose-100 text-rose-700 dark:bg-rose-900/30 dark:text-rose-400">
-                Rechazada
+                {{ __('invoices.status_rejected') }}
               </span>
             @endif
           </div>
@@ -182,27 +182,27 @@
       {{-- Client information --}}
       <div class="container-glass shadow-sm overflow-hidden">
         <div class="bg-neutral-100/70 dark:bg-neutral-800/60 px-6 py-4 border-b border-neutral-200 dark:border-neutral-700">
-          <h2 class="text-lg font-semibold text-neutral-900 dark:text-neutral-100">Cliente</h2>
+          <h2 class="text-lg font-semibold text-neutral-900 dark:text-neutral-100">{{ __('invoices.client_section') }}</h2>
         </div>
 
         <div class="p-6 grid grid-cols-1 sm:grid-cols-2 gap-6">
           <div>
-            <p class="text-xs text-neutral-600 dark:text-neutral-400 uppercase tracking-wide mb-1">Nombre / Razón Social</p>
+            <p class="text-xs text-neutral-600 dark:text-neutral-400 uppercase tracking-wide mb-1">{{ __('invoices.client_name') }}</p>
             <p class="text-base font-semibold text-neutral-900 dark:text-neutral-100">{{ $invoice->client_name }}</p>
           </div>
 
           <div>
-            <p class="text-xs text-neutral-600 dark:text-neutral-400 uppercase tracking-wide mb-1">CUIT / DNI</p>
+            <p class="text-xs text-neutral-600 dark:text-neutral-400 uppercase tracking-wide mb-1">{{ __('invoices.client_cuit') }}</p>
             <p class="text-base font-medium text-neutral-900 dark:text-neutral-100 font-mono">{{ $invoice->client_cuit ?: '—' }}</p>
           </div>
 
           <div>
-            <p class="text-xs text-neutral-600 dark:text-neutral-400 uppercase tracking-wide mb-1">Condición IVA</p>
+            <p class="text-xs text-neutral-600 dark:text-neutral-400 uppercase tracking-wide mb-1">{{ __('invoices.client_tax_cond') }}</p>
             <p class="text-base font-medium text-neutral-900 dark:text-neutral-100">{{ $invoice->client_tax_condition }}</p>
           </div>
 
           <div>
-            <p class="text-xs text-neutral-600 dark:text-neutral-400 uppercase tracking-wide mb-1">Dirección</p>
+            <p class="text-xs text-neutral-600 dark:text-neutral-400 uppercase tracking-wide mb-1">{{ __('invoices.client_address') }}</p>
             <p class="text-base font-medium text-neutral-900 dark:text-neutral-100">{{ $invoice->client_address ?: '—' }}</p>
           </div>
         </div>
@@ -211,18 +211,18 @@
       {{-- Items --}}
       <div class="container-glass shadow-sm overflow-hidden">
         <div class="bg-neutral-100/70 dark:bg-neutral-800/60 px-6 py-4 border-b border-neutral-200 dark:border-neutral-700">
-          <h2 class="text-lg font-semibold text-neutral-900 dark:text-neutral-100">Items</h2>
+          <h2 class="text-lg font-semibold text-neutral-900 dark:text-neutral-100">{{ __('invoices.items_title') }}</h2>
         </div>
 
         <div class="overflow-x-auto">
           <table class="table-enhanced w-full text-sm">
             <thead class="bg-neutral-50 dark:bg-neutral-800/40">
               <tr class="text-xs uppercase tracking-wide text-neutral-600 dark:text-neutral-400">
-                <th class="px-4 py-3 text-left">Descripción</th>
-                <th class="px-4 py-3 text-right">Cant.</th>
-                <th class="px-4 py-3 text-right">P. Unit.</th>
-                <th class="px-4 py-3 text-right">IVA %</th>
-                <th class="px-4 py-3 text-right">Subtotal</th>
+                <th class="px-4 py-3 text-left">{{ __('invoices.item_desc') }}</th>
+                <th class="px-4 py-3 text-right">{{ __('invoices.items_qty_header') }}</th>
+                <th class="px-4 py-3 text-right">{{ __('invoices.items_unit_price_short') }}</th>
+                <th class="px-4 py-3 text-right">{{ __('invoices.item_tax_rate') }}</th>
+                <th class="px-4 py-3 text-right">{{ __('invoices.item_subtotal') }}</th>
               </tr>
             </thead>
             <tbody class="divide-y divide-neutral-200 dark:divide-neutral-700">
@@ -251,19 +251,19 @@
           <div class="flex justify-end">
             <div class="w-full sm:w-80 space-y-2">
               <div class="flex justify-between text-sm">
-                <span class="text-neutral-700 dark:text-neutral-300">Subtotal:</span>
+                <span class="text-neutral-700 dark:text-neutral-300">{{ __('invoices.subtotal_label') }}</span>
                 <span class="font-medium text-neutral-900 dark:text-neutral-100 tabular-nums">
                   $ {{ number_format($invoice->subtotal, 2, ',', '.') }}
                 </span>
               </div>
               <div class="flex justify-between text-sm">
-                <span class="text-neutral-700 dark:text-neutral-300">IVA:</span>
+                <span class="text-neutral-700 dark:text-neutral-300">{{ __('invoices.tax_label') }}</span>
                 <span class="font-medium text-neutral-900 dark:text-neutral-100 tabular-nums">
                   $ {{ number_format($invoice->tax_amount, 2, ',', '.') }}
                 </span>
               </div>
               <div class="flex justify-between text-xl font-bold pt-2 border-t border-neutral-200 dark:border-neutral-700">
-                <span class="text-neutral-900 dark:text-neutral-100">Total:</span>
+                <span class="text-neutral-900 dark:text-neutral-100">{{ __('invoices.total_label') }}</span>
                 <span class="text-indigo-600 dark:text-indigo-400 tabular-nums">
                   $ {{ number_format($invoice->total, 2, ',', '.') }}
                 </span>
@@ -280,12 +280,12 @@
       @if($invoice->cae)
         <div class="container-glass shadow-sm overflow-hidden">
           <div class="bg-emerald-100/70 dark:bg-emerald-900/30 px-6 py-4 border-b border-emerald-200 dark:border-emerald-800">
-            <h3 class="text-base font-semibold text-emerald-900 dark:text-emerald-100">Datos ARCA</h3>
+            <h3 class="text-base font-semibold text-emerald-900 dark:text-emerald-100">{{ __('invoices.arca_data') }}</h3>
           </div>
 
           <div class="p-6 space-y-4">
             <div>
-              <p class="text-xs text-neutral-600 dark:text-neutral-400 uppercase tracking-wide mb-1">CAE</p>
+              <p class="text-xs text-neutral-600 dark:text-neutral-400 uppercase tracking-wide mb-1">{{ __('invoices.cae_label') }}</p>
               <p class="text-sm font-mono font-medium text-neutral-900 dark:text-neutral-100 break-all">
                 {{ $invoice->cae }}
               </p>
@@ -293,7 +293,7 @@
 
             @if($invoice->cae_expiration)
               <div>
-                <p class="text-xs text-neutral-600 dark:text-neutral-400 uppercase tracking-wide mb-1">Vencimiento CAE</p>
+                <p class="text-xs text-neutral-600 dark:text-neutral-400 uppercase tracking-wide mb-1">{{ __('invoices.cae_expiry') }}</p>
                 <p class="text-sm font-medium text-neutral-900 dark:text-neutral-100">
                   {{ \Carbon\Carbon::parse($invoice->cae_expiration)->format('d/m/Y') }}
                 </p>
@@ -306,31 +306,31 @@
       {{-- Actions --}}
       <div class="container-glass shadow-sm overflow-hidden">
         <div class="bg-neutral-100/70 dark:bg-neutral-800/60 px-6 py-4 border-b border-neutral-200 dark:border-neutral-700">
-          <h3 class="text-base font-semibold text-neutral-900 dark:text-neutral-100">Acciones</h3>
+          <h3 class="text-base font-semibold text-neutral-900 dark:text-neutral-100">{{ __('invoices.actions_title') }}</h3>
         </div>
 
         <div class="p-6 space-y-3">
           @if($invoice->status === 'draft')
-            <form action="{{ route('invoices.send-to-arca', $invoice) }}" method="POST" onsubmit="return confirm('¿Está seguro de enviar esta factura a ARCA? No podrá modificarla después.')">
+            <form action="{{ route('invoices.send-to-arca', $invoice) }}" method="POST" onsubmit="return confirm(@json(__('invoices.confirm_send_arca')))">
               @csrf
               <button type="submit" class="w-full inline-flex items-center justify-center gap-2 px-4 py-2.5 rounded-lg bg-indigo-600 text-white text-sm font-medium hover:bg-indigo-700 transition-all duration-150 active:scale-[0.98]">
                 <svg class="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                   <path stroke-linecap="round" stroke-linejoin="round" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
                 </svg>
-                Enviar a ARCA
+                {{ __('invoices.send_to_arca') }}
               </button>
             </form>
           @endif
 
           @if($invoice->status !== 'approved')
-            <form action="{{ route('invoices.destroy', $invoice) }}" method="POST" onsubmit="return confirm('¿Está seguro de eliminar esta factura?')">
+            <form action="{{ route('invoices.destroy', $invoice) }}" method="POST" onsubmit="return confirm(@json(__('invoices.confirm_delete')))">
               @csrf
               @method('DELETE')
               <button type="submit" class="w-full inline-flex items-center justify-center gap-2 px-4 py-2.5 rounded-lg border border-rose-300 dark:border-rose-700 text-rose-700 dark:text-rose-400 hover:bg-rose-50 dark:hover:bg-rose-900/20 text-sm font-medium transition-all duration-150">
                 <svg class="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                   <path stroke-linecap="round" stroke-linejoin="round" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
                 </svg>
-                Eliminar
+                {{ __('invoices.delete_btn') }}
               </button>
             </form>
           @endif
@@ -340,19 +340,19 @@
       {{-- Metadata --}}
       <div class="container-glass shadow-sm overflow-hidden">
         <div class="bg-neutral-100/70 dark:bg-neutral-800/60 px-6 py-4 border-b border-neutral-200 dark:border-neutral-700">
-          <h3 class="text-base font-semibold text-neutral-900 dark:text-neutral-100">Información adicional</h3>
+          <h3 class="text-base font-semibold text-neutral-900 dark:text-neutral-100">{{ __('invoices.meta_title') }}</h3>
         </div>
 
         <div class="p-6 space-y-4 text-sm">
           <div>
-            <p class="text-xs text-neutral-600 dark:text-neutral-400 uppercase tracking-wide mb-1">Creada</p>
+            <p class="text-xs text-neutral-600 dark:text-neutral-400 uppercase tracking-wide mb-1">{{ __('invoices.meta_created') }}</p>
             <p class="text-neutral-900 dark:text-neutral-100">
               {{ $invoice->created_at->format('d/m/Y H:i') }}
             </p>
           </div>
 
           <div>
-            <p class="text-xs text-neutral-600 dark:text-neutral-400 uppercase tracking-wide mb-1">Última modificación</p>
+            <p class="text-xs text-neutral-600 dark:text-neutral-400 uppercase tracking-wide mb-1">{{ __('invoices.meta_updated') }}</p>
             <p class="text-neutral-900 dark:text-neutral-100">
               {{ $invoice->updated_at->format('d/m/Y H:i') }}
             </p>
@@ -360,7 +360,7 @@
 
           @if($invoice->order)
             <div>
-              <p class="text-xs text-neutral-600 dark:text-neutral-400 uppercase tracking-wide mb-1">Venta asociada</p>
+              <p class="text-xs text-neutral-600 dark:text-neutral-400 uppercase tracking-wide mb-1">{{ __('invoices.meta_order') }}</p>
               <a href="{{ route('orders.show', $invoice->order) }}" class="text-indigo-600 dark:text-indigo-400 hover:underline">
                 Venta #{{ $invoice->order->id }}
               </a>

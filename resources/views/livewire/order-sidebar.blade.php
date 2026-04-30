@@ -4,13 +4,13 @@
   <div class="px-6 py-4 bg-gradient-to-r from-violet-50/60 to-white/80 dark:from-neutral-900 dark:to-neutral-900/80 border-b border-violet-100/50 dark:border-neutral-800/60">
     <h2 class="text-base font-semibold text-slate-900 dark:text-neutral-50 flex items-center gap-3">
       <div class="flex-shrink-0 w-2 h-2 bg-gradient-to-r from-indigo-500 to-purple-600 rounded-full animate-pulse"></div>
-      <span wire:loading.remove>Venta en curso</span>
+      <span wire:loading.remove>{{ __('orders.sidebar.in_progress') }}</span>
       <span wire:loading class="text-indigo-600 dark:text-indigo-400 flex items-center gap-2" aria-live="polite">
         <svg class="w-4 h-4 animate-spin" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" aria-hidden="true" role="img">
           <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"/>
           <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 0 1 8-8v3a5 5 0 0 0-5 5H4z"/>
         </svg>
-        Actualizando venta…
+        {{ __('orders.sidebar.updating') }}
       </span>
     </h2>
   </div>
@@ -20,18 +20,18 @@
     {{-- Campo: Nombre de cliente --}}
 <div class="mb-4">
   <label class="block text-xs font-medium text-slate-600 dark:text-neutral-300 mb-1">
-    Cliente
+    {{ __('orders.sidebar.client_label') }}
   </label>
   <input
     type="text"
     wire:model.lazy="customerName"
-    placeholder="Nombre del cliente"
+    placeholder="{{ __('orders.sidebar.client_ph') }}"
     class="w-full rounded-xl border border-slate-300/70 dark:border-neutral-700 bg-white dark:bg-neutral-900
            px-3 py-2 text-sm text-slate-900 dark:text-neutral-100
            focus:outline-none focus:ring-2 focus:ring-indigo-500/70 focus:border-indigo-500/70"
   />
   <p class="mt-1 text-[11px] text-slate-500 dark:text-neutral-400">
-    Si no existe, se creará automáticamente al guardar la venta.
+    {{ __('orders.sidebar.client_hint') }}
   </p>
 </div>
 
@@ -47,8 +47,8 @@
                     d="M3 3h2l.4 2M7 13h10l4-8H5.4M7 13L5.4 5M16 16a2 2 0 100 4 2 2 0 000-4M7 16a2 2 0 100 4 2 2 0 000-4"/>
             </svg>
           </div>
-          <h3 class="text-sm font-medium text-slate-900 dark:text-neutral-100 mb-1">Sin productos agregados</h3>
-          <p class="text-xs text-slate-500 dark:text-neutral-400">Selecciona productos para comenzar tu venta</p>
+          <h3 class="text-sm font-medium text-slate-900 dark:text-neutral-100 mb-1">{{ __('orders.sidebar.empty_title') }}</h3>
+          <p class="text-xs text-slate-500 dark:text-neutral-400">{{ __('orders.sidebar.empty_hint') }}</p>
         </div>
       @else
         {{-- Mobile: lista --}}
@@ -68,7 +68,7 @@
                     <button wire:click="sub({{ $it['id'] }})" wire:loading.attr="disabled"
                       class="h-7 w-7 flex items-center justify-center rounded-l-lg hover:bg-slate-100 dark:hover:bg-neutral-600
                              text-slate-700 dark:text-neutral-200 transition-colors duration-200"
-                      title="Restar 1" aria-label="Restar 1">
+                      title="{{ __('orders.sidebar.sub_title') }}" aria-label="{{ __('orders.sidebar.sub_title') }}">
                       <svg class="w-3 h-3" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true" role="img">
                         <path stroke-linecap="round" stroke-linejoin="round" d="M5 12h14"/>
                       </svg>
@@ -81,12 +81,12 @@
                       wire:change="updateQty({{ $it['id'] }}, $event.target.value)"
                       wire:keydown.enter.prevent="$wire.updateQty({{ $it['id'] }}, $event.target.value)"
                       class="h-7 w-10 text-center bg-transparent text-slate-900 dark:text-neutral-100 text-xs font-semibold border-x border-slate-200 dark:border-neutral-500 focus:outline-none focus:ring-1 focus:ring-indigo-500/70"
-                      aria-label="Cantidad"
+                      aria-label="{{ __('orders.sidebar.qty_label') }}"
                     />
                     <button wire:click="add({{ $it['id'] }})" wire:loading.attr="disabled"
                       class="h-7 w-7 flex items-center justify-center rounded-r-lg hover:bg-slate-100 dark:hover:bg-neutral-600
                              text-slate-700 dark:text-neutral-200 transition-colors duration-200"
-                      title="Sumar 1" aria-label="Sumar 1">
+                      title="{{ __('orders.sidebar.add_title') }}" aria-label="{{ __('orders.sidebar.add_title') }}">
                       <svg class="w-3 h-3" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true" role="img">
                         <path stroke-linecap="round" stroke-linejoin="round" d="M12 6v12M6 12h12"/>
                       </svg>
@@ -97,7 +97,7 @@
                     class="h-7 w-7 flex items-center justify-center rounded-lg bg-rose-50 hover:bg-rose-100 
                            dark:bg-rose-900/20 dark:hover:bg-rose-900/40 text-rose-600 dark:text-rose-400 
                            transition-colors duration-200"
-                    title="Eliminar" aria-label="Eliminar">
+                    title="{{ __('orders.sidebar.remove_title') }}" aria-label="{{ __('orders.sidebar.remove_title') }}">
                     <svg class="w-3 h-3" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true" role="img">
                       <path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12"/>
                     </svg>
@@ -117,10 +117,10 @@
           <table class="w-full">
             <thead class="bg-slate-50 dark:bg-neutral-900/80">
               <tr>
-                <th class="py-3 px-4 text-left text-xs font-medium text-slate-500 dark:text-neutral-400 uppercase">Producto</th>
-                <th class="py-3 px-3 text-center text-xs font-medium text-slate-500 dark:text-neutral-400 uppercase">Cant.</th>
-                <th class="py-3 px-3 text-right text-xs font-medium text-slate-500 dark:text-neutral-400 uppercase">Subtotal</th>
-                <th class="py-3 px-4 text-right text-xs font-medium text-slate-500 dark:text-neutral-400 uppercase">Acciones</th>
+                <th class="py-3 px-4 text-left text-xs font-medium text-slate-500 dark:text-neutral-400 uppercase">{{ __('orders.sidebar.col_product') }}</th>
+                <th class="py-3 px-3 text-center text-xs font-medium text-slate-500 dark:text-neutral-400 uppercase">{{ __('orders.sidebar.col_qty') }}</th>
+                <th class="py-3 px-3 text-right text-xs font-medium text-slate-500 dark:text-neutral-400 uppercase">{{ __('orders.sidebar.col_subtotal') }}</th>
+                <th class="py-3 px-4 text-right text-xs font-medium text-slate-500 dark:text-neutral-400 uppercase">{{ __('orders.sidebar.col_actions') }}</th>
               </tr>
             </thead>
             <tbody class="divide-y divide-slate-100 dark:divide-neutral-800/60">
@@ -140,7 +140,7 @@
                         wire:change="updateQty({{ $it['id'] }}, $event.target.value)"
                         wire:keydown.enter.prevent="$wire.updateQty({{ $it['id'] }}, $event.target.value)"
                         class="h-8 w-12 text-center rounded-lg border border-slate-200 dark:border-neutral-700 bg-slate-50 dark:bg-neutral-800 text-slate-900 dark:text-neutral-100 text-sm font-semibold focus:outline-none focus:ring-1 focus:ring-indigo-500/70"
-                        aria-label="Cantidad"
+                        aria-label="{{ __('orders.sidebar.qty_label') }}"
                       />
                     </div>
                   </td>
@@ -151,14 +151,14 @@
                     <div class="flex items-center gap-1 justify-end opacity-60 group-hover:opacity-100">
                       <button wire:click="sub({{ $it['id'] }})" wire:loading.attr="disabled"
                         class="h-6 w-6 flex items-center justify-center rounded bg-slate-100 dark:bg-neutral-700 hover:bg-slate-200 dark:hover:bg-neutral-600 text-slate-700 dark:text-neutral-200"
-                        title="Restar 1" aria-label="Restar 1">
+                        title="{{ __('orders.sidebar.sub_title') }}" aria-label="{{ __('orders.sidebar.sub_title') }}">
                         <svg class="w-3 h-3" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true" role="img">
                           <path stroke-linecap="round" stroke-linejoin="round" d="M5 12h14"/>
                         </svg>
                       </button>
                       <button wire:click="add({{ $it['id'] }})" wire:loading.attr="disabled"
                         class="h-6 w-6 flex items-center justify-center rounded bg-slate-100 dark:bg-neutral-700 hover:bg-slate-200 dark:hover:bg-neutral-600 text-slate-700 dark:text-neutral-200"
-                        title="Sumar 1" aria-label="Sumar 1">
+                        title="{{ __('orders.sidebar.add_title') }}" aria-label="{{ __('orders.sidebar.add_title') }}">
                         <svg class="w-3 h-3" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true" role="img">
                           <path stroke-linecap="round" stroke-linejoin="round" d="M12 6v12M6 12h12"/>
                         </svg>
@@ -166,7 +166,7 @@
                       <button wire:click="remove({{ $it['id'] }})" wire:loading.attr="disabled"
                         class="ml-1 h-6 w-6 flex items-center justify-center rounded bg-rose-50 hover:bg-rose-100 
                                dark:bg-rose-900/20 dark:hover:bg-rose-900/40 text-rose-600 dark:text-rose-400"
-                        title="Eliminar" aria-label="Eliminar">
+                        title="{{ __('orders.sidebar.remove_title') }}" aria-label="{{ __('orders.sidebar.remove_title') }}">
                         <svg class="w-3 h-3" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true" role="img">
                           <path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12"/>
                         </svg>
@@ -182,7 +182,7 @@
         {{-- Resumen de cantidad --}}
         <div class="mt-3 text-center">
           <span class="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-slate-100 text-slate-600 dark:bg-neutral-900 dark:text-neutral-300">
-            {{ count($items) }} {{ count($items) === 1 ? 'producto' : 'productos' }}
+            {{ count($items) }} {{ count($items) === 1 ? __('orders.sidebar.product_singular') : __('orders.sidebar.product_plural') }}
           </span>
         </div>
       @endif
@@ -197,7 +197,7 @@
         <div class="flex items-center justify-between">
           <div class="flex items-center gap-2">
             <div class="w-1.5 h-1.5 bg-gradient-to-r from-indigo-500 to-purple-600 rounded-full"></div>
-            <span class="text-sm font-semibold text-slate-700 dark:text-neutral-200">Total de la venta</span>
+            <span class="text-sm font-semibold text-slate-700 dark:text-neutral-200">{{ __('orders.sidebar.total_label') }}</span>
           </div>
           <span class="text-xl font-bold bg-gradient-to-r from-slate-900 to-slate-700 dark:from-neutral-100 dark:to-neutral-300 bg-clip-text text-transparent">
             $ {{ number_format($total,2,',','.') }}
@@ -222,20 +222,20 @@
                 <svg class="w-4 h-4" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true" role="img">
                   <path stroke-linecap="round" stroke-linejoin="round" d="M12 9v6m3-3H9"/>
                 </svg>
-                Sin productos
+                {{ __('orders.sidebar.no_products_btn') }}
               </span>
-            @else 
+            @else
               <span class="flex items-center justify-center gap-2">
                 @if($isScheduled)
                   <svg class="w-4 h-4 group-hover:scale-110 transition-transform" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true" role="img">
                     <path stroke-linecap="round" stroke-linejoin="round" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"/>
                   </svg>
-                  Agendar Venta
+                  {{ __('orders.sidebar.schedule_btn') }}
                 @else
                   <svg class="w-4 h-4 group-hover:scale-110 transition-transform" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true" role="img">
                     <path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7"/>
                   </svg>
-                  Finalizar Venta
+                  {{ __('orders.sidebar.finalize_btn') }}
                 @endif
               </span>
             @endif
@@ -245,7 +245,7 @@
               <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"/>
               <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 0 1 8-8v3a5 5 0 0 0-5 5H4z"/>
             </svg>
-            Procesando…
+            {{ __('orders.sidebar.processing') }}
           </span>
         </button>
 
@@ -263,14 +263,14 @@
             <svg class="w-4 h-4 group-hover:scale-110 transition-transform" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true" role="img">
               <path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12"/>
             </svg>
-            Cancelar
+            {{ __('orders.sidebar.cancel_btn') }}
           </span>
           <span wire:loading wire:target="cancel" class="flex items-center justify-center gap-2">
             <svg class="h-4 w-4 animate-spin" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" aria-hidden="true" role="img">
               <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"/>
               <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 0 1 8-8v3a5 5 0 0 0-5 5H4z"/>
             </svg>
-            Cancelando…
+            {{ __('orders.sidebar.canceling') }}
           </span>
         </button>
       </div>

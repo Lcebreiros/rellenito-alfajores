@@ -210,7 +210,7 @@ elseif ($isActive('costing.calculator') || $isActive('costs.*')) $activeIndex = 
             <img src="{{ asset('images/crear-venta.png') }}" alt="Crear venta"
                  class="nav-icon w-6 h-6 object-contain {{ $isActive('orders.create') ? '' : 'opacity-70 group-hover:opacity-95' }}">
           </div>
-          <span class="nav-text text-[10px] sm:text-[11px] font-semibold leading-tight tracking-tight text-center whitespace-nowrap min-w-0">Crear</span>
+          <span class="nav-text text-[10px] sm:text-[11px] font-semibold leading-tight tracking-tight text-center whitespace-nowrap min-w-0">{{ __('nav.btn_create') }}</span>
           <span class="nav-underline" aria-hidden="true"></span>
         </div>
       </a>
@@ -227,7 +227,7 @@ elseif ($isActive('costing.calculator') || $isActive('costs.*')) $activeIndex = 
             <img src="{{ asset('images/ventas.png') }}" alt="Ventas"
                  class="nav-icon w-6 h-6 object-contain {{ $isActive('orders.index') ? '' : 'opacity-70 group-hover:opacity-95' }}">
           </div>
-          <span class="nav-text text-[10px] sm:text-[11px] font-semibold leading-tight tracking-tight text-center whitespace-nowrap min-w-0">Ventas</span>
+          <span class="nav-text text-[10px] sm:text-[11px] font-semibold leading-tight tracking-tight text-center whitespace-nowrap min-w-0">{{ __('nav.btn_sales') }}</span>
           <span class="nav-underline" aria-hidden="true"></span>
         </div>
       </a>
@@ -244,7 +244,7 @@ elseif ($isActive('costing.calculator') || $isActive('costs.*')) $activeIndex = 
             <img src="{{ asset('images/productos.png') }}" alt="Productos"
                  class="nav-icon w-6 h-6 object-contain {{ $isActive('products.*') ? '' : 'opacity-70 group-hover:opacity-95' }}">
           </div>
-          <span class="nav-text text-[10px] sm:text-[11px] font-semibold leading-tight tracking-tight text-center whitespace-nowrap min-w-0">Productos</span>
+          <span class="nav-text text-[10px] sm:text-[11px] font-semibold leading-tight tracking-tight text-center whitespace-nowrap min-w-0">{{ __('nav.btn_products') }}</span>
           <span class="nav-underline" aria-hidden="true"></span>
         </div>
       </a>
@@ -261,7 +261,7 @@ elseif ($isActive('costing.calculator') || $isActive('costs.*')) $activeIndex = 
             <img src="{{ asset('images/stock.png') }}" alt="Stock"
                  class="nav-icon w-6 h-6 object-contain {{ $isActive('stock.index') ? '' : 'opacity-70 group-hover:opacity-95' }}">
           </div>
-          <span class="nav-text text-[10px] sm:text-[11px] font-semibold leading-tight tracking-tight text-center whitespace-nowrap min-w-0">Stock</span>
+          <span class="nav-text text-[10px] sm:text-[11px] font-semibold leading-tight tracking-tight text-center whitespace-nowrap min-w-0">{{ __('nav.btn_stock') }}</span>
           <span class="nav-underline" aria-hidden="true"></span>
         </div>
       </a>
@@ -278,7 +278,7 @@ elseif ($isActive('costing.calculator') || $isActive('costs.*')) $activeIndex = 
             <img src="{{ asset('images/calcular-costos.png') }}" alt="Calcular costos"
                  class="nav-icon w-6 h-6 object-contain {{ ($isActive('costing.calculator')||$isActive('costs.*')) ? '' : 'opacity-70 group-hover:opacity-95' }}">
           </div>
-          <span class="nav-text text-[10px] sm:text-[11px] font-semibold leading-tight tracking-tight text-center whitespace-nowrap min-w-0">Costos</span>
+          <span class="nav-text text-[10px] sm:text-[11px] font-semibold leading-tight tracking-tight text-center whitespace-nowrap min-w-0">{{ __('nav.btn_costs') }}</span>
           <span class="nav-underline" aria-hidden="true"></span>
         </div>
       </a>

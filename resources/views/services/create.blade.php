@@ -7,16 +7,16 @@
         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"/>
       </svg>
     </a>
-    <h1 class="text-xl sm:text-2xl font-semibold text-neutral-800 dark:text-neutral-100">Crear nuevo servicio</h1>
+    <h1 class="text-xl sm:text-2xl font-semibold text-neutral-800 dark:text-neutral-100">{{ __('services.create_title') }}</h1>
   </div>
 @endsection
 
 @section('content')
 <div class="max-w-3xl mx-auto px-4 sm:px-6 py-8">
-  
+
   {{-- Card principal --}}
   <div class="bg-white dark:bg-neutral-800 rounded-2xl shadow-sm border border-neutral-200 dark:border-neutral-700 overflow-hidden">
-    
+
     {{-- Header de la card --}}
     <div class="bg-gradient-to-r from-indigo-50 to-purple-50 dark:from-neutral-800 dark:to-neutral-800 px-6 sm:px-8 py-5 border-b border-neutral-200 dark:border-neutral-700">
       <div class="flex items-start gap-4">
@@ -26,8 +26,8 @@
           </svg>
         </div>
         <div>
-          <h2 class="text-lg font-semibold text-neutral-900 dark:text-neutral-100">Información del servicio</h2>
-          <p class="text-sm text-neutral-600 dark:text-neutral-400 mt-0.5">Complete los datos del servicio que desea ofrecer</p>
+          <h2 class="text-lg font-semibold text-neutral-900 dark:text-neutral-100">{{ __('services.form.card_title') }}</h2>
+          <p class="text-sm text-neutral-600 dark:text-neutral-400 mt-0.5">{{ __('services.form.card_subtitle') }}</p>
         </div>
       </div>
     </div>
@@ -44,27 +44,27 @@
       @csrf
 
       <div class="space-y-7">
-        
+
         {{-- Nombre --}}
         <div class="group">
           <label for="name" class="block text-sm font-semibold text-neutral-900 dark:text-neutral-100 mb-2.5">
-            Nombre del servicio <span class="text-rose-500">*</span>
+            {{ __('services.form.name') }} <span class="text-rose-500">*</span>
           </label>
-          <input 
+          <input
             id="name"
-            name="name" 
+            name="name"
             type="text"
-            value="{{ old('name') }}" 
-            required 
+            value="{{ old('name') }}"
+            required
             maxlength="150"
-            placeholder="Ej: Desarrollo web personalizado"
+            placeholder="{{ __('services.form.name_placeholder') }}"
             class="w-full rounded-xl border-2 border-neutral-200 bg-white px-4 py-3 text-sm text-neutral-900 placeholder:text-neutral-400
                    hover:border-neutral-300 focus:border-indigo-500 focus:ring-4 focus:ring-indigo-500/10 focus:outline-none
                    dark:border-neutral-700 dark:bg-neutral-900 dark:text-neutral-100 dark:placeholder:text-neutral-500
                    dark:hover:border-neutral-600 transition-all duration-200
                    @error('name') border-rose-300 dark:border-rose-700 focus:border-rose-500 focus:ring-rose-500/10 @enderror"
           />
-          @error('name') 
+          @error('name')
             <div class="flex items-start gap-2 mt-2 text-rose-600 dark:text-rose-400">
               <svg class="w-4 h-4 mt-0.5 flex-shrink-0" fill="currentColor" viewBox="0 0 20 20">
                 <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z" clip-rule="evenodd"/>
@@ -77,14 +77,14 @@
         {{-- Descripción --}}
         <div class="group">
           <label for="description" class="block text-sm font-semibold text-neutral-900 dark:text-neutral-100 mb-2.5">
-            Descripción 
-            <span class="text-xs text-neutral-500 dark:text-neutral-400 font-normal ml-1.5">(opcional)</span>
+            {{ __('services.form.description') }}
+            <span class="text-xs text-neutral-500 dark:text-neutral-400 font-normal ml-1.5">{{ __('services.form.description_opt') }}</span>
           </label>
-          <textarea 
+          <textarea
             id="description"
-            name="description" 
+            name="description"
             rows="5"
-            placeholder="Describa los detalles, características y alcance del servicio..."
+            placeholder="{{ __('services.form.description_placeholder') }}"
             class="w-full rounded-xl border-2 border-neutral-200 bg-white px-4 py-3 text-sm text-neutral-900 placeholder:text-neutral-400
                    hover:border-neutral-300 focus:border-indigo-500 focus:ring-4 focus:ring-indigo-500/10 focus:outline-none resize-none
                    dark:border-neutral-700 dark:bg-neutral-900 dark:text-neutral-100 dark:placeholder:text-neutral-500
@@ -95,7 +95,7 @@
             <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/>
             </svg>
-            Una buena descripción ayuda a los clientes a entender mejor tu servicio
+            {{ __('services.form.description_hint') }}
           </p>
           @error('description')
             <div class="flex items-start gap-2 mt-2 text-rose-600 dark:text-rose-400">
@@ -109,11 +109,11 @@
 
         {{-- Precio y Estado --}}
         <div class="grid grid-cols-1 sm:grid-cols-2 gap-6">
-          
+
           {{-- Precio base --}}
           <div>
             <label for="price" class="block text-sm font-medium text-neutral-700 dark:text-neutral-200 mb-1">
-              Precio base <span class="text-rose-600">*</span>
+              {{ __('services.form.price') }} <span class="text-rose-600">*</span>
             </label>
             <div class="flex">
               <span class="inline-flex items-center px-3 rounded-l-lg border border-r-0 border-neutral-300 bg-neutral-50 text-neutral-600 text-sm
@@ -126,7 +126,7 @@
                             dark:border-neutral-700 dark:bg-neutral-900/50 dark:text-neutral-100 dark:placeholder:text-neutral-500"
                      placeholder="0,00">
             </div>
-            <p class="text-xs text-neutral-500 dark:text-neutral-400 mt-1">Se usa cuando no eliges una variante.</p>
+            <p class="text-xs text-neutral-500 dark:text-neutral-400 mt-1">{{ __('services.form.price_hint') }}</p>
             @error('price')
               <p class="mt-1 text-sm text-rose-600 dark:text-rose-400">{{ $message }}</p>
             @enderror
@@ -137,8 +137,8 @@
             <div class="flex items-center justify-between rounded-lg border border-neutral-200 bg-neutral-50 p-4
                         dark:border-neutral-800 dark:bg-neutral-950/40">
               <div>
-                <label for="is_active" class="text-sm font-medium text-neutral-800 dark:text-neutral-100">Activo</label>
-                <p class="text-xs text-neutral-500 dark:text-neutral-400">Habilita el servicio en listados.</p>
+                <label for="is_active" class="text-sm font-medium text-neutral-800 dark:text-neutral-100">{{ __('services.form.active') }}</label>
+                <p class="text-xs text-neutral-500 dark:text-neutral-400">{{ __('services.form.active_hint') }}</p>
               </div>
 
               <label class="inline-flex items-center">
@@ -160,13 +160,13 @@
         <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
           <div>
             <label class="block text-sm font-semibold text-neutral-900 dark:text-neutral-100 mb-2.5">
-              Categoría (opcional)
+              {{ __('services.form.category') }}
             </label>
             <select name="service_category_id"
                     class="w-full rounded-xl border-2 border-neutral-200 bg-white px-4 py-3 text-sm text-neutral-900
                            hover:border-neutral-300 focus:border-indigo-500 focus:ring-4 focus:ring-indigo-500/10 focus:outline-none
                            dark:border-neutral-700 dark:bg-neutral-900 dark:text-neutral-100 dark:hover:border-neutral-600">
-              <option value="">Sin categoría</option>
+              <option value="">{{ __('services.form.category_none') }}</option>
               @foreach(($categories ?? collect()) as $category)
                 <option value="{{ $category->id }}">{{ $category->name }}</option>
               @endforeach
@@ -174,29 +174,29 @@
           </div>
           <div>
             <label class="block text-sm font-semibold text-neutral-900 dark:text-neutral-100 mb-2.5">
-              Crear categoría nueva (opcional)
+              {{ __('services.form.category_new') }}
             </label>
             <input name="new_category" type="text" maxlength="100"
-                   placeholder="Ej: Cocheras, Spa, Mantenimiento"
+                   placeholder="{{ __('services.form.category_new_placeholder') }}"
                    class="w-full rounded-xl border-2 border-neutral-200 bg-white px-4 py-3 text-sm text-neutral-900 placeholder:text-neutral-400
                           hover:border-neutral-300 focus:border-indigo-500 focus:ring-4 focus:ring-indigo-500/10 focus:outline-none
                           dark:border-neutral-700 dark:bg-neutral-900 dark:text-neutral-100 dark:placeholder:text-neutral-500
                           dark:hover:border-neutral-600 transition-all duration-200">
-            <p class="text-xs text-neutral-500 dark:text-neutral-400 mt-1">Si completas este campo, creará la categoría y la asignará.</p>
+            <p class="text-xs text-neutral-500 dark:text-neutral-400 mt-1">{{ __('services.form.category_new_hint') }}</p>
           </div>
         </div>
 
         {{-- Tags / Categorías --}}
         <div class="group">
           <label for="tags" class="block text-sm font-semibold text-neutral-900 dark:text-neutral-100 mb-2.5">
-            Categorías / Tags <span class="text-xs text-neutral-500 dark:text-neutral-400 font-normal ml-1.5">(opcional, separa con coma)</span>
+            {{ __('services.form.tags') }} <span class="text-xs text-neutral-500 dark:text-neutral-400 font-normal ml-1.5">{{ __('services.form.tags_hint') }}</span>
           </label>
-          <input 
+          <input
             id="tags"
             name="tags"
             type="text"
             x-model="tags"
-            placeholder="spa, barbería, mantenimiento"
+            placeholder="{{ __('services.form.tags_placeholder') }}"
             class="w-full rounded-xl border-2 border-neutral-200 bg-white px-4 py-3 text-sm text-neutral-900 placeholder:text-neutral-400
                    hover:border-neutral-300 focus:border-indigo-500 focus:ring-4 focus:ring-indigo-500/10 focus:outline-none
                    dark:border-neutral-700 dark:bg-neutral-900 dark:text-neutral-100 dark:placeholder:text-neutral-500
@@ -208,21 +208,21 @@
         <div class="space-y-3">
           <div class="flex items-center justify-between">
             <div>
-              <h3 class="text-sm font-semibold text-neutral-900 dark:text-neutral-100">Variantes del servicio</h3>
-              <p class="text-xs text-neutral-500 dark:text-neutral-400">Duraciones/paquetes con precios diferenciados.</p>
+              <h3 class="text-sm font-semibold text-neutral-900 dark:text-neutral-100">{{ __('services.form.variants_title') }}</h3>
+              <p class="text-xs text-neutral-500 dark:text-neutral-400">{{ __('services.form.variants_subtitle') }}</p>
             </div>
             <button type="button" @click="addVariant()"
                     class="inline-flex items-center gap-2 rounded-lg border border-neutral-300 dark:border-neutral-700 px-3 py-2 text-xs font-semibold text-neutral-700 dark:text-neutral-200 hover:bg-neutral-50 dark:hover:bg-neutral-800 transition">
               <svg class="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                 <path d="M12 5v14m-7-7h14" stroke-linecap="round" stroke-linejoin="round"/>
               </svg>
-              Añadir variante
+              {{ __('services.form.variants_add') }}
             </button>
           </div>
 
           <template x-if="variants.length === 0">
             <p class="text-xs text-neutral-500 dark:text-neutral-400 border border-dashed border-neutral-200 dark:border-neutral-700 rounded-lg px-3 py-3">
-              Sin variantes. Se usará el precio base.
+              {{ __('services.form.variants_none') }}
             </p>
           </template>
 
@@ -231,24 +231,24 @@
               <div class="rounded-xl border border-neutral-200 dark:border-neutral-800 bg-neutral-50/80 dark:bg-neutral-900/40 p-4 space-y-2">
                 <div class="flex items-start gap-3">
                   <div class="flex-1 space-y-2">
-                    <input type="text" :name="`variants[${idx}][name]`" x-model="variant.name" placeholder="Básico 30 min"
+                    <input type="text" :name="`variants[${idx}][name]`" x-model="variant.name" placeholder="{{ __('services.form.variant_name_ph') }}"
                            class="w-full rounded-lg border border-neutral-300 dark:border-neutral-700 bg-white dark:bg-neutral-950 px-3 py-2 text-sm"
                            required>
                     <div class="grid grid-cols-1 sm:grid-cols-3 gap-3">
                       <input type="number" min="0" step="1" :name="`variants[${idx}][duration_minutes]`" x-model="variant.duration_minutes"
-                             placeholder="Duración (min)"
+                             placeholder="{{ __('services.form.variant_duration') }}"
                              class="rounded-lg border border-neutral-300 dark:border-neutral-700 bg-white dark:bg-neutral-950 px-3 py-2 text-sm">
                       <input type="number" min="0" step="0.01" :name="`variants[${idx}][price]`" x-model="variant.price"
-                             placeholder="Precio"
+                             placeholder="{{ __('services.form.variant_price') }}"
                              class="rounded-lg border border-neutral-300 dark:border-neutral-700 bg-white dark:bg-neutral-950 px-3 py-2 text-sm" required>
                       <label class="inline-flex items-center gap-2 text-xs font-semibold text-neutral-700 dark:text-neutral-200">
                         <input type="checkbox" :name="`variants[${idx}][is_active]`" value="1" x-model="variant.is_active"
                                class="rounded border-neutral-300 text-indigo-600 focus:ring-indigo-500 dark:border-neutral-700">
-                        Activa
+                        {{ __('services.form.variant_active') }}
                       </label>
                     </div>
                     <textarea :name="`variants[${idx}][description]`" x-model="variant.description" rows="2"
-                              placeholder="Detalle del paquete/duración"
+                              placeholder="{{ __('services.form.variant_desc_ph') }}"
                               class="w-full rounded-lg border border-neutral-300 dark:border-neutral-700 bg-white dark:bg-neutral-950 px-3 py-2 text-sm resize-none"></textarea>
                   </div>
                   <button type="button" @click="removeVariant(idx)"
@@ -266,39 +266,38 @@
       </div>
 
       {{-- Nota sobre Insumos --}}
-      <div class="rounded-lg border border-blue-200 bg-blue-50 dark:border-blue-800 dark:bg-blue-900/20 p-4">
+      <div class="rounded-lg border border-blue-200 bg-blue-50 dark:border-blue-800 dark:bg-blue-900/20 p-4 mt-7">
         <div class="flex items-start gap-3">
           <svg class="h-5 w-5 text-blue-600 dark:text-blue-400 mt-0.5 flex-shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor">
             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/>
           </svg>
           <div class="text-sm text-blue-800 dark:text-blue-300">
-            <p class="font-medium mb-1">Insumos del Servicio</p>
-            <p>Después de crear el servicio, podrás asignarle insumos (materiales, emboltorios, etc.) desde la vista de edición.
-               Los insumos se descuentan automáticamente del stock al vender el servicio.</p>
+            <p class="font-medium mb-1">{{ __('services.form.supplies_title') }}</p>
+            <p>{{ __('services.form.supplies_hint') }}</p>
           </div>
         </div>
       </div>
 
       {{-- Botones de acción --}}
       <div class="flex flex-col-reverse sm:flex-row items-stretch sm:items-center gap-3 pt-8 mt-8 border-t-2 border-neutral-100 dark:border-neutral-700">
-        <a 
-          href="{{ route('services.index') }}" 
+        <a
+          href="{{ route('services.index') }}"
           class="flex-1 sm:flex-none inline-flex items-center justify-center gap-2 rounded-xl px-6 py-3 text-sm font-semibold
                  text-neutral-700 bg-white border-2 border-neutral-300
                  hover:bg-neutral-50 hover:border-neutral-400 active:bg-neutral-100 active:scale-[0.98]
-                 dark:text-neutral-300 dark:bg-neutral-800 dark:border-neutral-600 
+                 dark:text-neutral-300 dark:bg-neutral-800 dark:border-neutral-600
                  dark:hover:bg-neutral-750 dark:hover:border-neutral-500
-                 focus:outline-none focus:ring-4 focus:ring-neutral-500/10 
+                 focus:outline-none focus:ring-4 focus:ring-neutral-500/10
                  transition-all duration-200 shadow-sm"
         >
           <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/>
           </svg>
-          Cancelar
+          {{ __('services.cancel') }}
         </a>
-        <button 
+        <button
           type="submit"
-          class="group/btn relative flex-1 sm:flex-auto inline-flex items-center justify-center gap-2.5 rounded-xl 
+          class="group/btn relative flex-1 sm:flex-auto inline-flex items-center justify-center gap-2.5 rounded-xl
                  px-8 py-4 text-base font-bold text-white overflow-hidden
                  focus:outline-none focus:ring-4 focus:ring-indigo-500/30 dark:focus:ring-indigo-400/40
                  active:scale-[0.98] transition-all duration-200
@@ -309,24 +308,13 @@
                  shadow-lg shadow-indigo-500/30 hover:shadow-xl hover:shadow-indigo-500/40
                  dark:shadow-indigo-500/20 dark:hover:shadow-indigo-500/30"
         >
-          {{-- Efecto de brillo animado --}}
           <div class="absolute inset-0 -translate-x-full group-hover/btn:translate-x-full transition-transform duration-1000 ease-in-out
                       bg-gradient-to-r from-transparent via-white/20 to-transparent"></div>
-          
-          {{-- Contenido del botón --}}
           <div class="relative flex items-center gap-2.5">
             <svg class="w-5 h-5 group-hover/btn:scale-110 transition-transform duration-200" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2.5">
               <path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7"/>
             </svg>
-            <span class="tracking-wide">Guardar servicio</span>
-          </div>
-          
-          {{-- Indicador de éxito (opcional para futuras mejoras) --}}
-          <div class="absolute inset-0 bg-emerald-500 rounded-xl scale-0 opacity-0 flex items-center justify-center
-                      transition-all duration-300">
-            <svg class="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M5 13l4 4L19 7"/>
-            </svg>
+            <span class="tracking-wide">{{ __('services.form.save') }}</span>
           </div>
         </button>
       </div>
@@ -334,18 +322,18 @@
 
   </div>
 
-  {{-- Tips/Ayuda opcional --}}
+  {{-- Tips/Ayuda --}}
   <div class="mt-6 p-4 bg-blue-50 dark:bg-blue-900/10 border border-blue-200 dark:border-blue-800 rounded-xl">
     <div class="flex gap-3">
       <svg class="w-5 h-5 text-blue-600 dark:text-blue-400 flex-shrink-0 mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/>
       </svg>
       <div class="text-sm text-blue-900 dark:text-blue-100">
-        <p class="font-medium mb-1">Consejos para crear un buen servicio</p>
+        <p class="font-medium mb-1">{{ __('services.form.tips_title') }}</p>
         <ul class="space-y-1 text-blue-800 dark:text-blue-200">
-          <li>• Usa un nombre claro y descriptivo</li>
-          <li>• Detalla qué incluye el servicio en la descripción</li>
-          <li>• Asegúrate de que el precio refleje el valor del servicio</li>
+          <li>• {{ __('services.form.tip_1') }}</li>
+          <li>• {{ __('services.form.tip_2') }}</li>
+          <li>• {{ __('services.form.tip_3') }}</li>
         </ul>
       </div>
     </div>

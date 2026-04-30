@@ -1,7 +1,7 @@
 @extends('layouts.app')
 
 @section('header')
-  <h1 class="text-2xl font-bold text-neutral-900 dark:text-neutral-100">Editar Factura {{ $invoice->full_number }}</h1>
+  <h1 class="text-2xl font-bold text-neutral-900 dark:text-neutral-100">{{ __('invoices.edit_title_prefix') }} {{ $invoice->full_number }}</h1>
 @endsection
 
 @section('header_actions')
@@ -9,7 +9,7 @@
     <svg class="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
       <path stroke-linecap="round" stroke-linejoin="round" d="M10 19l-7-7m0 0l7-7m-7 7h18" />
     </svg>
-    Volver
+    {{ __('invoices.back') }}
   </a>
 @endsection
 
@@ -29,8 +29,8 @@
         <path stroke-linecap="round" stroke-linejoin="round" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
       </svg>
       <div class="text-sm text-neutral-700 dark:text-neutral-300">
-        <p class="font-semibold mb-1">Solo se pueden editar datos básicos</p>
-        <p>Los items de la factura no se pueden modificar una vez creados. Si necesita cambiar los items, deberá crear una nueva factura.</p>
+        <p class="font-semibold mb-1">{{ __('invoices.edit_warning_title') }}</p>
+        <p>{{ __('invoices.edit_warning_desc') }}</p>
       </div>
     </div>
   </div>
@@ -42,7 +42,7 @@
     {{-- Client data --}}
     <div class="container-glass shadow-sm overflow-hidden mb-6">
       <div class="bg-neutral-100/70 dark:bg-neutral-800/60 px-6 py-4 border-b border-neutral-200 dark:border-neutral-700">
-        <h2 class="text-lg font-semibold text-neutral-900 dark:text-neutral-100">Datos del cliente y factura</h2>
+        <h2 class="text-lg font-semibold text-neutral-900 dark:text-neutral-100">{{ __('invoices.client_invoice_data') }}</h2>
       </div>
 
       <div class="p-6">
@@ -50,7 +50,7 @@
           {{-- Client name --}}
           <div>
             <label class="block text-sm font-medium text-neutral-700 dark:text-neutral-300 mb-2">
-              Nombre / Razón Social <span class="text-rose-500">*</span>
+              {{ __('invoices.client_name') }} <span class="text-rose-500">*</span>
             </label>
             <input type="text"
                    name="client_name"
@@ -62,7 +62,7 @@
           {{-- Client CUIT --}}
           <div>
             <label class="block text-sm font-medium text-neutral-700 dark:text-neutral-300 mb-2">
-              CUIT / DNI
+              {{ __('invoices.client_cuit') }}
             </label>
             <input type="text"
                    name="client_cuit"
@@ -75,7 +75,7 @@
           {{-- Client address --}}
           <div>
             <label class="block text-sm font-medium text-neutral-700 dark:text-neutral-300 mb-2">
-              Dirección
+              {{ __('invoices.client_address') }}
             </label>
             <input type="text"
                    name="client_address"
@@ -86,7 +86,7 @@
           {{-- Invoice date --}}
           <div>
             <label class="block text-sm font-medium text-neutral-700 dark:text-neutral-300 mb-2">
-              Fecha de emisión <span class="text-rose-500">*</span>
+              {{ __('invoices.issue_date') }} <span class="text-rose-500">*</span>
             </label>
             <input type="date"
                    name="invoice_date"
@@ -101,18 +101,18 @@
     {{-- Current items (readonly) --}}
     <div class="container-glass shadow-sm overflow-hidden mb-6">
       <div class="bg-neutral-100/70 dark:bg-neutral-800/60 px-6 py-4 border-b border-neutral-200 dark:border-neutral-700">
-        <h2 class="text-lg font-semibold text-neutral-900 dark:text-neutral-100">Items (no editables)</h2>
+        <h2 class="text-lg font-semibold text-neutral-900 dark:text-neutral-100">{{ __('invoices.items_readonly') }}</h2>
       </div>
 
       <div class="overflow-x-auto">
         <table class="table-enhanced w-full text-sm">
           <thead class="bg-neutral-50 dark:bg-neutral-800/40">
             <tr class="text-xs uppercase tracking-wide text-neutral-600 dark:text-neutral-400">
-              <th class="px-4 py-3 text-left">Descripción</th>
-              <th class="px-4 py-3 text-right">Cantidad</th>
-              <th class="px-4 py-3 text-right">P. Unitario</th>
-              <th class="px-4 py-3 text-right">IVA %</th>
-              <th class="px-4 py-3 text-right">Subtotal</th>
+              <th class="px-4 py-3 text-left">{{ __('invoices.item_desc') }}</th>
+              <th class="px-4 py-3 text-right">{{ __('invoices.items_qty_full') }}</th>
+              <th class="px-4 py-3 text-right">{{ __('invoices.items_unit_price_full') }}</th>
+              <th class="px-4 py-3 text-right">{{ __('invoices.item_tax_rate') }}</th>
+              <th class="px-4 py-3 text-right">{{ __('invoices.item_subtotal') }}</th>
             </tr>
           </thead>
           <tbody class="divide-y divide-neutral-200 dark:divide-neutral-700">
@@ -141,19 +141,19 @@
         <div class="flex justify-end">
           <div class="w-full sm:w-80 space-y-2">
             <div class="flex justify-between text-sm">
-              <span class="text-neutral-700 dark:text-neutral-300">Subtotal:</span>
+              <span class="text-neutral-700 dark:text-neutral-300">{{ __('invoices.subtotal_label') }}</span>
               <span class="font-medium text-neutral-900 dark:text-neutral-100 tabular-nums">
                 $ {{ number_format($invoice->subtotal, 2, ',', '.') }}
               </span>
             </div>
             <div class="flex justify-between text-sm">
-              <span class="text-neutral-700 dark:text-neutral-300">IVA:</span>
+              <span class="text-neutral-700 dark:text-neutral-300">{{ __('invoices.tax_label') }}</span>
               <span class="font-medium text-neutral-900 dark:text-neutral-100 tabular-nums">
                 $ {{ number_format($invoice->tax_amount, 2, ',', '.') }}
               </span>
             </div>
             <div class="flex justify-between text-xl font-bold pt-2 border-t border-neutral-200 dark:border-neutral-700">
-              <span class="text-neutral-900 dark:text-neutral-100">Total:</span>
+              <span class="text-neutral-900 dark:text-neutral-100">{{ __('invoices.total_label') }}</span>
               <span class="text-indigo-600 dark:text-indigo-400 tabular-nums">
                 $ {{ number_format($invoice->total, 2, ',', '.') }}
               </span>
@@ -167,14 +167,14 @@
     <div class="flex items-center justify-end gap-3 mb-8">
       <a href="{{ route('invoices.show', $invoice) }}"
          class="px-4 py-2.5 rounded-lg border border-neutral-300 dark:border-neutral-700 text-neutral-700 dark:text-neutral-200 hover:bg-neutral-50 dark:hover:bg-neutral-800 text-sm font-medium transition-all duration-150">
-        Cancelar
+        {{ __('invoices.cancel') }}
       </a>
       <button type="submit"
               class="inline-flex items-center gap-2 px-6 py-2.5 rounded-lg bg-indigo-600 text-white text-sm font-medium hover:bg-indigo-700 transition-all duration-150 active:scale-[0.98]">
         <svg class="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
           <path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7" />
         </svg>
-        Guardar cambios
+        {{ __('invoices.save_changes') }}
       </button>
     </div>
   </form>

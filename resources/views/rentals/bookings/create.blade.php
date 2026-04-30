@@ -9,7 +9,7 @@
       </svg>
     </a>
     <div>
-      <h1 class="text-xl sm:text-2xl font-bold text-neutral-900 dark:text-neutral-100">Nueva reserva</h1>
+      <h1 class="text-xl sm:text-2xl font-bold text-neutral-900 dark:text-neutral-100">{{ __('rentals.create_booking_title') }}</h1>
     </div>
   </div>
 @endsection
@@ -40,7 +40,7 @@
          }
        }">
     <div class="px-5 py-4 border-b border-neutral-200 dark:border-neutral-700">
-      <h2 class="text-base font-semibold text-neutral-900 dark:text-neutral-100">Datos de la reserva</h2>
+      <h2 class="text-base font-semibold text-neutral-900 dark:text-neutral-100">{{ __('rentals.booking_data_title') }}</h2>
     </div>
 
     <form method="POST" action="{{ route('rentals.bookings.store') }}" class="p-5 space-y-4">
@@ -49,11 +49,11 @@
 
       {{-- Espacio --}}
       <div>
-        <label class="block text-sm font-medium text-neutral-700 dark:text-neutral-200 mb-1">Espacio *</label>
+        <label class="block text-sm font-medium text-neutral-700 dark:text-neutral-200 mb-1">{{ __('rentals.field_space') }} *</label>
         <select name="rental_space_id" required
                 x-model="selectedSpaceId"
                 class="w-full rounded-lg border border-neutral-300 dark:border-neutral-700 bg-white dark:bg-neutral-900 px-3 py-2 text-sm">
-          <option value="">Seleccioná un espacio</option>
+          <option value="">{{ __('rentals.select_space_ph') }}</option>
           @foreach($spaces as $space)
             <option value="{{ $space->id }}" {{ old('rental_space_id') == $space->id ? 'selected' : '' }}>
               {{ $space->name }}
@@ -65,7 +65,7 @@
 
       {{-- Fecha y hora de inicio --}}
       <div>
-        <label class="block text-sm font-medium text-neutral-700 dark:text-neutral-200 mb-1">Fecha y hora de inicio *</label>
+        <label class="block text-sm font-medium text-neutral-700 dark:text-neutral-200 mb-1">{{ __('rentals.field_start_datetime') }} *</label>
         <input type="datetime-local" name="starts_at" required
                value="{{ old('starts_at', now()->addHour()->format('Y-m-d\TH:i')) }}"
                class="w-full rounded-lg border border-neutral-300 dark:border-neutral-700 bg-white dark:bg-neutral-900 px-3 py-2 text-sm">
@@ -74,7 +74,7 @@
 
       {{-- Duración --}}
       <div>
-        <label class="block text-sm font-medium text-neutral-700 dark:text-neutral-200 mb-2">Duración *</label>
+        <label class="block text-sm font-medium text-neutral-700 dark:text-neutral-200 mb-2">{{ __('rentals.field_duration') }} *</label>
         {{-- Opciones preestablecidas del espacio --}}
         <div x-show="durationOptions.length > 0" class="flex flex-wrap gap-2 mb-2">
           <template x-for="opt in durationOptions" :key="opt.id">
@@ -94,14 +94,14 @@
                  min="15" max="1440" step="15"
                  value="{{ old('duration_minutes', 60) }}"
                  class="w-28 rounded-lg border border-neutral-300 dark:border-neutral-700 bg-white dark:bg-neutral-900 px-3 py-2 text-sm">
-          <span class="text-sm text-neutral-500">minutos</span>
+          <span class="text-sm text-neutral-500">{{ __('rentals.minutes_label') }}</span>
         </div>
         @error('duration_minutes') <p class="text-xs text-rose-600 mt-1">{{ $message }}</p> @enderror
       </div>
 
       {{-- Monto --}}
       <div>
-        <label class="block text-sm font-medium text-neutral-700 dark:text-neutral-200 mb-1">Monto total</label>
+        <label class="block text-sm font-medium text-neutral-700 dark:text-neutral-200 mb-1">{{ __('rentals.field_total_amount') }}</label>
         <div class="relative">
           <span class="absolute left-3 top-2 text-sm text-neutral-500">$</span>
           <input type="number" name="total_amount" id="total_amount"
@@ -113,25 +113,25 @@
 
       {{-- Cliente --}}
       <div x-data="{ useRegistered: false }">
-        <label class="block text-sm font-medium text-neutral-700 dark:text-neutral-200 mb-1">Cliente</label>
+        <label class="block text-sm font-medium text-neutral-700 dark:text-neutral-200 mb-1">{{ __('rentals.field_client') }}</label>
         <div class="flex gap-2 mb-2">
           <button type="button" @click="useRegistered = false"
                   class="text-xs px-2.5 py-1 rounded-full border transition-colors"
                   :class="!useRegistered ? 'bg-violet-600 border-violet-600 text-white' : 'border-neutral-300 dark:border-neutral-700 text-neutral-600 dark:text-neutral-400'">
-            Rápido
+            {{ __('rentals.client_quick_label') }}
           </button>
           <button type="button" @click="useRegistered = true"
                   class="text-xs px-2.5 py-1 rounded-full border transition-colors"
                   :class="useRegistered ? 'bg-violet-600 border-violet-600 text-white' : 'border-neutral-300 dark:border-neutral-700 text-neutral-600 dark:text-neutral-400'">
-            Registrado
+            {{ __('rentals.client_registered_label') }}
           </button>
         </div>
 
         <div x-show="!useRegistered" class="grid grid-cols-2 gap-2">
-          <input type="text" name="client_name" placeholder="Nombre"
+          <input type="text" name="client_name" placeholder="{{ __('rentals.client_name_ph') }}"
                  value="{{ old('client_name') }}"
                  class="rounded-lg border border-neutral-300 dark:border-neutral-700 bg-white dark:bg-neutral-900 px-3 py-2 text-sm">
-          <input type="text" name="client_phone" placeholder="Teléfono"
+          <input type="text" name="client_phone" placeholder="{{ __('rentals.client_phone_ph') }}"
                  value="{{ old('client_phone') }}"
                  class="rounded-lg border border-neutral-300 dark:border-neutral-700 bg-white dark:bg-neutral-900 px-3 py-2 text-sm">
         </div>
@@ -139,7 +139,7 @@
         <div x-show="useRegistered">
           <select name="client_id"
                   class="w-full rounded-lg border border-neutral-300 dark:border-neutral-700 bg-white dark:bg-neutral-900 px-3 py-2 text-sm">
-            <option value="">Seleccioná un cliente</option>
+            <option value="">{{ __('rentals.select_client_ph') }}</option>
             @foreach($clients as $client)
               <option value="{{ $client->id }}" {{ old('client_id') == $client->id ? 'selected' : '' }}>
                 {{ $client->name }}{{ $client->phone ? ' · '.$client->phone : '' }}
@@ -151,20 +151,20 @@
 
       {{-- Notas --}}
       <div>
-        <label class="block text-sm font-medium text-neutral-700 dark:text-neutral-200 mb-1">Notas</label>
+        <label class="block text-sm font-medium text-neutral-700 dark:text-neutral-200 mb-1">{{ __('rentals.field_notes') }}</label>
         <textarea name="notes" rows="2"
                   class="w-full rounded-lg border border-neutral-300 dark:border-neutral-700 bg-white dark:bg-neutral-900 px-3 py-2 text-sm resize-none"
-                  placeholder="Observaciones, pedidos especiales...">{{ old('notes') }}</textarea>
+                  placeholder="{{ __('rentals.notes_ph') }}">{{ old('notes') }}</textarea>
       </div>
 
       <div class="flex gap-2 pt-1">
         <button type="submit"
                 class="flex-1 py-2.5 text-sm font-medium rounded-lg bg-violet-600 hover:bg-violet-700 text-white transition-colors">
-          Crear reserva
+          {{ __('rentals.create_booking_btn') }}
         </button>
         <a href="{{ route('rentals.calendar') }}"
            class="px-4 py-2.5 text-sm rounded-lg border border-neutral-300 dark:border-neutral-700 text-neutral-700 dark:text-neutral-300 hover:bg-neutral-50 dark:hover:bg-neutral-800 transition-colors">
-          Cancelar
+          {{ __('rentals.cancel_btn') }}
         </a>
       </div>
     </form>

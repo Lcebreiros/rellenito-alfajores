@@ -1,7 +1,7 @@
 @extends('layouts.app')
 
 @section('header')
-  <h1 class="text-2xl font-bold text-neutral-900 dark:text-neutral-100">Facturas Electrónicas</h1>
+  <h1 class="text-2xl font-bold text-neutral-900 dark:text-neutral-100">{{ __('invoices.title') }}</h1>
 @endsection
 
 @section('header_actions')
@@ -11,13 +11,13 @@
         <path stroke-linecap="round" stroke-linejoin="round" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z" />
         <path stroke-linecap="round" stroke-linejoin="round" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
       </svg>
-      <span class="hidden sm:inline">Configuración</span>
+      <span class="hidden sm:inline">{{ __('invoices.config_btn') }}</span>
     </a>
     <a href="{{ route('invoices.create') }}" class="inline-flex items-center gap-2 px-4 py-2 rounded-lg bg-indigo-600 text-white text-sm font-medium hover:bg-indigo-700 transition-all duration-150 active:scale-[0.98]">
       <svg class="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
         <path stroke-linecap="round" stroke-linejoin="round" d="M12 4v16m8-8H4" />
       </svg>
-      Nueva factura
+      {{ __('invoices.new_invoice') }}
     </a>
   </div>
 @endsection
@@ -48,7 +48,7 @@
     <div class="card-glass p-4">
       <div class="flex items-center justify-between">
         <div>
-          <p class="text-xs text-neutral-600 dark:text-neutral-400 uppercase tracking-wide">Total Facturas</p>
+          <p class="text-xs text-neutral-600 dark:text-neutral-400 uppercase tracking-wide">{{ __('invoices.stat_total') }}</p>
           <p class="text-2xl font-bold text-neutral-900 dark:text-neutral-100 mt-1">{{ $stats['total'] ?? 0 }}</p>
         </div>
         <div class="w-12 h-12 rounded-full bg-indigo-100 dark:bg-indigo-900/30 flex items-center justify-center">
@@ -62,7 +62,7 @@
     <div class="card-glass p-4">
       <div class="flex items-center justify-between">
         <div>
-          <p class="text-xs text-neutral-600 dark:text-neutral-400 uppercase tracking-wide">Aprobadas</p>
+          <p class="text-xs text-neutral-600 dark:text-neutral-400 uppercase tracking-wide">{{ __('invoices.stat_approved') }}</p>
           <p class="text-2xl font-bold text-emerald-600 dark:text-emerald-400 mt-1">{{ $stats['approved'] ?? 0 }}</p>
         </div>
         <div class="w-12 h-12 rounded-full bg-emerald-100 dark:bg-emerald-900/30 flex items-center justify-center">
@@ -76,7 +76,7 @@
     <div class="card-glass p-4">
       <div class="flex items-center justify-between">
         <div>
-          <p class="text-xs text-neutral-600 dark:text-neutral-400 uppercase tracking-wide">Borradores</p>
+          <p class="text-xs text-neutral-600 dark:text-neutral-400 uppercase tracking-wide">{{ __('invoices.stat_draft') }}</p>
           <p class="text-2xl font-bold text-amber-600 dark:text-amber-400 mt-1">{{ $stats['draft'] ?? 0 }}</p>
         </div>
         <div class="w-12 h-12 rounded-full bg-amber-100 dark:bg-amber-900/30 flex items-center justify-center">
@@ -90,7 +90,7 @@
     <div class="card-glass p-4">
       <div class="flex items-center justify-between">
         <div>
-          <p class="text-xs text-neutral-600 dark:text-neutral-400 uppercase tracking-wide">Este mes</p>
+          <p class="text-xs text-neutral-600 dark:text-neutral-400 uppercase tracking-wide">{{ __('invoices.stat_month') }}</p>
           <p class="text-2xl font-bold text-neutral-900 dark:text-neutral-100 mt-1">
             $ {{ number_format($stats['month_sum'] ?? 0, 2, ',', '.') }}
           </p>
@@ -111,16 +111,16 @@
         <table class="table-enhanced w-full min-w-[1000px] text-sm">
           <thead class="bg-neutral-100/70 dark:bg-neutral-800/60">
             <tr class="text-xs uppercase tracking-wide text-neutral-600 dark:text-neutral-300">
-              <th class="px-3 py-3 text-left">Número</th>
-              <th class="px-3 py-3 text-left">Tipo</th>
-              <th class="px-3 py-3 text-left">Fecha</th>
-              <th class="px-3 py-3 text-left">Cliente</th>
-              <th class="px-3 py-3 text-right">Subtotal</th>
-              <th class="px-3 py-3 text-right">IVA</th>
-              <th class="px-3 py-3 text-right">Total</th>
-              <th class="px-3 py-3 text-center">Estado</th>
-              <th class="px-3 py-3 text-center">CAE</th>
-              <th class="px-3 py-3 text-left">Acciones</th>
+              <th class="px-3 py-3 text-left">{{ __('invoices.col_number') }}</th>
+              <th class="px-3 py-3 text-left">{{ __('invoices.col_type') }}</th>
+              <th class="px-3 py-3 text-left">{{ __('invoices.col_date') }}</th>
+              <th class="px-3 py-3 text-left">{{ __('invoices.col_client') }}</th>
+              <th class="px-3 py-3 text-right">{{ __('invoices.col_subtotal') }}</th>
+              <th class="px-3 py-3 text-right">{{ __('invoices.col_tax') }}</th>
+              <th class="px-3 py-3 text-right">{{ __('invoices.col_total') }}</th>
+              <th class="px-3 py-3 text-center">{{ __('invoices.col_status') }}</th>
+              <th class="px-3 py-3 text-center">{{ __('invoices.col_cae') }}</th>
+              <th class="px-3 py-3 text-left">{{ __('invoices.col_actions') }}</th>
             </tr>
           </thead>
           <tbody class="divide-y divide-neutral-200 dark:divide-neutral-800">
@@ -155,23 +155,23 @@
                 <td class="px-3 py-3 text-center">
                   @if($invoice->status === 'approved')
                     <span class="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-emerald-100 text-emerald-700 dark:bg-emerald-900/30 dark:text-emerald-400">
-                      Aprobada
+                      {{ __('invoices.status_approved') }}
                     </span>
                   @elseif($invoice->status === 'draft')
                     <span class="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-neutral-100 text-neutral-700 dark:bg-neutral-800 dark:text-neutral-300">
-                      Borrador
+                      {{ __('invoices.status_draft') }}
                     </span>
                   @elseif($invoice->status === 'pending')
                     <span class="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-amber-100 text-amber-700 dark:bg-amber-900/30 dark:text-amber-400">
-                      Pendiente
+                      {{ __('invoices.status_pending') }}
                     </span>
                   @elseif($invoice->status === 'rejected')
                     <span class="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-rose-100 text-rose-700 dark:bg-rose-900/30 dark:text-rose-400">
-                      Rechazada
+                      {{ __('invoices.status_rejected') }}
                     </span>
                   @elseif($invoice->status === 'cancelled')
                     <span class="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-neutral-100 text-neutral-500 dark:bg-neutral-800 dark:text-neutral-400">
-                      Anulada
+                      {{ __('invoices.status_cancelled') }}
                     </span>
                   @endif
                 </td>
@@ -186,7 +186,7 @@
                         <path stroke-linecap="round" stroke-linejoin="round" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
                         <path stroke-linecap="round" stroke-linejoin="round" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
                       </svg>
-                      Ver
+                      {{ __('invoices.action_view') }}
                     </a>
                     @if($invoice->status === 'draft')
                       <a href="{{ route('invoices.edit', $invoice) }}"
@@ -194,7 +194,7 @@
                         <svg class="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                           <path stroke-linecap="round" stroke-linejoin="round" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
                         </svg>
-                        Editar
+                        {{ __('invoices.action_edit') }}
                       </a>
                     @endif
                   </div>
@@ -218,15 +218,15 @@
       <svg class="mx-auto h-16 w-16 text-neutral-400 dark:text-neutral-600" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
         <path stroke-linecap="round" stroke-linejoin="round" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
       </svg>
-      <h3 class="mt-4 text-lg font-semibold text-neutral-900 dark:text-neutral-100">No hay facturas</h3>
-      <p class="mt-2 text-sm text-neutral-600 dark:text-neutral-400">Comienza creando tu primera factura electrónica</p>
+      <h3 class="mt-4 text-lg font-semibold text-neutral-900 dark:text-neutral-100">{{ __('invoices.empty_title') }}</h3>
+      <p class="mt-2 text-sm text-neutral-600 dark:text-neutral-400">{{ __('invoices.empty_desc') }}</p>
       <div class="mt-6">
         <a href="{{ route('invoices.create') }}"
            class="inline-flex items-center gap-2 px-4 py-2 rounded-lg bg-indigo-600 text-white text-sm font-medium hover:bg-indigo-700 transition-all duration-150 active:scale-[0.98]">
           <svg class="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
             <path stroke-linecap="round" stroke-linejoin="round" d="M12 4v16m8-8H4" />
           </svg>
-          Nueva factura
+          {{ __('invoices.new_invoice') }}
         </a>
       </div>
     </div>

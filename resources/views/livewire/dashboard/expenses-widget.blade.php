@@ -8,11 +8,11 @@
               border-b border-neutral-100 dark:border-neutral-800/60">
     <div class="flex items-center gap-2">
       <div class="w-1.5 h-4 rounded-full bg-rose-500/80 dark:bg-rose-400/70"></div>
-      <h3 class="text-sm font-semibold text-neutral-800 dark:text-neutral-100">Gastos totales</h3>
+      <h3 class="text-sm font-semibold text-neutral-800 dark:text-neutral-100">{{ __('dashboard.expenses_total_title') }}</h3>
     </div>
     <a href="{{ route('expenses.index') }}"
        class="text-[11px] font-medium text-indigo-500 dark:text-indigo-400 hover:text-indigo-700 dark:hover:text-indigo-300 transition-colors">
-      Ver detalle →
+      {{ __('dashboard.view_detail_link') }}
     </a>
   </div>
 
@@ -20,12 +20,12 @@
   <div class="flex-1 flex flex-col justify-between p-4 sm:p-5">
     {{-- Total principal --}}
     <div class="mb-5">
-      <div class="text-[10px] uppercase tracking-wide text-neutral-400 dark:text-neutral-500 mb-1">Total anualizado</div>
+      <div class="text-[10px] uppercase tracking-wide text-neutral-400 dark:text-neutral-500 mb-1">{{ __('dashboard.total_annualized') }}</div>
       <div class="text-3xl font-bold text-neutral-900 dark:text-white tabular-nums">
         ${{ number_format($total, 0, ',', '.') }}
       </div>
       <div class="text-[11px] text-neutral-400 dark:text-neutral-500 mt-1">
-        {{ $totalItems }} gastos activos
+        {{ $totalItems }} {{ __('dashboard.active_expenses_suffix') }}
       </div>
     </div>
 

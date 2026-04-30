@@ -1,15 +1,15 @@
 @php
   $statusOptions = [
-    '' => 'Todos',
-    'in' => 'En stock',
-    'low' => 'Bajo (≤ mín.)',
-    'out' => 'Sin stock'
+    ''    => __('stock.status_all'),
+    'in'  => __('stock.status_in'),
+    'low' => __('stock.status_low'),
+    'out' => __('stock.status_out'),
   ];
 
   $sortOptions = [
-    'name' => 'Nombre',
-    'stock' => 'Stock',
-    'value' => 'Valorización'
+    'name'  => __('stock.sort_name'),
+    'stock' => __('stock.sort_stock'),
+    'value' => __('stock.sort_valuation'),
   ];
 @endphp
 
@@ -19,7 +19,7 @@
     <div class="flex flex-wrap items-center gap-2">
       <span class="text-sm font-medium text-gray-700 dark:text-neutral-300 flex items-center py-2">
         <i class="fas fa-filter text-gray-500 dark:text-neutral-400 mr-2" aria-hidden="true"></i>
-        <span>Estado:</span>
+        <span>{{ __('stock.status_label') }}</span>
       </span>
 
       @foreach($statusOptions as $key => $label)
@@ -39,13 +39,13 @@
     <div class="lg:ml-auto w-full lg:w-72">
       <form method="GET" class="flex gap-2" role="search">
         <div class="relative flex-1">
-          <label for="search-input" class="sr-only">Buscar productos</label>
+          <label for="search-input" class="sr-only">{{ __('stock.search_label') }}</label>
           <i class="fas fa-search absolute left-3 top-1/2 -translate-y-1/2 text-gray-400 dark:text-neutral-500 text-sm pointer-events-none" aria-hidden="true"></i>
           <input type="text"
                  id="search-input"
                  name="q"
                  value="{{ $currentQuery }}"
-                 placeholder="Buscar nombre / SKU / precio…"
+                 placeholder="{{ __('stock.search_products_ph') }}"
                  class="w-full pl-9 pr-3 py-2 rounded-lg text-sm
                         border-gray-300 focus:border-indigo-500 focus:ring-indigo-500
                         dark:bg-neutral-900 dark:border-neutral-700 dark:text-neutral-100 dark:placeholder-neutral-400">
@@ -60,7 +60,7 @@
                 class="px-4 py-2 rounded-lg text-sm font-medium transition-colors
                        bg-indigo-600 text-white hover:bg-indigo-700
                        focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2">
-          Buscar
+          {{ __('stock.search') }}
         </button>
       </form>
     </div>
@@ -68,7 +68,7 @@
 
   {{-- Ordenamiento --}}
   <div class="flex flex-wrap items-center gap-2 pt-3 border-t border-gray-100 dark:border-neutral-700">
-    <span class="text-xs font-medium text-gray-500 dark:text-neutral-400">Ordenar por:</span>
+    <span class="text-xs font-medium text-gray-500 dark:text-neutral-400">{{ __('stock.sort_by') }}</span>
 
     @foreach($sortOptions as $key => $label)
       @php
@@ -94,7 +94,7 @@
               dark:bg-neutral-800 dark:text-neutral-200 dark:hover:bg-neutral-700
               transition-colors focus:outline-none focus:ring-2 focus:ring-gray-500">
       <i class="fas fa-eraser" aria-hidden="true"></i>
-      <span>Limpiar filtros</span>
+      <span>{{ __('stock.clear_filters') }}</span>
     </a>
   </div>
 </div>

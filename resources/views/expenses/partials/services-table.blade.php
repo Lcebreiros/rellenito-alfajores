@@ -4,10 +4,10 @@
       <table class="w-full">
         <thead class="bg-neutral-50 dark:bg-neutral-900/50">
           <tr>
-            <th class="px-6 py-3 text-left text-xs font-medium text-neutral-500 dark:text-neutral-400 uppercase">Gasto</th>
-            <th class="px-6 py-3 text-left text-xs font-medium text-neutral-500 dark:text-neutral-400 uppercase">Servicio</th>
-            <th class="px-6 py-3 text-left text-xs font-medium text-neutral-500 dark:text-neutral-400 uppercase">Tipo</th>
-            <th class="px-6 py-3 text-left text-xs font-medium text-neutral-500 dark:text-neutral-400 uppercase">Costo</th>
+            <th class="px-6 py-3 text-left text-xs font-medium text-neutral-500 dark:text-neutral-400 uppercase">{{ __('expenses.col_expense') }}</th>
+            <th class="px-6 py-3 text-left text-xs font-medium text-neutral-500 dark:text-neutral-400 uppercase">{{ __('expenses.col_service') }}</th>
+            <th class="px-6 py-3 text-left text-xs font-medium text-neutral-500 dark:text-neutral-400 uppercase">{{ __('expenses.col_type') }}</th>
+            <th class="px-6 py-3 text-left text-xs font-medium text-neutral-500 dark:text-neutral-400 uppercase">{{ __('expenses.col_cost') }}</th>
           </tr>
         </thead>
         <tbody class="divide-y divide-neutral-200 dark:divide-neutral-700">
@@ -38,8 +38,8 @@
     @if($serviceExpenses->count() > 10)
       <div class="px-6 py-3 bg-neutral-50 dark:bg-neutral-900/50 border-t border-neutral-200 dark:border-neutral-700">
         <p class="text-sm text-neutral-600 dark:text-neutral-400 text-center">
-          Mostrando 10 de {{ $serviceExpenses->count() }} gastos.
-          <a href="{{ route('expenses.services') }}" class="text-green-600 dark:text-green-400 hover:underline">Ver todos</a>
+          {{ __('expenses.showing_of_pre') }} 10 {{ __('expenses.showing_of_mid') }} {{ $serviceExpenses->count() }} {{ __('expenses.expenses_count_label') }}.
+          <a href="{{ route('expenses.services') }}" class="text-green-600 dark:text-green-400 hover:underline">{{ __('expenses.view_all') }}</a>
         </p>
       </div>
     @endif
@@ -49,7 +49,7 @@
     <svg class="mx-auto h-12 w-12 text-neutral-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
       <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/>
     </svg>
-    <h3 class="mt-4 text-sm font-medium text-neutral-900 dark:text-neutral-100">No hay gastos de servicios</h3>
-    <p class="mt-1 text-sm text-neutral-500 dark:text-neutral-400">Comienza creando tu primer gasto de servicio.</p>
+    <h3 class="mt-4 text-sm font-medium text-neutral-900 dark:text-neutral-100">{{ __('expenses.no_service_expenses') }}</h3>
+    <p class="mt-1 text-sm text-neutral-500 dark:text-neutral-400">{{ __('expenses.create_first_service_expense') }}</p>
   </div>
 @endif

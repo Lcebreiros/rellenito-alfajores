@@ -19,7 +19,7 @@
                    {{ $isActive 
                       ? 'bg-emerald-100 text-emerald-700 dark:bg-emerald-900/30 dark:text-emerald-300' 
                       : 'bg-neutral-200 text-neutral-700 dark:bg-neutral-800 dark:text-neutral-300' }}">
-        {{ $isActive ? 'Activo' : 'Inactivo' }}
+        {{ $isActive ? __('services.status_active') : __('services.status_inactive') }}
       </div>
     </div>
 
@@ -29,6 +29,6 @@
       </span>
     </div>
   @else
-    <div class="text-sm text-neutral-500">Servicio no disponible.</div>
+    <div class="text-sm text-neutral-500">{{ __('services.card_unavailable') }}</div>
   @endif
 </button>

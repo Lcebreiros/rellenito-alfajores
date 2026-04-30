@@ -10,18 +10,18 @@
         $firstRole = $roles[0] ?? null;
         if ($firstRole) {
             $roleMap = [
-                'company' => 'Empresa',
-                'admin'   => 'Sucursal',
-                'user'    => 'Usuario',
-                'master'  => 'Master',
+                'company' => __('dashboard.level_company'),
+                'admin'   => __('dashboard.level_branch'),
+                'user'    => __('dashboard.level_user'),
+                'master'  => __('dashboard.level_master'),
             ];
             $levelLabel = $roleMap[$firstRole] ?? Str::title(str_replace(['-', '_'], ' ', $firstRole));
         } else {
             switch (Auth::user()->hierarchy_level) {
-                case \App\Models\User::HIERARCHY_MASTER:  $levelLabel = 'Master'; break;
-                case \App\Models\User::HIERARCHY_COMPANY: $levelLabel = 'Empresa'; break;
-                case \App\Models\User::HIERARCHY_ADMIN:   $levelLabel = 'Sucursal'; break;
-                case \App\Models\User::HIERARCHY_USER:    $levelLabel = 'Usuario'; break;
+                case \App\Models\User::HIERARCHY_MASTER:  $levelLabel = __('dashboard.level_master'); break;
+                case \App\Models\User::HIERARCHY_COMPANY: $levelLabel = __('dashboard.level_company'); break;
+                case \App\Models\User::HIERARCHY_ADMIN:   $levelLabel = __('dashboard.level_branch'); break;
+                case \App\Models\User::HIERARCHY_USER:    $levelLabel = __('dashboard.level_user'); break;
                 default: $levelLabel = null; break;
             }
         }
@@ -40,7 +40,7 @@
         <svg class="w-4 h-4 text-indigo-600 dark:text-indigo-300" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
           <path d="M3 13h4v8H3zM9 3h4v18H9zM15 9h4v12h-4z" stroke-linecap="round" stroke-linejoin="round"/>
         </svg>
-        <span>Ir al Dashboard</span>
+        <span>{{ __('dashboard.go_to_dashboard') }}</span>
       </a>
     </div>
     <div></div>
@@ -457,7 +457,7 @@
       <a href="{{ route('nexum') }}" class="tile-wide tile-nexum w-full">
         <div class="min-w-0 flex-1">
           <span style="font-size:1.45rem; font-weight:800; letter-spacing:.22em; background:linear-gradient(135deg,#a78bfa 0%,#7c3aed 55%,#4c1d95 100%); -webkit-background-clip:text; -webkit-text-fill-color:transparent; background-clip:text; line-height:1.2; display:inline-block;">NEXUM</span>
-          <div class="text-[10px] sm:text-xs text-neutral-500 dark:text-neutral-400 mt-0.5">Business Health · Diagnósticos · Reportes PDF</div>
+          <div class="text-[10px] sm:text-xs text-neutral-500 dark:text-neutral-400 mt-0.5">{{ __('dashboard.nexum_sub') }}</div>
         </div>
         <svg class="w-4 h-4 flex-shrink-0 text-neutral-400 dark:text-neutral-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
           <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/>
@@ -472,8 +472,8 @@
           <path d="M3 13h4v8H3zM9 3h4v18H9zM15 9h4v12h-4z" stroke-linecap="round" stroke-linejoin="round"/>
         </svg>
         <div class="min-w-0 flex-1">
-          <div class="text-xs font-bold text-neutral-900 dark:text-neutral-100">Dashboard</div>
-          <div class="text-[10px] text-neutral-500 dark:text-neutral-400">Métricas · Widgets · Resumen</div>
+          <div class="text-xs font-bold text-neutral-900 dark:text-neutral-100">{{ __('dashboard.dashboard_label') }}</div>
+          <div class="text-[10px] text-neutral-500 dark:text-neutral-400">{{ __('dashboard.dashboard_sub') }}</div>
         </div>
         <svg class="w-4 h-4 flex-shrink-0 text-neutral-400 dark:text-neutral-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
           <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/>
@@ -483,7 +483,7 @@
 
     {{-- OPERACIONES --}}
     <div class="fade-in-up">
-      <h2 class="text-xs font-semibold text-neutral-600 dark:text-neutral-300 mb-1.5 sm:mb-2 lg:mb-2.5 tracking-tight uppercase">Operaciones</h2>
+      <h2 class="text-xs font-semibold text-neutral-600 dark:text-neutral-300 mb-1.5 sm:mb-2 lg:mb-2.5 tracking-tight uppercase">{{ __('dashboard.section_operations') }}</h2>
 
       @php
         $businessType = auth()->user()->business_type ?? 'comercio';
@@ -498,8 +498,8 @@
               <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4m16 0a9 9 0 11-18 0 9 9 0 0118 0z"/>
             </svg>
             <div class="text-center">
-              <div class="text-xs sm:text-sm lg:text-base font-bold text-neutral-900 dark:text-neutral-100">Crear ingreso</div>
-              <div class="text-[10px] sm:text-xs text-neutral-500 dark:text-neutral-400 mt-0.5">Operador</div>
+              <div class="text-xs sm:text-sm lg:text-base font-bold text-neutral-900 dark:text-neutral-100">{{ __('dashboard.create_income_label') }}</div>
+              <div class="text-[10px] sm:text-xs text-neutral-500 dark:text-neutral-400 mt-0.5">{{ __('dashboard.create_income_sub') }}</div>
             </div>
           </a>
 
@@ -509,8 +509,8 @@
               <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-3 7h3m-3 4h3m-6-4h.01M9 16h.01"/>
             </svg>
             <div class="min-w-0">
-              <div class="text-xs sm:text-sm font-bold text-neutral-900 dark:text-neutral-100 truncate">Movimientos</div>
-              <div class="text-[10px] sm:text-xs text-neutral-500 dark:text-neutral-400">Historial</div>
+              <div class="text-xs sm:text-sm font-bold text-neutral-900 dark:text-neutral-100 truncate">{{ __('dashboard.movements_label') }}</div>
+              <div class="text-[10px] sm:text-xs text-neutral-500 dark:text-neutral-400">{{ __('dashboard.movements_sub') }}</div>
             </div>
           </a>
 
@@ -520,8 +520,8 @@
               <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 7h.01M7 3h5c.512 0 1.024.195 1.414.586l7 7a2 2 0 010 2.828l-7 7a2 2 0 01-2.828 0l-7-7A1.994 1.994 0 013 12V7a4 4 0 014-4z"></path>
             </svg>
             <div class="min-w-0">
-              <div class="text-xs sm:text-sm font-bold text-neutral-900 dark:text-neutral-100 truncate">Bonificaciones</div>
-              <div class="text-[10px] sm:text-xs text-neutral-500 dark:text-neutral-400">Descuentos</div>
+              <div class="text-xs sm:text-sm font-bold text-neutral-900 dark:text-neutral-100 truncate">{{ __('dashboard.bonuses_label') }}</div>
+              <div class="text-[10px] sm:text-xs text-neutral-500 dark:text-neutral-400">{{ __('dashboard.bonuses_sub') }}</div>
             </div>
           </a>
 
@@ -531,8 +531,8 @@
               <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4"/>
             </svg>
             <div class="min-w-0">
-              <div class="text-xs sm:text-sm font-bold text-neutral-900 dark:text-neutral-100 truncate">Cocheras</div>
-              <div class="text-[10px] sm:text-xs text-neutral-500 dark:text-neutral-400">Espacios</div>
+              <div class="text-xs sm:text-sm font-bold text-neutral-900 dark:text-neutral-100 truncate">{{ __('dashboard.garages_label') }}</div>
+              <div class="text-[10px] sm:text-xs text-neutral-500 dark:text-neutral-400">{{ __('dashboard.garages_sub') }}</div>
             </div>
           </a>
 
@@ -542,8 +542,8 @@
               <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/>
             </svg>
             <div class="min-w-0">
-              <div class="text-xs sm:text-sm font-bold text-neutral-900 dark:text-neutral-100 truncate">Tarifas</div>
-              <div class="text-[10px] sm:text-xs text-neutral-500 dark:text-neutral-400">Precios</div>
+              <div class="text-xs sm:text-sm font-bold text-neutral-900 dark:text-neutral-100 truncate">{{ __('dashboard.rates_label') }}</div>
+              <div class="text-[10px] sm:text-xs text-neutral-500 dark:text-neutral-400">{{ __('dashboard.rates_sub') }}</div>
             </div>
           </a>
         </div>
@@ -554,8 +554,8 @@
           <a href="{{ route('orders.create') }}" class="tile-square tile-orders row-span-2">
             <img src="{{ asset('images/crear-venta.png') }}" alt="Crear venta" class="w-8 h-8 sm:w-10 sm:h-10 lg:w-14 lg:h-14 object-contain dark:invert mb-1 sm:mb-1.5 lg:mb-2 transition-transform group-hover:scale-110">
             <div class="text-center">
-              <div class="text-xs sm:text-sm lg:text-base font-bold text-neutral-900 dark:text-neutral-100">Crear venta</div>
-              <div class="text-[10px] sm:text-xs text-neutral-500 dark:text-neutral-400 mt-0.5">Carga rápida</div>
+              <div class="text-xs sm:text-sm lg:text-base font-bold text-neutral-900 dark:text-neutral-100">{{ __('dashboard.create_sale_label') }}</div>
+              <div class="text-[10px] sm:text-xs text-neutral-500 dark:text-neutral-400 mt-0.5">{{ __('dashboard.create_sale_sub') }}</div>
             </div>
           </a>
 
@@ -563,8 +563,8 @@
           <a href="{{ route('orders.index') }}" class="tile-wide tile-orders">
             <img src="{{ asset('images/ventas.png') }}" alt="Ventas" class="w-7 h-7 sm:w-8 sm:h-8 lg:w-10 lg:h-10 object-contain dark:invert flex-shrink-0">
             <div class="min-w-0">
-              <div class="text-xs sm:text-sm font-bold text-neutral-900 dark:text-neutral-100 truncate">Ventas</div>
-              <div class="text-[10px] sm:text-xs text-neutral-500 dark:text-neutral-400">Historial</div>
+              <div class="text-xs sm:text-sm font-bold text-neutral-900 dark:text-neutral-100 truncate">{{ __('dashboard.sales_label') }}</div>
+              <div class="text-[10px] sm:text-xs text-neutral-500 dark:text-neutral-400">{{ __('dashboard.sales_sub') }}</div>
             </div>
           </a>
 
@@ -572,8 +572,8 @@
           <a href="{{ route('stock.index') }}#stock" class="tile-wide tile-stock">
             <img src="{{ asset('images/stock.png') }}" alt="Stock" class="w-7 h-7 sm:w-8 sm:h-8 lg:w-10 lg:h-10 object-contain dark:invert flex-shrink-0">
             <div class="min-w-0">
-              <div class="text-xs sm:text-sm font-bold text-neutral-900 dark:text-neutral-100 truncate">Stock</div>
-              <div class="text-[10px] sm:text-xs text-neutral-500 dark:text-neutral-400">Inventario</div>
+              <div class="text-xs sm:text-sm font-bold text-neutral-900 dark:text-neutral-100 truncate">{{ __('dashboard.stock_label') }}</div>
+              <div class="text-[10px] sm:text-xs text-neutral-500 dark:text-neutral-400">{{ __('dashboard.stock_sub') }}</div>
             </div>
           </a>
 
@@ -581,8 +581,8 @@
           <a href="{{ route('products.index') }}" class="tile-wide tile-products">
             <img src="{{ asset('images/productos.png') }}" alt="Productos" class="w-7 h-7 sm:w-8 sm:h-8 lg:w-10 lg:h-10 object-contain dark:invert flex-shrink-0">
             <div class="min-w-0">
-              <div class="text-xs sm:text-sm font-bold text-neutral-900 dark:text-neutral-100 truncate">Productos</div>
-              <div class="text-[10px] sm:text-xs text-neutral-500 dark:text-neutral-400">Catálogo</div>
+              <div class="text-xs sm:text-sm font-bold text-neutral-900 dark:text-neutral-100 truncate">{{ __('dashboard.products_label') }}</div>
+              <div class="text-[10px] sm:text-xs text-neutral-500 dark:text-neutral-400">{{ __('dashboard.products_sub') }}</div>
             </div>
           </a>
 
@@ -590,8 +590,8 @@
           <a href="{{ route('services.index') }}" class="tile-wide tile-services">
             <img src="{{ asset('images/servicios.png') }}" alt="Servicios" class="w-7 h-7 sm:w-8 sm:h-8 lg:w-10 lg:h-10 object-contain dark:invert flex-shrink-0">
             <div class="min-w-0">
-              <div class="text-xs sm:text-sm font-bold text-neutral-900 dark:text-neutral-100 truncate">Servicios</div>
-              <div class="text-[10px] sm:text-xs text-neutral-500 dark:text-neutral-400">Catálogo</div>
+              <div class="text-xs sm:text-sm font-bold text-neutral-900 dark:text-neutral-100 truncate">{{ __('dashboard.services_label') }}</div>
+              <div class="text-[10px] sm:text-xs text-neutral-500 dark:text-neutral-400">{{ __('dashboard.services_sub') }}</div>
             </div>
           </a>
         </div>
@@ -600,21 +600,21 @@
 
     {{-- GESTIÓN --}}
     <div class="fade-in-up" style="animation-delay: 0.05s;">
-      <h2 class="text-xs font-semibold text-neutral-600 dark:text-neutral-300 mb-1.5 sm:mb-2 lg:mb-2.5 tracking-tight uppercase">Gestión</h2>
+      <h2 class="text-xs font-semibold text-neutral-600 dark:text-neutral-300 mb-1.5 sm:mb-2 lg:mb-2.5 tracking-tight uppercase">{{ __('dashboard.section_management') }}</h2>
       <div class="grid grid-cols-2 sm:grid-cols-4 md:grid-cols-4 lg:grid-cols-4 gap-1.5 sm:gap-2 lg:gap-2.5">
         <a href="{{ route('clients.index') }}" class="tile-wide tile-clients">
           <img src="{{ asset('images/clientes.png') }}" alt="Clientes" class="w-7 h-7 sm:w-8 sm:h-8 lg:w-10 lg:h-10 object-contain dark:invert flex-shrink-0">
           <div class="min-w-0">
-            <div class="text-xs sm:text-sm font-bold text-neutral-900 dark:text-neutral-100 truncate">Clientes</div>
-            <div class="text-[10px] sm:text-xs text-neutral-500 dark:text-neutral-400">CRM</div>
+            <div class="text-xs sm:text-sm font-bold text-neutral-900 dark:text-neutral-100 truncate">{{ __('dashboard.clients_label') }}</div>
+            <div class="text-[10px] sm:text-xs text-neutral-500 dark:text-neutral-400">{{ __('dashboard.clients_sub') }}</div>
           </div>
         </a>
 
         <a href="{{ route('expenses.index') }}" class="tile-wide tile-expenses">
           <img src="{{ asset('images/calcular-costos.png') }}" alt="Gastos" class="w-7 h-7 sm:w-8 sm:h-8 lg:w-10 lg:h-10 object-contain dark:invert flex-shrink-0">
           <div class="min-w-0">
-            <div class="text-xs sm:text-sm font-bold text-neutral-900 dark:text-neutral-100 truncate">Gastos</div>
-            <div class="text-[10px] sm:text-xs text-neutral-500 dark:text-neutral-400">Egresos</div>
+            <div class="text-xs sm:text-sm font-bold text-neutral-900 dark:text-neutral-100 truncate">{{ __('dashboard.expenses_label') }}</div>
+            <div class="text-[10px] sm:text-xs text-neutral-500 dark:text-neutral-400">{{ __('dashboard.expenses_sub') }}</div>
           </div>
         </a>
 
@@ -622,18 +622,18 @@
           <img src="{{ asset('images/arca.png') }}" alt="Facturación ARCA" class="w-7 h-7 sm:w-8 sm:h-8 lg:w-10 lg:h-10 object-contain dark:invert flex-shrink-0">
           <div class="min-w-0">
             <div class="text-xs sm:text-sm font-bold text-neutral-900 dark:text-neutral-100 truncate flex items-center gap-1">
-              <span class="truncate">Facturación</span>
+              <span class="truncate">{{ __('dashboard.invoicing_label') }}</span>
               <span class="px-1.5 py-0.5 rounded-full text-[9px] font-bold bg-neutral-200 text-neutral-700 dark:bg-neutral-800 dark:text-neutral-300 uppercase tracking-wide">BETA</span>
             </div>
-            <div class="text-[10px] sm:text-xs text-neutral-500 dark:text-neutral-400">ARCA</div>
+            <div class="text-[10px] sm:text-xs text-neutral-500 dark:text-neutral-400">{{ __('dashboard.invoicing_sub') }}</div>
           </div>
         </a>
 
         <a href="{{ route('payment-methods.index') }}" class="tile-wide tile-payment">
           <img src="{{ asset('images/payment.png') }}" alt="Métodos de Pago" class="w-7 h-7 sm:w-8 sm:h-8 lg:w-10 lg:h-10 object-contain dark:invert flex-shrink-0">
           <div class="min-w-0">
-            <div class="text-xs sm:text-sm font-bold text-neutral-900 dark:text-neutral-100 truncate">Métodos Pago</div>
-            <div class="text-[10px] sm:text-xs text-neutral-500 dark:text-neutral-400">Formas</div>
+            <div class="text-xs sm:text-sm font-bold text-neutral-900 dark:text-neutral-100 truncate">{{ __('dashboard.payment_methods_label') }}</div>
+            <div class="text-[10px] sm:text-xs text-neutral-500 dark:text-neutral-400">{{ __('dashboard.payment_methods_sub') }}</div>
           </div>
         </a>
       </div>
@@ -645,21 +645,21 @@
       @auth
         @if(auth()->user()->isMaster() || auth()->user()->isCompany())
           <div class="fade-in-up" style="animation-delay: 0.1s;">
-            <h2 class="text-xs font-semibold text-neutral-600 dark:text-neutral-300 mb-1.5 sm:mb-2 lg:mb-2.5 tracking-tight uppercase">Administración</h2>
+            <h2 class="text-xs font-semibold text-neutral-600 dark:text-neutral-300 mb-1.5 sm:mb-2 lg:mb-2.5 tracking-tight uppercase">{{ __('dashboard.section_admin') }}</h2>
             <div class="grid grid-cols-2 sm:grid-cols-2 gap-1.5 sm:gap-2 lg:gap-2.5">
               <a href="{{ route('company.branches.index') }}" class="tile-wide tile-company">
                 <img src="{{ asset('images/sucursales.png') }}" alt="Sucursales" class="w-7 h-7 sm:w-8 sm:h-8 lg:w-10 lg:h-10 object-contain dark:invert flex-shrink-0">
                 <div class="min-w-0">
-                  <div class="text-xs sm:text-sm font-bold text-neutral-900 dark:text-neutral-100 truncate">Sucursales</div>
-                  <div class="text-[10px] sm:text-xs text-neutral-500 dark:text-neutral-400">Sedes</div>
+                  <div class="text-xs sm:text-sm font-bold text-neutral-900 dark:text-neutral-100 truncate">{{ __('dashboard.branches_label') }}</div>
+                  <div class="text-[10px] sm:text-xs text-neutral-500 dark:text-neutral-400">{{ __('dashboard.branches_sub') }}</div>
                 </div>
               </a>
 
               <a href="{{ route('company.employees.index') }}" class="tile-wide tile-employees">
                 <img src="{{ asset('images/empleados.png') }}" alt="Personal" class="w-7 h-7 sm:w-8 sm:h-8 lg:w-10 lg:h-10 object-contain dark:invert flex-shrink-0">
                 <div class="min-w-0">
-                  <div class="text-xs sm:text-sm font-bold text-neutral-900 dark:text-neutral-100 truncate">Personal</div>
-                  <div class="text-[10px] sm:text-xs text-neutral-500 dark:text-neutral-400">Empleados</div>
+                  <div class="text-xs sm:text-sm font-bold text-neutral-900 dark:text-neutral-100 truncate">{{ __('dashboard.employees_label') }}</div>
+                  <div class="text-[10px] sm:text-xs text-neutral-500 dark:text-neutral-400">{{ __('dashboard.employees_sub') }}</div>
                 </div>
               </a>
             </div>
@@ -669,21 +669,21 @@
 
       {{-- SISTEMA --}}
       <div class="fade-in-up" style="animation-delay: 0.15s;">
-        <h2 class="text-xs font-semibold text-neutral-600 dark:text-neutral-300 mb-1.5 sm:mb-2 lg:mb-2.5 tracking-tight uppercase">Sistema</h2>
+        <h2 class="text-xs font-semibold text-neutral-600 dark:text-neutral-300 mb-1.5 sm:mb-2 lg:mb-2.5 tracking-tight uppercase">{{ __('dashboard.section_system') }}</h2>
         <div class="grid grid-cols-2 sm:grid-cols-2 gap-1.5 sm:gap-2 lg:gap-2.5">
           <a href="{{ route('settings') }}" class="tile-wide tile-dashboard">
             <img src="{{ asset('images/configuraciones.png') }}" alt="Configuración" class="w-7 h-7 sm:w-8 sm:h-8 lg:w-10 lg:h-10 object-contain dark:invert flex-shrink-0">
             <div class="min-w-0">
-              <div class="text-xs sm:text-sm font-bold text-neutral-900 dark:text-neutral-100 truncate">Configuración</div>
-              <div class="text-[10px] sm:text-xs text-neutral-500 dark:text-neutral-400">Ajustes</div>
+              <div class="text-xs sm:text-sm font-bold text-neutral-900 dark:text-neutral-100 truncate">{{ __('dashboard.settings_label') }}</div>
+              <div class="text-[10px] sm:text-xs text-neutral-500 dark:text-neutral-400">{{ __('dashboard.settings_sub') }}</div>
             </div>
           </a>
 
           <a href="{{ route('support.index') }}" class="tile-wide tile-dashboard">
             <img src="{{ asset('images/soporte.png') }}" alt="Soporte" class="w-7 h-7 sm:w-8 sm:h-8 lg:w-10 lg:h-10 object-contain dark:invert flex-shrink-0">
             <div class="min-w-0">
-              <div class="text-xs sm:text-sm font-bold text-neutral-900 dark:text-neutral-100 truncate">Soporte</div>
-              <div class="text-[10px] sm:text-xs text-neutral-500 dark:text-neutral-400">Ayuda</div>
+              <div class="text-xs sm:text-sm font-bold text-neutral-900 dark:text-neutral-100 truncate">{{ __('dashboard.support_label') }}</div>
+              <div class="text-[10px] sm:text-xs text-neutral-500 dark:text-neutral-400">{{ __('dashboard.support_sub') }}</div>
             </div>
           </a>
         </div>
@@ -694,21 +694,21 @@
     @auth
       @if(auth()->user()->isMaster())
         <div class="hidden">
-          <h2 class="text-xs font-semibold text-neutral-600 dark:text-neutral-300 mb-1.5 sm:mb-2 lg:mb-2.5 tracking-tight uppercase">Master</h2>
+          <h2 class="text-xs font-semibold text-neutral-600 dark:text-neutral-300 mb-1.5 sm:mb-2 lg:mb-2.5 tracking-tight uppercase">{{ __('dashboard.section_master') }}</h2>
           <div class="grid grid-cols-1 sm:grid-cols-2 gap-1.5 sm:gap-2 lg:gap-2.5">
             <a href="{{ route('master.invitations.index') }}" class="tile-wide tile-dashboard">
               <img src="{{ asset('images/agregar-user.png') }}" alt="Invitaciones" class="w-7 h-7 sm:w-8 sm:h-8 lg:w-10 lg:h-10 object-contain dark:invert flex-shrink-0">
               <div class="min-w-0">
-                <div class="text-xs sm:text-sm font-bold text-neutral-900 dark:text-neutral-100 truncate">Generar usuarios</div>
-                <div class="text-[10px] sm:text-xs text-neutral-500 dark:text-neutral-400">Invitaciones</div>
+                <div class="text-xs sm:text-sm font-bold text-neutral-900 dark:text-neutral-100 truncate">{{ __('dashboard.gen_users_label') }}</div>
+                <div class="text-[10px] sm:text-xs text-neutral-500 dark:text-neutral-400">{{ __('dashboard.gen_users_sub') }}</div>
               </div>
             </a>
 
             <a href="{{ route('master.users.index') }}" class="tile-wide tile-dashboard">
               <img src="{{ asset('images/gestionar-user.png') }}" alt="Usuarios" class="w-7 h-7 sm:w-8 sm:h-8 lg:w-10 lg:h-10 object-contain dark:invert flex-shrink-0">
               <div class="min-w-0">
-                <div class="text-xs sm:text-sm font-bold text-neutral-900 dark:text-neutral-100 truncate">Gestionar usuarios</div>
-                <div class="text-[10px] sm:text-xs text-neutral-500 dark:text-neutral-400">Administración</div>
+                <div class="text-xs sm:text-sm font-bold text-neutral-900 dark:text-neutral-100 truncate">{{ __('dashboard.manage_users_label') }}</div>
+                <div class="text-[10px] sm:text-xs text-neutral-500 dark:text-neutral-400">{{ __('dashboard.manage_users_sub') }}</div>
               </div>
             </a>
           </div>

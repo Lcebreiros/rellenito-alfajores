@@ -5,14 +5,13 @@
     <svg class="w-5 h-5 text-indigo-600" viewBox="0 0 24 24" fill="none" aria-hidden="true">
       <rect x="3" y="3" width="18" height="18" rx="3" stroke="currentColor" stroke-width="2"/>
     </svg>
-    Nuevo producto
+    {{ __('products.new') }}
   </h1>
 @endsection
 
 @section('content')
 <div class="max-w-2xl mx-auto px-3 sm:px-6">
 
-  {{-- Mensajes --}}
   @if(session('ok'))
     <div class="mb-6 rounded-xl border border-emerald-200 bg-emerald-50 px-4 py-3 text-sm text-emerald-800
                 dark:border-emerald-800 dark:bg-emerald-900/20 dark:text-emerald-300">
@@ -32,11 +31,10 @@
                dark:border-neutral-800 dark:bg-neutral-900">
     @csrf
 
-    {{-- Encabezado de tarjeta --}}
     <div class="px-6 py-5 border-b border-neutral-200/70 dark:border-neutral-800/70 flex items-center justify-between">
       <div>
-        <h2 class="text-lg font-semibold text-neutral-900 dark:text-neutral-100">Datos del producto</h2>
-        <p class="text-sm text-neutral-500 dark:text-neutral-400">Completa la información básica y opcionalmente una imagen.</p>
+        <h2 class="text-lg font-semibold text-neutral-900 dark:text-neutral-100">{{ __('products.form.card_title') }}</h2>
+        <p class="text-sm text-neutral-500 dark:text-neutral-400">{{ __('products.form.card_subtitle') }}</p>
       </div>
     </div>
 
@@ -45,14 +43,14 @@
       {{-- Nombre --}}
       <div>
         <label for="name" class="block text-sm font-medium text-neutral-700 dark:text-neutral-200 mb-1">
-          Nombre <span class="text-rose-600">*</span>
+          {{ __('products.form.name') }} <span class="text-rose-600">*</span>
         </label>
         <input id="name" type="text" name="name" value="{{ old('name') }}" required maxlength="100"
                class="w-full rounded-lg border-neutral-300 bg-white px-4 py-2.5 text-neutral-900 placeholder:text-neutral-400
                       focus:border-indigo-500 focus:ring-indigo-500
                       dark:border-neutral-700 dark:bg-neutral-900/50 dark:text-neutral-100 dark:placeholder:text-neutral-500">
         <div class="mt-1 flex items-center justify-between">
-          <p class="text-xs text-neutral-500 dark:text-neutral-400">Máx. 100 caracteres</p>
+          <p class="text-xs text-neutral-500 dark:text-neutral-400">{{ __('products.form.name_max') }}</p>
           <p class="text-xs text-neutral-500 dark:text-neutral-400"><span id="nameCount">{{ strlen(old('name','')) }}</span>/100</p>
         </div>
         @error('name')
@@ -63,14 +61,14 @@
       {{-- SKU --}}
       <div>
         <label for="sku" class="block text-sm font-medium text-neutral-700 dark:text-neutral-200 mb-1">
-          SKU <span class="text-rose-600">*</span>
+          {{ __('products.form.sku') }} <span class="text-rose-600">*</span>
         </label>
         <input id="sku" type="text" name="sku" value="{{ old('sku') }}" required maxlength="50"
                class="w-full rounded-lg border-neutral-300 bg-white px-4 py-2.5 uppercase tracking-wider
                       text-neutral-900 placeholder:text-neutral-400 focus:border-indigo-500 focus:ring-indigo-500
                       dark:border-neutral-700 dark:bg-neutral-900/50 dark:text-neutral-100 dark:placeholder:text-neutral-500">
         <div class="mt-1 flex items-center justify-between">
-          <p class="text-xs text-neutral-500 dark:text-neutral-400">Máx. 50 caracteres</p>
+          <p class="text-xs text-neutral-500 dark:text-neutral-400">{{ __('products.form.sku_max') }}</p>
           <p class="text-xs text-neutral-500 dark:text-neutral-400"><span id="skuCount">{{ strlen(old('sku','')) }}</span>/50</p>
         </div>
         @error('sku')
@@ -78,12 +76,12 @@
         @enderror
       </div>
 
-      {{-- Código de barras (manual o escaneo) --}}
+      {{-- Código de barras --}}
       <div>
         <div class="flex items-end gap-3">
           <div class="flex-1">
             <label for="barcode" class="block text-sm font-medium text-neutral-700 dark:text-neutral-200 mb-1">
-              Código de barras (opcional)
+              {{ __('products.form.barcode_opt') }}
             </label>
             <input id="barcode" type="text" name="barcode" value="{{ old('barcode') }}" maxlength="64"
                    placeholder="EAN/UPC/QR"
@@ -91,19 +89,16 @@
                           text-neutral-900 placeholder:text-neutral-400 focus:border-indigo-500 focus:ring-indigo-500
                           dark:border-neutral-700 dark:bg-neutral-900/50 dark:text-neutral-100 dark:placeholder:text-neutral-500">
           </div>
-          
         </div>
-        <p class="mt-1 text-xs text-neutral-500 dark:text-neutral-400">Podés escribir o pegar el código.</p>
-
-        
+        <p class="mt-1 text-xs text-neutral-500 dark:text-neutral-400">{{ __('products.form.barcode_hint') }}</p>
       </div>
 
       {{-- Usa stock --}}
       <div class="flex items-center justify-between rounded-lg border border-neutral-200 bg-neutral-50 p-4
                   dark:border-neutral-800 dark:bg-neutral-950/40">
         <div>
-          <label for="uses_stock" class="text-sm font-medium text-neutral-800 dark:text-neutral-100">Usa stock</label>
-          <p class="text-xs text-neutral-500 dark:text-neutral-400">Desactivalo si el producto se prepara al momento (ej: pizzas, comidas). Solo consumirá insumos.</p>
+          <label for="uses_stock" class="text-sm font-medium text-neutral-800 dark:text-neutral-100">{{ __('products.form.uses_stock') }}</label>
+          <p class="text-xs text-neutral-500 dark:text-neutral-400">{{ __('products.form.uses_stock_hint') }}</p>
         </div>
 
         <label class="inline-flex items-center">
@@ -121,7 +116,7 @@
       <div class="grid grid-cols-1 sm:grid-cols-2 gap-5">
         <div>
           <label for="price" class="block text-sm font-medium text-neutral-700 dark:text-neutral-200 mb-1">
-            Precio <span class="text-rose-600">*</span>
+            {{ __('products.form.price') }} <span class="text-rose-600">*</span>
           </label>
           <div class="flex">
             <span class="inline-flex items-center px-3 rounded-l-lg border border-r-0 border-neutral-300 bg-neutral-50 text-neutral-600 text-sm
@@ -141,7 +136,7 @@
 
         <div id="stockField" style="{{ old('uses_stock', true) ? '' : 'display:none' }}">
           <label for="stock" class="block text-sm font-medium text-neutral-700 dark:text-neutral-200 mb-1">
-            Stock <span class="text-rose-600">*</span>
+            {{ __('products.form.stock') }} <span class="text-rose-600">*</span>
           </label>
           <input id="stock" type="number" name="stock" value="{{ old('stock', 0) }}" min="0" step="1"
                  class="w-full rounded-lg border-neutral-300 bg-white px-4 py-2.5 text-right
@@ -154,10 +149,10 @@
         </div>
       </div>
 
-      {{-- Foto (opcional) + preview --}}
+      {{-- Foto --}}
       <div>
         <label class="block text-sm font-medium text-neutral-700 dark:text-neutral-200 mb-1">
-          Foto (opcional)
+          {{ __('products.form.photo') }}
         </label>
 
         <label for="image"
@@ -170,10 +165,10 @@
               <path d="M12 9a3.5 3.5 0 1 0 0 7a3.5 3.5 0 0 0 0-7Z" stroke="currentColor" stroke-width="1.6"/>
             </svg>
             <div class="text-sm">
-              <span class="font-medium text-indigo-600 dark:text-indigo-400">Haz clic para subir</span>
-              <span class="text-neutral-500 dark:text-neutral-400"> o arrastra y suelta</span>
+              <span class="font-medium text-indigo-600 dark:text-indigo-400">{{ __('products.form.photo_upload') }}</span>
+              <span class="text-neutral-500 dark:text-neutral-400">{{ __('products.form.photo_drag') }}</span>
             </div>
-            <p class="text-xs text-neutral-500 dark:text-neutral-400">PNG, JPG o GIF (hasta 2MB)</p>
+            <p class="text-xs text-neutral-500 dark:text-neutral-400">{{ __('products.form.photo_types') }}</p>
           </div>
           <input id="image" name="image" type="file" accept="image/*" class="sr-only">
         </label>
@@ -181,7 +176,7 @@
         <div id="imagePreviewWrap" class="mt-3 hidden">
           <div class="rounded-lg border border-neutral-200 p-2 bg-neutral-50
                       dark:border-neutral-800 dark:bg-neutral-950/40">
-            <img id="imagePreview" class="max-h-48 mx-auto rounded-md object-contain" alt="Previsualización">
+            <img id="imagePreview" class="max-h-48 mx-auto rounded-md object-contain" alt="Preview">
           </div>
         </div>
 
@@ -194,8 +189,8 @@
       <div class="flex items-center justify-between rounded-lg border border-neutral-200 bg-neutral-50 p-4
                   dark:border-neutral-800 dark:bg-neutral-950/40">
         <div>
-          <label for="is_active" class="text-sm font-medium text-neutral-800 dark:text-neutral-100">Activo</label>
-          <p class="text-xs text-neutral-500 dark:text-neutral-400">Habilita el producto para aparecer en listados.</p>
+          <label for="is_active" class="text-sm font-medium text-neutral-800 dark:text-neutral-100">{{ __('products.form.active') }}</label>
+          <p class="text-xs text-neutral-500 dark:text-neutral-400">{{ __('products.form.active_hint') }}</p>
         </div>
 
         <label class="inline-flex items-center">
@@ -218,9 +213,8 @@
             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/>
           </svg>
           <div class="text-sm text-blue-800 dark:text-blue-300">
-            <p class="font-medium mb-1">Insumos y Receta</p>
-            <p>Después de crear el producto, podrás asignarle insumos (emboltorios, etiquetas, etc.) desde la vista de edición.
-               Los insumos se descuentan automáticamente del stock al vender el producto.</p>
+            <p class="font-medium mb-1">{{ __('products.form.supplies_hint_title') }}</p>
+            <p>{{ __('products.form.supplies_hint') }}</p>
           </div>
         </div>
       </div>
@@ -233,7 +227,7 @@
           <svg class="w-4 h-4" viewBox="0 0 24 24" fill="none">
             <path d="M15 6l-6 6 6 6" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
           </svg>
-          Cancelar
+          {{ __('products.cancel') }}
         </a>
 
         <button type="submit"
@@ -242,14 +236,13 @@
           <svg class="w-4 h-4" viewBox="0 0 24 24" fill="none">
             <path d="M5 12h14M12 5v14" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
           </svg>
-          Guardar
+          {{ __('products.save') }}
         </button>
       </div>
     </div>
   </form>
 </div>
 
-{{-- Scripts mínimos: contadores + preview de imagen --}}
 <script>
   document.addEventListener('DOMContentLoaded', () => {
     const nameInput = document.getElementById('name');
@@ -261,7 +254,6 @@
     if (nameInput && nameCount) nameInput.addEventListener('input', () => updateCounter(nameInput, nameCount));
     if (skuInput  && skuCount ) skuInput .addEventListener('input', () => updateCounter(skuInput , skuCount ));
 
-    // Preview imagen
     const fileInput = document.getElementById('image');
     const wrap = document.getElementById('imagePreviewWrap');
     const img  = document.getElementById('imagePreview');
@@ -279,7 +271,6 @@
       });
     }
 
-    // Lookup por código de barras (cuando el usuario escribe/pega)
     const barcodeInput = document.getElementById('barcode');
     const resultBox = document.getElementById('barcodeResult');
     const statusEl = document.getElementById('barcodeStatus');
@@ -289,7 +280,7 @@
       if (!resultBox) return;
       if (!code) return;
       resultBox.classList.remove('hidden');
-      statusEl.textContent = 'Buscando…';
+      statusEl.textContent = @json(__('products.barcode_searching'));
       productEl.classList.add('hidden');
       try {
         const url = new URL(@json(route('products.lookup')), window.location.origin);
@@ -298,24 +289,23 @@
         const data = await res.json();
         if (!data.ok) throw new Error('Error en búsqueda');
         if (!data.found) {
-          statusEl.textContent = 'No se encontró un producto con este código. Podés crearlo con este código.';
+          statusEl.textContent = @json(__('products.barcode_not_found'));
           productEl.classList.add('hidden');
         } else {
           const p = data.product;
-          statusEl.textContent = 'Producto encontrado. Podés usar estos datos o modificarlos.';
+          statusEl.textContent = @json(__('products.barcode_found'));
           productEl.innerHTML = `
             <div class="flex items-center gap-3">
               ${p.image_url ? `<img src="${p.image_url}" class=\"w-12 h-12 rounded object-cover\" alt=\"\">` : ''}
               <div>
                 <div class="font-medium">${p.name}</div>
-                <div class="text-neutral-500 text-xs">SKU: ${p.sku ?? '—'} · Precio: $${(p.price ?? 0).toFixed(2)}</div>
+                <div class="text-neutral-500 text-xs">SKU: ${p.sku ?? '—'} · {{ __('products.barcode_price_label') }} $${(p.price ?? 0).toFixed(2)}</div>
               </div>
             </div>
             <div class="mt-2">
-              <button type="button" id="useFoundBtn" class="inline-flex items-center gap-2 rounded bg-neutral-100 px-3 py-1.5 text-sm hover:bg-neutral-200 dark:bg-neutral-800 dark:hover:bg-neutral-700">Usar estos datos</button>
+              <button type="button" id="useFoundBtn" class="inline-flex items-center gap-2 rounded bg-neutral-100 px-3 py-1.5 text-sm hover:bg-neutral-200 dark:bg-neutral-800 dark:hover:bg-neutral-700">{{ __('products.barcode_use_btn') }}</button>
             </div>`;
           productEl.classList.remove('hidden');
-          // Autorrelleno al click
           setTimeout(() => {
             const useBtn = document.getElementById('useFoundBtn');
             if (useBtn) {
@@ -337,89 +327,9 @@
     barcodeInput?.addEventListener('input', (e) => {
       clearTimeout(lookupTimer);
       const v = e.target.value.trim();
-      if (v.length < 6) return; // evitar spam
+      if (v.length < 6) return;
       lookupTimer = setTimeout(() => lookupBarcode(v), 400);
     });
-
-    // Escaneo por cámara con html5-qrcode si está disponible
-    const scanBtn = document.getElementById('scanBtn');
-    let scannerInstance = null;
-    let scannerOpen = false;
-
-    function ensureScannerContainer() {
-      let el = document.getElementById('qr-scanner');
-      if (!el) {
-        el = document.createElement('div');
-        el.id = 'qr-scanner';
-        el.className = 'fixed inset-0 bg-black/70 z-50 hidden';
-        el.innerHTML = `
-          <div class=\"absolute inset-0 grid place-items-center p-4\">
-            <div class=\"w-full max-w-md rounded-xl bg-white dark:bg-neutral-900 p-3 shadow-lg\">
-              <div class=\"flex items-center justify-between mb-2\">
-                <div class=\"text-sm font-medium\">Escanear código</div>
-                <button type=\"button\" id=\"closeScan\" class=\"text-sm px-2 py-1 rounded border border-neutral-300 dark:border-neutral-700\">Cerrar</button>
-              </div>
-              <div id=\"qr-reader\" class=\"rounded overflow-hidden\"></div>
-            </div>
-          </div>`;
-        document.body.appendChild(el);
-      }
-      return el;
-    }
-
-    async function startScan() {
-      const container = ensureScannerContainer();
-      container.classList.remove('hidden');
-      scannerOpen = true;
-      // Cerrar
-      container.querySelector('#closeScan').onclick = stopScan;
-      // Html5Qrcode
-      const runHtml5 = () => {
-        try {
-          const Html5Qrcode = window.Html5Qrcode;
-          if (!Html5Qrcode) return false;
-          const target = document.getElementById('qr-reader');
-          scannerInstance = new Html5Qrcode('qr-reader');
-          const config = { fps: 10, qrbox: 250, aspectRatio: 1.7778, formatsToSupport: [
-            Html5QrcodeSupportedFormats.QR_CODE,
-            Html5QrcodeSupportedFormats.EAN_13,
-            Html5QrcodeSupportedFormats.EAN_8,
-            Html5QrcodeSupportedFormats.UPC_A,
-            Html5QrcodeSupportedFormats.UPC_E,
-            Html5QrcodeSupportedFormats.CODE_128,
-          ]};
-          scannerInstance.start({ facingMode: 'environment' }, config, (decodedText) => {
-            if (!scannerOpen) return;
-            barcodeInput.value = decodedText;
-            lookupBarcode(decodedText);
-            stopScan();
-          });
-          return true;
-        } catch (e) {
-          return false;
-        }
-      };
-
-      if (!runHtml5()) {
-        // Cargar script on-demand y reintentar una vez
-        const s = document.createElement('script');
-        s.src = 'https://unpkg.com/html5-qrcode';
-        s.async = true;
-        s.onload = () => runHtml5();
-        document.head.appendChild(s);
-      }
-    }
-
-    async function stopScan() {
-      const container = document.getElementById('qr-scanner');
-      container?.classList.add('hidden');
-      scannerOpen = false;
-      try { await scannerInstance?.stop(); } catch (_) {}
-      try { await scannerInstance?.clear(); } catch (_) {}
-      scannerInstance = null;
-    }
-
-    scanBtn?.addEventListener('click', () => startScan());
   });
 </script>
 @endsection

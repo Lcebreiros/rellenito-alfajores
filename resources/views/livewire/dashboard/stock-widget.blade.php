@@ -15,7 +15,7 @@
       <div class="min-w-0">
         <h3 class="text-sm font-semibold text-neutral-800 dark:text-neutral-100 truncate">Stock</h3>
         <p class="text-[11px] text-neutral-400 dark:text-neutral-500 truncate">
-          {{ $hasMin ? 'vs. mínimo configurado' : 'Sin mínimo definido' }}
+          {{ $hasMin ? __('dashboard.stock_vs_min') : __('dashboard.stock_no_min') }}
         </p>
       </div>
     </div>
@@ -23,13 +23,13 @@
     @if(!$this->isSmall())
       <div class="hidden sm:flex items-center gap-4">
         <div class="text-right">
-          <div class="text-[10px] uppercase tracking-wide text-neutral-400 dark:text-neutral-500">Productos</div>
+          <div class="text-[10px] uppercase tracking-wide text-neutral-400 dark:text-neutral-500">{{ __('dashboard.total_products_label') }}</div>
           <div class="text-sm font-bold text-neutral-800 dark:text-neutral-100 tabular-nums">
             {{ number_format($totals->total_products ?? 0) }}
           </div>
         </div>
         <div class="text-right">
-          <div class="text-[10px] uppercase tracking-wide text-neutral-400 dark:text-neutral-500">Bajo stock</div>
+          <div class="text-[10px] uppercase tracking-wide text-neutral-400 dark:text-neutral-500">{{ __('dashboard.low_stock_label') }}</div>
           <div class="text-sm font-bold tabular-nums
                       {{ ($totals->low_count ?? 0) > 0 ? 'text-rose-500 dark:text-rose-400' : 'text-emerald-600 dark:text-emerald-400' }}">
             {{ number_format($totals->low_count ?? 0) }}
@@ -48,12 +48,12 @@
         <div class="text-4xl font-extrabold tracking-tight text-neutral-900 dark:text-white tabular-nums">
           {{ number_format($totals->total_units ?? 0) }}
         </div>
-        <div class="text-sm text-neutral-400 dark:text-neutral-500">unidades totales</div>
+        <div class="text-sm text-neutral-400 dark:text-neutral-500">{{ __('dashboard.total_units_label') }}</div>
         @if(($totals->low_count ?? 0) > 0)
           <div class="mt-2 inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full
                       bg-rose-50 dark:bg-rose-900/20 text-xs font-semibold text-rose-600 dark:text-rose-400">
             <div class="w-1.5 h-1.5 rounded-full bg-rose-500 animate-pulse"></div>
-            {{ $totals->low_count }} bajo mínimo
+            {{ $totals->low_count }} {{ __('dashboard.below_min_label') }}
           </div>
         @endif
       </div>
@@ -63,19 +63,19 @@
     @if($this->isMedium())
       <div class="grid grid-cols-3 gap-2.5 mb-3">
         <div class="col-span-3">
-          <div class="text-[10px] uppercase tracking-wide text-neutral-400 dark:text-neutral-500 mb-0.5">Unidades totales</div>
+          <div class="text-[10px] uppercase tracking-wide text-neutral-400 dark:text-neutral-500 mb-0.5">{{ __('dashboard.total_units_title') }}</div>
           <div class="text-3xl font-bold text-neutral-900 dark:text-white tabular-nums">
             {{ number_format($totals->total_units ?? 0) }}
           </div>
         </div>
         <div class="bg-neutral-50/70 dark:bg-neutral-800/30 rounded-xl p-2.5">
-          <div class="text-[10px] text-neutral-400 dark:text-neutral-500 mb-0.5">Productos</div>
+          <div class="text-[10px] text-neutral-400 dark:text-neutral-500 mb-0.5">{{ __('dashboard.total_products_label') }}</div>
           <div class="text-lg font-bold text-neutral-800 dark:text-white tabular-nums">
             {{ number_format($totals->total_products ?? 0) }}
           </div>
         </div>
         <div class="bg-neutral-50/70 dark:bg-neutral-800/30 rounded-xl p-2.5 col-span-2">
-          <div class="text-[10px] text-neutral-400 dark:text-neutral-500 mb-0.5">Con stock bajo</div>
+          <div class="text-[10px] text-neutral-400 dark:text-neutral-500 mb-0.5">{{ __('dashboard.with_low_stock') }}</div>
           <div class="text-lg font-bold tabular-nums
                       {{ ($totals->low_count ?? 0) > 0 ? 'text-rose-500 dark:text-rose-400' : 'text-emerald-600 dark:text-emerald-400' }}">
             {{ number_format($totals->low_count ?? 0) }}
@@ -87,7 +87,7 @@
     {{-- Grande: lista con barras --}}
     @if($this->isLarge())
       <div class="mb-3">
-        <div class="text-[10px] uppercase tracking-wide text-neutral-400 dark:text-neutral-500 mb-0.5">Unidades totales</div>
+        <div class="text-[10px] uppercase tracking-wide text-neutral-400 dark:text-neutral-500 mb-0.5">{{ __('dashboard.total_units_title') }}</div>
         <div class="text-3xl font-bold text-neutral-900 dark:text-white tabular-nums">
           {{ number_format($totals->total_units ?? 0) }}
         </div>
@@ -122,12 +122,12 @@
                 {{ (int)$p->stock }}
               </div>
               @if($hasMin)
-                <div class="text-[10px] text-neutral-400 dark:text-neutral-500">mín {{ (int)$p->min_stock }}</div>
+                <div class="text-[10px] text-neutral-400 dark:text-neutral-500">{{ __('dashboard.min_prefix') }}{{ (int)$p->min_stock }}</div>
               @endif
             </div>
           </div>
         @empty
-          <p class="text-sm text-neutral-400 dark:text-neutral-500">Sin productos.</p>
+          <p class="text-sm text-neutral-400 dark:text-neutral-500">{{ __('dashboard.no_products') }}</p>
         @endforelse
       </div>
     @endif

@@ -38,16 +38,16 @@
       Versión {{ config('app.version', '1.0.1') }}  
     </p>
     <p class="text-xs text-neutral-500 dark:text-neutral-500 mt-2">
-      Herramienta de gestión y control económico
+      {{ __('settings.app_description') }}
     </p>
   </div>
 
   {{-- CARD: Selección de temas --}}
   <div class="rounded-2xl border border-neutral-200 bg-white p-6 shadow
               dark:border-neutral-800 dark:bg-neutral-900">
-    <h2 class="text-lg font-semibold text-neutral-900 dark:text-neutral-100 mb-2">Temas</h2>
+    <h2 class="text-lg font-semibold text-neutral-900 dark:text-neutral-100 mb-2">{{ __('settings.themes_title') }}</h2>
     <p class="text-sm text-neutral-600 dark:text-neutral-400 mb-6">
-      Elegí un tema visual para personalizar tu experiencia
+      {{ __('settings.themes_subtitle') }}
     </p>
 
     <div x-data="{
@@ -184,10 +184,10 @@
         <div class="flex items-center justify-between mb-4 pb-4 border-b border-neutral-200 dark:border-neutral-700">
           <div>
             <label class="text-sm font-medium text-neutral-700 dark:text-neutral-300">
-              Modo del tema
+              {{ __('settings.theme_mode_label') }}
             </label>
             <p class="text-xs text-neutral-500 dark:text-neutral-400 mt-1">
-              Elegí entre modo claro u oscuro
+              {{ __('settings.theme_mode_hint') }}
             </p>
           </div>
 
@@ -234,7 +234,7 @@
         </div>
 
         <label class="block text-sm font-medium text-neutral-700 dark:text-neutral-300 mb-3">
-          Seleccioná tu color personalizado
+          {{ __('settings.custom_color_label') }}
         </label>
 
         {{-- Layout responsivo: columna en móvil, fila en desktop --}}
@@ -263,8 +263,8 @@
                          text-white font-medium text-sm transition-all duration-200 shadow-sm hover:shadow-md
                          disabled:opacity-60 disabled:cursor-not-allowed sm:self-start
                          dark:bg-indigo-500 dark:hover:bg-indigo-600">
-            <span wire:loading.remove>Guardar Color</span>
-            <span wire:loading>Guardando...</span>
+            <span wire:loading.remove>{{ __('settings.save_color_btn') }}</span>
+            <span wire:loading>{{ __('settings.saving') }}</span>
           </button>
         </div>
 
@@ -272,12 +272,12 @@
           <p class="mt-2 text-sm text-rose-600 dark:text-rose-400">{{ $message }}</p>
         @enderror
         <p class="mt-3 text-xs text-neutral-600 dark:text-neutral-400">
-          Ingresá un código hexadecimal válido (ejemplo: #6366f1) o usá el selector de color.
+          {{ __('settings.color_hint') }}
         </p>
       </div>
 
       <p class="text-xs text-neutral-600 dark:text-neutral-400">
-        Los cambios se aplican instantáneamente sin recargar la página.
+        {{ __('settings.instant_apply') }}
       </p>
     </div>
   </div>
@@ -373,8 +373,8 @@
         </svg>
       </div>
       <div>
-        <h2 class="text-lg font-semibold text-neutral-900 dark:text-neutral-100">Moneda</h2>
-        <p class="text-xs text-neutral-500 dark:text-neutral-400">Elegí la moneda que se usará en precios y montos</p>
+        <h2 class="text-lg font-semibold text-neutral-900 dark:text-neutral-100">{{ __('settings.currency_title') }}</h2>
+        <p class="text-xs text-neutral-500 dark:text-neutral-400">{{ __('settings.currency_subtitle') }}</p>
       </div>
     </div>
 
@@ -418,7 +418,7 @@
     {{-- Botón guardar + preview --}}
     <div class="flex items-center justify-between mt-5 pt-4 border-t border-neutral-200 dark:border-neutral-700">
       <p class="text-sm text-neutral-600 dark:text-neutral-400">
-        Vista previa:
+        {{ __('settings.currency_preview') }}
         <span class="font-semibold text-neutral-900 dark:text-neutral-100 font-mono ml-1">
           @php
             $prev = \App\Services\CurrencyService::CURRENCIES[$currency] ?? \App\Services\CurrencyService::CURRENCIES['ARS'];
@@ -434,12 +434,12 @@
                      text-white font-medium text-sm transition-all duration-200 shadow-sm hover:shadow-md
                      focus:ring-2 focus:ring-emerald-500/20 disabled:opacity-60 disabled:cursor-not-allowed
                      dark:bg-emerald-500 dark:hover:bg-emerald-600">
-        <span wire:loading.remove wire:target="saveCurrency">Guardar moneda</span>
+        <span wire:loading.remove wire:target="saveCurrency">{{ __('settings.save_currency_btn') }}</span>
         <span wire:loading wire:target="saveCurrency" class="flex items-center gap-2">
           <svg class="w-4 h-4 animate-spin" fill="none" stroke="currentColor" viewBox="0 0 24 24">
             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"/>
           </svg>
-          Guardando...
+          {{ __('settings.saving') }}
         </span>
       </button>
     </div>
@@ -464,7 +464,7 @@
       </svg>
     </div>
     <h2 class="text-xl font-semibold text-neutral-800 dark:text-neutral-100">
-      Zona horaria
+      {{ __('settings.timezone_title') }}
     </h2>
   </div>
 
@@ -480,10 +480,10 @@
     {{-- Label principal --}}
     <div>
       <label class="block text-sm font-medium text-neutral-700 dark:text-neutral-300 mb-3">
-        Seleccioná tu zona horaria
+        {{ __('settings.timezone_select_label') }}
       </label>
       <p class="text-xs text-neutral-500 dark:text-neutral-400 leading-relaxed">
-        Configurá tu zona horaria para ver fechas y horarios correctos en toda la aplicación
+        {{ __('settings.timezone_select_hint') }}
       </p>
     </div>
 
@@ -493,7 +493,7 @@
       {{-- Country selector --}}
       <div class="relative">
         <label class="block text-xs font-medium text-neutral-600 dark:text-neutral-400 mb-2">
-          Filtrar por país
+          {{ __('settings.filter_by_country') }}
         </label>
         <button type="button"
                 @click="countryOpen = !countryOpen"
@@ -539,7 +539,7 @@
             </template>
 
             <div class="px-3 py-4 text-xs text-neutral-500 dark:text-neutral-400 text-center" x-show="countries.length === 0">
-              No hay países disponibles.
+              {{ __('settings.no_countries') }}
             </div>
           </div>
         </div>
@@ -548,7 +548,7 @@
       {{-- Search + acciones --}}
       <div class="relative">
         <label class="block text-xs font-medium text-neutral-600 dark:text-neutral-400 mb-2">
-          Buscar zona horaria
+          {{ __('settings.search_timezone') }}
         </label>
         
         {{-- Search input --}}
@@ -563,7 +563,7 @@
                  x-model="q"
                  @input="open = true"
                  @focus="open = true"
-                 placeholder="Ciudad o zona (ej. Buenos Aires, London)"
+                 placeholder="{{ __('settings.timezone_placeholder') }}"
                  class="w-full pl-10 pr-4 py-3 rounded-xl transition-all duration-200
                         bg-white/60 hover:bg-white/80 focus:ring-2 focus:ring-neutral-500/20 focus:bg-white/80
                         dark:bg-neutral-900/60 dark:hover:bg-neutral-900/80 dark:focus:bg-neutral-900/80 dark:text-neutral-100 
@@ -577,14 +577,14 @@
                   class="flex-1 px-3 py-2 text-xs rounded-lg bg-neutral-100 text-neutral-700 
                          hover:bg-neutral-200 transition-colors duration-200 font-medium
                          dark:bg-neutral-800 dark:text-neutral-200 dark:hover:bg-neutral-700">
-            🇦🇷 Usar Argentina
+            {{ __('settings.use_argentina_btn') }}
           </button>
           <button type="button"
                   @click="clearSelection"
-                  class="px-3 py-2 text-xs rounded-lg bg-neutral-100/50 text-neutral-600 
+                  class="px-3 py-2 text-xs rounded-lg bg-neutral-100/50 text-neutral-600
                          hover:bg-neutral-100 transition-colors duration-200
                          dark:bg-neutral-800/50 dark:text-neutral-400 dark:hover:bg-neutral-800">
-            Limpiar
+            {{ __('settings.clear_btn') }}
           </button>
         </div>
       </div>
@@ -623,8 +623,8 @@
           <svg class="w-8 h-8 mx-auto text-neutral-300 dark:text-neutral-600 mb-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"/>
           </svg>
-          <p class="text-sm text-neutral-500 dark:text-neutral-400">Sin resultados</p>
-          <p class="text-xs text-neutral-400 dark:text-neutral-500 mt-1">Probá con otros términos de búsqueda</p>
+          <p class="text-sm text-neutral-500 dark:text-neutral-400">{{ __('settings.no_results') }}</p>
+          <p class="text-xs text-neutral-400 dark:text-neutral-500 mt-1">{{ __('settings.search_other_terms') }}</p>
         </div>
       </div>
     </div>
@@ -635,8 +635,8 @@
         <div class="w-2 h-2 rounded-full bg-neutral-600 dark:bg-neutral-300" x-show="tz"></div>
         <div class="w-2 h-2 rounded-full bg-neutral-300 dark:bg-neutral-600" x-show="!tz"></div>
         <p class="text-sm text-neutral-600 dark:text-neutral-400">
-          <span x-show="tz">Configurada:</span>
-          <span x-show="!tz">Sin configurar</span>
+          <span x-show="tz">{{ __('settings.tz_configured') }}</span>
+          <span x-show="!tz">{{ __('settings.tz_not_configured') }}</span>
           <span class="font-mono text-xs ml-1" x-text="tz || '—'"></span>
         </p>
       </div>
@@ -648,12 +648,12 @@
                      text-white font-medium text-sm transition-all duration-200 shadow-sm hover:shadow-md
                      focus:ring-2 focus:ring-neutral-500/20 disabled:opacity-60 disabled:cursor-not-allowed
                      dark:bg-neutral-200 dark:hover:bg-neutral-100 dark:text-neutral-800">
-        <span wire:loading.remove>Guardar configuración</span>
+        <span wire:loading.remove>{{ __('settings.save_config_btn') }}</span>
         <span wire:loading class="flex items-center gap-2">
           <svg class="w-4 h-4 animate-spin" fill="none" stroke="currentColor" viewBox="0 0 24 24">
             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"/>
           </svg>
-          Guardando...
+          {{ __('settings.saving') }}
         </span>
       </button>
     </div>
@@ -678,9 +678,7 @@
       </div>
       <div>
         <p class="text-xs text-neutral-600 dark:text-neutral-400 leading-relaxed">
-          <strong>Sugerencia:</strong> Si trabajás en Argentina, seleccioná 
-          <code class="px-2 py-1 rounded-md bg-neutral-200/70 dark:bg-neutral-700/70 text-neutral-800 dark:text-neutral-200 font-mono text-xs">America/Argentina/Buenos_Aires</code>
-          para obtener la hora local correcta.
+          {{ __('settings.tz_tip') }}
         </p>
       </div>
     </div>
@@ -751,9 +749,9 @@ function timezoneSelector({ tz = '', list = [], recommended = '' }) {
   {{-- CARD: Título del sitio --}}
   <div class="rounded-2xl border border-neutral-200 bg-white p-6 shadow
               dark:border-neutral-800 dark:bg-neutral-900">
-    <h2 class="text-lg font-semibold text-neutral-900 dark:text-neutral-100 mb-4">Identidad</h2>
+    <h2 class="text-lg font-semibold text-neutral-900 dark:text-neutral-100 mb-4">{{ __('settings.identity_title') }}</h2>
 
-    <label class="block text-sm font-medium text-neutral-700 dark:text-neutral-300 mb-1">Título del sitio</label>
+    <label class="block text-sm font-medium text-neutral-700 dark:text-neutral-300 mb-1">{{ __('settings.site_title_label') }}</label>
     <div class="flex items-center gap-3">
       <input type="text" wire:model.defer="site_title"
              class="flex-1 rounded-lg border-neutral-300 dark:border-neutral-700
@@ -764,7 +762,7 @@ function timezoneSelector({ tz = '', list = [], recommended = '' }) {
               wire:loading.attr="disabled"
               class="px-4 py-2 rounded-lg bg-indigo-600 hover:bg-indigo-700 text-white
                      dark:bg-indigo-500 dark:hover:bg-indigo-600 transition disabled:opacity-60">
-        Guardar
+        {{ __('settings.save_btn') }}
       </button>
     </div>
   </div>
@@ -777,8 +775,8 @@ function timezoneSelector({ tz = '', list = [], recommended = '' }) {
         <i class="fas fa-bell text-indigo-600 dark:text-indigo-400"></i>
       </div>
       <div>
-        <h2 class="text-lg font-semibold text-neutral-900 dark:text-neutral-100">Notificaciones de Stock</h2>
-        <p class="text-xs text-neutral-500 dark:text-neutral-400">Configurá alertas automáticas</p>
+        <h2 class="text-lg font-semibold text-neutral-900 dark:text-neutral-100">{{ __('settings.stock_notif_title') }}</h2>
+        <p class="text-xs text-neutral-500 dark:text-neutral-400">{{ __('settings.stock_notif_subtitle') }}</p>
       </div>
     </div>
 
@@ -789,10 +787,10 @@ function timezoneSelector({ tz = '', list = [], recommended = '' }) {
           <div class="flex-1">
             <div class="flex items-center gap-2 mb-2">
               <i class="fas fa-triangle-exclamation text-amber-600 dark:text-amber-400"></i>
-              <h3 class="font-semibold text-neutral-900 dark:text-neutral-100">Alerta de Stock Bajo</h3>
+              <h3 class="font-semibold text-neutral-900 dark:text-neutral-100">{{ __('settings.low_stock_alert_title') }}</h3>
             </div>
             <p class="text-sm text-neutral-600 dark:text-neutral-400">
-              Recibí una notificación cuando el stock esté por debajo del umbral configurado
+              {{ __('settings.low_stock_alert_desc') }}
             </p>
           </div>
 
@@ -814,7 +812,7 @@ function timezoneSelector({ tz = '', list = [], recommended = '' }) {
         @if($notify_low_stock)
           <div class="mt-4 pt-4 border-t border-amber-200 dark:border-amber-900/30">
             <label class="block text-sm font-medium text-neutral-700 dark:text-neutral-300 mb-2">
-              Umbral de stock bajo
+              {{ __('settings.low_stock_threshold_label') }}
             </label>
             <div class="flex items-center gap-3">
               <div class="relative flex-1">
@@ -827,19 +825,19 @@ function timezoneSelector({ tz = '', list = [], recommended = '' }) {
                               focus:ring-2 focus:ring-amber-500 focus:border-amber-500"
                        placeholder="Ej: 5">
                 <div class="absolute right-3 top-1/2 -translate-y-1/2 text-sm text-neutral-500 dark:text-neutral-400 pointer-events-none">
-                  unidades
+                  {{ __('settings.units_suffix') }}
                 </div>
               </div>
               <div class="text-xs text-neutral-500 dark:text-neutral-400 flex-shrink-0">
                 <i class="fas fa-info-circle mr-1"></i>
-                Mínimo: 1
+                {{ __('settings.min_label') }}
               </div>
             </div>
             @error('low_stock_threshold')
               <p class="mt-2 text-sm text-rose-600 dark:text-rose-400">{{ $message }}</p>
             @enderror
             <p class="mt-2 text-xs text-neutral-600 dark:text-neutral-400">
-              Te notificaremos cuando un producto tenga {{ $low_stock_threshold }} o menos unidades en stock.
+              {{ str_replace(':n', $low_stock_threshold, __('settings.notif_when_below')) }}
             </p>
           </div>
         @endif
@@ -851,10 +849,10 @@ function timezoneSelector({ tz = '', list = [], recommended = '' }) {
           <div class="flex-1">
             <div class="flex items-center gap-2 mb-2">
               <i class="fas fa-circle-xmark text-rose-600 dark:text-rose-400"></i>
-              <h3 class="font-semibold text-neutral-900 dark:text-neutral-100">Alerta Sin Stock</h3>
+              <h3 class="font-semibold text-neutral-900 dark:text-neutral-100">{{ __('settings.out_of_stock_alert_title') }}</h3>
             </div>
             <p class="text-sm text-neutral-600 dark:text-neutral-400">
-              Recibí una notificación cuando un producto se quede sin stock (0 unidades)
+              {{ __('settings.out_of_stock_alert_desc') }}
             </p>
           </div>
 
@@ -877,7 +875,7 @@ function timezoneSelector({ tz = '', list = [], recommended = '' }) {
       <div class="flex items-center justify-between pt-4 border-t border-neutral-200 dark:border-neutral-700">
         <div class="flex items-center gap-2 text-sm text-neutral-600 dark:text-neutral-400">
           <i class="fas fa-lightbulb text-neutral-400"></i>
-          <span>Las notificaciones se aplican a todos tus productos</span>
+          <span>{{ __('settings.notif_all_products') }}</span>
         </div>
 
         <button wire:click="saveStockNotifications"
@@ -889,11 +887,11 @@ function timezoneSelector({ tz = '', list = [], recommended = '' }) {
                        dark:bg-indigo-500 dark:hover:bg-indigo-600">
           <span wire:loading.remove class="flex items-center gap-2">
             <i class="fas fa-save"></i>
-            Guardar configuración
+            {{ __('settings.save_config_btn') }}
           </span>
           <span wire:loading class="flex items-center gap-2">
             <i class="fas fa-spinner fa-spin"></i>
-            Guardando...
+            {{ __('settings.saving') }}
           </span>
         </button>
       </div>
@@ -911,19 +909,19 @@ function timezoneSelector({ tz = '', list = [], recommended = '' }) {
         </svg>
       </div>
       <div>
-        <h2 class="text-lg font-semibold text-neutral-900 dark:text-neutral-100">Alquileres / Canchas</h2>
-        <p class="text-xs text-neutral-500 dark:text-neutral-400">Horario operativo para reservas</p>
+        <h2 class="text-lg font-semibold text-neutral-900 dark:text-neutral-100">{{ __('settings.rentals_title') }}</h2>
+        <p class="text-xs text-neutral-500 dark:text-neutral-400">{{ __('settings.rentals_subtitle') }}</p>
       </div>
     </div>
 
     <div class="space-y-4">
       <p class="text-sm text-neutral-600 dark:text-neutral-400">
-        Configurá el horario de apertura y cierre que se usará para mostrar los slots disponibles en la vista de canchas.
+        {{ __('settings.rentals_hours_desc') }}
       </p>
       <div class="grid grid-cols-2 gap-4">
         <div>
           <label class="block text-sm font-medium text-neutral-700 dark:text-neutral-300 mb-1.5">
-            Apertura
+            {{ __('settings.open_time_label') }}
           </label>
           <input type="time"
                  wire:model="rentalOpenTime"
@@ -937,7 +935,7 @@ function timezoneSelector({ tz = '', list = [], recommended = '' }) {
         </div>
         <div>
           <label class="block text-sm font-medium text-neutral-700 dark:text-neutral-300 mb-1.5">
-            Cierre
+            {{ __('settings.close_time_label') }}
           </label>
           <input type="time"
                  wire:model="rentalCloseTime"
@@ -960,11 +958,11 @@ function timezoneSelector({ tz = '', list = [], recommended = '' }) {
                        focus:ring-2 focus:ring-violet-500/20 disabled:opacity-60 disabled:cursor-not-allowed">
           <span wire:loading.remove wire:target="saveRentalHours" class="flex items-center gap-2">
             <i class="fas fa-save"></i>
-            Guardar horario
+            {{ __('settings.save_hours_btn') }}
           </span>
           <span wire:loading wire:target="saveRentalHours" class="flex items-center gap-2">
             <i class="fas fa-spinner fa-spin"></i>
-            Guardando...
+            {{ __('settings.saving') }}
           </span>
         </button>
       </div>
@@ -983,7 +981,7 @@ function timezoneSelector({ tz = '', list = [], recommended = '' }) {
       </div>
       <div>
         <h2 class="text-lg font-semibold text-neutral-900 dark:text-neutral-100">Google Calendar</h2>
-        <p class="text-xs text-neutral-500 dark:text-neutral-400">Sincronización automática de eventos</p>
+        <p class="text-xs text-neutral-500 dark:text-neutral-400">{{ __('settings.google_cal_subtitle') }}</p>
       </div>
     </div>
 
@@ -1001,7 +999,7 @@ function timezoneSelector({ tz = '', list = [], recommended = '' }) {
               </div>
             </div>
             <div class="flex-1">
-              <p class="font-semibold text-neutral-900 dark:text-neutral-100">Cuenta conectada</p>
+              <p class="font-semibold text-neutral-900 dark:text-neutral-100">{{ __('settings.google_connected') }}</p>
               @if(auth()->user()->google_email)
                 <p class="text-sm text-neutral-600 dark:text-neutral-400">{{ auth()->user()->google_email }}</p>
               @endif
@@ -1014,10 +1012,10 @@ function timezoneSelector({ tz = '', list = [], recommended = '' }) {
           <div class="flex items-start justify-between gap-4">
             <div class="flex-1">
               <h3 class="text-sm font-semibold text-neutral-900 dark:text-neutral-100 mb-1">
-                Sincronización automática
+                {{ __('settings.auto_sync_title') }}
               </h3>
               <p class="text-xs text-neutral-600 dark:text-neutral-400">
-                Los ventas agendadas se guardarán automáticamente en tu Google Calendar
+                {{ __('settings.auto_sync_desc') }}
               </p>
             </div>
             <div class="flex-shrink-0">
@@ -1051,7 +1049,7 @@ function timezoneSelector({ tz = '', list = [], recommended = '' }) {
                 <svg class="w-4 h-4 text-blue-600 dark:text-blue-400" fill="currentColor" viewBox="0 0 20 20">
                   <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd"></path>
                 </svg>
-                Se sincroniza automáticamente:
+                {{ __('settings.syncs_auto_title') }}
               </span>
             </h3>
             <div class="space-y-2">
@@ -1059,19 +1057,19 @@ function timezoneSelector({ tz = '', list = [], recommended = '' }) {
                 <svg class="w-4 h-4 text-green-600 dark:text-green-400" fill="currentColor" viewBox="0 0 20 20">
                   <path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd"></path>
                 </svg>
-                <span>Ventas agendadas (cuando creás o modificás una venta con fecha)</span>
+                <span>{{ __('settings.sync_item_orders') }}</span>
               </div>
               <div class="flex items-center gap-2 text-sm text-neutral-700 dark:text-neutral-300">
                 <svg class="w-4 h-4 text-green-600 dark:text-green-400" fill="currentColor" viewBox="0 0 20 20">
                   <path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd"></path>
                 </svg>
-                <span>Actualización automática al cambiar fechas o detalles</span>
+                <span>{{ __('settings.sync_item_update') }}</span>
               </div>
               <div class="flex items-center gap-2 text-sm text-neutral-700 dark:text-neutral-300">
                 <svg class="w-4 h-4 text-green-600 dark:text-green-400" fill="currentColor" viewBox="0 0 20 20">
                   <path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd"></path>
                 </svg>
-                <span>Eliminación automática al cancelar o eliminar ventas</span>
+                <span>{{ __('settings.sync_item_delete') }}</span>
               </div>
             </div>
           </div>
@@ -1083,8 +1081,8 @@ function timezoneSelector({ tz = '', list = [], recommended = '' }) {
                 <path fill-rule="evenodd" d="M8.257 3.099c.765-1.36 2.722-1.36 3.486 0l5.58 9.92c.75 1.334-.213 2.98-1.742 2.98H4.42c-1.53 0-2.493-1.646-1.743-2.98l5.58-9.92zM11 13a1 1 0 11-2 0 1 1 0 012 0zm-1-8a1 1 0 00-1 1v3a1 1 0 002 0V6a1 1 0 00-1-1z" clip-rule="evenodd"></path>
               </svg>
               <div class="text-sm text-neutral-700 dark:text-neutral-300">
-                <strong class="text-neutral-900 dark:text-neutral-100">Sincronización desactivada</strong>
-                <p class="mt-1 text-xs">Los ventas nuevas solo se guardarán en Gestior. Activá la sincronización para ver tus ventas en Google Calendar.</p>
+                <strong class="text-neutral-900 dark:text-neutral-100">{{ __('settings.sync_disabled_title') }}</strong>
+                <p class="mt-1 text-xs">{{ __('settings.sync_disabled_desc') }}</p>
               </div>
             </div>
           </div>
@@ -1097,8 +1095,7 @@ function timezoneSelector({ tz = '', list = [], recommended = '' }) {
               <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>
             </svg>
             <div class="text-xs text-neutral-700 dark:text-neutral-300">
-              <strong>Privacidad:</strong> Solo accedemos a tu calendario para crear eventos de tus ventas. No compartimos tu información con terceros.
-              Podés desconectar tu cuenta en cualquier momento.
+              {{ __('settings.privacy_note') }}
             </div>
           </div>
         </div>
@@ -1107,7 +1104,7 @@ function timezoneSelector({ tz = '', list = [], recommended = '' }) {
         <form action="{{ route('google.disconnect') }}" method="POST">
           @csrf
           <button type="submit"
-                  onclick="return confirm('¿Estás seguro de que querés desconectar tu cuenta de Google Calendar?\n\nLos eventos existentes permanecerán en tu calendario, pero no se sincronizarán nuevas ventas.')"
+                  onclick="return confirm(@json(__('settings.disconnect_confirm')))"
                   class="w-full px-4 py-3 rounded-xl bg-red-50 hover:bg-red-100 dark:bg-red-900/20 dark:hover:bg-red-900/30
                          text-red-700 dark:text-red-400 font-medium text-sm transition-all duration-200
                          border border-red-200 dark:border-red-900/30">
@@ -1115,7 +1112,7 @@ function timezoneSelector({ tz = '', list = [], recommended = '' }) {
               <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
               </svg>
-              <span>Desconectar Google Calendar</span>
+              <span>{{ __('settings.disconnect_google_btn') }}</span>
             </div>
           </button>
         </form>
@@ -1125,31 +1122,31 @@ function timezoneSelector({ tz = '', list = [], recommended = '' }) {
       <div class="space-y-4">
         {{-- Info qué obtendrás --}}
         <div class="p-4 rounded-xl bg-neutral-50 dark:bg-neutral-800/50 border border-neutral-200 dark:border-neutral-700">
-          <h3 class="text-sm font-semibold text-neutral-900 dark:text-neutral-100 mb-3">Al conectar tu Google Calendar:</h3>
+          <h3 class="text-sm font-semibold text-neutral-900 dark:text-neutral-100 mb-3">{{ __('settings.connect_benefits_title') }}</h3>
           <div class="space-y-2">
             <div class="flex items-start gap-2 text-sm text-neutral-700 dark:text-neutral-300">
               <svg class="w-4 h-4 text-blue-600 dark:text-blue-400 mt-0.5 flex-shrink-0" fill="currentColor" viewBox="0 0 20 20">
                 <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd"></path>
               </svg>
-              <span>Tus ventas agendadas aparecerán automáticamente en tu calendario</span>
+              <span>{{ __('settings.benefit_1') }}</span>
             </div>
             <div class="flex items-start gap-2 text-sm text-neutral-700 dark:text-neutral-300">
               <svg class="w-4 h-4 text-blue-600 dark:text-blue-400 mt-0.5 flex-shrink-0" fill="currentColor" viewBox="0 0 20 20">
                 <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd"></path>
               </svg>
-              <span>Recibirás recordatorios automáticos antes de cada venta</span>
+              <span>{{ __('settings.benefit_2') }}</span>
             </div>
             <div class="flex items-start gap-2 text-sm text-neutral-700 dark:text-neutral-300">
               <svg class="w-4 h-4 text-blue-600 dark:text-blue-400 mt-0.5 flex-shrink-0" fill="currentColor" viewBox="0 0 20 20">
                 <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd"></path>
               </svg>
-              <span>Verás tus ventas en todos tus dispositivos sincronizados</span>
+              <span>{{ __('settings.benefit_3') }}</span>
             </div>
             <div class="flex items-start gap-2 text-sm text-neutral-700 dark:text-neutral-300">
               <svg class="w-4 h-4 text-blue-600 dark:text-blue-400 mt-0.5 flex-shrink-0" fill="currentColor" viewBox="0 0 20 20">
                 <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd"></path>
               </svg>
-              <span>Los cambios se actualizan en tiempo real</span>
+              <span>{{ __('settings.benefit_4') }}</span>
             </div>
           </div>
         </div>
@@ -1161,12 +1158,12 @@ function timezoneSelector({ tz = '', list = [], recommended = '' }) {
               <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z"></path>
             </svg>
             <div class="text-sm text-neutral-700 dark:text-neutral-300">
-              <strong class="text-neutral-900 dark:text-neutral-100">Tu privacidad es importante:</strong>
+              <strong class="text-neutral-900 dark:text-neutral-100">{{ __('settings.privacy_title') }}</strong>
               <ul class="mt-2 space-y-1 text-xs">
-                <li>• Solo accedemos a tu calendario para crear eventos de ventas</li>
-                <li>• No leemos tus otros eventos ni información personal</li>
-                <li>• No compartimos tus datos con terceros</li>
-                <li>• Podés desconectar en cualquier momento</li>
+                <li>• {{ __('settings.privacy_1') }}</li>
+                <li>• {{ __('settings.privacy_2') }}</li>
+                <li>• {{ __('settings.privacy_3') }}</li>
+                <li>• {{ __('settings.privacy_4') }}</li>
               </ul>
             </div>
           </div>
@@ -1181,12 +1178,12 @@ function timezoneSelector({ tz = '', list = [], recommended = '' }) {
             <svg class="w-5 h-5" fill="currentColor" viewBox="0 0 24 24">
               <path d="M12.48 10.92v3.28h7.84c-.24 1.84-.853 3.187-1.787 4.133-1.147 1.147-2.933 2.4-6.053 2.4-4.827 0-8.6-3.893-8.6-8.72s3.773-8.72 8.6-8.72c2.6 0 4.507 1.027 5.907 2.347l2.307-2.307C18.747 1.44 16.133 0 12.48 0 5.867 0 .307 5.387.307 12s5.56 12 12.173 12c3.573 0 6.267-1.173 8.373-3.36 2.16-2.16 2.84-5.213 2.84-7.667 0-.76-.053-1.467-.173-2.053H12.48z"/>
             </svg>
-            <span>Conectar con Google Calendar</span>
+            <span>{{ __('settings.connect_google_btn') }}</span>
           </div>
         </a>
 
         <p class="text-xs text-center text-neutral-500 dark:text-neutral-400">
-          Serás redirigido a Google para autorizar el acceso de forma segura
+          {{ __('settings.google_redirect_hint') }}
         </p>
       </div>
     @endif
@@ -1195,7 +1192,7 @@ function timezoneSelector({ tz = '', list = [], recommended = '' }) {
   {{-- CARD: Logo del comprobante --}}
   <div class="rounded-2xl border border-neutral-200 bg-white p-6 shadow
               dark:border-neutral-800 dark:bg-neutral-900">
-    <h2 class="text-lg font-semibold text-neutral-900 dark:text-neutral-100 mb-4">Logo del Comprobante</h2>
+    <h2 class="text-lg font-semibold text-neutral-900 dark:text-neutral-100 mb-4">{{ __('settings.receipt_logo_title') }}</h2>
 
     <div class="flex items-start gap-6">
       {{-- Dropzone / input --}}
@@ -1210,14 +1207,14 @@ function timezoneSelector({ tz = '', list = [], recommended = '' }) {
               <path d="M12 5v14M5 12h14" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
             </svg>
           </div>
-          <p class="font-medium text-neutral-700 dark:text-neutral-200">Arrastrá una imagen o hacé clic</p>
-          <p class="text-xs text-neutral-500 dark:text-neutral-400">Acepta .png, .jpg, .jpeg, .webp (máx 2 MB)</p>
+          <p class="font-medium text-neutral-700 dark:text-neutral-200">{{ __('settings.dropzone_label') }}</p>
+          <p class="text-xs text-neutral-500 dark:text-neutral-400">{{ __('settings.dropzone_hint') }}</p>
         </div>
       </label>
 
       {{-- Preview actual / nueva --}}
       <div class="w-48">
-        <p class="text-xs uppercase tracking-wide text-neutral-600 dark:text-neutral-400 mb-2">Vista previa</p>
+        <p class="text-xs uppercase tracking-wide text-neutral-600 dark:text-neutral-400 mb-2">{{ __('settings.preview_label') }}</p>
 
         @if ($receipt_logo)
           <img src="{{ $receipt_logo->temporaryUrl() }}" class="max-h-16 object-contain rounded shadow" alt="preview">
@@ -1231,13 +1228,13 @@ function timezoneSelector({ tz = '', list = [], recommended = '' }) {
           <button wire:click="saveReceiptLogo"
                   wire:loading.attr="disabled"
                   class="px-3 py-2 rounded-lg bg-indigo-600 hover:bg-indigo-700 text-white text-sm transition disabled:opacity-60">
-            Guardar
+            {{ __('settings.save_btn') }}
           </button>
           <button wire:click="removeReceiptLogo"
                   wire:loading.attr="disabled"
                   class="px-3 py-2 rounded-lg border text-sm
                          hover:bg-neutral-50 dark:hover:bg-neutral-800 transition">
-            Eliminar
+            {{ __('settings.remove_btn') }}
           </button>
         </div>
 
@@ -1248,7 +1245,7 @@ function timezoneSelector({ tz = '', list = [], recommended = '' }) {
     </div>
 
     <p class="mt-3 text-xs text-neutral-600 dark:text-neutral-400">
-      Consejo: subí una versión horizontal con fondo transparente para que se vea bien en el ticket.
+      {{ __('settings.receipt_logo_tip') }}
     </p>
   </div>
 </div>

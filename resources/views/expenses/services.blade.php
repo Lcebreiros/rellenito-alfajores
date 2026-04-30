@@ -7,7 +7,7 @@
         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"/>
       </svg>
     </a>
-    <h1 class="text-xl sm:text-2xl font-semibold text-neutral-800 dark:text-neutral-100">Gastos de Servicios</h1>
+    <h1 class="text-xl sm:text-2xl font-semibold text-neutral-800 dark:text-neutral-100">{{ __('expenses.service_page_title') }}</h1>
   </div>
 @endsection
 
@@ -23,7 +23,7 @@
 
   <!-- Formulario de nuevo gasto -->
   <div class="mb-6 bg-white dark:bg-neutral-800 rounded-lg shadow-sm border border-neutral-200 dark:border-neutral-700 p-6">
-    <h2 class="text-lg font-semibold text-neutral-900 dark:text-neutral-100 mb-4">Agregar Gasto de Servicio</h2>
+    <h2 class="text-lg font-semibold text-neutral-900 dark:text-neutral-100 mb-4">{{ __('expenses.add_service_expense') }}</h2>
 
     <form method="POST" action="{{ route('expenses.services.store') }}" class="space-y-4">
       @csrf
@@ -31,10 +31,10 @@
       <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
         <div>
           <label class="block text-sm font-medium text-neutral-700 dark:text-neutral-300 mb-1">
-            Servicio (opcional)
+            {{ __('expenses.service_optional') }}
           </label>
           <select name="service_id" class="w-full rounded-lg border border-neutral-300 px-3 py-2 text-sm dark:border-neutral-700 dark:bg-neutral-900">
-            <option value="">Sin servicio asociado</option>
+            <option value="">{{ __('expenses.no_service_opt') }}</option>
             @foreach($services as $service)
               <option value="{{ $service->id }}">{{ $service->name }}</option>
             @endforeach
@@ -43,7 +43,7 @@
 
         <div>
           <label class="block text-sm font-medium text-neutral-700 dark:text-neutral-300 mb-1">
-            Nombre del Gasto <span class="text-rose-500">*</span>
+            {{ __('expenses.expense_name') }} <span class="text-rose-500">*</span>
           </label>
           <input type="text" name="expense_name" required
                  class="w-full rounded-lg border border-neutral-300 px-3 py-2 text-sm dark:border-neutral-700 dark:bg-neutral-900"
@@ -52,7 +52,7 @@
 
         <div>
           <label class="block text-sm font-medium text-neutral-700 dark:text-neutral-300 mb-1">
-            Costo <span class="text-rose-500">*</span>
+            {{ __('expenses.cost_label') }} <span class="text-rose-500">*</span>
           </label>
           <input type="number" name="cost" required step="0.01" min="0"
                  class="w-full rounded-lg border border-neutral-300 px-3 py-2 text-sm dark:border-neutral-700 dark:bg-neutral-900"
@@ -61,24 +61,24 @@
 
         <div>
           <label class="block text-sm font-medium text-neutral-700 dark:text-neutral-300 mb-1">
-            Tipo de Gasto <span class="text-rose-500">*</span>
+            {{ __('expenses.expense_type') }} <span class="text-rose-500">*</span>
           </label>
           <select name="expense_type" required class="w-full rounded-lg border border-neutral-300 px-3 py-2 text-sm dark:border-neutral-700 dark:bg-neutral-900">
-            <option value="material">Material</option>
-            <option value="mano_obra">Mano de obra</option>
-            <option value="herramienta">Herramienta</option>
-            <option value="otro">Otro</option>
+            <option value="material">{{ __('expenses.type_material') }}</option>
+            <option value="mano_obra">{{ __('expenses.type_labor') }}</option>
+            <option value="herramienta">{{ __('expenses.type_tool') }}</option>
+            <option value="otro">{{ __('expenses.type_other') }}</option>
           </select>
         </div>
       </div>
 
       <div>
         <label class="block text-sm font-medium text-neutral-700 dark:text-neutral-300 mb-1">
-          Descripción (opcional)
+          {{ __('expenses.desc_optional') }}
         </label>
         <textarea name="description" rows="2"
                   class="w-full rounded-lg border border-neutral-300 px-3 py-2 text-sm dark:border-neutral-700 dark:bg-neutral-900"
-                  placeholder="Detalles adicionales..."></textarea>
+                  placeholder="{{ __('expenses.desc_placeholder') }}"></textarea>
       </div>
 
       <div class="flex justify-end">
@@ -87,7 +87,7 @@
           <svg class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"/>
           </svg>
-          Agregar Gasto
+          {{ __('expenses.add_expense_btn') }}
         </button>
       </div>
     </form>
@@ -96,7 +96,7 @@
   <!-- Lista de gastos -->
   <div class="bg-white dark:bg-neutral-800 rounded-lg shadow-sm border border-neutral-200 dark:border-neutral-700">
     <div class="px-6 py-4 border-b border-neutral-200 dark:border-neutral-700">
-      <h2 class="text-lg font-semibold text-neutral-900 dark:text-neutral-100">Gastos Registrados</h2>
+      <h2 class="text-lg font-semibold text-neutral-900 dark:text-neutral-100">{{ __('expenses.registered_expenses') }}</h2>
     </div>
 
     @if($expenses->count())
@@ -104,12 +104,12 @@
         <table class="w-full">
           <thead class="bg-neutral-50 dark:bg-neutral-900/50">
             <tr>
-              <th class="px-6 py-3 text-left text-xs font-medium text-neutral-500 dark:text-neutral-400 uppercase">Gasto</th>
-              <th class="px-6 py-3 text-left text-xs font-medium text-neutral-500 dark:text-neutral-400 uppercase">Servicio</th>
-              <th class="px-6 py-3 text-left text-xs font-medium text-neutral-500 dark:text-neutral-400 uppercase">Tipo</th>
-              <th class="px-6 py-3 text-left text-xs font-medium text-neutral-500 dark:text-neutral-400 uppercase">Costo</th>
-              <th class="px-6 py-3 text-left text-xs font-medium text-neutral-500 dark:text-neutral-400 uppercase">Estado</th>
-              <th class="px-6 py-3 text-left text-xs font-medium text-neutral-500 dark:text-neutral-400 uppercase">Acciones</th>
+              <th class="px-6 py-3 text-left text-xs font-medium text-neutral-500 dark:text-neutral-400 uppercase">{{ __('expenses.col_expense') }}</th>
+              <th class="px-6 py-3 text-left text-xs font-medium text-neutral-500 dark:text-neutral-400 uppercase">{{ __('expenses.col_service') }}</th>
+              <th class="px-6 py-3 text-left text-xs font-medium text-neutral-500 dark:text-neutral-400 uppercase">{{ __('expenses.col_type') }}</th>
+              <th class="px-6 py-3 text-left text-xs font-medium text-neutral-500 dark:text-neutral-400 uppercase">{{ __('expenses.col_cost') }}</th>
+              <th class="px-6 py-3 text-left text-xs font-medium text-neutral-500 dark:text-neutral-400 uppercase">{{ __('expenses.col_status') }}</th>
+              <th class="px-6 py-3 text-left text-xs font-medium text-neutral-500 dark:text-neutral-400 uppercase">{{ __('expenses.col_actions') }}</th>
             </tr>
           </thead>
           <tbody class="divide-y divide-neutral-200 dark:divide-neutral-700">
@@ -128,7 +128,7 @@
                 <td class="px-6 py-4">
                   <span class="inline-flex rounded-full px-2 py-1 text-xs font-medium
                                {{ $expense->is_active ? 'bg-emerald-100 text-emerald-700 dark:bg-emerald-900/30 dark:text-emerald-300' : 'bg-neutral-200 text-neutral-700 dark:bg-neutral-800 dark:text-neutral-300' }}">
-                    {{ $expense->is_active ? 'Activo' : 'Inactivo' }}
+                    {{ $expense->is_active ? __('expenses.status_active') : __('expenses.status_inactive') }}
                   </span>
                 </td>
                 <td class="px-6 py-4 text-sm">
@@ -136,9 +136,9 @@
                     @csrf
                     @method('DELETE')
                     <button type="submit"
-                            onclick="return confirm('¿Estás seguro de eliminar este gasto?')"
+                            onclick="return confirm(@json(__('expenses.confirm_delete')))"
                             class="text-rose-600 hover:text-rose-800 dark:text-rose-400 dark:hover:text-rose-300">
-                      Eliminar
+                      {{ __('expenses.delete_btn') }}
                     </button>
                   </form>
                 </td>
@@ -149,7 +149,7 @@
       </div>
     @else
       <div class="px-6 py-12 text-center text-neutral-500 dark:text-neutral-400">
-        No hay gastos registrados aún
+        {{ __('expenses.no_expenses_yet') }}
       </div>
     @endif
   </div>

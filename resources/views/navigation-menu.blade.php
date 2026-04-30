@@ -4,7 +4,7 @@
     <div class="h-16 flex items-center px-4 border-b">
         <a href="{{ route('dashboard') }}" class="inline-flex items-center gap-2">
             <x-application-mark class="h-9 w-auto" />
-            <span class="font-semibold text-gray-800">Panel</span>
+            <span class="font-semibold text-gray-800">{{ __('nav.panel_label') }}</span>
         </a>
     </div>
 
@@ -22,7 +22,7 @@
                 <path d="M3 12l9-9 9 9" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
                 <path d="M9 21V12h6v9" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
             </svg>
-            <span>Dashboard</span>
+            <span>{{ __('nav.dashboard') }}</span>
         </a>
 
         <a href="{{ route('orders.create') }}"
@@ -30,7 +30,7 @@
             <svg class="w-5 h-5" viewBox="0 0 24 24" fill="none">
                 <path d="M3 7h18M6 3h12M6 21h12M5 7l1 14h12l1-14" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
             </svg>
-            <span>Crear venta</span>
+            <span>{{ __('nav.create_sale') }}</span>
         </a>
 
         <a href="{{ route('products.index') }}"
@@ -39,7 +39,7 @@
                 <path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z" stroke="currentColor" stroke-width="1.5" stroke-linejoin="round"/>
                 <path d="M3.3 7.7 12 12l8.7-4.3" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/>
             </svg>
-            <span>Productos</span>
+            <span>{{ __('nav.products') }}</span>
         </a>
 
         <a href="{{ route('expenses.index') }}"
@@ -47,7 +47,7 @@
             <svg class="w-5 h-5" viewBox="0 0 24 24" fill="none">
                 <path d="M12 2v20M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
             </svg>
-            <span>Gastos</span>
+            <span>{{ __('nav.expenses') }}</span>
         </a>
     </div>
 
@@ -64,10 +64,10 @@
         </div>
 
         <div class="mt-3 grid grid-cols-2 gap-2">
-            <a href="{{ route('profile.show') }}" class="text-center text-sm py-2 rounded-lg border hover:bg-gray-50">Perfil</a>
+            <a href="{{ route('profile.show') }}" class="text-center text-sm py-2 rounded-lg border hover:bg-gray-50">{{ __('settings.profile_heading') }}</a>
             <form method="POST" action="{{ route('logout') }}" class="m-0">
                 @csrf
-                <button class="w-full text-center text-sm py-2 rounded-lg border hover:bg-gray-50">Salir</button>
+                <button class="w-full text-center text-sm py-2 rounded-lg border hover:bg-gray-50">{{ __('nav.logout') }}</button>
             </form>
         </div>
     </div>

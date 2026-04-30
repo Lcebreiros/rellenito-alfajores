@@ -2,7 +2,7 @@
 
 @section('header')
   <h1 class="text-xl font-semibold text-gray-800 dark:text-neutral-100 leading-tight transition-colors">
-    Crear venta
+    {{ __('orders.create_title') }}
   </h1>
 @endsection
 
@@ -42,12 +42,12 @@
                   min-h-[calc(100svh-9rem)]">
         @if($products->isEmpty() && ($services->isEmpty() ?? true))
           <div class="h-40 grid place-items-center text-sm text-slate-500 dark:text-neutral-400">
-            Aún no hay productos ni servicios. Crea uno para empezar.
+            {{ __('orders.create.no_products') }}
           </div>
         @else
           {{-- Productos --}}
           @if(!$products->isEmpty())
-            <h2 class="px-1 mb-2 text-sm font-semibold text-neutral-700 dark:text-neutral-300">Productos</h2>
+            <h2 class="px-1 mb-2 text-sm font-semibold text-neutral-700 dark:text-neutral-300">{{ __('orders.create.products') }}</h2>
             <div class="grid grid-cols-2 sm:grid-cols-3 gap-3">
               @foreach($products as $p)
                 <livewire:product-card
@@ -61,7 +61,7 @@
 
           {{-- Servicios --}}
           @if(isset($services) && !$services->isEmpty())
-            <h2 class="px-1 mt-6 mb-2 text-sm font-semibold text-neutral-700 dark:text-neutral-300">Servicios</h2>
+            <h2 class="px-1 mt-6 mb-2 text-sm font-semibold text-neutral-700 dark:text-neutral-300">{{ __('orders.create.services') }}</h2>
             <div class="grid grid-cols-2 sm:grid-cols-3 gap-3">
               @foreach($services as $s)
                 <livewire:service-card
@@ -114,22 +114,22 @@
           </svg>
         </div>
         <div class="flex-1">
-          <div class="font-semibold">Venta agregada</div>
-          <div class="text-sm opacity-90">Se creó la venta <span class="font-semibold">#<span x-text="toast.orderId"></span></span>.</div>
+          <div class="font-semibold">{{ __('orders.create.sale_added') }}</div>
+          <div class="text-sm opacity-90">{{ __('orders.create.sale_created') }} <span class="font-semibold">#<span x-text="toast.orderId"></span></span>.</div>
           <div class="mt-2 flex gap-2">
             <button
               type="button"
               class="inline-flex items-center gap-1 rounded-lg bg-emerald-600 px-3 py-1.5 text-xs font-semibold text-white hover:bg-emerald-700"
               @click="openReceipt(toast.orderId)"
             >
-              Ver comprobante
+              {{ __('orders.create.view_receipt') }}
             </button>
             <a
               :href="receiptUrl(toast.orderId)"
               target="_blank"
               class="inline-flex items-center gap-1 rounded-lg border border-emerald-300 px-3 py-1.5 text-xs font-semibold text-emerald-900 hover:bg-emerald-100 dark:text-emerald-100 dark:border-emerald-700 dark:hover:bg-emerald-900/50"
             >
-              Abrir en nueva pestaña
+              {{ __('orders.create.open_new_tab') }}
             </a>
           </div>
         </div>
@@ -160,7 +160,7 @@
                  hover:bg-white dark:bg-neutral-900/90 dark:text-neutral-200 dark:hover:bg-neutral-900"
           @click="closeModal()"
         >
-          ← Atrás
+          {{ __('orders.create.back') }}
         </button>
         <button
           type="button"
@@ -168,7 +168,7 @@
                  hover:bg-indigo-700"
           @click="downloadEmbedded()"
         >
-          Descargar PDF
+          {{ __('orders.create.download_pdf') }}
         </button>
       </div>
 

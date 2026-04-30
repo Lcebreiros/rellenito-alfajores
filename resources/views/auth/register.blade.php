@@ -102,9 +102,9 @@
             {{-- Logo más grande, sin bg/contorno --}}
             <img src="{{ asset('images/Gestior.png') }}" alt="Gestior" class="h-24 md:h-28 lg:h-32 w-auto select-none" />
 
-            <h1 class="mt-6 text-4xl md:text-5xl font-extrabold tracking-tight">¡Hola, bienvenido!</h1>
+            <h1 class="mt-6 text-4xl md:text-5xl font-extrabold tracking-tight">{{ __('auth.welcome') }}</h1>
             <p class="mt-2 text-slate-300/95 text-sm md:text-base">
-              Toda la gestión que necesitas, en un solo lugar
+              {{ __('auth.tagline') }}
             </p>
 
             {{-- Listado de capacidades de la herramienta --}}
@@ -113,31 +113,31 @@
                 <svg class="w-5 h-5 mt-0.5 text-violet-300" viewBox="0 0 20 20" fill="currentColor" aria-hidden="true">
                   <path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-7.25 7.25a1 1 0 01-1.414 0l-3-3a1 1 0 011.414-1.414l2.293 2.293 6.543-6.543a1 1 0 011.414 0z" clip-rule="evenodd"/>
                 </svg>
-                Todo ordenado en un lugar
+                {{ __('auth.feature_all_in_one') }}
               </li>
               <li class="flex items-start gap-3">
                 <svg class="w-5 h-5 mt-0.5 text-violet-300" viewBox="0 0 20 20" fill="currentColor" aria-hidden="true">
                   <path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-7.25 7.25a1 1 0 01-1.414 0l-3-3a1 1 0 011.414-1.414l2.293 2.293 6.543-6.543a1 1 0 011.414 0z" clip-rule="evenodd"/>
                 </svg>
-                Creá ventas y comprobantes
+                {{ __('auth.feature_sales_receipts') }}
               </li>
               <li class="flex items-start gap-3">
                 <svg class="w-5 h-5 mt-0.5 text-violet-300" viewBox="0 0 20 20" fill="currentColor" aria-hidden="true">
                   <path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-7.25 7.25a1 1 0 01-1.414 0l-3-3a1 1 0 011.414-1.414l2.293 2.293 6.543-6.543a1 1 0 011.414 0z" clip-rule="evenodd"/>
                 </svg>
-                Controlá el stock en tiempo real
+                {{ __('auth.feature_stock') }}
               </li>
               <li class="flex items-start gap-3">
                 <svg class="w-5 h-5 mt-0.5 text-violet-300" viewBox="0 0 20 20" fill="currentColor" aria-hidden="true">
                   <path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-7.25 7.25a1 1 0 01-1.414 0l-3-3a1 1 0 011.414-1.414l2.293 2.293 6.543-6.543a1 1 0 011.414 0z" clip-rule="evenodd"/>
                 </svg>
-                Administrá tus productos
+                {{ __('auth.feature_products') }}
               </li>
               <li class="flex items-start gap-3">
                 <svg class="w-5 h-5 mt-0.5 text-violet-300" viewBox="0 0 20 20" fill="currentColor" aria-hidden="true">
                   <path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-7.25 7.25a1 1 0 01-1.414 0l-3-3a1 1 0 011.414-1.414l2.293 2.293 6.543-6.543a1 1 0 011.414 0z" clip-rule="evenodd"/>
                 </svg>
-                Calculá y monitoreá tus gastos
+                {{ __('auth.feature_expenses') }}
               </li>
             </ul>
           </div>
@@ -147,8 +147,8 @@
         <section class="bg-white text-slate-900 p-8 md:p-12 split-stroke">
           <div class="max-w-md mx-auto">
             <header class="mb-6">
-              <h2 class="text-2xl font-semibold tracking-tight">Crear cuenta</h2>
-              <p class="text-sm text-slate-500 mt-1">Complete sus datos para registrarse</p>
+              <h2 class="text-2xl font-semibold tracking-tight">{{ __('auth.register_title') }}</h2>
+              <p class="text-sm text-slate-500 mt-1">{{ __('auth.register_subtitle') }}</p>
             </header>
 
             {{-- Errores Jetstream/validación --}}
@@ -159,22 +159,22 @@
 
 {{-- Key --}}
 <div>
-  <label for="invitation_key" class="block text-sm font-medium text-slate-700 mb-1.5">Clave de acceso</label>
+  <label for="invitation_key" class="block text-sm font-medium text-slate-700 mb-1.5">{{ __('auth.invitation_key') }}</label>
   <input id="invitation_key" name="invitation_key" type="text" value="{{ old('invitation_key') }}" required
          class="txt focus-ring w-full px-3 py-2.5 border border-slate-200 rounded-md bg-white placeholder-slate-400"
-         placeholder="Ingrese su clave">
+         placeholder="{{ __('auth.invitation_key_ph') }}">
 </div>
 
               {{-- Nombre --}}
               <div>
-                <label for="name" class="block text-sm font-medium text-slate-700 mb-1.5">Nombre</label>
+                <label for="name" class="block text-sm font-medium text-slate-700 mb-1.5">{{ __('auth.name') }}</label>
                 <input id="name" name="name" type="text" value="{{ old('name') }}" required autofocus autocomplete="name"
                        class="txt focus-ring w-full px-3 py-2.5 border border-slate-200 rounded-md bg-white placeholder-slate-400">
               </div>
 
               {{-- Email --}}
               <div>
-                <label for="email" class="block text-sm font-medium text-slate-700 mb-1.5">Correo electrónico</label>
+                <label for="email" class="block text-sm font-medium text-slate-700 mb-1.5">{{ __('auth.email') }}</label>
                 <div class="relative">
                   <span class="pointer-events-none absolute inset-y-0 left-0 flex items-center pl-3 text-slate-400">
                     <svg class="w-5 h-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" aria-hidden="true">
@@ -192,20 +192,20 @@
 
               {{-- Tipo de negocio --}}
               <div>
-                <label for="business_type" class="block text-sm font-medium text-slate-700 mb-1.5">Tipo de negocio</label>
+                <label for="business_type" class="block text-sm font-medium text-slate-700 mb-1.5">{{ __('auth.business_type_label') }}</label>
                 <select id="business_type" name="business_type"
                         class="txt focus-ring w-full px-3 py-2.5 border border-slate-200 rounded-md bg-white text-sm">
-                  <option value="comercio" @selected(old('business_type', 'comercio') === 'comercio')>Comercio / Tienda</option>
-                  <option value="alquiler" @selected(old('business_type') === 'alquiler')>Alquiler / Estacionamiento</option>
+                  <option value="comercio" @selected(old('business_type', 'comercio') === 'comercio')>{{ __('auth.business_comercio') }}</option>
+                  <option value="alquiler" @selected(old('business_type') === 'alquiler')>{{ __('auth.business_alquiler') }}</option>
                 </select>
                 <p class="mt-1.5 text-xs text-slate-500">
-                  Seleccione el tipo que mejor describe su negocio. Esto personalizará la interfaz para sus necesidades.
+                  {{ __('auth.business_type_hint') }}
                 </p>
               </div>
 
               {{-- Password --}}
               <div x-data="{show:false}">
-                <label for="password" class="block text-sm font-medium text-slate-700 mb-1.5">Contraseña</label>
+                <label for="password" class="block text-sm font-medium text-slate-700 mb-1.5">{{ __('auth.password') }}</label>
                 <div class="relative">
                   <span class="pointer-events-none absolute inset-y-0 left-0 flex items-center pl-3 text-slate-400">
                     <svg class="w-5 h-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" aria-hidden="true">
@@ -216,7 +216,7 @@
                   <input id="password" name="password" :type="show ? 'text' : 'password'" required autocomplete="new-password"
                          class="txt focus-ring w-full pl-10 pr-10 py-2.5 border border-slate-200 rounded-md bg-white placeholder-slate-400"
                          placeholder="••••••••">
-                  <button type="button" @click="show=!show" class="absolute inset-y-0 right-0 pr-3 flex items-center" aria-label="Mostrar u ocultar contraseña">
+                  <button type="button" @click="show=!show" class="absolute inset-y-0 right-0 pr-3 flex items-center" aria-label="{{ __('auth.show_hide_password') }}">
                     <svg x-show="!show" class="h-5 w-5 text-slate-400" viewBox="0 0 24 24" fill="none" stroke="currentColor" aria-hidden="true">
                       <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5"
                             d="M2.458 12C3.732 7.943 7.523 5 12 5c4.477 0 8.268 2.943 9.542 7-1.274 4.057-5.065 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"/>
@@ -232,7 +232,7 @@
 
               {{-- Confirm Password --}}
               <div x-data="{show2:false}">
-                <label for="password_confirmation" class="block text-sm font-medium text-slate-700 mb-1.5">Confirmar contraseña</label>
+                <label for="password_confirmation" class="block text-sm font-medium text-slate-700 mb-1.5">{{ __('auth.confirm_password') }}</label>
                 <div class="relative">
                   <span class="pointer-events-none absolute inset-y-0 left-0 flex items-center pl-3 text-slate-400">
                     <svg class="w-5 h-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" aria-hidden="true">
@@ -243,7 +243,7 @@
                   <input id="password_confirmation" name="password_confirmation" :type="show2 ? 'text' : 'password'" required autocomplete="new-password"
                          class="txt focus-ring w-full pl-10 pr-10 py-2.5 border border-slate-200 rounded-md bg-white placeholder-slate-400"
                          placeholder="••••••••">
-                  <button type="button" @click="show2=!show2" class="absolute inset-y-0 right-0 pr-3 flex items-center" aria-label="Mostrar u ocultar confirmación">
+                  <button type="button" @click="show2=!show2" class="absolute inset-y-0 right-0 pr-3 flex items-center" aria-label="{{ __('auth.show_hide_confirm') }}">
                     <svg x-show="!show2" class="h-5 w-5 text-slate-400" viewBox="0 0 24 24" fill="none" stroke="currentColor" aria-hidden="true">
                       <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5"
                             d="M2.458 12C3.732 7.943 7.523 5 12 5c4.477 0 8.268 2.943 9.542 7-1.274 4.057-5.065 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"/>
@@ -274,12 +274,12 @@
               {{-- Acción --}}
               <button type="submit"
                       class="btn w-full py-2.5 px-4 rounded-md text-white bg-slate-900 hover:bg-black focus:ring-2 focus:ring-violet-700 focus:ring-offset-2">
-                Registrarse
+                {{ __('auth.register_submit') }}
               </button>
 
               <div class="text-center text-sm text-slate-500">
-                ¿Ya tiene cuenta?
-                <a href="{{ route('login') }}" class="font-medium text-violet-700 hover:underline">Inicie sesión</a>
+                {{ __('auth.already_registered') }}
+                <a href="{{ route('login') }}" class="font-medium text-violet-700 hover:underline">{{ __('auth.login_link') }}</a>
               </div>
             </form>
           </div>
@@ -288,7 +288,7 @@
       </div>
 
       <div class="text-center mt-6">
-        <p class="text-xs text-slate-400">&copy; {{ date('Y') }} Gestior — Todos los derechos reservados.</p>
+        <p class="text-xs text-slate-400">{!! __('auth.copyright', ['year' => date('Y')]) !!}</p>
       </div>
     </div>
   </div>

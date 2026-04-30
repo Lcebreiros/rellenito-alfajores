@@ -7,7 +7,7 @@
         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"/>
       </svg>
     </a>
-    <h1 class="text-xl sm:text-2xl font-semibold text-neutral-800 dark:text-neutral-100">Gastos de Producción</h1>
+    <h1 class="text-xl sm:text-2xl font-semibold text-neutral-800 dark:text-neutral-100">{{ __('expenses.production_page_title') }}</h1>
   </div>
 @endsection
 
@@ -25,9 +25,9 @@
   <div class="mb-6 bg-gradient-to-r from-orange-50 to-amber-50 dark:from-orange-900/20 dark:to-amber-900/20 rounded-lg border border-orange-200 dark:border-orange-800 p-6">
     <div class="flex items-center justify-between">
       <div>
-        <h2 class="text-lg font-semibold text-neutral-900 dark:text-neutral-100 mb-1">Calculadora de Costos</h2>
+        <h2 class="text-lg font-semibold text-neutral-900 dark:text-neutral-100 mb-1">{{ __('expenses.calc_title') }}</h2>
         <p class="text-sm text-neutral-600 dark:text-neutral-400">
-          Calcula los costos de producción de tus productos usando la calculadora avanzada
+          {{ __('expenses.calc_desc') }}
         </p>
       </div>
       <a href="{{ route('calculator.show') }}"
@@ -35,14 +35,14 @@
         <svg class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
           <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 7h6m0 10v-3m-3 3h.01M9 17h.01M9 14h.01M12 14h.01M15 11h.01M12 11h.01M9 11h.01M7 21h10a2 2 0 002-2V5a2 2 0 00-2-2H7a2 2 0 00-2 2v14a2 2 0 002 2z"/>
         </svg>
-        Ir a Calculadora
+        {{ __('expenses.go_calculator') }}
       </a>
     </div>
   </div>
 
   <!-- Formulario de nuevo gasto -->
   <div class="mb-6 bg-white dark:bg-neutral-800 rounded-lg shadow-sm border border-neutral-200 dark:border-neutral-700 p-6">
-    <h2 class="text-lg font-semibold text-neutral-900 dark:text-neutral-100 mb-4">Agregar Gasto de Producción</h2>
+    <h2 class="text-lg font-semibold text-neutral-900 dark:text-neutral-100 mb-4">{{ __('expenses.add_production_expense') }}</h2>
 
     <form method="POST" action="{{ route('expenses.production.store') }}" class="space-y-4">
       @csrf
@@ -50,10 +50,10 @@
       <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
         <div>
           <label class="block text-sm font-medium text-neutral-700 dark:text-neutral-300 mb-1">
-            Producto (opcional)
+            {{ __('expenses.product_optional') }}
           </label>
           <select name="product_id" class="w-full rounded-lg border border-neutral-300 px-3 py-2 text-sm dark:border-neutral-700 dark:bg-neutral-900">
-            <option value="">Sin producto asociado</option>
+            <option value="">{{ __('expenses.no_product_opt') }}</option>
             @foreach($products as $product)
               <option value="{{ $product->id }}">{{ $product->name }}</option>
             @endforeach
@@ -62,7 +62,7 @@
 
         <div>
           <label class="block text-sm font-medium text-neutral-700 dark:text-neutral-300 mb-1">
-            Nombre del Gasto <span class="text-rose-500">*</span>
+            {{ __('expenses.expense_name') }} <span class="text-rose-500">*</span>
           </label>
           <input type="text" name="expense_name" required
                  class="w-full rounded-lg border border-neutral-300 px-3 py-2 text-sm dark:border-neutral-700 dark:bg-neutral-900"
@@ -71,7 +71,7 @@
 
         <div>
           <label class="block text-sm font-medium text-neutral-700 dark:text-neutral-300 mb-1">
-            Costo por Unidad <span class="text-rose-500">*</span>
+            {{ __('expenses.cost_per_unit') }} <span class="text-rose-500">*</span>
           </label>
           <input type="number" name="cost_per_unit" required step="0.01" min="0"
                  class="w-full rounded-lg border border-neutral-300 px-3 py-2 text-sm dark:border-neutral-700 dark:bg-neutral-900"
@@ -80,7 +80,7 @@
 
         <div>
           <label class="block text-sm font-medium text-neutral-700 dark:text-neutral-300 mb-1">
-            Cantidad <span class="text-rose-500">*</span>
+            {{ __('expenses.qty_label') }} <span class="text-rose-500">*</span>
           </label>
           <input type="number" name="quantity" required step="0.001" min="0.001" value="1"
                  class="w-full rounded-lg border border-neutral-300 px-3 py-2 text-sm dark:border-neutral-700 dark:bg-neutral-900">
@@ -88,7 +88,7 @@
 
         <div>
           <label class="block text-sm font-medium text-neutral-700 dark:text-neutral-300 mb-1">
-            Unidad <span class="text-rose-500">*</span>
+            {{ __('expenses.unit_label') }} <span class="text-rose-500">*</span>
           </label>
           <input type="text" name="unit" required value="unidad"
                  class="w-full rounded-lg border border-neutral-300 px-3 py-2 text-sm dark:border-neutral-700 dark:bg-neutral-900"
@@ -98,11 +98,11 @@
 
       <div>
         <label class="block text-sm font-medium text-neutral-700 dark:text-neutral-300 mb-1">
-          Descripción (opcional)
+          {{ __('expenses.desc_optional') }}
         </label>
         <textarea name="description" rows="2"
                   class="w-full rounded-lg border border-neutral-300 px-3 py-2 text-sm dark:border-neutral-700 dark:bg-neutral-900"
-                  placeholder="Detalles adicionales..."></textarea>
+                  placeholder="{{ __('expenses.desc_placeholder') }}"></textarea>
       </div>
 
       <div class="flex justify-end">
@@ -111,7 +111,7 @@
           <svg class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"/>
           </svg>
-          Agregar Gasto
+          {{ __('expenses.add_expense_btn') }}
         </button>
       </div>
     </form>
@@ -120,7 +120,7 @@
   <!-- Lista de gastos -->
   <div class="bg-white dark:bg-neutral-800 rounded-lg shadow-sm border border-neutral-200 dark:border-neutral-700">
     <div class="px-6 py-4 border-b border-neutral-200 dark:border-neutral-700">
-      <h2 class="text-lg font-semibold text-neutral-900 dark:text-neutral-100">Gastos Registrados</h2>
+      <h2 class="text-lg font-semibold text-neutral-900 dark:text-neutral-100">{{ __('expenses.registered_expenses') }}</h2>
     </div>
 
     @if($expenses->count())
@@ -128,13 +128,13 @@
         <table class="w-full">
           <thead class="bg-neutral-50 dark:bg-neutral-900/50">
             <tr>
-              <th class="px-6 py-3 text-left text-xs font-medium text-neutral-500 dark:text-neutral-400 uppercase">Gasto</th>
-              <th class="px-6 py-3 text-left text-xs font-medium text-neutral-500 dark:text-neutral-400 uppercase">Producto</th>
-              <th class="px-6 py-3 text-left text-xs font-medium text-neutral-500 dark:text-neutral-400 uppercase">Costo/Unidad</th>
-              <th class="px-6 py-3 text-left text-xs font-medium text-neutral-500 dark:text-neutral-400 uppercase">Cantidad</th>
-              <th class="px-6 py-3 text-left text-xs font-medium text-neutral-500 dark:text-neutral-400 uppercase">Total</th>
-              <th class="px-6 py-3 text-left text-xs font-medium text-neutral-500 dark:text-neutral-400 uppercase">Estado</th>
-              <th class="px-6 py-3 text-left text-xs font-medium text-neutral-500 dark:text-neutral-400 uppercase">Acciones</th>
+              <th class="px-6 py-3 text-left text-xs font-medium text-neutral-500 dark:text-neutral-400 uppercase">{{ __('expenses.col_expense') }}</th>
+              <th class="px-6 py-3 text-left text-xs font-medium text-neutral-500 dark:text-neutral-400 uppercase">{{ __('expenses.col_product') }}</th>
+              <th class="px-6 py-3 text-left text-xs font-medium text-neutral-500 dark:text-neutral-400 uppercase">{{ __('expenses.col_cost_unit') }}</th>
+              <th class="px-6 py-3 text-left text-xs font-medium text-neutral-500 dark:text-neutral-400 uppercase">{{ __('expenses.col_qty') }}</th>
+              <th class="px-6 py-3 text-left text-xs font-medium text-neutral-500 dark:text-neutral-400 uppercase">{{ __('expenses.col_total') }}</th>
+              <th class="px-6 py-3 text-left text-xs font-medium text-neutral-500 dark:text-neutral-400 uppercase">{{ __('expenses.col_status') }}</th>
+              <th class="px-6 py-3 text-left text-xs font-medium text-neutral-500 dark:text-neutral-400 uppercase">{{ __('expenses.col_actions') }}</th>
             </tr>
           </thead>
           <tbody class="divide-y divide-neutral-200 dark:divide-neutral-700">
@@ -156,7 +156,7 @@
                 <td class="px-6 py-4">
                   <span class="inline-flex rounded-full px-2 py-1 text-xs font-medium
                                {{ $expense->is_active ? 'bg-emerald-100 text-emerald-700 dark:bg-emerald-900/30 dark:text-emerald-300' : 'bg-neutral-200 text-neutral-700 dark:bg-neutral-800 dark:text-neutral-300' }}">
-                    {{ $expense->is_active ? 'Activo' : 'Inactivo' }}
+                    {{ $expense->is_active ? __('expenses.status_active') : __('expenses.status_inactive') }}
                   </span>
                 </td>
                 <td class="px-6 py-4 text-sm">
@@ -164,9 +164,9 @@
                     @csrf
                     @method('DELETE')
                     <button type="submit"
-                            onclick="return confirm('¿Estás seguro de eliminar este gasto?')"
+                            onclick="return confirm(@json(__('expenses.confirm_delete')))"
                             class="text-rose-600 hover:text-rose-800 dark:text-rose-400 dark:hover:text-rose-300">
-                      Eliminar
+                      {{ __('expenses.delete_btn') }}
                     </button>
                   </form>
                 </td>
@@ -177,7 +177,7 @@
       </div>
     @else
       <div class="px-6 py-12 text-center text-neutral-500 dark:text-neutral-400">
-        No hay gastos registrados aún
+        {{ __('expenses.no_production_yet') }}
       </div>
     @endif
   </div>

@@ -18,7 +18,7 @@
   // Determinar estado del badge y colores basado en el umbral del usuario
   if ($displayStock <= 0) {
     $badgeClass = 'inline-flex items-center gap-1 rounded-full px-2.5 py-1 text-xs font-semibold bg-rose-100 text-rose-700 dark:bg-rose-900/40 dark:text-rose-300 shadow-sm';
-    $badgeText = 'Sin stock';
+    $badgeText = __('stock.badge_out');
     $badgeIcon = 'fa-circle-xmark';
     $cardGlow = 'group-hover:shadow-rose-100 dark:group-hover:shadow-rose-900/20';
     $stockColor = 'text-rose-600 dark:text-rose-400';
@@ -26,14 +26,14 @@
   } elseif ($displayStock <= $userThreshold) {
     // Usar umbral del usuario para determinar "stock bajo"
     $badgeClass = 'inline-flex items-center gap-1 rounded-full px-2.5 py-1 text-xs font-semibold bg-amber-100 text-amber-700 dark:bg-amber-900/40 dark:text-amber-300 shadow-sm';
-    $badgeText = 'Bajo';
+    $badgeText = __('stock.badge_low');
     $badgeIcon = 'fa-triangle-exclamation';
     $cardGlow = 'group-hover:shadow-amber-100 dark:group-hover:shadow-amber-900/20';
     $stockColor = 'text-amber-600 dark:text-amber-400';
     $progressColor = 'bg-amber-500';
   } else {
     $badgeClass = 'inline-flex items-center gap-1 rounded-full px-2.5 py-1 text-xs font-semibold bg-emerald-100 text-emerald-700 dark:bg-emerald-900/40 dark:text-emerald-300 shadow-sm';
-    $badgeText = 'OK';
+    $badgeText = __('stock.badge_ok');
     $badgeIcon = 'fa-circle-check';
     $cardGlow = 'group-hover:shadow-emerald-100 dark:group-hover:shadow-emerald-900/20';
     $stockColor = 'text-emerald-600 dark:text-emerald-400';
@@ -78,14 +78,14 @@
                            bg-purple-50 text-purple-700 border border-purple-200
                            dark:bg-purple-900/20 dark:text-purple-300 dark:border-purple-800">
                 <i class="fas fa-store text-[9px]" aria-hidden="true"></i>
-                <span>Sucursal</span>
+                <span>{{ __('stock.origin_branch') }}</span>
               </span>
             @else
               <span class="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[10px] font-medium
                            bg-blue-50 text-blue-700 border border-blue-200
                            dark:bg-blue-900/20 dark:text-blue-300 dark:border-blue-800">
                 <i class="fas fa-building text-[9px]" aria-hidden="true"></i>
-                <span>Empresa</span>
+                <span>{{ __('stock.origin_company') }}</span>
               </span>
             @endif
           @endif
@@ -104,9 +104,9 @@
         <div>
           <div class="text-xs text-gray-600 dark:text-neutral-400 mb-1 font-medium">
             @if($branchId && $totalStock != $branchStock)
-              <i class="fas fa-store text-[10px] mr-1" aria-hidden="true"></i>Stock en Sucursal
+              <i class="fas fa-store text-[10px] mr-1" aria-hidden="true"></i>{{ __('stock.stock_in_branch') }}
             @else
-              <i class="fas fa-boxes-stacked text-[10px] mr-1" aria-hidden="true"></i>Stock Disponible
+              <i class="fas fa-boxes-stacked text-[10px] mr-1" aria-hidden="true"></i>{{ __('stock.stock_available') }}
             @endif
           </div>
           <div class="text-2xl font-bold {{ $stockColor }} leading-none">
@@ -116,7 +116,7 @@
 
         @if($minStock > 0)
           <div class="text-right">
-            <div class="text-[10px] text-gray-500 dark:text-neutral-500 uppercase tracking-wide mb-0.5">Mínimo</div>
+            <div class="text-[10px] text-gray-500 dark:text-neutral-500 uppercase tracking-wide mb-0.5">{{ __('stock.stock_minimum') }}</div>
             <div class="text-sm font-semibold text-gray-700 dark:text-neutral-300">
               {{ number_format($minStock) }}
             </div>
@@ -138,7 +138,7 @@
         </div>
         <div class="flex justify-between items-center mt-1">
           <span class="text-[10px] text-gray-500 dark:text-neutral-500">
-            {{ $displayStock > $minStock ? 'Stock suficiente' : 'Requiere reposición' }}
+            {{ $displayStock > $minStock ? __('stock.stock_ok') : __('stock.stock_replenish') }}
           </span>
           @if($displayStock > 0 && $minStock > 0)
             <span class="text-[10px] font-medium {{ $stockColor }}">
@@ -152,7 +152,7 @@
       @if($branchId && $totalStock != $branchStock)
         <div class="mt-2 pt-2 border-t border-gray-200 dark:border-neutral-700 flex items-center justify-between">
           <span class="text-[11px] text-gray-500 dark:text-neutral-400">
-            <i class="fas fa-warehouse text-[9px] mr-1" aria-hidden="true"></i>Stock Total
+            <i class="fas fa-warehouse text-[9px] mr-1" aria-hidden="true"></i>{{ __('stock.stock_total') }}
           </span>
           <span class="text-xs font-semibold text-gray-700 dark:text-neutral-300">
             {{ number_format($totalStock) }}
@@ -169,7 +169,7 @@
           <div class="w-6 h-6 rounded-md bg-blue-100 dark:bg-blue-900/30 flex items-center justify-center">
             <i class="fas fa-dollar-sign text-[11px] text-blue-600 dark:text-blue-400" aria-hidden="true"></i>
           </div>
-          <span class="text-[11px] font-medium text-blue-700 dark:text-blue-300">Precio Unit.</span>
+          <span class="text-[11px] font-medium text-blue-700 dark:text-blue-300">{{ __('stock.unit_price') }}</span>
         </div>
         <div class="text-base font-bold text-blue-900 dark:text-blue-100">
           $ {{ number_format($price, 2, ',', '.') }}
@@ -182,7 +182,7 @@
           <div class="w-6 h-6 rounded-md bg-emerald-100 dark:bg-emerald-900/30 flex items-center justify-center">
             <i class="fas fa-sack-dollar text-[11px] text-emerald-600 dark:text-emerald-400" aria-hidden="true"></i>
           </div>
-          <span class="text-[11px] font-medium text-emerald-700 dark:text-emerald-300">Valorización</span>
+          <span class="text-[11px] font-medium text-emerald-700 dark:text-emerald-300">{{ __('stock.valuation') }}</span>
         </div>
         <div class="text-base font-bold text-emerald-900 dark:text-emerald-100">
           $ {{ number_format($value, 2, ',', '.') }}
@@ -193,7 +193,7 @@
     {{-- Footer: Botones de acción --}}
     <div class="flex items-center justify-between gap-2 pt-3 border-t border-gray-200 dark:border-neutral-700">
       <div class="flex items-center gap-1 text-indigo-600 dark:text-indigo-400 opacity-0 group-hover:opacity-100 transition-opacity duration-200">
-        <span class="text-xs font-semibold">Ver detalles</span>
+        <span class="text-xs font-semibold">{{ __('stock.view_details') }}</span>
         <i class="fas fa-arrow-right text-[10px]" aria-hidden="true"></i>
       </div>
 
@@ -207,7 +207,7 @@
                        focus:ring-2 focus:ring-rose-500 focus:ring-offset-2
                        transform hover:-translate-y-0.5 transition-all">
           <i class="fas fa-minus-circle text-xs"></i>
-          <span>Descontar</span>
+          <span>{{ __('stock.discount_btn') }}</span>
         </button>
       @endif
     </div>

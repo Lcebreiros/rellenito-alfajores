@@ -47,15 +47,15 @@
                 <template x-if="loading">
                     <div class="p-8 text-center">
                         <div class="inline-block h-8 w-8 animate-spin rounded-full border-4 border-solid border-indigo-600 border-r-transparent"></div>
-                        <p class="mt-2 text-sm text-neutral-500">Buscando...</p>
+                        <p class="mt-2 text-sm text-neutral-500">{{ __('nav.search_loading') }}</p>
                     </div>
                 </template>
 
                 <template x-if="!loading && query.length > 0 && results.length === 0">
                     <div class="p-8 text-center">
                         <x-svg-icon name="search" size="12" class="mx-auto text-neutral-300 dark:text-neutral-700 mb-3" />
-                        <p class="text-sm font-medium text-neutral-900 dark:text-neutral-100">No se encontraron resultados</p>
-                        <p class="text-xs text-neutral-500 dark:text-neutral-400 mt-1">Intenta con otros términos de búsqueda</p>
+                        <p class="text-sm font-medium text-neutral-900 dark:text-neutral-100">{{ __('nav.search_no_results') }}</p>
+                        <p class="text-xs text-neutral-500 dark:text-neutral-400 mt-1">{{ __('nav.search_no_results_hint') }}</p>
                     </div>
                 </template>
 
@@ -92,8 +92,8 @@
                 <template x-if="!loading && query.length === 0">
                     <div class="p-8 text-center">
                         <x-svg-icon name="search" size="12" class="mx-auto text-neutral-300 dark:text-neutral-700 mb-3" />
-                        <p class="text-sm font-medium text-neutral-900 dark:text-neutral-100">Búsqueda rápida</p>
-                        <p class="text-xs text-neutral-500 dark:text-neutral-400 mt-1">Escribe para buscar productos, ventas o clientes</p>
+                        <p class="text-sm font-medium text-neutral-900 dark:text-neutral-100">{{ __('nav.search_quick_title') }}</p>
+                        <p class="text-xs text-neutral-500 dark:text-neutral-400 mt-1">{{ __('nav.search_quick_hint') }}</p>
                     </div>
                 </template>
             </div>
@@ -104,14 +104,14 @@
                     <span class="flex items-center gap-1">
                         <kbd class="px-1.5 py-0.5 bg-white dark:bg-neutral-700 border border-neutral-200 dark:border-neutral-600 rounded">↑</kbd>
                         <kbd class="px-1.5 py-0.5 bg-white dark:bg-neutral-700 border border-neutral-200 dark:border-neutral-600 rounded">↓</kbd>
-                        navegar
+                        {{ __('nav.search_kbd_navigate') }}
                     </span>
                     <span class="flex items-center gap-1">
                         <kbd class="px-1.5 py-0.5 bg-white dark:bg-neutral-700 border border-neutral-200 dark:border-neutral-600 rounded">↵</kbd>
-                        abrir
+                        {{ __('nav.search_kbd_open') }}
                     </span>
                 </div>
-                <span>Presiona <kbd class="px-1.5 py-0.5 bg-white dark:bg-neutral-700 border border-neutral-200 dark:border-neutral-600 rounded">ESC</kbd> para cerrar</span>
+                <span>{{ __('nav.search_press_esc') }} <kbd class="px-1.5 py-0.5 bg-white dark:bg-neutral-700 border border-neutral-200 dark:border-neutral-600 rounded">ESC</kbd> {{ __('nav.search_esc_close') }}</span>
             </div>
         </div>
     </div>

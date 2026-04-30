@@ -4,7 +4,7 @@
 <div class="flex items-center gap-3">
   <a href="{{ route('products.index') }}" class="inline-flex items-center gap-1.5 text-sm text-neutral-500 dark:text-neutral-400 hover:text-neutral-800 dark:hover:text-neutral-100 transition-colors">
     <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" class="w-4 h-4"><path fill-rule="evenodd" d="M11.78 5.22a.75.75 0 0 1 0 1.06L8.06 10l3.72 3.72a.75.75 0 1 1-1.06 1.06l-4.25-4.25a.75.75 0 0 1 0-1.06l4.25-4.25a.75.75 0 0 1 1.06 0Z" clip-rule="evenodd"/></svg>
-    atrás
+    {{ __('products.show.back') }}
   </a>
   <span class="text-neutral-300 dark:text-neutral-600">/</span>
   <h1 class="text-xl sm:text-2xl font-semibold text-neutral-800 dark:text-neutral-100 truncate">
@@ -18,14 +18,10 @@
 
     <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
 
-        {{-- ============================================================
-             COLUMNA IZQUIERDA: Información del producto
-             ============================================================ --}}
+        {{-- COLUMNA IZQUIERDA --}}
         <div class="space-y-4">
 
-            {{-- Card principal --}}
             <div class="bg-white dark:bg-neutral-900 shadow rounded-2xl overflow-hidden">
-                {{-- Imagen --}}
                 @php
                     $imgUrl = null;
                     if (!empty($product->image) && \Illuminate\Support\Facades\Storage::disk('public')->exists($product->image)) {
@@ -43,12 +39,11 @@
                     </div>
                 @endif
 
-                {{-- Datos del producto --}}
                 <div class="p-5 space-y-3">
                     <div class="flex items-start justify-between gap-2">
                         <h2 class="text-xl font-bold text-neutral-900 dark:text-neutral-100 leading-tight">{{ $product->name }}</h2>
                         <span class="flex-shrink-0 text-xs px-2 py-0.5 rounded-full {{ $product->is_active ? 'bg-emerald-100 text-emerald-700 dark:bg-emerald-900/30 dark:text-emerald-400' : 'bg-neutral-100 text-neutral-500 dark:bg-neutral-800 dark:text-neutral-400' }}">
-                            {{ $product->is_active ? 'Activo' : 'Inactivo' }}
+                            {{ $product->is_active ? __('products.status_active') : __('products.status_inactive') }}
                         </span>
                     </div>
 
@@ -60,7 +55,7 @@
 
                     @if($product->category)
                         <p class="text-sm text-neutral-500 dark:text-neutral-400">
-                            <span class="text-neutral-400 dark:text-neutral-500">Categoría:</span> {{ $product->category }}
+                            <span class="text-neutral-400 dark:text-neutral-500">{{ __('products.form.category') }}:</span> {{ $product->category }}
                         </p>
                     @endif
 
@@ -70,7 +65,6 @@
                         </p>
                     </div>
 
-                    {{-- Sólo visible para master/company --}}
                     @php $auth = auth()->user(); @endphp
                     @if($auth && ((method_exists($auth,'isMaster') && $auth->isMaster()) || (method_exists($auth,'isCompany') && $auth->isCompany())))
                         @php
@@ -87,11 +81,11 @@
                             }
                             $creatorText = null;
                             if ($owner && $owner->representable_type === \App\Models\Branch::class) {
-                                $creatorText = 'Creado por sucursal: ' . (optional($owner->representable)->name ?? ('#'.$owner->representable_id));
+                                $creatorText = __('products.created_by_branch', ['name' => optional($owner->representable)->name ?? ('#'.$owner->representable_id)]);
                             } elseif ($owner && method_exists($owner,'isCompany') && $owner->isCompany()) {
-                                $creatorText = 'Creado por empresa';
+                                $creatorText = __('products.created_by_company');
                             } else {
-                                $creatorText = 'Creado por usuario';
+                                $creatorText = __('products.created_by_user');
                             }
                         @endphp
                         <div class="pt-2 space-y-0.5">
@@ -110,7 +104,7 @@
             {{-- Card de stock --}}
             <div class="bg-white dark:bg-neutral-900 rounded-xl border border-neutral-100 dark:border-neutral-800 p-5">
                 <div class="flex items-center justify-between mb-3">
-                    <h3 class="text-sm font-semibold text-neutral-800 dark:text-neutral-200">Stock</h3>
+                    <h3 class="text-sm font-semibold text-neutral-800 dark:text-neutral-200">{{ __('products.form.stock') }}</h3>
                     <span class="text-lg font-bold text-neutral-900 dark:text-neutral-100">{{ $totalStock }}</span>
                 </div>
                 @if($locations->count())
@@ -125,32 +119,28 @@
                         @endforeach
                     </div>
                 @else
-                    <p class="text-sm text-neutral-500 dark:text-neutral-400">Sin stock en sucursales.</p>
+                    <p class="text-sm text-neutral-500 dark:text-neutral-400">{{ __('products.no_stock_branches') }}</p>
                 @endif
             </div>
 
-            {{-- Botones --}}
             <div class="flex gap-2">
                 <a href="{{ route('products.index') }}" class="px-4 py-2 bg-neutral-200 dark:bg-neutral-800 rounded-lg text-sm text-neutral-700 dark:text-neutral-200 hover:bg-neutral-300 dark:hover:bg-neutral-700 transition-colors">
-                    Volver
+                    {{ __('products.back') }}
                 </a>
                 <a href="{{ route('products.edit', $product) }}" class="px-4 py-2 bg-indigo-600 rounded-lg text-sm text-white hover:bg-indigo-700 transition-colors">
-                    Editar
+                    {{ __('products.edit') }}
                 </a>
             </div>
 
         </div>
 
-        {{-- ============================================================
-             COLUMNA DERECHA: Rentabilidad
-             ============================================================ --}}
+        {{-- COLUMNA DERECHA --}}
         <div class="space-y-4">
 
-            {{-- Encabezado + selector de período --}}
             <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
-                <h3 class="text-base font-semibold text-neutral-900 dark:text-neutral-100">Rentabilidad</h3>
+                <h3 class="text-base font-semibold text-neutral-900 dark:text-neutral-100">{{ __('products.show.profitability') }}</h3>
                 <div class="flex gap-1 text-xs">
-                    @foreach([30 => '30 días', 90 => '90 días', 365 => '1 año'] as $p => $label)
+                    @foreach([30 => __('products.show.period_30'), 90 => __('products.show.period_90'), 365 => __('products.show.period_365')] as $p => $label)
                         <a href="{{ route('products.show', ['product' => $product->id, 'period' => $p]) }}"
                            class="px-3 py-1.5 rounded-lg border transition-colors
                                   {{ $period == $p
@@ -162,7 +152,7 @@
                 </div>
             </div>
 
-            {{-- Card: Costo por unidad --}}
+            {{-- Costo por unidad --}}
             <div class="bg-white dark:bg-neutral-900 rounded-xl border border-neutral-100 dark:border-neutral-800 p-5">
                 @php
                     $badgeClass = match($costSource) {
@@ -171,9 +161,9 @@
                         default   => 'bg-neutral-100 text-neutral-600 dark:bg-neutral-800 dark:text-neutral-400',
                     };
                     $badgeLabel = match($costSource) {
-                        'costing' => 'Análisis de receta',
-                        'recipe'  => 'Receta simple',
-                        default   => 'Costo manual',
+                        'costing' => __('products.show.badge_costing'),
+                        'recipe'  => __('products.show.badge_recipe'),
+                        default   => __('products.show.badge_manual'),
                     };
                     $barColor = match($marginHealth) {
                         'green'  => 'bg-emerald-500',
@@ -190,7 +180,7 @@
                         : 'text-rose-600 dark:text-rose-400';
                 @endphp
                 <div class="flex items-center justify-between mb-4">
-                    <h4 class="text-sm font-semibold text-neutral-800 dark:text-neutral-200">Costo por unidad</h4>
+                    <h4 class="text-sm font-semibold text-neutral-800 dark:text-neutral-200">{{ __('products.show.cost_per_unit') }}</h4>
                     <span class="inline-flex items-center px-2 py-0.5 text-[11px] font-medium rounded-full {{ $badgeClass }}">
                         {{ $badgeLabel }}
                     </span>
@@ -198,29 +188,28 @@
 
                 <div class="space-y-2 text-sm">
                     <div class="flex justify-between">
-                        <span class="text-neutral-500 dark:text-neutral-400">Precio de venta</span>
+                        <span class="text-neutral-500 dark:text-neutral-400">{{ __('products.show.sale_price') }}</span>
                         <span class="font-medium text-neutral-900 dark:text-neutral-100">
                             $ {{ number_format($salePrice, 0, ',', '.') }}
                         </span>
                     </div>
                     <div class="flex justify-between">
-                        <span class="text-neutral-500 dark:text-neutral-400">Costo unitario</span>
+                        <span class="text-neutral-500 dark:text-neutral-400">{{ __('products.show.unit_cost') }}</span>
                         <span class="font-medium text-neutral-900 dark:text-neutral-100">
                             $ {{ number_format($unitCost, 0, ',', '.') }}
                         </span>
                     </div>
                 </div>
 
-                {{-- Margen neto en $ y % --}}
                 <div class="mt-4 grid grid-cols-2 gap-3">
                     <div class="bg-neutral-50 dark:bg-neutral-800 rounded-lg p-3">
-                        <div class="text-xs text-neutral-500 dark:text-neutral-400 mb-1">Ganancia neta</div>
+                        <div class="text-xs text-neutral-500 dark:text-neutral-400 mb-1">{{ __('products.show.net_profit') }}</div>
                         <div class="text-xl font-bold {{ $amountTextColor }}">
                             $ {{ number_format($grossMargin, 0, ',', '.') }}
                         </div>
                     </div>
                     <div class="bg-neutral-50 dark:bg-neutral-800 rounded-lg p-3">
-                        <div class="text-xs text-neutral-500 dark:text-neutral-400 mb-1">Margen neto</div>
+                        <div class="text-xs text-neutral-500 dark:text-neutral-400 mb-1">{{ __('products.show.net_margin') }}</div>
                         <div class="text-xl font-bold {{ $pctTextColor }}">
                             {{ $marginPct }}%
                         </div>
@@ -232,41 +221,35 @@
                         <div class="{{ $barColor }} h-2 rounded-full" style="width: {{ max(0, min(100, $marginPct)) }}%"></div>
                     </div>
                     <p class="mt-1.5 text-[10px] text-neutral-400 dark:text-neutral-500">
-                        Verde ≥ 30% &nbsp;·&nbsp; Amarillo 15–29% &nbsp;·&nbsp; Rojo &lt; 15%
+                        {{ __('products.show.margin_legend') }}
                     </p>
                 </div>
             </div>
 
-            {{-- Card: Ventas del período --}}
+            {{-- Ventas --}}
             <div class="bg-white dark:bg-neutral-900 rounded-xl border border-neutral-100 dark:border-neutral-800 p-5">
                 <h4 class="text-sm font-semibold text-neutral-800 dark:text-neutral-200 mb-4">
-                    Ventas en los últimos {{ $period }} días
+                    {{ __('products.show.sales_period', ['days' => $period]) }}
                 </h4>
 
                 @if(!$hasSales)
-                    <p class="text-sm text-neutral-500 dark:text-neutral-400">Sin ventas registradas en este período.</p>
+                    <p class="text-sm text-neutral-500 dark:text-neutral-400">{{ __('products.show.no_sales') }}</p>
                 @else
                     <div class="grid grid-cols-2 gap-3">
                         <div class="bg-neutral-50 dark:bg-neutral-800 rounded-lg p-3">
-                            <div class="text-xs text-neutral-500 dark:text-neutral-400 mb-1">Unidades</div>
-                            <div class="text-xl font-bold text-neutral-900 dark:text-neutral-100">
-                                {{ number_format($unitsSold, 0, ',', '.') }}
-                            </div>
+                            <div class="text-xs text-neutral-500 dark:text-neutral-400 mb-1">{{ __('products.show.units') }}</div>
+                            <div class="text-xl font-bold text-neutral-900 dark:text-neutral-100">{{ number_format($unitsSold, 0, ',', '.') }}</div>
                         </div>
                         <div class="bg-neutral-50 dark:bg-neutral-800 rounded-lg p-3">
-                            <div class="text-xs text-neutral-500 dark:text-neutral-400 mb-1">Ingresos</div>
-                            <div class="text-xl font-bold text-neutral-900 dark:text-neutral-100">
-                                $ {{ number_format($revenue, 0, ',', '.') }}
-                            </div>
+                            <div class="text-xs text-neutral-500 dark:text-neutral-400 mb-1">{{ __('products.show.revenue') }}</div>
+                            <div class="text-xl font-bold text-neutral-900 dark:text-neutral-100">$ {{ number_format($revenue, 0, ',', '.') }}</div>
                         </div>
                         <div class="bg-neutral-50 dark:bg-neutral-800 rounded-lg p-3">
-                            <div class="text-xs text-neutral-500 dark:text-neutral-400 mb-1">Costo total</div>
-                            <div class="text-xl font-bold text-neutral-900 dark:text-neutral-100">
-                                $ {{ number_format($cogs, 0, ',', '.') }}
-                            </div>
+                            <div class="text-xs text-neutral-500 dark:text-neutral-400 mb-1">{{ __('products.show.total_cost') }}</div>
+                            <div class="text-xl font-bold text-neutral-900 dark:text-neutral-100">$ {{ number_format($cogs, 0, ',', '.') }}</div>
                         </div>
                         <div class="bg-neutral-50 dark:bg-neutral-800 rounded-lg p-3">
-                            <div class="text-xs text-neutral-500 dark:text-neutral-400 mb-1">Ganancia bruta</div>
+                            <div class="text-xs text-neutral-500 dark:text-neutral-400 mb-1">{{ __('products.show.gross_profit') }}</div>
                             <div class="text-xl font-bold {{ $grossProfit >= 0 ? 'text-emerald-600 dark:text-emerald-400' : 'text-rose-600 dark:text-rose-400' }}">
                                 $ {{ number_format($grossProfit, 0, ',', '.') }}
                             </div>
@@ -275,7 +258,7 @@
                 @endif
             </div>
 
-            {{-- Card: Nexum Analytics --}}
+            {{-- Nexum Analytics --}}
             <div class="bg-white dark:bg-neutral-900 rounded-xl border border-neutral-100 dark:border-neutral-800 p-5"
                  x-data="{ insight: null, loading: true, error: false }"
                  x-init="fetch('{{ route('products.nexum-insight', $product) }}')
@@ -287,44 +270,41 @@
                     <div class="w-5 h-5 rounded-full bg-gradient-to-br from-indigo-500 to-violet-600 flex items-center justify-center flex-shrink-0">
                         <span class="text-white text-[8px] font-black">N</span>
                     </div>
-                    <h4 class="text-sm font-semibold text-neutral-800 dark:text-neutral-200">Nexum Analytics</h4>
+                    <h4 class="text-sm font-semibold text-neutral-800 dark:text-neutral-200">{{ __('products.show.nexum') }}</h4>
                 </div>
 
-                {{-- Badges comparativos --}}
                 <div class="flex flex-wrap gap-2 mb-4">
                     @if($revenueSharePct > 0)
                         <span class="inline-flex items-center gap-1 text-xs px-2.5 py-1 rounded-full bg-violet-100 text-violet-700 dark:bg-violet-900/30 dark:text-violet-300 font-medium">
                             <svg class="w-3 h-3" fill="currentColor" viewBox="0 0 20 20"><path d="M2 11a1 1 0 011-1h2a1 1 0 011 1v5a1 1 0 01-1 1H3a1 1 0 01-1-1v-5zm6-4a1 1 0 011-1h2a1 1 0 011 1v9a1 1 0 01-1 1H9a1 1 0 01-1-1V7zm6-3a1 1 0 011-1h2a1 1 0 011 1v12a1 1 0 01-1 1h-2a1 1 0 01-1-1V4z"/></svg>
-                            {{ $revenueSharePct }}% de ingresos
+                            {{ __('products.show.revenue_share', ['pct' => $revenueSharePct]) }}
                         </span>
                     @endif
                     @if($salesRank && $totalSoldProducts > 0)
                         <span class="inline-flex items-center gap-1 text-xs px-2.5 py-1 rounded-full font-medium
                             {{ $salesRank <= 3 ? 'bg-amber-100 text-amber-700 dark:bg-amber-900/30 dark:text-amber-300' : 'bg-sky-100 text-sky-700 dark:bg-sky-900/30 dark:text-sky-300' }}">
-                            #{{ $salesRank }} en ventas
+                            {{ __('products.show.sales_rank', ['rank' => $salesRank]) }}
                             <span class="opacity-60">/ {{ $totalSoldProducts }}</span>
                         </span>
                     @endif
                     @if(!$salesRank && $revenueSharePct == 0)
-                        <span class="text-xs text-neutral-400 dark:text-neutral-500 italic">Sin ventas en los últimos 30 días</span>
+                        <span class="text-xs text-neutral-400 dark:text-neutral-500 italic">{{ __('products.show.no_sales_30') }}</span>
                     @endif
                 </div>
 
-                {{-- Análisis AI (lazy) --}}
                 <div x-show="loading" class="flex items-center gap-2 text-xs text-neutral-400 dark:text-neutral-500">
                     <svg class="animate-spin h-3 w-3 flex-shrink-0" viewBox="0 0 24 24" fill="none">
                         <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"/>
                         <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v8H4z"/>
                     </svg>
-                    Analizando...
+                    {{ __('products.show.analyzing') }}
                 </div>
                 <p x-show="!loading && !error && insight" x-text="insight"
                    class="text-sm text-neutral-600 dark:text-neutral-300 leading-relaxed"></p>
-                <p x-show="error" class="text-xs text-rose-500">No se pudo cargar el análisis.</p>
+                <p x-show="error" class="text-xs text-rose-500">{{ __('products.show.analysis_error') }}</p>
             </div>
 
         </div>
-        {{-- fin columna derecha --}}
 
     </div>
 </div>

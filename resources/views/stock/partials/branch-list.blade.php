@@ -2,10 +2,10 @@
   <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 mb-4">
     <h3 class="text-lg font-semibold text-gray-900 dark:text-neutral-100 flex items-center">
       <i class="fas fa-building text-indigo-600 dark:text-indigo-400 mr-2"></i>
-      Stock por Sucursal
+      {{ __('stock.by_branch_title') }}
     </h3>
     <div class="text-sm text-gray-500 dark:text-neutral-400">
-      Total: <span class="font-semibold text-gray-900 dark:text-neutral-100">{{ number_format($companyTotal) }}</span> unidades
+      {{ __('stock.total_label') }} <span class="font-semibold text-gray-900 dark:text-neutral-100">{{ number_format($companyTotal) }}</span> {{ __('stock.units') }}
     </div>
   </div>
 
@@ -29,13 +29,13 @@
           </div>
 
           <div class="flex items-center justify-between text-sm mb-3">
-            <span class="text-gray-500 dark:text-neutral-400">Stock:</span>
+            <span class="text-gray-500 dark:text-neutral-400">{{ __('stock.stock_label') }}</span>
             <span class="font-semibold text-gray-900 dark:text-neutral-100">{{ number_format($branchStock) }}</span>
           </div>
 
           <div class="space-y-1">
             <div class="flex items-center justify-between text-xs text-gray-500 dark:text-neutral-400">
-              <span>Participación</span>
+              <span>{{ __('stock.participation') }}</span>
               <span class="font-medium">{{ number_format($percentage, 1) }}%</span>
             </div>
             <div class="w-full bg-gray-200 dark:bg-neutral-700 rounded-full h-2 overflow-hidden">
@@ -53,7 +53,7 @@
   @else
     <div class="text-center py-8">
       <i class="fas fa-store text-gray-300 dark:text-neutral-600 text-3xl mb-3" aria-hidden="true"></i>
-      <p class="text-gray-500 dark:text-neutral-400">No hay sucursales registradas</p>
+      <p class="text-gray-500 dark:text-neutral-400">{{ __('stock.no_branches') }}</p>
     </div>
   @endif
 </div>
