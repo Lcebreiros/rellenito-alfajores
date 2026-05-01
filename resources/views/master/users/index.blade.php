@@ -72,7 +72,7 @@
                             <td class="px-6 py-4 text-sm text-gray-500">{{ $user->email }}</td>
                             <td class="px-6 py-4 text-sm text-gray-500">{{ ucfirst($user->hierarchy_level ?? '—') }}</td>
                             <td class="px-6 py-4">
-                                @if($user->is_suspended)
+                                @if(!$user->is_active)
                                     <span class="inline-flex px-2 py-1 text-xs font-semibold rounded-full bg-yellow-100 text-yellow-800">{{ __('master.status_suspended') }}</span>
                                 @else
                                     <span class="inline-flex px-2 py-1 text-xs font-semibold rounded-full bg-green-100 text-green-800">{{ __('master.status_active') }}</span>
