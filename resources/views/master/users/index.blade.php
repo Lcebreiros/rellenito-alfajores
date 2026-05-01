@@ -85,7 +85,7 @@
 <form action="{{ route('master.users.toggleActive', $user) }}" method="POST" class="inline">
     @csrf
     <button type="submit"
-            onclick="return confirm({{ $user->is_active ? @json(__('master.confirm_suspend')) : @json(__('master.confirm_reactivate')) }})"
+            onclick="return confirm(@json($user->is_active ? __('master.confirm_suspend') : __('master.confirm_reactivate')))"
             class="{{ $user->is_active ? 'text-yellow-600 hover:text-yellow-900' : 'text-green-600 hover:text-green-900' }}">
         {{ $user->is_active ? __('master.suspend_btn') : __('master.reactivate_btn') }}
     </button>
