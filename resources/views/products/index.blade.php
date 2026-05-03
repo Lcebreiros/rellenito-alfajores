@@ -190,33 +190,4 @@
   @endif
 </div>
 
-@push('scripts')
-<script>
-(function () {
-  // HID scanner siempre-activo en la vista de productos.
-  // Si el modal ya está abierto (escaneando con cámara o lookup manual), lo deja manejar.
-  // Si está cerrado, abre el modal automáticamente y dispara el lookup.
-  window.addEventListener('hid-barcode', function (e) {
-    const openModal = document.querySelector('[id$="_modal"]:not(.hidden)');
-    if (openModal) return;
-
-    const code = (e.detail?.code ?? '').trim();
-    if (!code) return;
-
-    const openBtn = document.querySelector('[id$="_open"]');
-    if (!openBtn) return;
-
-    openBtn.click();
-
-    setTimeout(function () {
-      var barcodeInput = document.querySelector('[id$="_barcode"]');
-      var lookupBtn    = document.querySelector('[id$="_lookup"]');
-      if (barcodeInput) barcodeInput.value = code;
-      if (lookupBtn)    lookupBtn.click();
-    }, 80);
-  });
-})();
-</script>
-@endpush
-
 @endsection
