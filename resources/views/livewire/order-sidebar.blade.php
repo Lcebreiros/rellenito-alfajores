@@ -205,9 +205,21 @@
         </div>
       </div>
 
+      {{-- Safety reset: si finishing quedó colgado sin overlay MP --}}
+      @if($finishing && !$mpIntentId)
+        <div class="mb-3 rounded-lg bg-amber-50 dark:bg-amber-900/20 border border-amber-200 dark:border-amber-700 px-3 py-2 flex items-center justify-between gap-3">
+          <p class="text-xs text-amber-700 dark:text-amber-300">El botón quedó bloqueado. Hacé click para desbloquearlo.</p>
+          <button wire:click="resetFinalizing"
+                  class="shrink-0 text-xs font-semibold text-amber-700 dark:text-amber-300 underline">
+            Desbloquear
+          </button>
+        </div>
+      @endif
+
       {{-- Botones de acciones --}}
       <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
-        <button wire:click="finalize" wire:loading.attr="disabled" @disabled(empty($items))
+        <button wire:click="finalize" wire:loading.attr="disabled"
+                @disabled(empty($items) || ($finishing && !$mpIntentId))
           class="group relative w-full rounded-xl py-3 text-sm font-semibold transition-all duration-300
                  focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-indigo-500 focus-visible:ring-offset-2
                  @if(empty($items))

@@ -13,6 +13,7 @@ use App\Models\Client;
 use App\Models\PaymentMethod;
 use App\Models\MercadoPagoCredential;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Log;
 use DomainException;
 use RuntimeException;
 
@@ -251,10 +252,27 @@ class OrderSidebar extends Component
         }
     }
 
+    /**
+     * Fuerza el reset del estado de finalización (usado cuando finishing queda colgado).
+     */
+    public function resetFinalizing(): void
+    {
+        $this->finishing  = false;
+        $this->mpIntentId = null;
+    }
+
     public function finalize(): void
     {
+        // Si hay un payment intent MP activo, no re-disparar
+        if ($this->mpIntentId) return;
         if ($this->finishing) return;
         $this->finishing = true;
+
+        Log::info('OrderSidebar::finalize iniciado', [
+            'order_id'               => $this->orderId,
+            'selected_payment_methods' => $this->selectedPaymentMethods,
+            'total'                  => $this->total,
+        ]);
 
         // Alinear el draft de la sesión con el componente
         $draftId = (int) session('draft_order_id');
@@ -274,8 +292,25 @@ class OrderSidebar extends Component
                 ->first()
             : null;
 
+        Log::info('OrderSidebar::finalize detección MP', [
+            'mp_detected'       => (bool) $mpMethod,
+            'mp_method_id'      => $mpMethod?->id,
+            'selected_methods'  => $this->selectedPaymentMethods,
+        ]);
+
         if ($mpMethod) {
-            $this->initiateMpPayment();
+            try {
+                $this->initiateMpPayment();
+            } catch (\Throwable $e) {
+                Log::error('OrderSidebar::initiateMpPayment excepción no controlada', [
+                    'order_id' => $this->orderId,
+                    'error'    => $e->getMessage(),
+                    'trace'    => $e->getTraceAsString(),
+                ]);
+                $this->finishing  = false;
+                $this->mpIntentId = null;
+                $this->dispatch('notify', type: 'error', message: 'Error inesperado al iniciar el pago con Mercado Pago. Revisá los logs.');
+            }
             return;
         }
 
@@ -366,6 +401,14 @@ class OrderSidebar extends Component
         $company    = auth()->user()->rootCompany() ?? auth()->user();
         $credential = MercadoPagoCredential::where('user_id', $company->id)->first();
 
+        Log::info('OrderSidebar::initiateMpPayment credencial', [
+            'company_id'        => $company->id,
+            'has_credential'    => (bool) $credential,
+            'has_device'        => (bool) $credential?->selected_device_id,
+            'device_id'         => $credential?->selected_device_id,
+            'amount'            => $this->total,
+        ]);
+
         if (!$credential) {
             $this->dispatch('notify', type: 'error', message: __('mp.not_connected'));
             $this->finishing = false;
@@ -387,9 +430,24 @@ class OrderSidebar extends Component
                     'external_reference' => (string) $this->orderId,
                 ],
             );
+
+            Log::info('OrderSidebar::initiateMpPayment respuesta MP', [
+                'intent' => $intent,
+            ]);
+
+            if (empty($intent['id'])) {
+                throw new RuntimeException('Mercado Pago no devolvió un ID de cobro. Respuesta: ' . json_encode($intent));
+            }
+
             $this->mpIntentId = $intent['id'];
             // $this->finishing queda en true mientras esperamos → impide doble-click
-        } catch (RuntimeException $e) {
+
+        } catch (\Throwable $e) {
+            Log::error('OrderSidebar::initiateMpPayment falló', [
+                'order_id' => $this->orderId,
+                'device_id' => $credential->selected_device_id,
+                'error'    => $e->getMessage(),
+            ]);
             $this->dispatch('notify', type: 'error', message: 'Error al enviar el cobro al terminal: ' . $e->getMessage());
             $this->finishing = false;
         }
