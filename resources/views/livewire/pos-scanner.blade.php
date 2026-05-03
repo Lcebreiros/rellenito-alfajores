@@ -66,6 +66,17 @@
         @endswitch
     </span>
 
+    {{-- Link rápido para crear el producto cuando no se encuentra --}}
+    @if($status === 'not_found' && $lastCode)
+        <a href="{{ route('products.create', ['barcode' => $lastCode]) }}"
+           target="_blank"
+           class="ml-auto shrink-0 rounded px-1.5 py-0.5 text-[10px] font-semibold
+                  bg-rose-600 hover:bg-rose-700 text-white transition-colors"
+           title="{{ __('scanner.products_create') }}">
+            + {{ __('scanner.pos_create_link') }}
+        </a>
+    @endif
+
     {{-- Indicador de wire:loading --}}
     <span wire:loading wire:target="scan" class="ml-auto shrink-0">
         <svg class="w-3 h-3 animate-spin" fill="none" viewBox="0 0 24 24">

@@ -220,11 +220,11 @@
                     {{ __('mp.device_empty') }}
                   </p>
 
-                  {{-- Select --}}
-                  <div x-show="devices.length > 0 && !loading" class="flex items-center gap-2">
+                  {{-- Select + Save --}}
+                  <div x-show="devices.length > 0 && !loading" class="space-y-2">
                     <select
                       x-model="selectedDevice"
-                      class="flex-1 rounded-lg border-neutral-300 dark:border-neutral-600 bg-white dark:bg-neutral-900 text-sm text-neutral-900 dark:text-neutral-100 focus:border-[#009EE3] focus:ring-[#009EE3] py-1.5 px-3"
+                      class="w-full rounded-lg border-neutral-300 dark:border-neutral-600 bg-white dark:bg-neutral-900 text-sm text-neutral-900 dark:text-neutral-100 focus:border-[#009EE3] focus:ring-[#009EE3] py-2 px-3"
                     >
                       <option value="">{{ __('mp.device_select_placeholder') }}</option>
                       <template x-for="d in devices" :key="d.id">
@@ -235,10 +235,17 @@
                       type="button"
                       @click="saveDevice()"
                       :disabled="!selectedDevice || saving"
-                      class="shrink-0 rounded-lg bg-[#009EE3] hover:bg-[#0087c4] disabled:opacity-50 text-white px-3 py-1.5 text-xs font-semibold transition-colors"
+                      class="w-full rounded-lg bg-[#009EE3] hover:bg-[#0087c4] disabled:opacity-40 disabled:cursor-not-allowed text-white py-2 px-4 text-sm font-semibold transition-colors flex items-center justify-center gap-2"
                     >
+                      <svg x-show="!saving" class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" d="M9 12.75L11.25 15 15 9.75M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/>
+                      </svg>
+                      <svg x-show="saving" class="w-4 h-4 animate-spin" fill="none" viewBox="0 0 24 24">
+                        <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"/>
+                        <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v8z"/>
+                      </svg>
                       <span x-show="!saving">{{ __('mp.device_save_btn') }}</span>
-                      <span x-show="saving">…</span>
+                      <span x-show="saving">{{ __('mp.device_saving') }}</span>
                     </button>
                   </div>
 

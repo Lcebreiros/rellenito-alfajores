@@ -32,20 +32,49 @@
     </div>
 
     <div class="flex items-center gap-2">
-      {{-- Input HID: recibe scanner físico + abre modal de scanner con el código --}}
+      {{-- Input HID: recibe scanner físico y busca el producto --}}
       <div
         x-data="{
           open: false,
           code: '',
+          loading: false,
+          result: null,
+
           init() {
-            // HID scanner global: auto-procesa el código si no hay modal abierto
             window.addEventListener('hid-barcode', (e) => {
               const modalEl = document.querySelector('[id$=\'_modal\']:not(.hidden)');
-              if (modalEl) return; // ya lo maneja el modal abierto
-              this.code = e.detail.code;
-              this.open = true;
-              this.$nextTick(() => this.$refs.hidInput?.select());
+              if (modalEl) return;
+              // Si hay un modal de Alpine abierto (ej. quick-create), ignorar
+              if (document.querySelector('[data-barcode-modal]')?.offsetParent !== null) return;
+              this.lookup(e.detail.code);
             });
+          },
+
+          async lookup(c) {
+            if (!c || !c.trim()) return;
+            this.code    = c.trim();
+            this.open    = true;
+            this.loading = true;
+            this.result  = null;
+            try {
+              const res  = await fetch(`{{ route('products.lookup') }}?barcode=${encodeURIComponent(this.code)}`, {
+                headers: { 'X-Requested-With': 'XMLHttpRequest', Accept: 'application/json' }
+              });
+              this.result = await res.json();
+              if (this.result.found) {
+                // Navegar directamente al producto
+                setTimeout(() => { window.location.href = '/products/' + this.result.product.id + '/edit'; }, 600);
+              } else {
+                // Abrir modal de creación rápida
+                this.open = false;
+                this.code = '';
+                window.dispatchEvent(new CustomEvent('barcode-create-product', { detail: { code: c.trim() } }));
+              }
+            } catch(e) {
+              this.result = { error: true };
+            } finally {
+              this.loading = false;
+            }
           }
         }"
         class="relative"
@@ -61,66 +90,45 @@
             </svg>
           </div>
           <input
-            x-ref="hidInput"
-            x-model="code"
             type="text"
+            x-model="code"
             placeholder="{{ __('scanner.products_placeholder') }}"
             autocomplete="off"
-            @keydown.enter.prevent="if(code.trim()) { open = true; }"
+            @keydown.enter.prevent="lookup(code)"
             class="w-44 rounded-lg border border-neutral-200 dark:border-neutral-700 bg-white dark:bg-neutral-900
                    pl-8 pr-3 py-1.5 text-xs text-neutral-700 dark:text-neutral-200 placeholder-neutral-400
                    focus:outline-none focus:ring-2 focus:ring-neutral-400/30 transition"
           >
         </div>
 
-        {{-- Panel resultado inline --}}
+        {{-- Panel resultado inline (solo para "encontrado") --}}
         <div
-          x-show="open && code.trim()"
+          x-show="open && result"
           x-transition
-          @click.outside="open = false; code = ''"
-          class="absolute left-0 top-full mt-1 z-50 w-80 rounded-xl border border-neutral-200 dark:border-neutral-700 bg-white dark:bg-neutral-900 shadow-xl p-3"
+          @click.outside="open = false; code = ''; result = null"
+          class="absolute left-0 top-full mt-1 z-50 w-72 rounded-xl border border-neutral-200 dark:border-neutral-700 bg-white dark:bg-neutral-900 shadow-xl p-3"
         >
-          <div class="flex items-center justify-between mb-2">
-            <span class="text-xs font-semibold text-neutral-600 dark:text-neutral-300">
-              {{ __('scanner.products_result_title') }}: <code class="font-mono" x-text="code"></code>
-            </span>
-            <button @click="open = false; code = ''" class="text-neutral-400 hover:text-neutral-600 text-xs">✕</button>
+          {{-- Loading --}}
+          <div x-show="loading" class="flex items-center gap-2 text-xs text-neutral-500 animate-pulse">
+            <svg class="w-3.5 h-3.5 animate-spin" fill="none" viewBox="0 0 24 24">
+              <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"/>
+              <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v8z"/>
+            </svg>
+            {{ __('scanner.products_searching') }}
           </div>
-          {{-- Carga el resultado usando el endpoint existente --}}
-          <div
-            x-init="$watch('open', async (val) => {
-              if (!val || !code.trim()) return;
-              const res = await fetch(`{{ route('products.lookup') }}?barcode=${encodeURIComponent(code)}`, {
-                headers: { 'X-Requested-With': 'XMLHttpRequest', Accept: 'application/json' }
-              });
-              const data = await res.json();
-              $dispatch('hid-products-result', { data, code });
-            })"
-            x-on:hid-products-result.window="
-              const { data, code: c } = $event.detail;
-              if (data.found) {
-                $el.innerHTML = `<div class='flex items-center gap-3'>
-                  ${data.product.image_url ? `<img src='${data.product.image_url}' class='w-10 h-10 rounded object-contain border border-neutral-100'>` : ''}
-                  <div class='flex-1 min-w-0'>
-                    <div class='text-sm font-semibold text-neutral-800 dark:text-neutral-100 truncate'>${data.product.name}</div>
-                    <div class='text-xs text-neutral-500'>$${parseFloat(data.product.price).toFixed(2)} · SKU: ${data.product.sku || '—'}</div>
-                  </div>
-                  <a href='/products/${data.product.id}/edit' class='shrink-0 rounded-lg bg-blue-600 hover:bg-blue-700 text-white px-2.5 py-1.5 text-xs font-semibold'>{{ __('scanner.products_edit') }}</a>
-                </div>`;
-              } else {
-                $el.innerHTML = `<div class='text-xs text-neutral-500 mb-2'>{{ __('scanner.products_not_found') }}</div>
-                  <a href='/products/create?barcode=${encodeURIComponent(c)}' class='inline-flex items-center gap-1 rounded-lg bg-emerald-600 hover:bg-emerald-700 text-white px-3 py-1.5 text-xs font-semibold'>+ {{ __('scanner.products_create') }}</a>`;
-              }
-            "
-          >
-            <div class="flex items-center gap-2 text-xs text-neutral-500 animate-pulse">
-              <svg class="w-3.5 h-3.5 animate-spin" fill="none" viewBox="0 0 24 24">
-                <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"/>
-                <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v8z"/>
-              </svg>
-              {{ __('scanner.products_searching') }}
+          {{-- Encontrado --}}
+          <template x-if="result && result.found && !loading">
+            <div class="flex items-center gap-3">
+              <template x-if="result.product.image_url">
+                <img :src="result.product.image_url" class="w-10 h-10 rounded object-contain border border-neutral-100">
+              </template>
+              <div class="flex-1 min-w-0">
+                <div class="text-sm font-semibold text-neutral-800 dark:text-neutral-100 truncate" x-text="result.product.name"></div>
+                <div class="text-xs text-neutral-500" x-text="'$' + parseFloat(result.product.price).toFixed(2) + ' · SKU: ' + (result.product.sku || '—')"></div>
+              </div>
+              <span class="shrink-0 text-xs text-emerald-600 dark:text-emerald-400 font-medium animate-pulse">{{ __('scanner.products_found_opening') }}</span>
             </div>
-          </div>
+          </template>
         </div>
       </div>
 
@@ -280,5 +288,161 @@
       action-icon="plus"
     />
   @endif
+</div>
+
+{{-- ── Modal de creación rápida por código de barras ─────────────────────── --}}
+<div
+  data-barcode-modal
+  x-data="{
+    open: false,
+    barcode: '',
+    name: '',
+    price: '',
+    stock: '1',
+
+    init() {
+      window.addEventListener('barcode-create-product', (e) => {
+        this.barcode = e.detail?.code ?? '';
+        this.name    = '';
+        this.price   = '';
+        this.stock   = '1';
+        this.open    = true;
+        this.$nextTick(() => this.$refs.nameInput?.focus());
+      });
+    },
+
+    close() { this.open = false; }
+  }"
+  x-show="open"
+  x-cloak
+  @keydown.escape.window="if(open) close()"
+  class="fixed inset-0 z-50 flex items-center justify-center p-4"
+  style="background: rgba(0,0,0,0.5)"
+>
+  <div
+    class="relative bg-white dark:bg-neutral-900 rounded-2xl shadow-2xl w-full max-w-md border border-neutral-200 dark:border-neutral-800"
+    @click.outside="close()"
+    x-transition:enter="transition ease-out duration-200"
+    x-transition:enter-start="opacity-0 scale-95"
+    x-transition:enter-end="opacity-100 scale-100"
+    x-transition:leave="transition ease-in duration-150"
+    x-transition:leave-start="opacity-100 scale-100"
+    x-transition:leave-end="opacity-0 scale-95"
+  >
+    {{-- Header --}}
+    <div class="flex items-center justify-between px-5 py-4 border-b border-neutral-200 dark:border-neutral-800">
+      <div>
+        <h3 class="text-base font-semibold text-neutral-900 dark:text-neutral-100">
+          <svg class="inline w-4 h-4 mr-1 text-indigo-500" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor">
+            <rect x="3" y="5" width="2" height="14" fill="currentColor" stroke="none"/>
+            <rect x="7" y="5" width="1" height="14" fill="currentColor" stroke="none"/>
+            <rect x="10" y="5" width="2" height="14" fill="currentColor" stroke="none"/>
+            <rect x="14" y="5" width="1" height="14" fill="currentColor" stroke="none"/>
+            <rect x="17" y="5" width="2" height="14" fill="currentColor" stroke="none"/>
+          </svg>
+          {{ __('scanner.modal_title') }}
+        </h3>
+        <p class="text-xs text-neutral-500 dark:text-neutral-400 mt-0.5">
+          {{ __('scanner.modal_subtitle') }} <code class="font-mono text-indigo-600 dark:text-indigo-400" x-text="barcode"></code>
+        </p>
+      </div>
+      <button @click="close()" class="text-neutral-400 hover:text-neutral-600 dark:hover:text-neutral-300 transition-colors">
+        <svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor">
+          <path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12"/>
+        </svg>
+      </button>
+    </div>
+
+    {{-- Info --}}
+    <div class="px-5 pt-4">
+      <div class="flex items-start gap-2 rounded-lg bg-amber-50 dark:bg-amber-900/20 border border-amber-200 dark:border-amber-700 px-3 py-2">
+        <svg class="w-4 h-4 text-amber-500 mt-0.5 shrink-0" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor">
+          <path stroke-linecap="round" stroke-linejoin="round" d="M12 9v3.75m-9.303 3.376c-.866 1.5.217 3.374 1.948 3.374h14.71c1.73 0 2.813-1.874 1.948-3.374L13.949 3.378c-.866-1.5-3.032-1.5-3.898 0L2.697 16.126ZM12 15.75h.007v.008H12v-.008Z"/>
+        </svg>
+        <p class="text-xs text-amber-700 dark:text-amber-300">{{ __('scanner.modal_not_found_info') }}</p>
+      </div>
+    </div>
+
+    {{-- Form --}}
+    <form method="POST" action="{{ route('products.store') }}" class="p-5 space-y-4">
+      @csrf
+      <input type="hidden" name="barcode"    :value="barcode">
+      <input type="hidden" name="sku"        :value="barcode">
+      <input type="hidden" name="is_active"  value="1">
+      <input type="hidden" name="uses_stock" value="1">
+
+      <div>
+        <label class="block text-sm font-medium text-neutral-700 dark:text-neutral-200 mb-1">
+          {{ __('scanner.modal_name') }} <span class="text-rose-500">*</span>
+        </label>
+        <input
+          x-ref="nameInput"
+          type="text"
+          name="name"
+          x-model="name"
+          required
+          maxlength="100"
+          autocomplete="off"
+          class="w-full rounded-lg border border-neutral-300 dark:border-neutral-600 bg-white dark:bg-neutral-800
+                 px-3 py-2 text-sm text-neutral-900 dark:text-neutral-100
+                 focus:border-indigo-500 focus:ring-indigo-500 transition-colors"
+        >
+      </div>
+
+      <div class="grid grid-cols-2 gap-3">
+        <div>
+          <label class="block text-sm font-medium text-neutral-700 dark:text-neutral-200 mb-1">
+            {{ __('scanner.modal_price') }} <span class="text-rose-500">*</span>
+          </label>
+          <input
+            type="number"
+            name="price"
+            x-model="price"
+            min="0"
+            step="0.01"
+            required
+            class="w-full rounded-lg border border-neutral-300 dark:border-neutral-600 bg-white dark:bg-neutral-800
+                   px-3 py-2 text-sm text-neutral-900 dark:text-neutral-100
+                   focus:border-indigo-500 focus:ring-indigo-500 transition-colors"
+          >
+        </div>
+        <div>
+          <label class="block text-sm font-medium text-neutral-700 dark:text-neutral-200 mb-1">{{ __('scanner.modal_stock') }}</label>
+          <input
+            type="number"
+            name="stock"
+            x-model="stock"
+            min="0"
+            step="1"
+            class="w-full rounded-lg border border-neutral-300 dark:border-neutral-600 bg-white dark:bg-neutral-800
+                   px-3 py-2 text-sm text-neutral-900 dark:text-neutral-100
+                   focus:border-indigo-500 focus:ring-indigo-500 transition-colors"
+          >
+        </div>
+      </div>
+
+      <div class="flex justify-end gap-3 pt-1">
+        <button
+          type="button"
+          @click="close()"
+          class="px-4 py-2 text-sm font-medium text-neutral-700 dark:text-neutral-200
+                 border border-neutral-300 dark:border-neutral-700 rounded-lg
+                 hover:bg-neutral-50 dark:hover:bg-neutral-800 transition-colors"
+        >
+          {{ __('scanner.modal_cancel') }}
+        </button>
+        <button
+          type="submit"
+          class="inline-flex items-center gap-2 px-4 py-2 text-sm font-medium text-white
+                 bg-indigo-600 hover:bg-indigo-700 rounded-lg transition-colors"
+        >
+          <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor">
+            <path stroke-linecap="round" stroke-linejoin="round" d="M12 4.5v15m7.5-7.5h-15"/>
+          </svg>
+          {{ __('scanner.modal_create') }}
+        </button>
+      </div>
+    </form>
+  </div>
 </div>
 @endsection

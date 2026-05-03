@@ -28,6 +28,7 @@ return [
     'device_empty'          => 'Nenhum dispositivo Point encontrado na sua conta.',
     'device_saved'          => 'Dispositivo selecionado com sucesso.',
     'device_save_btn'       => 'Salvar dispositivo',
+    'device_saving'         => 'Salvando…',
 
     'device_status_active'  => 'Ativo',
     'device_status_inactive'=> 'Inativo',

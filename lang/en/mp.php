@@ -28,6 +28,7 @@ return [
     'device_empty'          => 'No Point devices found in your account.',
     'device_saved'          => 'Device selected successfully.',
     'device_save_btn'       => 'Save device',
+    'device_saving'         => 'Saving…',
 
     'device_status_active'  => 'Active',
     'device_status_inactive'=> 'Inactive',

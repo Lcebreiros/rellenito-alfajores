@@ -16,4 +16,18 @@ return [
     'products_not_found'     => 'Product not found.',
     'products_create'        => 'Create product',
     'products_searching'     => 'Searching…',
+    'products_found_opening' => 'Found, opening…',
+
+    // Quick-create modal (from product view scan)
+    'modal_title'            => 'New product',
+    'modal_subtitle'         => 'Scanned code:',
+    'modal_not_found_info'   => 'This code is not registered. Fill in the details to create it.',
+    'modal_name'             => 'Product name',
+    'modal_price'            => 'Sale price',
+    'modal_stock'            => 'Initial stock',
+    'modal_cancel'           => 'Cancel',
+    'modal_create'           => 'Create product',
+
+    // POS — not found state
+    'pos_create_link'        => 'Create',
 ];

@@ -32,6 +32,7 @@ return [
     'device_empty'          => 'No se encontraron dispositivos Point en tu cuenta.',
     'device_saved'          => 'Dispositivo seleccionado correctamente.',
     'device_save_btn'       => 'Guardar dispositivo',
+    'device_saving'         => 'Guardando…',
 
     // UI - estado del point
     'device_status_active'  => 'Activo',

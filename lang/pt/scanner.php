@@ -16,4 +16,18 @@ return [
     'products_not_found'     => 'Produto não encontrado.',
     'products_create'        => 'Criar produto',
     'products_searching'     => 'Buscando…',
+    'products_found_opening' => 'Encontrado, abrindo…',
+
+    // Modal criação rápida (de escaneamento de produtos)
+    'modal_title'            => 'Novo produto',
+    'modal_subtitle'         => 'Código escaneado:',
+    'modal_not_found_info'   => 'Este código não está cadastrado. Preencha os dados para criá-lo.',
+    'modal_name'             => 'Nome do produto',
+    'modal_price'            => 'Preço de venda',
+    'modal_stock'            => 'Estoque inicial',
+    'modal_cancel'           => 'Cancelar',
+    'modal_create'           => 'Criar produto',
+
+    // POS — estado não encontrado
+    'pos_create_link'        => 'Criar',
 ];
