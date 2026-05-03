@@ -420,16 +420,19 @@ class OrderSidebar extends Component
             return;
         }
 
-        try {
-            $intent = app(MercadoPagoService::class)->createPaymentIntent(
-                $credential,
-                $credential->selected_device_id,
-                [
-                    'amount'             => $this->total,
-                    'description'        => "Venta #{$this->orderId}",
-                    'external_reference' => (string) $this->orderId,
-                ],
-            );
+try {
+    $intent = app(MercadoPagoService::class)->createPaymentIntent(
+        $credential,
+        $credential->selected_device_id,
+        [
+            'amount' => (float) $this->total, // Asegurate que sea float/double
+            'additional_info' => [
+                'external_reference' => (string) $this->orderId,
+                'print_on_terminal'  => true, // Opcional: para que imprima el ticket
+            ],
+            // Si el error persiste con 'description', quitalo o movelo a additional_info
+        ],
+    );
 
             Log::info('OrderSidebar::initiateMpPayment respuesta MP', [
                 'intent' => $intent,
