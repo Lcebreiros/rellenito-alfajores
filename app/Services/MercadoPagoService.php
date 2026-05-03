@@ -132,33 +132,29 @@ final class MercadoPagoService
      * @param  array{amount: float, description?: string, external_reference?: string} $payment
      */
     public function createPaymentIntent(
-        MercadoPagoCredential $credential,
-        string $deviceId,
-        array $payment,
-    ): array {
-        $credential = $this->ensureFreshToken($credential);
+    MercadoPagoCredential $credential,
+    string $deviceId,
+    array $payment,
+): array {
+    $credential = $this->ensureFreshToken($credential);
 
-        // MP Point API espera el amount como entero en centavos (ej: $1500 ARS = 150000)
-        $amountInCents = (int) round((float) $payment['amount'] * 100);
+    // MP Point API espera el amount como entero en centavos
+    $amountInCents = (int) round((float) $payment['amount'] * 100);
 
-        return $this->post(
-            "/point/integration-api/devices/{$deviceId}/payment-intents",
-            $credential->access_token,
-            [
-                'amount'             => $amountInCents,
-                'description'        => $payment['description'] ?? 'Venta',
-                'payment'            => [
-                    'installments'          => 1,
-                    'type'                  => 'credit_card',
-                    'installments_cost'     => 'seller',
-                ],
-                'additional_info' => [
-                    'external_reference' => $payment['external_reference'] ?? null,
-                    'print_on_terminal'  => true,
-                ],
+    return $this->post(
+        "/point/integration-api/devices/{$deviceId}/payment-intents",
+        $credential->access_token,
+        [
+            'amount' => $amountInCents,
+            'additional_info' => [
+                // 'external_reference' DEBE SER STRING. 
+                // Usamos el ID de la orden que viene de Helipso.
+                'external_reference' => (string) ($payment['external_reference'] ?? ''),
+                'print_on_terminal'  => true,
             ],
-        );
-    }
+        ],
+    );
+}
 
     /**
      * Consulta el estado de un payment intent (para polling desde el frontend).
