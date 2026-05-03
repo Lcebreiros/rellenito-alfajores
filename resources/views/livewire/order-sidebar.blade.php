@@ -289,137 +289,104 @@
     </div>
   </div>
 
-  {{-- ── Overlay de espera de pago Mercado Pago ─────────────────────────── --}}
-  @if($mpIntentId)
-  <div
-    x-data="{
-      intentId: @js($mpIntentId),
-      status: 'OPEN',
-      elapsed: 0,
-      error: null,
-      _poll: null,
-      _tick: null,
-      _timeout: null,
+{{-- ── Overlay de espera de pago Mercado Pago ─────────────────────────── --}}
+@if($mpIntentId)
+<div
+  x-data="{
+    intentId: @js($mpIntentId),
+    status: 'OPEN',
+    elapsed: 0,
+    finished: false,
+    error: null,
+    _poll: null,
 
-      msgAwaiting:  @js(__('mp.payment_awaiting')),
-      msgRejected:  @js(__('mp.payment_rejected')),
-      msgCancelled: @js(__('mp.payment_cancelled')),
-      msgTimeout:   @js(__('mp.payment_timeout')),
+    init() {
+      this._poll = setInterval(() => this.poll(), 3000);
+      this.poll();
+    },
 
-      init() {
-        this._tick    = setInterval(() => this.elapsed++, 1000);
-        this._poll    = setInterval(() => this.poll(), 3000);
-        this._timeout = setTimeout(() => this.onTimeout(), 180000);
-        this.poll();
-      },
+    stopAll() {
+      clearInterval(this._poll);
+    },
 
-      stopAll() {
-        clearInterval(this._tick);
-        clearInterval(this._poll);
-        clearTimeout(this._timeout);
-      },
+    async poll() {
+      try {
+        const res  = await fetch(`/mercadopago/payment-intents/${this.intentId}/status`, {
+          headers: { 'X-Requested-With': 'XMLHttpRequest', Accept: 'application/json' }
+        });
+        const data = await res.json();
+        this.status = data.state ?? this.status;
 
-      async poll() {
-        try {
-          const res  = await fetch(`/mercadopago/payment-intents/${this.intentId}/status`, {
-            headers: { 'X-Requested-With': 'XMLHttpRequest', Accept: 'application/json' }
-          });
-          const data = await res.json();
-          this.status = data.state ?? this.status;
-
-          if (this.status === 'FINISHED') {
-            this.stopAll();
+        if (this.status === 'FINISHED') {
+          this.stopAll();
+          this.finished = true;
+          // Pequeño delay para que el usuario vea el 'Check' antes de cerrar el componente
+          setTimeout(() => {
             $wire.completeMpOrder({ payment_id: data.payment?.id ?? null, state: 'FINISHED' });
-          } else if (this.status === 'ERROR') {
-            this.stopAll();
-            this.error = this.msgRejected;
-          } else if (this.status === 'CANCELLED') {
-            this.stopAll();
-            this.error = this.msgCancelled;
-          }
-        } catch(e) {
-          // continuar en error de red
+          }, 1500);
+        } else if (this.status === 'ERROR' || this.status === 'CANCELLED') {
+          this.stopAll();
+          this.error = 'Pago no procesado';
         }
-      },
-
-      onTimeout() {
-        this.stopAll();
-        this.error = this.msgTimeout;
-      },
-
-      async cancel() {
-        this.stopAll();
-        await $wire.abortMpPayment(@js(__('mp.payment_cancelled_operator')));
-      },
-
-      fmt(s) {
-        const m = Math.floor(s / 60), sec = s % 60;
-        return (m > 0 ? m + 'm ' : '') + sec + 's';
-      }
-    }"
-    x-init="init()"
-    class="absolute inset-0 z-50 flex flex-col items-center justify-center bg-white/97 dark:bg-neutral-950/97 backdrop-blur-sm rounded-3xl"
-  >
-    <div class="text-center px-8 max-w-xs w-full space-y-6">
-
-      {{-- Logo MP --}}
-      <div class="w-16 h-16 mx-auto rounded-2xl bg-[#009EE3]/10 flex items-center justify-center">
-        <svg class="w-10 h-10 text-[#009EE3]" viewBox="0 0 24 24" fill="currentColor">
-          <path d="M12 2C6.477 2 2 6.477 2 12s4.477 10 10 10 10-4.477 10-10S17.523 2 12 2zm4.5 7h-2.25c-.414 0-.75.336-.75.75v4.5c0 .414.336.75.75.75H16.5c.414 0 .75-.336.75-.75v-4.5c0-.414-.336-.75-.75-.75zm-6 0H8.25c-.414 0-.75.336-.75.75v4.5c0 .414.336.75.75.75H10.5c.414 0 .75-.336.75-.75v-4.5c0-.414-.336-.75-.75-.75z"/>
-        </svg>
-      </div>
-
-      {{-- Estado: esperando --}}
-      <div x-show="!error">
-        <div class="flex items-center justify-center gap-2 mb-2">
-          <svg class="w-5 h-5 animate-spin text-[#009EE3] shrink-0" fill="none" viewBox="0 0 24 24">
-            <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"/>
-            <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v8z"/>
-          </svg>
-          <span class="font-semibold text-slate-900 dark:text-neutral-100 text-sm" x-text="msgAwaiting"></span>
+      } catch(e) { }
+    }
+  }"
+  x-init="init()"
+  class="absolute inset-0 z-50 flex flex-col items-center justify-center bg-white/95 dark:bg-neutral-950/95 backdrop-blur-md rounded-3xl transition-all duration-500"
+>
+  <div class="text-center space-y-6">
+    
+    {{-- Animación Principal --}}
+    <div class="relative flex items-center justify-center">
+      {{-- Loader (se oculta al finalizar) --}}
+      <template x-if="!finished && !error">
+        <div class="relative">
+          <div class="w-20 h-20 border-4 border-indigo-100 dark:border-neutral-800 rounded-full"></div>
+          <div class="absolute top-0 left-0 w-20 h-20 border-4 border-indigo-600 border-t-transparent rounded-full animate-spin"></div>
         </div>
-        <p class="text-xs text-slate-400 dark:text-neutral-500">
-          <span x-text="status"></span>
-          <span class="mx-1">·</span>
-          <span x-text="fmt(elapsed)"></span>
-        </p>
-        <p class="mt-1 text-[11px] text-slate-400 dark:text-neutral-600">{{ __('mp.payment_terminal_hint') }}</p>
-      </div>
+      </template>
 
-      {{-- Total --}}
-      <div x-show="!error" class="rounded-xl bg-slate-50 dark:bg-neutral-900 border border-slate-200 dark:border-neutral-800 py-3 px-4">
-        <p class="text-xs text-slate-500 dark:text-neutral-400 mb-0.5">{{ __('orders.sidebar.total_label') }}</p>
-        <p class="text-2xl font-bold text-slate-900 dark:text-neutral-100">$ {{ number_format($total, 2, ',', '.') }}</p>
-      </div>
-
-      {{-- Estado: error/rechazo --}}
-      <div x-show="error" class="space-y-3">
-        <div class="w-12 h-12 mx-auto rounded-full bg-rose-100 dark:bg-rose-900/30 flex items-center justify-center">
-          <svg class="w-6 h-6 text-rose-600 dark:text-rose-400" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor">
-            <path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12"/>
+      {{-- Icono Éxito --}}
+      <template x-if="finished">
+        <div class="w-20 h-20 bg-emerald-100 dark:bg-emerald-900/30 rounded-full flex items-center justify-center scale-110 transition-transform duration-300">
+          <svg class="w-10 h-10 text-emerald-600 dark:text-emerald-400" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="3">
+            <path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7"></path>
           </svg>
         </div>
-        <p class="text-sm font-medium text-rose-700 dark:text-rose-400" x-text="error"></p>
-        <button
-          @click="$wire.abortMpPayment('')"
-          class="w-full rounded-xl bg-rose-600 hover:bg-rose-700 text-white py-2.5 text-sm font-semibold transition-colors"
-        >
-          {{ __('mp.payment_error_close') }}
-        </button>
-      </div>
+      </template>
 
-      {{-- Cancelar (solo mientras espera) --}}
-      <div x-show="!error">
-        <button
-          @click="cancel()"
-          class="text-xs text-slate-400 dark:text-neutral-500 hover:text-rose-600 dark:hover:text-rose-400 underline underline-offset-2 transition-colors"
-        >
-          {{ __('mp.payment_cancel_btn') }}
-        </button>
-      </div>
-
+      {{-- Icono Error --}}
+      <template x-if="error">
+        <div class="w-20 h-20 bg-rose-100 dark:bg-rose-900/30 rounded-full flex items-center justify-center scale-110 transition-transform duration-300">
+          <svg class="w-10 h-10 text-rose-600 dark:text-rose-400" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="3">
+            <path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12"></path>
+          </svg>
+        </div>
+      </template>
     </div>
+
+    {{-- Textos --}}
+    <div class="space-y-1">
+      <h3 class="text-lg font-bold text-slate-800 dark:text-neutral-100" 
+          x-text="finished ? '¡Pago Confirmado!' : (error ? 'Pago Cancelado' : 'Esperando pago...')">
+      </h3>
+      <p class="text-sm text-slate-500 dark:text-neutral-400" x-show="!finished && !error">
+        {{ __('mp.payment_terminal_hint') }}
+      </p>
+    </div>
+
+    {{-- Botón de Salida (Solo en error o para cancelar manualmente) --}}
+    <div class="pt-4">
+      <button 
+        @click="error ? $wire.abortMpPayment('') : $wire.abortMpPayment(@js(__('mp.payment_cancelled_operator')))"
+        class="text-xs font-medium text-slate-400 dark:text-neutral-500 hover:text-rose-500 transition-colors uppercase tracking-wider"
+      >
+        <span x-text="error ? 'Cerrar' : 'Cancelar operación'"></span>
+      </button>
+    </div>
+
   </div>
-  @endif
+</div>
+@endif
 
 </div>
