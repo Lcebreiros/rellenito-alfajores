@@ -48,9 +48,10 @@
           <div id="{{ $cid }}_status" class="text-neutral-700 dark:text-neutral-300">—</div>
           <form id="{{ $cid }}_form" method="POST" action="{{ route('products.store') }}" class="mt-3 space-y-3 hidden">
             @csrf
-            <input type="hidden" name="barcode" id="{{ $cid }}_form_barcode">
-            <input type="hidden" name="sku" id="{{ $cid }}_form_sku">
-            <input type="hidden" name="is_active" value="1">
+            <input type="hidden" name="barcode"    id="{{ $cid }}_form_barcode">
+            <input type="hidden" name="sku"        id="{{ $cid }}_form_sku">
+            <input type="hidden" name="is_active"  value="1">
+            <input type="hidden" name="uses_stock" value="1">
             <input type="hidden" name="_existing_product_id" id="{{ $cid }}_existing_id">
             <div>
               <label class="block text-sm font-medium text-neutral-700 dark:text-neutral-200">{{ __('products.scanner_field_name') }}</label>
@@ -152,39 +153,19 @@ async function lookupExternal(code){
         const p = localData.product;
 
         statusEl.innerHTML = `
-          <div class="flex items-start gap-3">
-            ${p.image_url ? `
-              <img src="${p.image_url}"
-                   alt="${p.name}"
-                   class="w-20 h-20 object-contain rounded-lg border border-neutral-200 dark:border-neutral-700 bg-white"
-                   onerror="this.style.display='none'">
-            ` : ''}
-            <div class="flex-1">
-              <div class="flex items-start gap-2">
-                <span class="text-blue-600 dark:text-blue-400 text-lg">📦</span>
-                <div>
-                  <div class="font-medium text-blue-700 dark:text-blue-300">{{ __('products.scanner_existing') }}</div>
-                  <div class="text-xs text-neutral-600 dark:text-neutral-400 mt-1">
-                    {{ __('products.scanner_existing_hint') }}
-                  </div>
-                </div>
-              </div>
+          <div class="flex items-center gap-2 text-sm">
+            <span class="text-blue-600 dark:text-blue-400 text-lg">📦</span>
+            <div>
+              <div class="font-medium text-blue-700 dark:text-blue-300">${p.name}</div>
+              <div class="text-xs text-neutral-500 dark:text-neutral-400 animate-pulse">{{ __('scanner.products_found_opening') }}</div>
             </div>
           </div>
         `;
 
-        formName.value = p.name;
-        formPrice.value = p.price;
-        formSku.value = p.sku;
-        formBarcode.value = p.barcode;
-        existingIdField.value = p.id;
-        formStock.value = '1';
-
-        submitBtn.textContent = @json(__('products.scanner_add_stock'));
-        form.action = @json(route('products.store'));
-        form.classList.remove('hidden');
-
-        setTimeout(() => formStock.focus(), 100);
+        setTimeout(() => {
+          close();
+          window.location.href = '/products/' + p.id + '/edit';
+        }, 700);
         return;
       }
     }
@@ -252,33 +233,29 @@ async function lookupExternal(code){
         imageField.value = imageUrl;
       }
 
+      formSku.value = code;
+      formBarcode.value = code;
+      existingIdField.value = '';
+      formStock.value = '1';
+      submitBtn.textContent = @json(__('products.scanner_create_btn'));
+      form.classList.remove('hidden');
+      setTimeout(() => formPrice.focus(), 100);
+
     } else {
+      // No encontrado en ninguna base → abrir página de crear producto con código precargado
       statusEl.innerHTML = `
-        <div class="flex items-start gap-2">
-          <span class="text-amber-600 dark:text-amber-400 text-lg">ℹ️</span>
+        <div class="flex items-center gap-2 text-sm">
+          <span class="text-amber-600 dark:text-amber-400 text-lg">➕</span>
           <div>
             <div class="font-medium text-amber-700 dark:text-amber-300">{{ __('products.scanner_not_found') }}</div>
-            <div class="text-xs text-neutral-600 dark:text-neutral-400 mt-1">
-              {{ __('products.scanner_not_found_hint') }}
-            </div>
+            <div class="text-xs text-neutral-500 dark:text-neutral-400 animate-pulse">{{ __('scanner.products_found_opening') }}</div>
           </div>
         </div>
       `;
-
-      formName.value = '';
-    }
-
-    formSku.value = code;
-    formBarcode.value = code;
-    existingIdField.value = '';
-    formStock.value = '1';
-    submitBtn.textContent = @json(__('products.scanner_create_btn'));
-    form.classList.remove('hidden');
-
-    if (!formName.value) {
-      setTimeout(() => formName.focus(), 100);
-    } else {
-      setTimeout(() => formPrice.focus(), 100);
+      setTimeout(() => {
+        close();
+        window.location.href = '/products/create?barcode=' + encodeURIComponent(code);
+      }, 500);
     }
 
   } catch (e) {
