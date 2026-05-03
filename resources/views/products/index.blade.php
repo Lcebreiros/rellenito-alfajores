@@ -33,52 +33,7 @@
 
     <div class="flex items-center gap-2">
       {{-- Input HID: recibe scanner físico y busca el producto --}}
-      <div
-        x-data="{
-          open: false,
-          code: '',
-          loading: false,
-          result: null,
-
-          init() {
-            window.addEventListener('hid-barcode', (e) => {
-              const modalEl = document.querySelector('[id$=\'_modal\']:not(.hidden)');
-              if (modalEl) return;
-              // Si hay un modal de Alpine abierto (ej. quick-create), ignorar
-              if (document.querySelector('[data-barcode-modal]')?.offsetParent !== null) return;
-              this.lookup(e.detail.code);
-            });
-          },
-
-          async lookup(c) {
-            if (!c || !c.trim()) return;
-            this.code    = c.trim();
-            this.open    = true;
-            this.loading = true;
-            this.result  = null;
-            try {
-              const res  = await fetch(`{{ route('products.lookup') }}?barcode=${encodeURIComponent(this.code)}`, {
-                headers: { 'X-Requested-With': 'XMLHttpRequest', Accept: 'application/json' }
-              });
-              this.result = await res.json();
-              if (this.result.found) {
-                // Navegar directamente al producto
-                setTimeout(() => { window.location.href = '/products/' + this.result.product.id + '/edit'; }, 600);
-              } else {
-                // Abrir modal de creación rápida
-                this.open = false;
-                this.code = '';
-                window.dispatchEvent(new CustomEvent('barcode-create-product', { detail: { code: c.trim() } }));
-              }
-            } catch(e) {
-              this.result = { error: true };
-            } finally {
-              this.loading = false;
-            }
-          }
-        }"
-        class="relative"
-      >
+      <div id="hid-scan-box" class="relative">
         <div class="relative">
           <div class="pointer-events-none absolute inset-y-0 left-2.5 flex items-center">
             <svg class="w-3.5 h-3.5 text-neutral-400" fill="none" viewBox="0 0 24 24">
@@ -90,45 +45,20 @@
             </svg>
           </div>
           <input
+            id="hid-scan-input"
             type="text"
-            x-model="code"
             placeholder="{{ __('scanner.products_placeholder') }}"
             autocomplete="off"
-            @keydown.enter.prevent="lookup(code)"
             class="w-44 rounded-lg border border-neutral-200 dark:border-neutral-700 bg-white dark:bg-neutral-900
                    pl-8 pr-3 py-1.5 text-xs text-neutral-700 dark:text-neutral-200 placeholder-neutral-400
-                   focus:outline-none focus:ring-2 focus:ring-neutral-400/30 transition"
+                   focus:outline-none focus:ring-2 focus:ring-indigo-400/40 transition"
           >
         </div>
 
-        {{-- Panel resultado inline (solo para "encontrado") --}}
-        <div
-          x-show="open && result"
-          x-transition
-          @click.outside="open = false; code = ''; result = null"
-          class="absolute left-0 top-full mt-1 z-50 w-72 rounded-xl border border-neutral-200 dark:border-neutral-700 bg-white dark:bg-neutral-900 shadow-xl p-3"
-        >
-          {{-- Loading --}}
-          <div x-show="loading" class="flex items-center gap-2 text-xs text-neutral-500 animate-pulse">
-            <svg class="w-3.5 h-3.5 animate-spin" fill="none" viewBox="0 0 24 24">
-              <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"/>
-              <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v8z"/>
-            </svg>
-            {{ __('scanner.products_searching') }}
-          </div>
-          {{-- Encontrado --}}
-          <template x-if="result && result.found && !loading">
-            <div class="flex items-center gap-3">
-              <template x-if="result.product.image_url">
-                <img :src="result.product.image_url" class="w-10 h-10 rounded object-contain border border-neutral-100">
-              </template>
-              <div class="flex-1 min-w-0">
-                <div class="text-sm font-semibold text-neutral-800 dark:text-neutral-100 truncate" x-text="result.product.name"></div>
-                <div class="text-xs text-neutral-500" x-text="'$' + parseFloat(result.product.price).toFixed(2) + ' · SKU: ' + (result.product.sku || '—')"></div>
-              </div>
-              <span class="shrink-0 text-xs text-emerald-600 dark:text-emerald-400 font-medium animate-pulse">{{ __('scanner.products_found_opening') }}</span>
-            </div>
-          </template>
+        {{-- Panel de estado (loading / encontrado) --}}
+        <div id="hid-scan-panel"
+             class="hidden absolute left-0 top-full mt-1 z-50 w-72 rounded-xl border border-neutral-200 dark:border-neutral-700
+                    bg-white dark:bg-neutral-900 shadow-xl p-3">
         </div>
       </div>
 
@@ -293,28 +223,15 @@
 {{-- ── Modal de creación rápida por código de barras ─────────────────────── --}}
 <div
   data-barcode-modal
-  x-data="{
-    open: false,
-    barcode: '',
-    name: '',
-    price: '',
-    stock: '1',
-
-    init() {
-      window.addEventListener('barcode-create-product', (e) => {
-        this.barcode = e.detail?.code ?? '';
-        this.name    = '';
-        this.price   = '';
-        this.stock   = '1';
-        this.open    = true;
-        this.$nextTick(() => this.$refs.nameInput?.focus());
-      });
-    },
-
-    close() { this.open = false; }
-  }"
+  x-data="{ open: false, barcode: '', name: '', price: '', stock: '1', close() { this.open = false; } }"
   x-show="open"
   x-cloak
+  @barcode-create-product.window="
+    barcode = $event.detail?.code ?? '';
+    name = ''; price = ''; stock = '1';
+    open = true;
+    $nextTick(() => $refs.nameInput?.focus());
+  "
   @keydown.escape.window="if(open) close()"
   class="fixed inset-0 z-50 flex items-center justify-center p-4"
   style="background: rgba(0,0,0,0.5)"
@@ -445,4 +362,101 @@
     </form>
   </div>
 </div>
+
+@push('scripts')
+<script>
+(function () {
+  const input  = document.getElementById('hid-scan-input');
+  const panel  = document.getElementById('hid-scan-panel');
+  if (!input || !panel) return;
+
+  let hideTimer = null;
+
+  function showPanel(html) {
+    panel.innerHTML = html;
+    panel.classList.remove('hidden');
+    clearTimeout(hideTimer);
+  }
+  function hidePanel() {
+    panel.classList.add('hidden');
+    panel.innerHTML = '';
+    input.value = '';
+  }
+
+  // Cerrar al hacer click fuera
+  document.addEventListener('click', (e) => {
+    if (!panel.contains(e.target) && e.target !== input) hidePanel();
+  });
+
+  async function lookupBarcode(code) {
+    code = code.trim();
+    if (!code) return;
+
+    input.value = code;
+    showPanel(`
+      <div class="flex items-center gap-2 text-xs text-neutral-500 animate-pulse">
+        <svg class="w-3.5 h-3.5 animate-spin" fill="none" viewBox="0 0 24 24">
+          <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"/>
+          <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v8z"/>
+        </svg>
+        {{ __('scanner.products_searching') }}
+      </div>
+    `);
+
+    try {
+      const res  = await fetch('{{ route('products.lookup') }}?barcode=' + encodeURIComponent(code), {
+        headers: { 'X-Requested-With': 'XMLHttpRequest', Accept: 'application/json' }
+      });
+      const data = await res.json();
+
+      if (data.found && data.product) {
+        const p = data.product;
+        showPanel(`
+          <div class="flex items-center gap-3">
+            ${p.image_url ? `<img src="${p.image_url}" class="w-10 h-10 rounded object-contain border border-neutral-100 shrink-0">` : ''}
+            <div class="flex-1 min-w-0">
+              <div class="text-sm font-semibold text-neutral-800 dark:text-neutral-100 truncate">${p.name}</div>
+              <div class="text-xs text-neutral-500">$${parseFloat(p.price).toFixed(2)} · SKU: ${p.sku || '—'}</div>
+            </div>
+            <span class="shrink-0 text-xs text-emerald-600 font-medium animate-pulse whitespace-nowrap">{{ __('scanner.products_found_opening') }}</span>
+          </div>
+        `);
+        hideTimer = setTimeout(() => {
+          window.location.href = '/products/' + p.id + '/edit';
+        }, 700);
+      } else {
+        // No encontrado: abrir modal de creación rápida
+        hidePanel();
+        window.dispatchEvent(new CustomEvent('barcode-create-product', {
+          detail: { code: code },
+          bubbles: true
+        }));
+      }
+    } catch (err) {
+      showPanel(`<div class="text-xs text-rose-600">Error al buscar el código.</div>`);
+      hideTimer = setTimeout(hidePanel, 3000);
+    }
+  }
+
+  // Lector HID (físico USB/Bluetooth)
+  window.addEventListener('hid-barcode', (e) => {
+    // No actuar si el modal de creación ya está abierto
+    const modal = document.querySelector('[data-barcode-modal]');
+    if (modal && getComputedStyle(modal).display !== 'none') return;
+    // No actuar si el modal del barcode-scanner está abierto
+    const scanModal = document.querySelector('[id$="_modal"]:not(.hidden)');
+    if (scanModal) return;
+    lookupBarcode(e.detail?.code ?? '');
+  });
+
+  // Tecla Enter en el input manual
+  input.addEventListener('keydown', (e) => {
+    if (e.key === 'Enter') {
+      e.preventDefault();
+      lookupBarcode(input.value);
+    }
+  });
+})();
+</script>
+@endpush
 @endsection
