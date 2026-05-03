@@ -57,6 +57,9 @@
         <form action="{{ route('products.update', $product) }}" method="POST" enctype="multipart/form-data" class="px-5 py-5 space-y-5">
           @csrf
           @method('PUT')
+          {{-- Preservar uses_stock: los checkboxes no envían valor cuando están desmarcados,
+               este campo oculto garantiza que editar precio/nombre no resetee el control de stock --}}
+          <input type="hidden" name="uses_stock" value="{{ $product->uses_stock ? '1' : '0' }}">
 
           <div>
             <label for="name" class="block text-sm font-medium text-neutral-700 dark:text-neutral-200">{{ __('products.form.name') }}</label>
