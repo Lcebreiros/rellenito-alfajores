@@ -64,6 +64,19 @@ class Product extends Model
     public function orderItems() { return $this->hasMany(OrderItem::class); }
     public function recipeItems() { return $this->hasMany(ProductRecipe::class); }
 
+    public function favoritedBy()
+    {
+        return $this->belongsToMany(User::class, 'product_favorites')->withTimestamps();
+    }
+
+    public function isFavoriteFor(int $userId): bool
+    {
+        return \DB::table('product_favorites')
+            ->where('user_id', $userId)
+            ->where('product_id', $this->id)
+            ->exists();
+    }
+
     // ---------- Scopes ----------
     public function scopeActive(Builder $query): Builder
     {

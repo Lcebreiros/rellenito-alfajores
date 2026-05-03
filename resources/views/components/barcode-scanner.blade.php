@@ -118,6 +118,15 @@
     closeBtn.addEventListener('click', close);
     modal.addEventListener('click', (e)=>{ if (e.target.dataset.close) close(); });
 
+    // ── HID scanner: cuando el modal está abierto, auto-dispara lookup ──
+    window.addEventListener('hid-barcode', (e) => {
+      if (modal.classList.contains('hidden')) return; // modal cerrado, ignorar
+      const code = e.detail?.code;
+      if (!code) return;
+      barcodeInput.value = code;
+      lookupExternal(code);
+    });
+
 async function lookupExternal(code){
   if (!code) return;
   resultBox.classList.remove('hidden');

@@ -176,7 +176,7 @@ $s = $statusMap[$statusKey] ?? [
             <svg class="w-4 h-4" viewBox="0 0 24 24" fill="none">
                 <path d="M16.5 3.5a2.121 2.121 0 1 1 3 3L8 18l-4 1 1-4 11.5-11.5Z" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
             </svg>
-            {{ __('orders.edit') }}
+            {{ __('orders.edit_btn') }}
         </a>
         @endif
 

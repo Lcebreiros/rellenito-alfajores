@@ -83,7 +83,7 @@
             <label for="barcode" class="block text-sm font-medium text-neutral-700 dark:text-neutral-200 mb-1">
               {{ __('products.form.barcode_opt') }}
             </label>
-            <input id="barcode" type="text" name="barcode" value="{{ old('barcode') }}" maxlength="64"
+            <input id="barcode" type="text" name="barcode" value="{{ old('barcode', request('barcode')) }}" maxlength="64"
                    placeholder="EAN/UPC/QR"
                    class="w-full rounded-lg border-neutral-300 bg-white px-4 py-2.5
                           text-neutral-900 placeholder:text-neutral-400 focus:border-indigo-500 focus:ring-indigo-500

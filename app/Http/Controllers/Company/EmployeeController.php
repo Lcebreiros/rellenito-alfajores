@@ -5,7 +5,9 @@ namespace App\Http\Controllers\Company;
 use App\Http\Controllers\Controller;
 use App\Models\Employee;
 use App\Models\Branch;
+use App\Models\User;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Validation\Rule;
@@ -120,6 +122,11 @@ class EmployeeController extends Controller
 
         $employee = Employee::create($data);
 
+        if ($request->boolean('grant_access')) {
+            $accessUser = $this->createAccessUser($request, $employee, $company);
+            $employee->update(['user_id' => $accessUser->id]);
+        }
+
         return redirect()->route('company.employees.show', $employee)
             ->with('success', 'Empleado creado correctamente.');
     }
@@ -184,6 +191,7 @@ class EmployeeController extends Controller
     public function edit(Employee $employee): View
     {
         $this->authorize('update', $employee);
+        $employee->load('user');
         $roles = config('hr.roles', ['Empleado', 'Supervisor', 'Gerente']);
         return view('company.employees.edit', compact('employee','roles'));
     }
@@ -244,6 +252,20 @@ class EmployeeController extends Controller
 
         $employee->update($data);
 
+        if ($request->boolean('grant_access')) {
+            $employee->refresh();
+            if ($employee->user_id) {
+                $this->updateAccessUser($request, $employee);
+            } else {
+                $company = auth()->user()->rootCompany() ?? auth()->user();
+                $accessUser = $this->createAccessUser($request, $employee, $company);
+                $employee->update(['user_id' => $accessUser->id]);
+            }
+        } else {
+            // Revoke: deactivate without removing the link
+            $employee->user?->update(['is_active' => false]);
+        }
+
         return redirect()->route('company.employees.show', $employee)
             ->with('success', 'Ficha actualizada.');
     }
@@ -288,6 +310,65 @@ class EmployeeController extends Controller
 
         // placeholder: notificá al usuario
         return back()->with('success', 'Archivo subido. La importación se procesará en segundo plano si tenés colas configuradas.');
+    }
+
+    private function createAccessUser(Request $request, Employee $employee, $companyUser): User
+    {
+        $request->validate([
+            'access_email'    => ['required', 'email', 'max:255', 'unique:users,email'],
+            'access_password' => ['required', 'string', 'min:8', 'confirmed'],
+            'access_level'    => ['required', 'in:admin,employee'],
+        ]);
+
+        $level = $request->input('access_level') === 'admin'
+            ? User::HIERARCHY_ADMIN
+            : User::HIERARCHY_USER;
+
+        $root = ($companyUser instanceof User && $companyUser->isCompany())
+            ? $companyUser
+            : (auth()->user()->rootCompany() ?? auth()->user());
+
+        return User::create([
+            'name'                 => trim($employee->first_name . ' ' . $employee->last_name),
+            'email'                => $request->input('access_email'),
+            'password'             => Hash::make($request->input('access_password')),
+            'parent_id'            => $root->id,
+            'hierarchy_level'      => $level,
+            'is_active'            => true,
+            'organization_context' => $root->organization_context,
+        ]);
+    }
+
+    private function updateAccessUser(Request $request, Employee $employee): void
+    {
+        $request->validate([
+            'access_email' => ['required', 'email', 'max:255',
+                Rule::unique('users', 'email')->ignore($employee->user_id)],
+            'access_level' => ['required', 'in:admin,employee'],
+        ]);
+
+        if ($request->filled('access_password')) {
+            $request->validate([
+                'access_password' => ['string', 'min:8', 'confirmed'],
+            ]);
+        }
+
+        $level = $request->input('access_level') === 'admin'
+            ? User::HIERARCHY_ADMIN
+            : User::HIERARCHY_USER;
+
+        $update = [
+            'name'            => trim($employee->first_name . ' ' . $employee->last_name),
+            'email'           => $request->input('access_email'),
+            'hierarchy_level' => $level,
+            'is_active'       => true,
+        ];
+
+        if ($request->filled('access_password')) {
+            $update['password'] = Hash::make($request->input('access_password'));
+        }
+
+        $employee->user->update($update);
     }
 
     /**

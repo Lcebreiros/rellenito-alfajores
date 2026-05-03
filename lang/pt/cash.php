@@ -1,0 +1,76 @@
+<?php
+
+return [
+    'open'             => 'Aberto',
+    'closed'           => 'Fechado',
+    'no_session'       => 'Sem caixa aberto',
+
+    'open_cash'        => 'Abrir caixa',
+    'close_cash'       => 'Fechar caixa',
+    'add_movement'     => 'Movimentação',
+    'income'           => 'Entrada',
+    'expense'          => 'Saída',
+
+    'opening_amount'      => 'Valor inicial no caixa',
+    'opening_amount_hint' => 'Dinheiro com que você abre o caixa',
+    'open_btn'            => 'Abrir caixa',
+
+    'movement_type'    => 'Tipo',
+    'movement_amount'  => 'Valor',
+    'movement_desc'    => 'Descrição',
+    'movement_desc_ph' => 'Ex.: Pagamento de conta, retirada...',
+    'save_movement'    => 'Salvar',
+
+    'closing_amount'   => 'Dinheiro no caixa ao fechar',
+    'closing_note'     => 'Observações',
+    'closing_note_ph'  => 'Opcional: diferenças, comentários...',
+    'close_btn'        => 'Fechar caixa',
+
+    'balance'          => 'Saldo atual',
+    'sales_count'      => ':n vendas',
+    'sales_total'      => 'Total de vendas',
+    'opening'          => 'Abertura',
+    'difference'       => 'Diferença',
+
+    'movements'        => 'Movimentações',
+    'no_movements'     => 'Sem movimentações ainda',
+    'type_sale'        => 'Venda',
+    'type_income'      => 'Entrada',
+    'type_expense'     => 'Saída',
+    'type_opening'     => 'Abertura',
+    'opening_movement' => 'Abertura de caixa',
+    'sale_movement'    => 'Venda #:order',
+
+    'title'            => 'Caixa',
+    'subtitle'         => 'Controle de turnos e movimentações do caixa',
+    'all_sessions'     => 'Todos os turnos',
+    'my_sessions'      => 'Meus turnos',
+    'col_user'         => 'Usuário',
+    'col_opened'       => 'Abertura',
+    'col_closed'       => 'Fechamento',
+    'col_opening_amt'  => 'Valor inicial',
+    'col_closing_amt'  => 'Valor de fechamento',
+    'col_balance'      => 'Saldo',
+    'col_sales'        => 'Vendas',
+    'col_status'       => 'Status',
+    'col_actions'      => 'Ações',
+    'view_btn'         => 'Ver',
+    'no_sessions'      => 'Nenhum turno registrado ainda',
+
+    'session_detail'     => 'Detalhe do turno',
+    'opened_by'          => 'Aberto por',
+    'opened_at'          => 'Abertura',
+    'closed_at'          => 'Fechamento',
+    'duration'           => 'Duração',
+    'back_btn'           => 'Voltar',
+    'closing_note_label' => 'Observações no fechamento',
+
+    'opened_ok'      => 'Caixa aberto com sucesso.',
+    'closed_ok'      => 'Caixa fechado com sucesso.',
+    'movement_added' => 'Movimentação registrada.',
+    'already_open'   => 'Você já tem um caixa aberto.',
+    'already_closed' => 'Esta sessão já foi fechada.',
+    'session_closed' => 'A sessão está fechada.',
+
+    'nav_label' => 'Caixa',
+];

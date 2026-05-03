@@ -1,0 +1,76 @@
+<?php
+
+return [
+    'open'             => 'Open',
+    'closed'           => 'Closed',
+    'no_session'       => 'No open register',
+
+    'open_cash'        => 'Open register',
+    'close_cash'       => 'Close register',
+    'add_movement'     => 'Movement',
+    'income'           => 'Income',
+    'expense'          => 'Expense',
+
+    'opening_amount'      => 'Opening cash amount',
+    'opening_amount_hint' => 'Cash you start the session with',
+    'open_btn'            => 'Open register',
+
+    'movement_type'    => 'Type',
+    'movement_amount'  => 'Amount',
+    'movement_desc'    => 'Description',
+    'movement_desc_ph' => 'E.g.: Bill payment, cash withdrawal...',
+    'save_movement'    => 'Save',
+
+    'closing_amount'   => 'Cash in register at close',
+    'closing_note'     => 'Notes',
+    'closing_note_ph'  => 'Optional: differences, comments...',
+    'close_btn'        => 'Close register',
+
+    'balance'          => 'Current balance',
+    'sales_count'      => ':n sales',
+    'sales_total'      => 'Total sales',
+    'opening'          => 'Opening',
+    'difference'       => 'Difference',
+
+    'movements'        => 'Movements',
+    'no_movements'     => 'No movements yet',
+    'type_sale'        => 'Sale',
+    'type_income'      => 'Income',
+    'type_expense'     => 'Expense',
+    'type_opening'     => 'Opening',
+    'opening_movement' => 'Register opening',
+    'sale_movement'    => 'Sale #:order',
+
+    'title'            => 'Cash Register',
+    'subtitle'         => 'Shift and movement control',
+    'all_sessions'     => 'All shifts',
+    'my_sessions'      => 'My shifts',
+    'col_user'         => 'User',
+    'col_opened'       => 'Opened',
+    'col_closed'       => 'Closed',
+    'col_opening_amt'  => 'Opening amount',
+    'col_closing_amt'  => 'Closing amount',
+    'col_balance'      => 'Balance',
+    'col_sales'        => 'Sales',
+    'col_status'       => 'Status',
+    'col_actions'      => 'Actions',
+    'view_btn'         => 'View',
+    'no_sessions'      => 'No shifts recorded yet',
+
+    'session_detail'     => 'Shift detail',
+    'opened_by'          => 'Opened by',
+    'opened_at'          => 'Opened at',
+    'closed_at'          => 'Closed at',
+    'duration'           => 'Duration',
+    'back_btn'           => 'Back',
+    'closing_note_label' => 'Closing notes',
+
+    'opened_ok'      => 'Register opened successfully.',
+    'closed_ok'      => 'Register closed successfully.',
+    'movement_added' => 'Movement recorded.',
+    'already_open'   => 'You already have an open register.',
+    'already_closed' => 'This session is already closed.',
+    'session_closed' => 'The session is closed.',
+
+    'nav_label' => 'Cash Register',
+];

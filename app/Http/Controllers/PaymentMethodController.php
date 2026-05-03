@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\MercadoPagoCredential;
 use App\Models\PaymentMethod;
 use Illuminate\Http\Request;
 use Illuminate\Validation\Rule;
@@ -29,7 +30,11 @@ class PaymentMethodController extends Controller
             ->pluck('payment_method_id')
             ->toArray();
 
-        return view('payment-methods.index', compact('globalMethods', 'activatedMethodIds'));
+        // Credencial MP de la empresa (para mostrar panel de conexión OAuth)
+        $company       = $user->rootCompany() ?? $user;
+        $mpCredential  = MercadoPagoCredential::where('user_id', $company->id)->first();
+
+        return view('payment-methods.index', compact('globalMethods', 'activatedMethodIds', 'mpCredential'));
     }
 
     public function create(): View

@@ -301,4 +301,21 @@ return [
     'upload_new_photo'        => 'Subir nueva foto',
     'photo_hint_edit'         => 'PNG o JPG hasta 2MB',
 
+    // ── Employee system access ────────────────────────────────────────────────
+    'emp_access_section'          => 'Acceso al sistema',
+    'emp_access_toggle_label'     => 'Asignar acceso al sistema',
+    'emp_access_toggle_desc'      => 'El empleado podrá iniciar sesión en la aplicación',
+    'emp_access_email'            => 'Email de acceso (login)',
+    'emp_access_email_hint'       => 'Se usará para iniciar sesión',
+    'emp_access_password'         => 'Contraseña',
+    'emp_access_password_confirm' => 'Confirmar contraseña',
+    'emp_access_password_hint'    => 'Mínimo 8 caracteres',
+    'emp_access_password_optional'=> 'Dejá en blanco para no modificar la contraseña',
+    'emp_access_level'            => 'Nivel de acceso',
+    'emp_access_level_admin'      => 'Administrador',
+    'emp_access_level_employee'   => 'Empleado',
+    'emp_access_active_badge'     => 'Acceso activo',
+    'emp_access_inactive_badge'   => 'Acceso revocado',
+    'emp_access_revoke_hint'      => 'Al desactivar el switch se revocará el acceso al sistema',
+
 ];

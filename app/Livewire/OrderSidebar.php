@@ -266,6 +266,7 @@ class OrderSidebar extends Component
 
     try {
         $finishedId = null;
+        $finishedTotal = 0.0;
         $affectedProductIds = [];
 
         DB::transaction(function () use (&$finishedId, &$affectedProductIds, $stockService, $ordersService) {
@@ -347,7 +348,8 @@ class OrderSidebar extends Component
                 }
             }
 
-            $finishedId = (int) $order->id;
+            $finishedId    = (int) $order->id;
+            $finishedTotal = (float) $order->total;
         });
 
         // Limpiar sesión y reiniciar draft
@@ -362,6 +364,9 @@ class OrderSidebar extends Component
 
         // Notificar al selector de métodos de pago para limpiar la selección
         $this->dispatch('orderFinalized');
+
+        // Notificar al componente de caja para registrar la venta
+        $this->dispatch('order-finalized', orderId: $finishedId, total: $finishedTotal);
 
         // Notificación de éxito
         $url = route('orders.show', ['order' => $finishedId]);

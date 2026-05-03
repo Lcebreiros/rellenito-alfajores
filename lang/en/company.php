@@ -283,4 +283,21 @@ return [
     'upload_new_photo'        => 'Upload new photo',
     'photo_hint_edit'         => 'PNG or JPG up to 2MB',
 
+    // ── Employee system access ────────────────────────────────────────────────
+    'emp_access_section'          => 'System access',
+    'emp_access_toggle_label'     => 'Grant system access',
+    'emp_access_toggle_desc'      => 'The employee will be able to log into the application',
+    'emp_access_email'            => 'Login email',
+    'emp_access_email_hint'       => 'Will be used to sign in',
+    'emp_access_password'         => 'Password',
+    'emp_access_password_confirm' => 'Confirm password',
+    'emp_access_password_hint'    => 'Minimum 8 characters',
+    'emp_access_password_optional'=> 'Leave blank to keep current password',
+    'emp_access_level'            => 'Access level',
+    'emp_access_level_admin'      => 'Administrator',
+    'emp_access_level_employee'   => 'Employee',
+    'emp_access_active_badge'     => 'Active access',
+    'emp_access_inactive_badge'   => 'Access revoked',
+    'emp_access_revoke_hint'      => 'Disabling this will revoke system access',
+
 ];

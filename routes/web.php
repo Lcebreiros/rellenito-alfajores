@@ -23,10 +23,12 @@ use App\Http\Controllers\BookingController;
 use App\Http\Controllers\Master\InvitationController;
 use App\Http\Controllers\Master\UserController;
 use App\Http\Controllers\PaymentMethodController;
+use App\Http\Controllers\MercadoPagoController;
 use App\Http\Controllers\ExpenseController;
 use App\Http\Controllers\GoogleCalendarController;
 use App\Http\Controllers\InvoiceController;
 use App\Http\Controllers\LocaleController;
+use App\Http\Controllers\CashSessionController;
 
 // Company Controllers
 use App\Http\Controllers\Company\BranchController;
@@ -371,10 +373,29 @@ Route::middleware([
     Route::put('/suppliers/{supplier}', [ExpenseController::class, 'updateSupplierEntity'])->name('suppliers.update');
     Route::delete('/suppliers/{supplier}', [ExpenseController::class, 'destroySupplierEntity'])->name('suppliers.destroy');
 
+    // ============ CAJA ============
+    Route::get('/cash', [CashSessionController::class, 'index'])->name('cash.index');
+    Route::get('/cash/{cashSession}', [CashSessionController::class, 'show'])->name('cash.show');
+    Route::post('/cash/open', [CashSessionController::class, 'open'])->name('cash.open');
+    Route::post('/cash/{cashSession}/close', [CashSessionController::class, 'close'])->name('cash.close');
+    Route::post('/cash/{cashSession}/movement', [CashSessionController::class, 'addMovement'])->name('cash.movement');
+
     // ============ MÉTODOS DE PAGO ============
     Route::resource('payment-methods', PaymentMethodController::class)->except(['show']);
     Route::post('payment-methods/{paymentMethod}/toggle', [PaymentMethodController::class, 'toggleActive'])->name('payment-methods.toggle');
     Route::post('payment-methods/{paymentMethod}/toggle-global', [PaymentMethodController::class, 'toggleGlobal'])->name('payment-methods.toggle-global');
+
+    // ============ MERCADO PAGO OAUTH ============
+    Route::prefix('mercadopago')->name('mercadopago.')->group(function () {
+        Route::get('connect',                                  [MercadoPagoController::class, 'redirect'])->name('connect');
+        Route::get('callback',                                 [MercadoPagoController::class, 'callback'])->name('callback');
+        Route::delete('disconnect',                            [MercadoPagoController::class, 'disconnect'])->name('disconnect');
+        Route::get('devices',                                  [MercadoPagoController::class, 'devices'])->name('devices');
+        Route::post('device',                                  [MercadoPagoController::class, 'selectDevice'])->name('device.select');
+        Route::post('payment-intents',                         [MercadoPagoController::class, 'createPaymentIntent'])->name('payment-intents.create');
+        Route::get('payment-intents/{intentId}/status',        [MercadoPagoController::class, 'paymentIntentStatus'])->name('payment-intents.status');
+        Route::delete('payment-intents/{intentId}',            [MercadoPagoController::class, 'cancelPaymentIntent'])->name('payment-intents.cancel');
+    });
 
     // ============ DESCUENTOS Y BONIFICACIONES ============
     Route::resource('discounts', App\Http\Controllers\DiscountController::class)->except(['show']);

@@ -357,7 +357,7 @@
                                         <x-svg-icon name="x" size="4" /> {{ __('orders.clear_filters') }}
                                     </a>
                                     <a href="{{ route('orders.create') }}" class="inline-flex items-center gap-2 px-3 py-2 text-sm text-white bg-indigo-600 rounded-lg hover:bg-indigo-700 transition-all duration-150 active:scale-[0.98]">
-                                        <x-svg-icon name="plus" size="4" /> {{ __('orders.create') }}
+                                        <x-svg-icon name="plus" size="4" /> {{ __('orders.create_btn') }}
                                     </a>
                                 </div>
                             </div>

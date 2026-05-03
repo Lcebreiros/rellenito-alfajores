@@ -36,32 +36,23 @@
   {{-- Layout responsive: IZQ productos (8/12) + DER venta (4/12) --}}
   <div class="grid grid-cols-1 lg:grid-cols-12 gap-6 items-start min-w-0">
 
-    {{-- IZQUIERDA: Productos y Servicios --}}
+    {{-- IZQUIERDA: Catálogo de productos + Servicios --}}
     <section class="lg:col-span-8 min-w-0">
       <div class="rounded-xl border border-slate-200 bg-white p-3 dark:border-neutral-700 dark:bg-neutral-900
                   min-h-[calc(100svh-9rem)]">
-        @if($products->isEmpty() && ($services->isEmpty() ?? true))
-          <div class="h-40 grid place-items-center text-sm text-slate-500 dark:text-neutral-400">
-            {{ __('orders.create.no_products') }}
-          </div>
-        @else
-          {{-- Productos --}}
-          @if(!$products->isEmpty())
-            <h2 class="px-1 mb-2 text-sm font-semibold text-neutral-700 dark:text-neutral-300">{{ __('orders.create.products') }}</h2>
-            <div class="grid grid-cols-2 sm:grid-cols-3 gap-3">
-              @foreach($products as $p)
-                <livewire:product-card
-                  :product-id="$p->id"
-                  :key="'product-card-'.$p->id"
-                />
-              @endforeach
-            </div>
-            <div class="mt-4">{{ $products->links() }}</div>
-          @endif
 
-          {{-- Servicios --}}
-          @if(isset($services) && !$services->isEmpty())
-            <h2 class="px-1 mt-6 mb-2 text-sm font-semibold text-neutral-700 dark:text-neutral-300">{{ __('orders.create.services') }}</h2>
+        {{-- Scanner HID: detecta lectores físicos USB/Bluetooth --}}
+        <div class="mb-3">
+          <livewire:pos-scanner :key="'pos-scanner'" />
+        </div>
+
+        {{-- Catálogo con búsqueda, filtros y ordenamiento --}}
+        <livewire:product-catalog :key="'product-catalog'" />
+
+        {{-- Servicios --}}
+        @if(isset($services) && !$services->isEmpty())
+          <div class="mt-8 pt-6 border-t border-neutral-100 dark:border-neutral-800">
+            <h2 class="px-1 mb-3 text-sm font-semibold text-neutral-700 dark:text-neutral-300">{{ __('orders.create.services') }}</h2>
             <div class="grid grid-cols-2 sm:grid-cols-3 gap-3">
               @foreach($services as $s)
                 <livewire:service-card
@@ -71,13 +62,16 @@
               @endforeach
             </div>
             <div class="mt-4">{{ $services->links() }}</div>
-          @endif
+          </div>
         @endif
       </div>
     </section>
 
     {{-- DERECHA: Venta en curso --}}
     <aside class="lg:col-span-4 space-y-4 min-w-0">
+      {{-- Caja --}}
+      <livewire:cash-register :key="'cash-register'" />
+
       {{-- Agendar (arriba del sidebar) --}}
       <livewire:schedule-order :key="'schedule-order'" />
 

@@ -52,7 +52,7 @@ class ProductCard extends Component
 
     #[On('draft-changed')]   public function onDraftChanged(int $id): void   { $this->refreshProduct(); }
     #[On('order-updated')]   public function onOrderUpdated(): void          { $this->refreshProduct(); }
-    #[On('order-finalized')] public function onOrderFinalized(int $id): void { $this->refreshProduct(); }
+    #[On('order-finalized')] public function onOrderFinalized(int $orderId, float $total = 0.0): void { $this->refreshProduct(); }
     #[On('stock-updated')]
     public function onStockUpdated(int $productId): void
     {

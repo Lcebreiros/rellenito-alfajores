@@ -112,6 +112,105 @@
           <label for="has_computer" class="text-sm text-neutral-700 dark:text-neutral-300">{{ __('company.field_has_computer') }}</label>
         </div>
 
+        {{-- Acceso al sistema --}}
+        @php
+          $hasAccess = $employee->user_id && ($employee->user?->is_active ?? false);
+          $accessUser = $employee->user;
+          $defaultOn = old('grant_access', $hasAccess ? '1' : '0') === '1';
+          $currentLevel = $accessUser
+            ? ($accessUser->hierarchy_level === \App\Models\User::HIERARCHY_ADMIN ? 'admin' : 'employee')
+            : 'employee';
+        @endphp
+        <div
+          x-data="{ on: {{ $defaultOn ? 'true' : 'false' }} }"
+          class="rounded-xl border border-neutral-200 dark:border-neutral-700 overflow-hidden"
+        >
+          {{-- Toggle header --}}
+          <div class="flex items-center justify-between gap-4 px-4 py-3 bg-neutral-50 dark:bg-neutral-800/50">
+            <div class="flex items-center gap-3 min-w-0">
+              <div>
+                <div class="text-sm font-semibold text-neutral-800 dark:text-neutral-100">{{ __('company.emp_access_toggle_label') }}</div>
+                <div class="text-xs text-neutral-500 dark:text-neutral-400 mt-0.5">{{ __('company.emp_access_toggle_desc') }}</div>
+              </div>
+              @if($accessUser)
+                <span class="{{ $hasAccess ? 'bg-emerald-100 text-emerald-700 dark:bg-emerald-900/30 dark:text-emerald-300' : 'bg-neutral-200 text-neutral-600 dark:bg-neutral-700 dark:text-neutral-400' }} text-[11px] font-medium rounded-full px-2 py-0.5 shrink-0">
+                  {{ $hasAccess ? __('company.emp_access_active_badge') : __('company.emp_access_inactive_badge') }}
+                </span>
+              @endif
+            </div>
+            <button
+              type="button"
+              @click="on = !on"
+              :class="on ? 'bg-indigo-600' : 'bg-neutral-300 dark:bg-neutral-600'"
+              class="relative inline-flex h-6 w-11 shrink-0 items-center rounded-full transition-colors focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-1"
+              role="switch" :aria-checked="on.toString()"
+            >
+              <span :class="on ? 'translate-x-6' : 'translate-x-1'" class="inline-block h-4 w-4 transform rounded-full bg-white shadow transition-transform"></span>
+            </button>
+            <input type="hidden" name="grant_access" :value="on ? '1' : '0'">
+          </div>
+
+          {{-- Revoke hint --}}
+          <div x-show="!on && {{ $accessUser ? 'true' : 'false' }}" x-transition
+               class="px-4 py-2 text-xs text-amber-700 bg-amber-50 dark:bg-amber-900/20 dark:text-amber-300 border-t border-amber-200 dark:border-amber-800">
+            {{ __('company.emp_access_revoke_hint') }}
+          </div>
+
+          {{-- Campos condicionales --}}
+          <div x-show="on" x-transition class="p-4 space-y-4 border-t border-neutral-200 dark:border-neutral-700">
+            <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+              <div class="sm:col-span-2">
+                <label class="block text-sm font-medium text-neutral-700 dark:text-neutral-200 mb-1">
+                  {{ __('company.emp_access_email') }}
+                </label>
+                <input name="access_email" type="email" autocomplete="off" maxlength="255"
+                       value="{{ old('access_email', $accessUser?->email) }}"
+                       placeholder="empleado@empresa.com"
+                       class="w-full rounded-lg border-neutral-300 bg-white px-4 py-2.5 text-neutral-900 placeholder:text-neutral-400 focus:border-indigo-500 focus:ring-indigo-500 dark:border-neutral-700 dark:bg-neutral-900/50 dark:text-neutral-100">
+                <p class="mt-1 text-xs text-neutral-500 dark:text-neutral-400">{{ __('company.emp_access_email_hint') }}</p>
+              </div>
+              <div>
+                <label class="block text-sm font-medium text-neutral-700 dark:text-neutral-200 mb-1">
+                  {{ __('company.emp_access_password') }}
+                </label>
+                <input name="access_password" type="password" autocomplete="new-password"
+                       class="w-full rounded-lg border-neutral-300 bg-white px-4 py-2.5 text-neutral-900 focus:border-indigo-500 focus:ring-indigo-500 dark:border-neutral-700 dark:bg-neutral-900/50 dark:text-neutral-100">
+                @if($accessUser)
+                  <p class="mt-1 text-xs text-neutral-500 dark:text-neutral-400">{{ __('company.emp_access_password_optional') }}</p>
+                @else
+                  <p class="mt-1 text-xs text-neutral-500 dark:text-neutral-400">{{ __('company.emp_access_password_hint') }}</p>
+                @endif
+              </div>
+              <div>
+                <label class="block text-sm font-medium text-neutral-700 dark:text-neutral-200 mb-1">
+                  {{ __('company.emp_access_password_confirm') }}
+                </label>
+                <input name="access_password_confirmation" type="password" autocomplete="new-password"
+                       class="w-full rounded-lg border-neutral-300 bg-white px-4 py-2.5 text-neutral-900 focus:border-indigo-500 focus:ring-indigo-500 dark:border-neutral-700 dark:bg-neutral-900/50 dark:text-neutral-100">
+              </div>
+              <div class="sm:col-span-2">
+                <label class="block text-sm font-medium text-neutral-700 dark:text-neutral-200 mb-1">
+                  {{ __('company.emp_access_level') }}
+                </label>
+                <div class="flex items-center gap-4">
+                  <label class="flex items-center gap-2 cursor-pointer">
+                    <input type="radio" name="access_level" value="employee"
+                           @checked(old('access_level', $currentLevel) === 'employee')
+                           class="text-indigo-600 focus:ring-indigo-500">
+                    <span class="text-sm text-neutral-700 dark:text-neutral-200">{{ __('company.emp_access_level_employee') }}</span>
+                  </label>
+                  <label class="flex items-center gap-2 cursor-pointer">
+                    <input type="radio" name="access_level" value="admin"
+                           @checked(old('access_level', $currentLevel) === 'admin')
+                           class="text-indigo-600 focus:ring-indigo-500">
+                    <span class="text-sm text-neutral-700 dark:text-neutral-200">{{ __('company.emp_access_level_admin') }}</span>
+                  </label>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
         <div class="space-y-4 mt-4">
           <h3 class="text-sm font-semibold text-neutral-800 dark:text-neutral-100">{{ __('company.json_section_title') }}</h3>
           <p class="text-xs text-neutral-500 dark:text-neutral-400">{{ __('company.json_section_desc') }}</p>

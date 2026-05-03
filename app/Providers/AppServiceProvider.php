@@ -8,6 +8,7 @@ use App\Models\Product;
 use App\Observers\OrderItemObserver;
 use App\Observers\OrderObserver;
 use App\Observers\ProductObserver;
+use App\Services\MercadoPagoService;
 use Illuminate\Cache\RateLimiting\Limit;
 use Illuminate\Foundation\Support\Providers\RouteServiceProvider;
 use Illuminate\Http\Request;
@@ -23,7 +24,13 @@ class AppServiceProvider extends ServiceProvider
      */
     public function register(): void
     {
-        //
+        $this->app->singleton(MercadoPagoService::class, fn() => new MercadoPagoService(
+            clientId:     (string) config('mercadopago.client_id', ''),
+            clientSecret: (string) config('mercadopago.client_secret', ''),
+            redirectUri:  (string) config('mercadopago.redirect_uri', ''),
+            authUrl:      (string) config('mercadopago.auth_url'),
+            apiUrl:       (string) config('mercadopago.api_url'),
+        ));
     }
 
     /**

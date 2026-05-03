@@ -599,25 +599,16 @@ public function index(Request $request)
         }
 
         $auth = $request->user() ?? auth()->user();
-        // Unificar lógica de disponibilidad con scope centralizado
-        $productsQuery = (method_exists($auth,'isMaster') && $auth->isMaster())
-            ? Product::query()
-            : Product::availableFor($auth);
 
-        $products = $productsQuery
-            ->when(method_exists(Product::class, 'scopeActive'), fn ($q) => $q->active(), fn ($q) => $q)
-            ->orderBy('name')
-            ->paginate(24)
-            ->withQueryString();
-
+        // Los productos los maneja el componente Livewire ProductCatalog
         $services = \App\Models\Service::availableFor($auth)
             ->when(method_exists(\App\Models\Service::class, 'scopeActive'), fn ($q) => $q->active(), fn ($q) => $q)
             ->orderBy('name')
             ->paginate(24, ['*'], 'services_page')
             ->withQueryString();
 
-        $order->load(['items.product','items.service','client']);
-        return view('orders.create', compact('order', 'products', 'services'));
+        $order->load(['items.product', 'items.service', 'client']);
+        return view('orders.create', compact('order', 'services'));
     }
 
     public function show(Order $order)

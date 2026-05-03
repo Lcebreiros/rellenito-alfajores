@@ -1,5 +1,6 @@
 // resources/js/app.js
 import './bootstrap'
+import './hid-scanner'
 
 // ---------- Turbo ----------
 import * as Turbo from '@hotwired/turbo'

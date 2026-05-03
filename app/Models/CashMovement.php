@@ -10,6 +10,8 @@ class CashMovement extends Model
     protected $fillable = [
         'company_id',
         'parking_shift_id',
+        'cash_session_id',
+        'order_id',
         'created_by',
         'type',
         'amount',
@@ -21,59 +23,53 @@ class CashMovement extends Model
         'amount' => 'decimal:2',
     ];
 
-    /**
-     * Relación con la company (usuario padre)
-     */
     public function company(): BelongsTo
     {
         return $this->belongsTo(User::class, 'company_id');
     }
 
-    /**
-     * Relación con el turno de parking
-     */
+    public function cashSession(): BelongsTo
+    {
+        return $this->belongsTo(CashSession::class);
+    }
+
+    public function order(): BelongsTo
+    {
+        return $this->belongsTo(Order::class);
+    }
+
     public function parkingShift(): BelongsTo
     {
         return $this->belongsTo(ParkingShift::class, 'parking_shift_id');
     }
 
-    /**
-     * Relación con el usuario que creó el movimiento
-     */
     public function creator(): BelongsTo
     {
         return $this->belongsTo(User::class, 'created_by');
     }
 
-    /**
-     * Scope para ingresos
-     */
     public function scopeIngresos($query)
     {
-        return $query->where('type', 'ingreso');
+        return $query->whereIn('type', ['ingreso', 'apertura']);
     }
 
-    /**
-     * Scope para egresos
-     */
     public function scopeEgresos($query)
     {
         return $query->where('type', 'egreso');
     }
 
-    /**
-     * Helper para verificar si es ingreso
-     */
-    public function isIngreso(): bool
+    public function scopeVentas($query)
     {
-        return $this->type === 'ingreso';
+        return $query->where('type', 'sale');
     }
 
-    /**
-     * Helper para verificar si es egreso
-     */
-    public function isEgreso(): bool
+    public function isIngreso(): bool  { return $this->type === 'ingreso'; }
+    public function isEgreso(): bool   { return $this->type === 'egreso'; }
+    public function isSale(): bool     { return $this->type === 'sale'; }
+    public function isApertura(): bool { return $this->type === 'apertura'; }
+
+    public function isPositive(): bool
     {
-        return $this->type === 'egreso';
+        return in_array($this->type, ['ingreso', 'sale', 'apertura']);
     }
 }

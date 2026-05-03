@@ -32,6 +32,98 @@
     </div>
 
     <div class="flex items-center gap-2">
+      {{-- Input HID: recibe scanner físico + abre modal de scanner con el código --}}
+      <div
+        x-data="{
+          open: false,
+          code: '',
+          init() {
+            // HID scanner global: auto-procesa el código si no hay modal abierto
+            window.addEventListener('hid-barcode', (e) => {
+              const modalEl = document.querySelector('[id$=\'_modal\']:not(.hidden)');
+              if (modalEl) return; // ya lo maneja el modal abierto
+              this.code = e.detail.code;
+              this.open = true;
+              this.$nextTick(() => this.$refs.hidInput?.select());
+            });
+          }
+        }"
+        class="relative"
+      >
+        <div class="relative">
+          <div class="pointer-events-none absolute inset-y-0 left-2.5 flex items-center">
+            <svg class="w-3.5 h-3.5 text-neutral-400" fill="none" viewBox="0 0 24 24">
+              <rect x="3" y="5" width="2" height="14" fill="currentColor"/>
+              <rect x="7" y="5" width="1" height="14" fill="currentColor"/>
+              <rect x="10" y="5" width="2" height="14" fill="currentColor"/>
+              <rect x="14" y="5" width="1" height="14" fill="currentColor"/>
+              <rect x="17" y="5" width="2" height="14" fill="currentColor"/>
+            </svg>
+          </div>
+          <input
+            x-ref="hidInput"
+            x-model="code"
+            type="text"
+            placeholder="{{ __('scanner.products_placeholder') }}"
+            autocomplete="off"
+            @keydown.enter.prevent="if(code.trim()) { open = true; }"
+            class="w-44 rounded-lg border border-neutral-200 dark:border-neutral-700 bg-white dark:bg-neutral-900
+                   pl-8 pr-3 py-1.5 text-xs text-neutral-700 dark:text-neutral-200 placeholder-neutral-400
+                   focus:outline-none focus:ring-2 focus:ring-neutral-400/30 transition"
+          >
+        </div>
+
+        {{-- Panel resultado inline --}}
+        <div
+          x-show="open && code.trim()"
+          x-transition
+          @click.outside="open = false; code = ''"
+          class="absolute left-0 top-full mt-1 z-50 w-80 rounded-xl border border-neutral-200 dark:border-neutral-700 bg-white dark:bg-neutral-900 shadow-xl p-3"
+        >
+          <div class="flex items-center justify-between mb-2">
+            <span class="text-xs font-semibold text-neutral-600 dark:text-neutral-300">
+              {{ __('scanner.products_result_title') }}: <code class="font-mono" x-text="code"></code>
+            </span>
+            <button @click="open = false; code = ''" class="text-neutral-400 hover:text-neutral-600 text-xs">✕</button>
+          </div>
+          {{-- Carga el resultado usando el endpoint existente --}}
+          <div
+            x-init="$watch('open', async (val) => {
+              if (!val || !code.trim()) return;
+              const res = await fetch(`{{ route('products.lookup') }}?barcode=${encodeURIComponent(code)}`, {
+                headers: { 'X-Requested-With': 'XMLHttpRequest', Accept: 'application/json' }
+              });
+              const data = await res.json();
+              $dispatch('hid-products-result', { data, code });
+            })"
+            x-on:hid-products-result.window="
+              const { data, code: c } = $event.detail;
+              if (data.found) {
+                $el.innerHTML = `<div class='flex items-center gap-3'>
+                  ${data.product.image_url ? `<img src='${data.product.image_url}' class='w-10 h-10 rounded object-contain border border-neutral-100'>` : ''}
+                  <div class='flex-1 min-w-0'>
+                    <div class='text-sm font-semibold text-neutral-800 dark:text-neutral-100 truncate'>${data.product.name}</div>
+                    <div class='text-xs text-neutral-500'>$${parseFloat(data.product.price).toFixed(2)} · SKU: ${data.product.sku || '—'}</div>
+                  </div>
+                  <a href='/products/${data.product.id}/edit' class='shrink-0 rounded-lg bg-blue-600 hover:bg-blue-700 text-white px-2.5 py-1.5 text-xs font-semibold'>{{ __('scanner.products_edit') }}</a>
+                </div>`;
+              } else {
+                $el.innerHTML = `<div class='text-xs text-neutral-500 mb-2'>{{ __('scanner.products_not_found') }}</div>
+                  <a href='/products/create?barcode=${encodeURIComponent(c)}' class='inline-flex items-center gap-1 rounded-lg bg-emerald-600 hover:bg-emerald-700 text-white px-3 py-1.5 text-xs font-semibold'>+ {{ __('scanner.products_create') }}</a>`;
+              }
+            "
+          >
+            <div class="flex items-center gap-2 text-xs text-neutral-500 animate-pulse">
+              <svg class="w-3.5 h-3.5 animate-spin" fill="none" viewBox="0 0 24 24">
+                <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"/>
+                <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v8z"/>
+              </svg>
+              {{ __('scanner.products_searching') }}
+            </div>
+          </div>
+        </div>
+      </div>
+
       <x-barcode-scanner />
 
       <form method="GET" class="hidden sm:flex items-center gap-2">

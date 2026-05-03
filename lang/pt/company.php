@@ -283,4 +283,21 @@ return [
     'upload_new_photo'        => 'Enviar nova foto',
     'photo_hint_edit'         => 'PNG ou JPG até 2MB',
 
+    // ── Employee system access ────────────────────────────────────────────────
+    'emp_access_section'          => 'Acesso ao sistema',
+    'emp_access_toggle_label'     => 'Conceder acesso ao sistema',
+    'emp_access_toggle_desc'      => 'O funcionário poderá fazer login na aplicação',
+    'emp_access_email'            => 'Email de acesso (login)',
+    'emp_access_email_hint'       => 'Será usado para entrar no sistema',
+    'emp_access_password'         => 'Senha',
+    'emp_access_password_confirm' => 'Confirmar senha',
+    'emp_access_password_hint'    => 'Mínimo 8 caracteres',
+    'emp_access_password_optional'=> 'Deixe em branco para não alterar a senha',
+    'emp_access_level'            => 'Nível de acesso',
+    'emp_access_level_admin'      => 'Administrador',
+    'emp_access_level_employee'   => 'Funcionário',
+    'emp_access_active_badge'     => 'Acesso ativo',
+    'emp_access_inactive_badge'   => 'Acesso revogado',
+    'emp_access_revoke_hint'      => 'Desativar isso vai revogar o acesso ao sistema',
+
 ];
