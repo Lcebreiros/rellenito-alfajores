@@ -103,9 +103,27 @@ final class MercadoPagoService
     {
         $credential = $this->ensureFreshToken($credential);
 
-        $response = $this->get('/v1/point/integration-api/devices', $credential->access_token);
+        $response = $this->get('/point/integration-api/devices', $credential->access_token);
 
         return $response['devices'] ?? [];
+    }
+
+    /**
+     * Cambia el modo de operación de un dispositivo Point.
+     * $mode: 'PDV' | 'STANDALONE'
+     */
+    public function setDeviceOperatingMode(
+        MercadoPagoCredential $credential,
+        string $deviceId,
+        string $mode = 'PDV',
+    ): array {
+        $credential = $this->ensureFreshToken($credential);
+
+        return $this->patch(
+            "/point/integration-api/devices/{$deviceId}",
+            $credential->access_token,
+            ['operating_mode' => $mode],
+        );
     }
 
     /**
@@ -120,11 +138,14 @@ final class MercadoPagoService
     ): array {
         $credential = $this->ensureFreshToken($credential);
 
+        // MP Point API espera el amount como entero en centavos (ej: $1500 ARS = 150000)
+        $amountInCents = (int) round((float) $payment['amount'] * 100);
+
         return $this->post(
-            "/v1/point/integration-api/devices/{$deviceId}/payment-intents",
+            "/point/integration-api/devices/{$deviceId}/payment-intents",
             $credential->access_token,
             [
-                'amount'             => $payment['amount'],
+                'amount'             => $amountInCents,
                 'description'        => $payment['description'] ?? 'Venta',
                 'payment'            => [
                     'installments'          => 1,
@@ -149,7 +170,7 @@ final class MercadoPagoService
         $credential = $this->ensureFreshToken($credential);
 
         return $this->get(
-            "/v1/point/integration-api/payment-intents/{$paymentIntentId}",
+            "/point/integration-api/payment-intents/{$paymentIntentId}",
             $credential->access_token,
         );
     }
@@ -165,7 +186,7 @@ final class MercadoPagoService
         $credential = $this->ensureFreshToken($credential);
 
         return $this->delete(
-            "/v1/point/integration-api/devices/{$deviceId}/payment-intents/{$paymentIntentId}",
+            "/point/integration-api/devices/{$deviceId}/payment-intents/{$paymentIntentId}",
             $credential->access_token,
         );
     }
@@ -222,6 +243,18 @@ final class MercadoPagoService
         }
 
         return $response->json();
+    }
+
+    private function patch(string $path, string $token, array $body): array
+    {
+        $response = Http::withToken($token)
+            ->patch($this->apiUrl . $path, $body);
+
+        if ($response->failed()) {
+            throw new RuntimeException("MP API PATCH {$path} error: " . $response->body());
+        }
+
+        return $response->json() ?? [];
     }
 
     private function delete(string $path, string $token): array

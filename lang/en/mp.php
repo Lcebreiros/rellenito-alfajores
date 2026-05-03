@@ -31,4 +31,21 @@ return [
 
     'device_status_active'  => 'Active',
     'device_status_inactive'=> 'Inactive',
+
+    'device_mode_pdv'        => 'PDV Mode',
+    'device_mode_standalone' => 'Standalone mode',
+    'device_activate_pdv'    => 'Activate PDV mode',
+    'device_activating'      => 'Activating…',
+    'device_activated'       => 'PDV mode activated. Restart the device for the change to take effect.',
+    'device_activate_error'  => 'Error activating PDV mode.',
+    'device_restart_required'=> 'The device must be restarted for the change to take effect.',
+
+    'payment_awaiting'           => 'Waiting for payment on terminal…',
+    'payment_terminal_hint'      => 'Present the card or complete the payment on the Point device.',
+    'payment_rejected'           => 'The payment was rejected or an error occurred on the terminal.',
+    'payment_cancelled'          => 'The payment was cancelled on the terminal.',
+    'payment_cancelled_operator' => 'Payment cancelled by operator.',
+    'payment_timeout'            => 'Timeout reached. The payment was cancelled.',
+    'payment_cancel_btn'         => 'Cancel payment',
+    'payment_error_close'        => 'Close',
 ];

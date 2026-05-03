@@ -392,6 +392,7 @@ Route::middleware([
         Route::delete('disconnect',                            [MercadoPagoController::class, 'disconnect'])->name('disconnect');
         Route::get('devices',                                  [MercadoPagoController::class, 'devices'])->name('devices');
         Route::post('device',                                  [MercadoPagoController::class, 'selectDevice'])->name('device.select');
+        Route::post('devices/{deviceId}/activate',             [MercadoPagoController::class, 'activateDevice'])->name('device.activate');
         Route::post('payment-intents',                         [MercadoPagoController::class, 'createPaymentIntent'])->name('payment-intents.create');
         Route::get('payment-intents/{intentId}/status',        [MercadoPagoController::class, 'paymentIntentStatus'])->name('payment-intents.status');
         Route::delete('payment-intents/{intentId}',            [MercadoPagoController::class, 'cancelPaymentIntent'])->name('payment-intents.cancel');

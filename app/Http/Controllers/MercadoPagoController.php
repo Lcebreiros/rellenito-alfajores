@@ -199,6 +199,27 @@ class MercadoPagoController extends Controller
     }
 
     /**
+     * Cambia el modo de operación de un dispositivo Point a PDV (integración).
+     */
+    public function activateDevice(Request $request, string $deviceId): JsonResponse
+    {
+        $company = auth()->user()->rootCompany() ?? auth()->user();
+        $credential = MercadoPagoCredential::where('user_id', $company->id)->first();
+
+        if (! $credential) {
+            return response()->json(['error' => __('mp.not_connected')], 422);
+        }
+
+        try {
+            $result = $this->mp->setDeviceOperatingMode($credential, $deviceId, 'PDV');
+        } catch (RuntimeException $e) {
+            return response()->json(['error' => $e->getMessage()], 502);
+        }
+
+        return response()->json(['ok' => true, 'device' => $result]);
+    }
+
+    /**
      * Cancela un payment intent activo en el Point.
      */
     public function cancelPaymentIntent(Request $request, string $intentId): JsonResponse

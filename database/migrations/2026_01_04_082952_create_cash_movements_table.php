@@ -6,34 +6,37 @@ use Illuminate\Support\Facades\Schema;
 
 return new class extends Migration
 {
-    /**
-     * Run the migrations.
-     */
     public function up(): void
     {
-        if (Schema::hasTable('cash_movements') || !Schema::hasTable('parking_shifts')) {
+        if (Schema::hasTable('cash_movements')) {
             return;
         }
 
         Schema::create('cash_movements', function (Blueprint $table) {
             $table->id();
             $table->foreignId('company_id')->constrained('users')->cascadeOnDelete();
-            $table->foreignId('parking_shift_id')->constrained('parking_shifts')->cascadeOnDelete();
+
+            // nullable desde el inicio — parking es opcional para nuevas instalaciones
+            if (Schema::hasTable('parking_shifts')) {
+                $table->foreignId('parking_shift_id')->nullable()->constrained('parking_shifts')->nullOnDelete();
+            } else {
+                $table->unsignedBigInteger('parking_shift_id')->nullable();
+            }
+
             $table->foreignId('created_by')->constrained('users')->cascadeOnDelete();
-            $table->enum('type', ['ingreso', 'egreso']); // ingreso: dinero que entra, egreso: dinero que sale
+            $table->string('type'); // enum en MySQL, string en SQLite
             $table->decimal('amount', 10, 2);
             $table->string('description');
             $table->text('notes')->nullable();
             $table->timestamps();
 
-            $table->index(['parking_shift_id', 'type']);
             $table->index('created_by');
+            if (Schema::hasTable('parking_shifts')) {
+                $table->index(['parking_shift_id', 'type']);
+            }
         });
     }
 
-    /**
-     * Reverse the migrations.
-     */
     public function down(): void
     {
         Schema::dropIfExists('cash_movements');

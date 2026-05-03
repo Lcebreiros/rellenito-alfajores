@@ -88,8 +88,14 @@
                   selectedDevice: '{{ $mpCredential->selected_device_id }}',
                   loading: false,
                   saving: false,
+                  activating: null,
                   error: null,
                   saved: false,
+                  activated: false,
+
+                  get selectedDeviceObj() {
+                    return this.devices.find(d => d.id === this.selectedDevice) ?? null;
+                  },
 
                   async loadDevices() {
                     this.loading = true;
@@ -129,6 +135,32 @@
                       this.error = e.message;
                     } finally {
                       this.saving = false;
+                    }
+                  },
+
+                  async activateDevice(deviceId) {
+                    this.activating = deviceId;
+                    this.error      = null;
+                    this.activated  = false;
+                    try {
+                      const res = await fetch(`/mercadopago/devices/${deviceId}/activate`, {
+                        method: 'POST',
+                        headers: {
+                          'Content-Type': 'application/json',
+                          'X-CSRF-TOKEN': document.querySelector('meta[name=csrf-token]').content,
+                          Accept: 'application/json'
+                        }
+                      });
+                      const data = await res.json();
+                      if (!res.ok) throw new Error(data.error ?? '{{ __('mp.device_activate_error') }}');
+                      const d = this.devices.find(d => d.id === deviceId);
+                      if (d) d.operating_mode = 'PDV';
+                      this.activated = true;
+                      setTimeout(() => this.activated = false, 4000);
+                    } catch(e) {
+                      this.error = e.message;
+                    } finally {
+                      this.activating = null;
                     }
                   }
                 }"
@@ -196,7 +228,7 @@
                     >
                       <option value="">{{ __('mp.device_select_placeholder') }}</option>
                       <template x-for="d in devices" :key="d.id">
-                        <option :value="d.id" x-text="(d.name || d.device_name || d.id) + ' — ' + (d.status ?? '')"></option>
+                        <option :value="d.id" x-text="d.id + (d.operating_mode ? ' [' + d.operating_mode + ']' : '')"></option>
                       </template>
                     </select>
                     <button
@@ -210,11 +242,50 @@
                     </button>
                   </div>
 
-                  {{-- Saved feedback --}}
+                  {{-- Botón activar PDV: solo si hay dispositivo seleccionado y está en modo STANDALONE --}}
+                  <div x-show="selectedDeviceObj && selectedDeviceObj.operating_mode === 'STANDALONE'" class="mt-2 flex items-center gap-2">
+                    <div class="flex-1 rounded-lg bg-amber-50 dark:bg-amber-900/20 border border-amber-200 dark:border-amber-700 px-3 py-2 flex items-center justify-between gap-3">
+                      <div class="flex items-center gap-2">
+                        <svg class="w-4 h-4 text-amber-600 dark:text-amber-400 shrink-0" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor">
+                          <path stroke-linecap="round" stroke-linejoin="round" d="M12 9v3.75m-9.303 3.376c-.866 1.5.217 3.374 1.948 3.374h14.71c1.73 0 2.813-1.874 1.948-3.374L13.949 3.378c-.866-1.5-3.032-1.5-3.898 0L2.697 16.126ZM12 15.75h.007v.008H12v-.008Z" />
+                        </svg>
+                        <span class="text-xs text-amber-700 dark:text-amber-300 font-medium">{{ __('mp.device_mode_standalone') }} — {{ __('mp.device_activate_pdv') }}</span>
+                      </div>
+                      <button
+                        type="button"
+                        @click="activateDevice(selectedDevice)"
+                        :disabled="activating === selectedDevice"
+                        class="shrink-0 rounded-lg bg-amber-500 hover:bg-amber-600 disabled:opacity-50 text-white px-3 py-1 text-xs font-semibold transition-colors"
+                      >
+                        <span x-show="activating !== selectedDevice">{{ __('mp.device_activate_pdv') }}</span>
+                        <span x-show="activating === selectedDevice">{{ __('mp.device_activating') }}</span>
+                      </button>
+                    </div>
+                  </div>
+
+                  {{-- PDV mode badge: cuando ya está en PDV --}}
+                  <div x-show="selectedDeviceObj && selectedDeviceObj.operating_mode === 'PDV'" class="mt-2">
+                    <div class="flex items-center gap-2 text-xs text-emerald-600 dark:text-emerald-400">
+                      <svg class="w-3.5 h-3.5" fill="currentColor" viewBox="0 0 20 20">
+                        <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.857-9.809a.75.75 0 00-1.214-.882l-3.483 4.79-1.88-1.88a.75.75 0 10-1.06 1.061l2.5 2.5a.75.75 0 001.137-.089l4-5.5z" clip-rule="evenodd"/>
+                      </svg>
+                      <span class="font-medium">{{ __('mp.device_mode_pdv') }}</span>
+                    </div>
+                  </div>
+
+                  {{-- Feedback: guardado --}}
                   <p x-show="saved" x-transition
                      class="mt-2 text-xs text-emerald-600 dark:text-emerald-400 font-medium">
                     ✓ {{ __('mp.device_saved') }}
                   </p>
+
+                  {{-- Feedback: activado PDV (con aviso de reinicio obligatorio) --}}
+                  <div x-show="activated" x-transition
+                       class="mt-2 rounded-lg bg-emerald-50 dark:bg-emerald-900/20 border border-emerald-200 dark:border-emerald-700 px-3 py-2">
+                    <p class="text-xs text-emerald-700 dark:text-emerald-300 font-semibold">
+                      ✓ {{ __('mp.device_activated') }}
+                    </p>
+                  </div>
                 </div>
               </div>
 

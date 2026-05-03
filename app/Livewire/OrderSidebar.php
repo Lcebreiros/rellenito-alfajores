@@ -7,10 +7,14 @@ use Livewire\Component;
 use App\Enums\OrderStatus;
 use App\Services\OrderService;
 use App\Services\StockService;
+use App\Services\MercadoPagoService;
 use App\Models\Order;
 use App\Models\Client;
+use App\Models\PaymentMethod;
+use App\Models\MercadoPagoCredential;
 use Illuminate\Support\Facades\DB;
 use DomainException;
+use RuntimeException;
 
 class OrderSidebar extends Component
 {
@@ -28,6 +32,9 @@ class OrderSidebar extends Component
     public bool $isScheduled = false; // legacy flag (UI moved to ScheduleOrder)
     public string $scheduledFor = '';
     public string $orderNotes = '';
+
+    // MP Point: ID del payment intent activo (null = sin pago MP pendiente)
+    public ?string $mpIntentId = null;
 
     public function mount(?int $orderId = null): void
     {
@@ -246,143 +253,303 @@ class OrderSidebar extends Component
 
     public function finalize(): void
     {
-    if ($this->finishing) return;
-    $this->finishing = true;
+        if ($this->finishing) return;
+        $this->finishing = true;
 
-    // Alinear el draft de la sesión con el componente en lugar de bloquear
-    $draftId = (int) session('draft_order_id');
-    if (!$draftId) {
-        $this->ensureDraftExists();
+        // Alinear el draft de la sesión con el componente
         $draftId = (int) session('draft_order_id');
+        if (!$draftId) {
+            $this->ensureDraftExists();
+            $draftId = (int) session('draft_order_id');
+        }
+        if ($draftId !== (int) $this->orderId) {
+            $this->orderId = $draftId;
+            $this->refreshOrder();
+        }
+
+        // Si hay MP entre los métodos seleccionados, iniciar flujo async de Point
+        $mpMethod = !empty($this->selectedPaymentMethods)
+            ? PaymentMethod::whereIn('id', $this->selectedPaymentMethods)
+                ->where('gateway_provider', 'mercadopago')
+                ->first()
+            : null;
+
+        if ($mpMethod) {
+            $this->initiateMpPayment();
+            return;
+        }
+
+        // ── Flujo estándar (sin gateway MP) ───────────────────────────────────
+        try {
+            $finishedId        = null;
+            $finishedTotal     = 0.0;
+            $affectedProductIds = [];
+
+            DB::transaction(function () use (&$finishedId, &$finishedTotal, &$affectedProductIds) {
+                $order = Order::with(['items.product', 'items.service'])
+                    ->lockForUpdate()
+                    ->findOrFail($this->orderId);
+
+                if ($order->status !== OrderStatus::DRAFT) {
+                    throw new DomainException('El pedido ya fue procesado.');
+                }
+
+                $this->associateClientToOrder($order);
+
+                if ($order->items->isEmpty()) {
+                    throw new DomainException('El pedido está vacío.');
+                }
+
+                foreach ($order->items as $item) {
+                    if ($item->product && $item->product->stock < $item->quantity) {
+                        throw new DomainException("Stock insuficiente: {$item->product->name}");
+                    }
+                }
+
+                $this->syncPaymentMethods($order);
+
+                if ((bool) ($order->is_scheduled ?? false)) {
+                    $dt = $order->scheduled_for;
+                    if (!$dt) throw new DomainException('Seleccioná la fecha de agendado.');
+                    if ($dt->lessThanOrEqualTo(now())) throw new DomainException('La fecha/hora debe ser futura para agendar.');
+                    $order->status = \App\Enums\OrderStatus::SCHEDULED->value;
+                    $order->recalcTotal(true);
+                    $order->save();
+                } else {
+                    $order->markAsCompleted(now());
+                }
+
+                foreach ($order->items as $item) {
+                    if ($item->product) $affectedProductIds[] = $item->product->id;
+                }
+
+                $finishedId    = (int) $order->id;
+                $finishedTotal = (float) $order->total;
+            });
+
+            $this->dispatchOrderFinalized($finishedId, $finishedTotal, $affectedProductIds);
+
+        } catch (\Throwable $e) {
+            $msg = $e instanceof DomainException ? $e->getMessage() : 'No se pudo finalizar el pedido.';
+            $this->dispatch('notify', type: 'error', message: $msg);
+        } finally {
+            $this->finishing = false;
+        }
     }
-    if ($draftId !== (int) $this->orderId) {
-        // sincronizar y seguir
-        $this->orderId = $draftId;
-        $this->refreshOrder();
+
+    /**
+     * Valida la orden y envía el payment intent al terminal Point de MP.
+     * La orden permanece en DRAFT hasta que MP confirme el pago.
+     */
+    private function initiateMpPayment(): void
+    {
+        $order = Order::with('items.product')->find($this->orderId);
+
+        if (!$order || $order->status !== OrderStatus::DRAFT) {
+            $this->dispatch('notify', type: 'error', message: 'El pedido no está disponible.');
+            $this->finishing = false;
+            return;
+        }
+        if ($order->items->isEmpty()) {
+            $this->dispatch('notify', type: 'error', message: 'El pedido está vacío.');
+            $this->finishing = false;
+            return;
+        }
+        foreach ($order->items as $item) {
+            if ($item->product && $item->product->stock < $item->quantity) {
+                $this->dispatch('notify', type: 'error', message: "Stock insuficiente: {$item->product->name}");
+                $this->finishing = false;
+                return;
+            }
+        }
+
+        $company    = auth()->user()->rootCompany() ?? auth()->user();
+        $credential = MercadoPagoCredential::where('user_id', $company->id)->first();
+
+        if (!$credential) {
+            $this->dispatch('notify', type: 'error', message: __('mp.not_connected'));
+            $this->finishing = false;
+            return;
+        }
+        if (!$credential->selected_device_id) {
+            $this->dispatch('notify', type: 'error', message: __('mp.no_device_selected'));
+            $this->finishing = false;
+            return;
+        }
+
+        try {
+            $intent = app(MercadoPagoService::class)->createPaymentIntent(
+                $credential,
+                $credential->selected_device_id,
+                [
+                    'amount'             => $this->total,
+                    'description'        => "Venta #{$this->orderId}",
+                    'external_reference' => (string) $this->orderId,
+                ],
+            );
+            $this->mpIntentId = $intent['id'];
+            // $this->finishing queda en true mientras esperamos → impide doble-click
+        } catch (RuntimeException $e) {
+            $this->dispatch('notify', type: 'error', message: 'Error al enviar el cobro al terminal: ' . $e->getMessage());
+            $this->finishing = false;
+        }
     }
 
-    $stockService = app(StockService::class);
-    $ordersService = app(OrderService::class);
+    /**
+     * Llamado por Alpine.js cuando MP reporta estado FINISHED.
+     * Completa la orden en base de datos.
+     *
+     * @param  array{payment_id?: int|null, state?: string} $mpData
+     */
+    public function completeMpOrder(array $mpData = []): void
+    {
+        try {
+            $finishedId        = null;
+            $finishedTotal     = 0.0;
+            $affectedProductIds = [];
+            $intentId          = $this->mpIntentId;
 
-    try {
-        $finishedId = null;
-        $finishedTotal = 0.0;
-        $affectedProductIds = [];
+            DB::transaction(function () use (&$finishedId, &$finishedTotal, &$affectedProductIds, $mpData, $intentId) {
+                $order = Order::with(['items.product', 'items.service'])
+                    ->lockForUpdate()
+                    ->findOrFail($this->orderId);
 
-        DB::transaction(function () use (&$finishedId, &$affectedProductIds, $stockService, $ordersService) {
-            $order = Order::with(['items.product','items.service'])
-                ->lockForUpdate()
-                ->findOrFail($this->orderId);
-
-            if ($order->status !== OrderStatus::DRAFT) {
-                throw new DomainException('El pedido ya fue procesado.');
-            }
-
-            // Asociar cliente si se ingresó nombre
-            $name = trim((string) $this->customerName);
-            if ($name !== '' && !$order->client_id) {
-                $user = auth()->user();
-                $companyId = $user->isCompany() ? $user->id : Order::findRootCompanyId($user);
-                $client = Client::firstOrCreate([
-                    'user_id' => $companyId,
-                    'name'    => $name,
-                ]);
-                $order->client()->associate($client);
-                $order->save();
-            }
-
-            if ($order->items->isEmpty()) {
-                throw new DomainException('El pedido está vacío.');
-            }
-
-            // Verificar stock de productos
-            foreach ($order->items as $item) {
-                if ($item->product && $item->product->stock < $item->quantity) {
-                    throw new DomainException("Stock insuficiente: {$item->product->name}");
-                    $affectedProductIds[] = $item->product->id;
-                }
-            }
-
-            // Asociar métodos de pago seleccionados ANTES de finalizar
-            if (!empty($this->selectedPaymentMethods)) {
-                $pivotData = [];
-                $totalAmount = $order->total;
-                $methodCount = count($this->selectedPaymentMethods);
-
-                // Si solo hay un método, asignar todo el monto
-                // Si hay múltiples, dividir el monto equitativamente (puede ajustarse después)
-                $amountPerMethod = $totalAmount / $methodCount;
-
-                foreach ($this->selectedPaymentMethods as $pmId) {
-                    $pivotData[$pmId] = [
-                        'amount' => $amountPerMethod,
-                        'created_at' => now(),
-                        'updated_at' => now(),
-                    ];
+                if ($order->status !== OrderStatus::DRAFT) {
+                    throw new DomainException('El pedido ya fue procesado.');
                 }
 
-                $order->paymentMethods()->sync($pivotData);
-            }
+                $this->associateClientToOrder($order);
 
-            // Si el borrador está marcado como agendado, guardarlo como SCHEDULED; si no, completar
-            if ((bool) ($order->is_scheduled ?? false)) {
-                $dt = $order->scheduled_for;
-                if (!$dt) {
-                    throw new DomainException('Seleccioná la fecha de agendado.');
+                if ($order->items->isEmpty()) {
+                    throw new DomainException('El pedido está vacío.');
                 }
-                if ($dt->lessThanOrEqualTo(now())) {
-                    throw new DomainException('La fecha/hora debe ser futura para agendar.');
+
+                // Sincronizar métodos de pago y guardar respuesta del gateway en el pivot de MP
+                if (!empty($this->selectedPaymentMethods)) {
+                    $totalAmount    = $order->total;
+                    $methodCount    = count($this->selectedPaymentMethods);
+                    $amountPerMethod = $totalAmount / $methodCount;
+                    $pivotData      = [];
+
+                    foreach ($this->selectedPaymentMethods as $pmId) {
+                        $pm    = PaymentMethod::find($pmId);
+                        $pivot = ['amount' => $amountPerMethod, 'created_at' => now(), 'updated_at' => now()];
+
+                        if ($pm && $pm->gateway_provider === 'mercadopago') {
+                            $pivot['gateway_response'] = json_encode(array_merge(
+                                $mpData,
+                                ['payment_intent_id' => $intentId],
+                            ));
+                        }
+                        $pivotData[$pmId] = $pivot;
+                    }
+                    $order->paymentMethods()->sync($pivotData);
                 }
-                $order->status = \App\Enums\OrderStatus::SCHEDULED->value;
-                $order->recalcTotal(true);
-                $order->save();
-            } else {
-                // Completar la orden: descuenta stock de productos e insumos
+
                 $order->markAsCompleted(now());
-            }
 
-            // Recopilar IDs de productos afectados para notificar
-            foreach ($order->items as $item) {
-                if ($item->product) {
-                    $affectedProductIds[] = $item->product->id;
+                foreach ($order->items as $item) {
+                    if ($item->product) $affectedProductIds[] = $item->product->id;
                 }
+
+                $finishedId    = (int) $order->id;
+                $finishedTotal = (float) $order->total;
+            });
+
+            $this->mpIntentId = null;
+            $this->dispatchOrderFinalized($finishedId, $finishedTotal, $affectedProductIds);
+
+        } catch (\Throwable $e) {
+            $msg = $e instanceof DomainException ? $e->getMessage() : 'No se pudo finalizar el pedido.';
+            $this->dispatch('notify', type: 'error', message: $msg);
+            // Dejar mpIntentId para que el usuario pueda reintentar o cancelar
+        } finally {
+            $this->finishing = false;
+        }
+    }
+
+    /**
+     * Llamado por Alpine.js cuando el pago falla, es rechazado o el operador cancela.
+     * Intenta cancelar el payment intent en MP y resetea el estado.
+     */
+    public function abortMpPayment(string $reason = ''): void
+    {
+        $intentId = $this->mpIntentId;
+        $this->mpIntentId = null;
+        $this->finishing  = false;
+
+        if ($intentId) {
+            try {
+                $company    = auth()->user()->rootCompany() ?? auth()->user();
+                $credential = MercadoPagoCredential::where('user_id', $company->id)->first();
+                if ($credential?->selected_device_id) {
+                    app(MercadoPagoService::class)->cancelPaymentIntent(
+                        $credential,
+                        $credential->selected_device_id,
+                        $intentId,
+                    );
+                }
+            } catch (\Throwable) {
+                // Ignorar errores al cancelar (el intent pudo ya expirar)
             }
+        }
 
-            $finishedId    = (int) $order->id;
-            $finishedTotal = (float) $order->total;
-        });
+        if ($reason) {
+            $this->dispatch('notify', type: 'error', message: $reason);
+        }
+    }
 
-        // Limpiar sesión y reiniciar draft
+    // ─── Helpers de finalize ──────────────────────────────────────────────────
+
+    private function associateClientToOrder(Order $order): void
+    {
+        $name = trim((string) $this->customerName);
+        if ($name === '' || $order->client_id) return;
+
+        $user      = auth()->user();
+        $companyId = $user->isCompany() ? $user->id : Order::findRootCompanyId($user);
+        $client    = Client::firstOrCreate(['user_id' => $companyId, 'name' => $name]);
+        $order->client()->associate($client);
+        $order->save();
+    }
+
+    private function syncPaymentMethods(Order $order, array $gatewayOverrides = []): void
+    {
+        if (empty($this->selectedPaymentMethods)) return;
+
+        $totalAmount     = $order->total;
+        $methodCount     = count($this->selectedPaymentMethods);
+        $amountPerMethod = $totalAmount / $methodCount;
+        $pivotData       = [];
+
+        foreach ($this->selectedPaymentMethods as $pmId) {
+            $pivot = ['amount' => $amountPerMethod, 'created_at' => now(), 'updated_at' => now()];
+            if (isset($gatewayOverrides[$pmId])) {
+                $pivot['gateway_response'] = $gatewayOverrides[$pmId];
+            }
+            $pivotData[$pmId] = $pivot;
+        }
+        $order->paymentMethods()->sync($pivotData);
+    }
+
+    private function dispatchOrderFinalized(int $orderId, float $total, array $affectedProductIds): void
+    {
         session()->forget('draft_order_id');
         $this->startNewDraft();
         $this->js('$wire.$refresh()');
 
-        // Disparar eventos de stock actualizado
         foreach ($affectedProductIds as $productId) {
             $this->dispatch('stock-updated', productId: $productId);
         }
 
-        // Notificar al selector de métodos de pago para limpiar la selección
         $this->dispatch('orderFinalized');
+        $this->dispatch('order-finalized', orderId: $orderId, total: $total);
 
-        // Notificar al componente de caja para registrar la venta
-        $this->dispatch('order-finalized', orderId: $finishedId, total: $finishedTotal);
-
-        // Notificación de éxito
-        $url = route('orders.show', ['order' => $finishedId]);
-        $this->dispatch('notify', type: 'success', message: "Pedido #$finishedId creado correctamente. <a href=\"$url\" class=\"underline\">Ver</a>");
-
-        // Eventos Livewire
-        $this->dispatch('order-confirmed', orderId: $finishedId);
-        $this->dispatch('order:confirmed', orderId: $finishedId);
-
-    } catch (\Throwable $e) {
-        $msg = $e instanceof DomainException ? $e->getMessage() : 'No se pudo finalizar el pedido.';
-        $this->dispatch('notify', type: 'error', message: $msg);
-    } finally {
-        $this->finishing = false;
+        $url = route('orders.show', ['order' => $orderId]);
+        $this->dispatch('notify', type: 'success', message: "Pedido #$orderId creado correctamente. <a href=\"$url\" class=\"underline\">Ver</a>");
+        $this->dispatch('order-confirmed', orderId: $orderId);
+        $this->dispatch('order:confirmed', orderId: $orderId);
     }
-}
 
     public function cancel(): void
     {

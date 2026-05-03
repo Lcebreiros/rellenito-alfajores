@@ -129,10 +129,8 @@
               </p>
             @enderror
             <p class="mt-2 text-xs text-gray-500 dark:text-neutral-400">
-              <span wire:ignore>
-                <span x-data="{ count: $wire.entangle('notes').length || 0 }"
-                      x-text="count + {{ @json(__('stock.discount_chars')) }}"></span>
-              </span>
+              <span x-data="{ get count() { return ($wire.notes ?? '').length } }"
+                    x-text="count + '{{ __('stock.discount_chars') }}'"></span>
             </p>
           </div>
 

@@ -31,4 +31,21 @@ return [
 
     'device_status_active'  => 'Ativo',
     'device_status_inactive'=> 'Inativo',
+
+    'device_mode_pdv'        => 'Modo PDV',
+    'device_mode_standalone' => 'Modo autônomo',
+    'device_activate_pdv'    => 'Ativar modo PDV',
+    'device_activating'      => 'Ativando…',
+    'device_activated'       => 'Modo PDV ativado. Reinicie o dispositivo para que a mudança tome efeito.',
+    'device_activate_error'  => 'Erro ao ativar o modo PDV.',
+    'device_restart_required'=> 'O dispositivo deve ser reiniciado para que a mudança tome efeito.',
+
+    'payment_awaiting'           => 'Aguardando pagamento no terminal…',
+    'payment_terminal_hint'      => 'Apresente o cartão ou realize o pagamento no dispositivo Point.',
+    'payment_rejected'           => 'O pagamento foi recusado ou ocorreu um erro no terminal.',
+    'payment_cancelled'          => 'O pagamento foi cancelado no terminal.',
+    'payment_cancelled_operator' => 'Cobrança cancelada pelo operador.',
+    'payment_timeout'            => 'Tempo limite atingido. A cobrança foi cancelada.',
+    'payment_cancel_btn'         => 'Cancelar cobrança',
+    'payment_error_close'        => 'Fechar',
 ];

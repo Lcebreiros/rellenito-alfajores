@@ -36,4 +36,23 @@ return [
     // UI - estado del point
     'device_status_active'  => 'Activo',
     'device_status_inactive'=> 'Inactivo',
+
+    // UI - activar modo PDV
+    'device_mode_pdv'        => 'Modo PDV',
+    'device_mode_standalone' => 'Modo autónomo',
+    'device_activate_pdv'    => 'Activar modo PDV',
+    'device_activating'      => 'Activando…',
+    'device_activated'       => 'Modo PDV activado. Reiniciá el dispositivo para que tome efecto.',
+    'device_activate_error'  => 'Error al activar el modo PDV.',
+    'device_restart_required'=> 'El dispositivo debe reiniciarse para que el cambio tome efecto.',
+
+    // Overlay de espera de pago en terminal
+    'payment_awaiting'           => 'Esperando pago en el terminal…',
+    'payment_terminal_hint'      => 'Presentá la tarjeta o efectuá el pago en el dispositivo Point.',
+    'payment_rejected'           => 'El pago fue rechazado o hubo un error en el terminal.',
+    'payment_cancelled'          => 'El pago fue cancelado en el terminal.',
+    'payment_cancelled_operator' => 'Cobro cancelado por el operador.',
+    'payment_timeout'            => 'Tiempo de espera agotado. El cobro fue cancelado.',
+    'payment_cancel_btn'         => 'Cancelar cobro',
+    'payment_error_close'        => 'Cerrar',
 ];
