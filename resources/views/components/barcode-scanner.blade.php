@@ -128,8 +128,10 @@
         lookupExternal(code);
       });
 
+  let _searching = false;
   async function lookupExternal(code){
-    if (!code) return;
+    if (!code || _searching) return;
+    _searching = true;
     resultBox.classList.remove('hidden');
     statusEl.innerHTML = '<span class="animate-pulse">{{ __('products.scanner_searching_ext') }}</span>';
     form.classList.add('hidden');
@@ -281,12 +283,22 @@
       submitBtn.textContent = @json(__('products.scanner_create_btn'));
       form.classList.remove('hidden');
       setTimeout(() => formName.focus(), 100);
+    } finally {
+      _searching = false;
     }
   }
-      lookupBtn.addEventListener('click', ()=>{
+      lookupBtn.addEventListener('click', () => {
         const code = barcodeInput.value.trim();
         if (!code) { barcodeInput.focus(); return; }
         lookupExternal(code);
+      });
+
+      // Enter directo en el input — funciona con cualquier scanner sin depender de hid-scanner.js
+      barcodeInput.addEventListener('keydown', (e) => {
+        if (e.key !== 'Enter') return;
+        e.preventDefault();
+        const code = barcodeInput.value.trim();
+        if (code) lookupExternal(code);
       });
 
       // Scanner layer
