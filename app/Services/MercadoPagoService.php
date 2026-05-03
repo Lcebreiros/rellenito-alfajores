@@ -177,7 +177,7 @@ final class MercadoPagoService
      */
     public function getAccountInfo(string $accessToken): array
     {
-        return $this->get('/v1/users/me', $accessToken);
+        return $this->get('/users/me', $accessToken);
     }
 
     // ─── Helpers internos ─────────────────────────────────────────────────────
