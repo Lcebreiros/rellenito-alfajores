@@ -4,6 +4,8 @@ namespace App\Livewire;
 
 use App\Models\CashMovement;
 use App\Models\CashSession;
+use App\Models\Costing;
+use App\Models\OrderItem;
 use Livewire\Component;
 
 class CashRegister extends Component
@@ -27,6 +29,7 @@ class CashRegister extends Component
     public bool $showOpenForm     = false;
     public bool $showMovementForm = false;
     public bool $showCloseForm    = false;
+    public bool $showCloseModal   = false;
 
     protected function rules(): array
     {
@@ -128,6 +131,15 @@ class CashRegister extends Component
         $this->closingAmount   = (string) $this->session->currentBalance();
     }
 
+    public function openCloseModal(): void
+    {
+        if (!$this->session?->isOpen()) return;
+        $this->closingAmount    = (string) $this->session->currentBalance();
+        $this->showCloseModal   = true;
+        $this->showCloseForm    = false;
+        $this->showMovementForm = false;
+    }
+
     public function closeSession(): void
     {
         $this->validateOnly('closingAmount');
@@ -141,10 +153,11 @@ class CashRegister extends Component
             'closed_at'      => now(),
         ]);
 
-        $this->session       = null;
-        $this->showCloseForm = false;
-        $this->closingAmount = '';
-        $this->closingNote   = '';
+        $this->session        = null;
+        $this->showCloseForm  = false;
+        $this->showCloseModal = false;
+        $this->closingAmount  = '';
+        $this->closingNote    = '';
     }
 
     public function render()
@@ -155,11 +168,69 @@ class CashRegister extends Component
 
         $user = auth()->user();
 
+        $closeStats = ($this->showCloseModal && $this->session?->isOpen())
+            ? $this->computeCloseStats()
+            : null;
+
         return view('livewire.cash-register', [
             'movements'    => $movements,
             'balance'      => $this->session?->currentBalance() ?? 0,
             'operatorName' => $user->parent_id ? $user->name : null,
+            'closeStats'   => $closeStats,
         ]);
+    }
+
+    private function computeCloseStats(): array
+    {
+        $session = $this->session;
+
+        $allMovements = CashMovement::where('cash_session_id', $session->id)->get();
+        $orderIds     = $allMovements->where('type', 'sale')->whereNotNull('order_id')->pluck('order_id');
+        $totalSold    = (float) $allMovements->where('type', 'sale')->sum('amount');
+        $ingresos     = (float) $allMovements->where('type', 'ingreso')->sum('amount');
+        $egresos      = (float) $allMovements->where('type', 'egreso')->sum('amount');
+        $expectedCash = (float) $session->opening_amount + $totalSold + $ingresos - $egresos;
+
+        $totalCost   = 0.0;
+        $hasCostData = false;
+
+        if ($orderIds->isNotEmpty()) {
+            $items = OrderItem::whereIn('order_id', $orderIds)
+                ->with(['product:id,cost_price'])
+                ->get();
+
+            // Latest costing per product (same priority as FinanceController)
+            $productIds     = $items->pluck('product_id')->filter()->unique()->values();
+            $latestCostings = Costing::whereIn('product_id', $productIds)
+                ->orderByDesc('created_at')
+                ->get()
+                ->unique('product_id')
+                ->keyBy('product_id');
+
+            foreach ($items as $item) {
+                $costing  = $latestCostings->get($item->product_id);
+                $unitCost = $costing
+                    ? (float) $costing->unit_total
+                    : (float) ($item->product?->cost_price ?? 0);
+
+                if ($unitCost > 0) {
+                    $hasCostData = true;
+                    $totalCost  += $unitCost * (float) $item->quantity;
+                }
+            }
+        }
+
+        return [
+            'salesCount'   => $orderIds->count(),
+            'totalSold'    => $totalSold,
+            'totalCost'    => $totalCost,
+            'profit'       => $totalSold - $totalCost,
+            'hasCostData'  => $hasCostData,
+            'ingresos'     => $ingresos,
+            'egresos'      => $egresos,
+            'opening'      => (float) $session->opening_amount,
+            'expectedCash' => $expectedCash,
+        ];
     }
 
     private function resolveCompanyId(\App\Models\User $user): int
