@@ -32,6 +32,26 @@
     </div>
 
     <div class="flex items-center gap-2">
+      {{-- Input de scanner físico: siempre listo, Enter dispara lookup local --}}
+      <div class="relative">
+        <div class="pointer-events-none absolute inset-y-0 left-2.5 flex items-center">
+          <svg class="w-3.5 h-3.5 text-indigo-400" fill="none" viewBox="0 0 24 24">
+            <rect x="3" y="5" width="2" height="14" fill="currentColor"/>
+            <rect x="7" y="5" width="1" height="14" fill="currentColor"/>
+            <rect x="10" y="5" width="2" height="14" fill="currentColor"/>
+            <rect x="14" y="5" width="1" height="14" fill="currentColor"/>
+            <rect x="17" y="5" width="2" height="14" fill="currentColor"/>
+          </svg>
+        </div>
+        <input id="hid-scan-input"
+               type="text"
+               placeholder="{{ __('scanner.products_placeholder') }}"
+               autocomplete="off"
+               class="w-44 rounded-lg border border-indigo-200 dark:border-indigo-800 bg-white dark:bg-neutral-900
+                      pl-8 pr-3 py-1.5 text-xs text-neutral-700 dark:text-neutral-200 placeholder-indigo-300 dark:placeholder-indigo-700
+                      focus:outline-none focus:ring-2 focus:ring-indigo-400/50 focus:border-indigo-400 transition">
+      </div>
+
       <x-barcode-scanner />
 
       <form method="GET" class="hidden sm:flex items-center gap-2">
@@ -189,5 +209,52 @@
     />
   @endif
 </div>
+
+@push('scripts')
+<script>
+(function () {
+  const input = document.getElementById('hid-scan-input');
+  if (!input) return;
+
+  // Foco inicial
+  input.focus();
+
+  // Recuperar foco cuando se hace click en área vacía (no en inputs/buttons)
+  document.addEventListener('click', function (e) {
+    const tag = e.target?.tagName;
+    if (tag !== 'INPUT' && tag !== 'TEXTAREA' && tag !== 'BUTTON' && tag !== 'A' && tag !== 'SELECT') {
+      setTimeout(() => input.focus(), 50);
+    }
+  });
+
+  input.addEventListener('keydown', async function (e) {
+    if (e.key !== 'Enter') return;
+    e.preventDefault();
+    const code = input.value.trim();
+    input.value = '';
+    if (code.length < 3) return;
+
+    input.placeholder = '{{ __("scanner.products_searching") }}';
+
+    try {
+      const res  = await fetch('{{ route("products.lookup") }}?barcode=' + encodeURIComponent(code), {
+        headers: { 'X-Requested-With': 'XMLHttpRequest', Accept: 'application/json' }
+      });
+      const data = await res.json();
+
+      if (data.found && data.product) {
+        input.placeholder = '{{ __("scanner.products_found_opening") }}';
+        setTimeout(() => { window.location.href = '/products/' + data.product.id + '/edit'; }, 400);
+      } else {
+        window.location.href = '/products/create?barcode=' + encodeURIComponent(code);
+      }
+    } catch {
+      input.placeholder = '{{ __("scanner.products_placeholder") }}';
+      input.focus();
+    }
+  });
+})();
+</script>
+@endpush
 
 @endsection

@@ -7,39 +7,40 @@
 @endsection
 
 @section('content')
-<div 
-  class="max-w-screen-2xl mx-auto px-3 sm:px-6"
+<div
+  class="max-w-screen-2xl mx-auto px-3 sm:px-6 lg:flex lg:flex-col lg:overflow-hidden lg:h-[calc(100dvh-9rem)]"
   x-data="receiptUI()"
   x-init="init()"
 >
 
-  {{-- Mensajes --}}
-  @if(session('ok'))
-    <div class="mb-4 rounded-lg border border-green-200 bg-green-50 text-green-800 px-3 py-2 text-sm
-                dark:border-green-700 dark:bg-green-900/20 dark:text-green-200">
-      {!! session('ok') !!}
-    </div>
-  @endif
+  {{-- Mensajes + payment: fijos arriba en desktop --}}
+  <div class="lg:flex-shrink-0">
+    @if(session('ok'))
+      <div class="mb-3 rounded-lg border border-green-200 bg-green-50 text-green-800 px-3 py-2 text-sm
+                  dark:border-green-700 dark:bg-green-900/20 dark:text-green-200">
+        {!! session('ok') !!}
+      </div>
+    @endif
 
-  @if($errors->any())
-    <div class="mb-4 rounded-lg border border-red-200 bg-red-50 text-red-800 px-3 py-2 text-sm
-                dark:border-red-700 dark:bg-red-900/20 dark:text-red-200">
-      @foreach($errors->all() as $e) <div>{{ $e }}</div> @endforeach
-    </div>
-  @endif
+    @if($errors->any())
+      <div class="mb-3 rounded-lg border border-red-200 bg-red-50 text-red-800 px-3 py-2 text-sm
+                  dark:border-red-700 dark:bg-red-900/20 dark:text-red-200">
+        @foreach($errors->all() as $e) <div>{{ $e }}</div> @endforeach
+      </div>
+    @endif
 
-  {{-- Selector de Métodos de Pago --}}
-  <div class="mb-6">
-    <livewire:payment-method-selector :key="'payment-method-selector'" />
+    <div class="mb-3">
+      <livewire:payment-method-selector :key="'payment-method-selector'" />
+    </div>
   </div>
 
-  {{-- Layout responsive: IZQ productos (8/12) + DER venta (4/12) --}}
-  <div class="grid grid-cols-1 lg:grid-cols-12 gap-6 items-start min-w-0">
+  {{-- Layout responsive: en desktop ocupa el espacio restante sin scroll de página --}}
+  <div class="grid grid-cols-1 lg:grid-cols-12 gap-4 items-start min-w-0 lg:flex-1 lg:min-h-0 lg:overflow-hidden">
 
-    {{-- IZQUIERDA: Catálogo de productos + Servicios --}}
-    <section class="lg:col-span-8 min-w-0">
+    {{-- IZQUIERDA: en desktop scrollea internamente --}}
+    <section class="lg:col-span-8 min-w-0 lg:h-full lg:overflow-y-auto">
       <div class="rounded-xl border border-slate-200 bg-white p-3 dark:border-neutral-700 dark:bg-neutral-900
-                  min-h-[calc(100svh-9rem)]">
+                  min-h-[calc(100svh-9rem)] lg:min-h-0">
 
         {{-- Scanner HID: detecta lectores físicos USB/Bluetooth --}}
         <div class="mb-3">
@@ -67,21 +68,19 @@
       </div>
     </section>
 
-    {{-- DERECHA: Venta en curso --}}
-    <aside class="lg:col-span-4 space-y-4 min-w-0">
-      {{-- Caja --}}
-      <livewire:cash-register :key="'cash-register'" />
+    {{-- DERECHA: en desktop flex column fija, sin scroll de página --}}
+    <aside class="lg:col-span-4 min-w-0 space-y-4 lg:space-y-0 lg:h-full lg:flex lg:flex-col lg:gap-3 lg:overflow-hidden">
+      <div class="lg:flex-shrink-0">
+        <livewire:cash-register :key="'cash-register'" />
+      </div>
 
-      {{-- Agendar (arriba del sidebar) --}}
-      <livewire:schedule-order :key="'schedule-order'" />
+      <div class="lg:flex-shrink-0">
+        <livewire:schedule-order :key="'schedule-order'" />
+      </div>
 
-      <div class="sticky top-24 min-w-0">
-        {{-- Wrapper que iguala altura al contenedor de productos y la impone al root del componente --}}
-        <div class="max-h-[calc(100svh-9rem)] h-full overflow-hidden w-full min-w-0
-                    [&>*]:max-h-[calc(100svh-9rem)] [&>*]:h-full [&>*]:w-full">
-          {{-- OrderSidebar usa el draft de sesión --}}
-          <livewire:order-sidebar :key="'order-sidebar'" />
-        </div>
+      {{-- OrderSidebar: flex-1 en desktop para ocupar el espacio restante --}}
+      <div class="lg:flex-1 lg:min-h-0 lg:overflow-hidden">
+        <livewire:order-sidebar :key="'order-sidebar'" />
       </div>
     </aside>
 

@@ -1,14 +1,43 @@
 <div
     x-data="{
         handleBarcode(code) {
+            if (!code || code.length < 3) return;
             $wire.scan(code);
-            // Auto-reset after 2.5 s
             clearTimeout(this._scanTimer);
             this._scanTimer = setTimeout(() => $wire.resetStatus(), 2500);
+        },
+        init() {
+            this.$refs.scanInput?.focus();
         }
     }"
     x-on:hid-barcode.window="handleBarcode($event.detail.code)"
-    class="flex items-center gap-2 rounded-lg px-3 py-1.5 text-xs font-medium transition-all duration-300
+    class="flex flex-col gap-1.5">
+
+  {{-- Input físico de scanner: captura directa sin depender de hid-scanner.js --}}
+  <div class="relative">
+    <div class="pointer-events-none absolute inset-y-0 left-2.5 flex items-center">
+      <svg class="w-3.5 h-3.5 text-neutral-400" fill="none" viewBox="0 0 24 24">
+        <rect x="3" y="5" width="2" height="14" fill="currentColor"/>
+        <rect x="7" y="5" width="1" height="14" fill="currentColor"/>
+        <rect x="10" y="5" width="2" height="14" fill="currentColor"/>
+        <rect x="14" y="5" width="1" height="14" fill="currentColor"/>
+        <rect x="17" y="5" width="2" height="14" fill="currentColor"/>
+      </svg>
+    </div>
+    <input
+      x-ref="scanInput"
+      type="text"
+      placeholder="{{ __('scanner.pos_ready') }}"
+      autocomplete="off"
+      x-on:keydown.enter.prevent="handleBarcode($el.value.trim()); $el.value = ''; $el.focus()"
+      class="w-full rounded-lg border border-neutral-200 dark:border-neutral-700 bg-white dark:bg-neutral-900
+             pl-8 pr-3 py-1.5 text-xs text-neutral-700 dark:text-neutral-200 placeholder-neutral-400
+             focus:outline-none focus:ring-2 focus:ring-indigo-400/40 transition"
+    >
+  </div>
+
+  {{-- Indicador de estado --}}
+  <div class="flex items-center gap-2 rounded-lg px-3 py-1.5 text-xs font-medium transition-all duration-300
            {{ match($status) {
                'found'     => 'bg-emerald-50 border border-emerald-200 text-emerald-700 dark:bg-emerald-900/20 dark:border-emerald-800 dark:text-emerald-400',
                'not_found' => 'bg-rose-50 border border-rose-200 text-rose-700 dark:bg-rose-900/20 dark:border-rose-800 dark:text-rose-400',
@@ -84,4 +113,5 @@
             <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v8z"/>
         </svg>
     </span>
-</div>
+  </div>{{-- /status --}}
+</div>{{-- /outer --}}
