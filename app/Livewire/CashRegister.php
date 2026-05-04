@@ -153,9 +153,12 @@ class CashRegister extends Component
             ? $this->session->movements()->with('creator:id,name')->latest()->take(10)->get()
             : collect();
 
+        $user = auth()->user();
+
         return view('livewire.cash-register', [
-            'movements' => $movements,
-            'balance'   => $this->session?->currentBalance() ?? 0,
+            'movements'    => $movements,
+            'balance'      => $this->session?->currentBalance() ?? 0,
+            'operatorName' => $user->parent_id ? $user->name : null,
         ]);
     }
 
