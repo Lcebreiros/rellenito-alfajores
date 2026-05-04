@@ -11,9 +11,14 @@
 @endpush
 
 @section('header')
-  <h1 class="text-xl font-semibold text-gray-800 dark:text-neutral-100 leading-tight transition-colors">
+<div class="flex items-center gap-3 min-w-0">
+  <h1 class="text-xl font-semibold text-gray-800 dark:text-neutral-100 leading-tight transition-colors shrink-0">
     {{ __('orders.create_title') }}
   </h1>
+  <div class="flex-1 min-w-0 flex items-center justify-end">
+    <livewire:payment-method-selector :compact="true" :key="'payment-method-selector'" />
+  </div>
+</div>
 @endsection
 
 @section('content')
@@ -23,26 +28,23 @@
   x-init="init()"
 >
 
-  {{-- Mensajes + payment: fijos arriba en desktop --}}
-  <div class="lg:flex-shrink-0">
-    @if(session('ok'))
-      <div class="mb-3 rounded-lg border border-green-200 bg-green-50 text-green-800 px-3 py-2 text-sm
-                  dark:border-green-700 dark:bg-green-900/20 dark:text-green-200">
-        {!! session('ok') !!}
-      </div>
-    @endif
-
-    @if($errors->any())
-      <div class="mb-3 rounded-lg border border-red-200 bg-red-50 text-red-800 px-3 py-2 text-sm
-                  dark:border-red-700 dark:bg-red-900/20 dark:text-red-200">
-        @foreach($errors->all() as $e) <div>{{ $e }}</div> @endforeach
-      </div>
-    @endif
-
-    <div class="mb-3">
-      <livewire:payment-method-selector :key="'payment-method-selector'" />
+  {{-- Mensajes de error/éxito --}}
+  @if(session('ok') || $errors->any())
+    <div class="lg:flex-shrink-0">
+      @if(session('ok'))
+        <div class="mb-3 rounded-lg border border-green-200 bg-green-50 text-green-800 px-3 py-2 text-sm
+                    dark:border-green-700 dark:bg-green-900/20 dark:text-green-200">
+          {!! session('ok') !!}
+        </div>
+      @endif
+      @if($errors->any())
+        <div class="mb-3 rounded-lg border border-red-200 bg-red-50 text-red-800 px-3 py-2 text-sm
+                    dark:border-red-700 dark:bg-red-900/20 dark:text-red-200">
+          @foreach($errors->all() as $e) <div>{{ $e }}</div> @endforeach
+        </div>
+      @endif
     </div>
-  </div>
+  @endif
 
   {{-- Layout responsive: en desktop ocupa el espacio restante sin scroll de página --}}
   <div class="grid grid-cols-1 lg:grid-cols-12 gap-4 min-w-0 lg:flex-1 lg:min-h-0 lg:overflow-hidden">
@@ -50,31 +52,60 @@
     {{-- IZQUIERDA: en desktop scrollea internamente --}}
     <section class="lg:col-span-8 min-w-0 lg:h-full lg:overflow-y-auto">
       <div class="rounded-xl border border-slate-200 bg-white p-3 dark:border-neutral-700 dark:bg-neutral-900
-                  min-h-[calc(100svh-9rem)] lg:min-h-0">
+                  min-h-[calc(100svh-9rem)] lg:min-h-0"
+           x-data="{ activeTab: 'products' }">
 
-        {{-- Scanner HID: detecta lectores físicos USB/Bluetooth --}}
-        <div class="mb-3">
-          <livewire:pos-scanner :key="'pos-scanner'" />
+        {{-- Fila superior: tabs izquierda + scanner derecha --}}
+        <div class="flex items-center gap-3 mb-3">
+
+          {{-- Selector Productos / Servicios --}}
+          <div class="flex items-center gap-0.5 p-0.5 bg-neutral-100 dark:bg-neutral-800 rounded-lg shrink-0">
+            <button
+              @click="activeTab = 'products'"
+              :class="activeTab === 'products'
+                ? 'bg-white dark:bg-neutral-700 text-neutral-900 dark:text-neutral-100 shadow-sm'
+                : 'text-neutral-500 dark:text-neutral-400 hover:text-neutral-700 dark:hover:text-neutral-200'"
+              class="px-3 py-1.5 rounded-md text-xs font-semibold transition-all duration-150"
+            >{{ __('orders.create.tab_products') }}</button>
+
+            @if(isset($services) && !$services->isEmpty())
+            <button
+              @click="activeTab = 'services'"
+              :class="activeTab === 'services'
+                ? 'bg-white dark:bg-neutral-700 text-neutral-900 dark:text-neutral-100 shadow-sm'
+                : 'text-neutral-500 dark:text-neutral-400 hover:text-neutral-700 dark:hover:text-neutral-200'"
+              class="px-3 py-1.5 rounded-md text-xs font-semibold transition-all duration-150"
+            >{{ __('orders.create.tab_services') }}</button>
+            @endif
+          </div>
+
+          {{-- Scanner compacto a la derecha --}}
+          <div class="flex-1 flex justify-end">
+            <div class="w-72">
+              <livewire:pos-scanner :key="'pos-scanner'" />
+            </div>
+          </div>
         </div>
 
-        {{-- Catálogo con búsqueda, filtros y ordenamiento --}}
-        <livewire:product-catalog :key="'product-catalog'" />
+        {{-- Catálogo de productos --}}
+        <div x-show="activeTab === 'products'">
+          <livewire:product-catalog :key="'product-catalog'" />
+        </div>
 
         {{-- Servicios --}}
         @if(isset($services) && !$services->isEmpty())
-          <div class="mt-8 pt-6 border-t border-neutral-100 dark:border-neutral-800">
-            <h2 class="px-1 mb-3 text-sm font-semibold text-neutral-700 dark:text-neutral-300">{{ __('orders.create.services') }}</h2>
+          <div x-show="activeTab === 'services'" x-cloak>
             <div class="grid grid-cols-2 sm:grid-cols-3 gap-3">
               @foreach($services as $s)
-                <livewire:service-card
-                  :service-id="$s->id"
-                  :key="'service-card-'.$s->id"
-                />
+                <livewire:service-card :service-id="$s->id" :key="'service-card-'.$s->id" />
               @endforeach
             </div>
-            <div class="mt-4">{{ $services->links() }}</div>
+            @if($services->hasPages())
+              <div class="mt-4">{{ $services->links() }}</div>
+            @endif
           </div>
         @endif
+
       </div>
     </section>
 

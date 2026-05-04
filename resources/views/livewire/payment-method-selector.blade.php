@@ -1,4 +1,4 @@
-<div class="w-full">
+<div class="{{ $compact ? '' : 'w-full' }}">
     <style>
         /* Animaciones y estilos para tarjetas de métodos de pago estilo oficial */
         .payment-card-official {
@@ -93,67 +93,101 @@
     </style>
 
     @if($paymentMethods->isNotEmpty())
-        <div class="mb-6">
-            <h3 class="text-base font-bold text-neutral-800 dark:text-neutral-200 mb-4 flex items-center gap-2">
-                <x-heroicon-o-credit-card class="w-5 h-5 text-indigo-600 dark:text-indigo-400" />
-                {{ __('settings.pm_select_title') }}
-            </h3>
-
+        @if($compact)
+            {{-- Modo compacto: solo tarjetas sin título --}}
             <div class="flex flex-wrap gap-2">
                 @foreach($paymentMethods as $pm)
                     <div
                         wire:click="togglePaymentMethod({{ $pm->id }})"
                         class="payment-card-official {{ in_array($pm->id, $selectedPaymentMethods) ? 'payment-card-selected' : '' }}
-                               relative flex items-center justify-center p-2 rounded-lg
-                               h-[56px] w-[84px] shrink-0
+                               relative flex items-center justify-center p-1.5 rounded-lg
+                               h-11 w-[4.5rem] shrink-0
                                bg-white dark:bg-neutral-800"
                         role="button"
                         tabindex="0"
                         aria-pressed="{{ in_array($pm->id, $selectedPaymentMethods) ? 'true' : 'false' }}"
                         aria-label="{{ __('settings.pm_select_aria', ['name' => $pm->name]) }}"
+                        title="{{ $pm->name }}"
                     >
-                        {{-- Checkmark en la esquina --}}
                         <div class="payment-checkmark absolute top-1 right-1 z-10">
-                            <div class="w-4.5 h-4.5 rounded-full bg-indigo-600 dark:bg-indigo-500 flex items-center justify-center shadow-md">
+                            <div class="w-4 h-4 rounded-full bg-indigo-600 dark:bg-indigo-500 flex items-center justify-center shadow-sm">
                                 <x-heroicon-o-check class="w-3 h-3 text-white stroke-[3]" />
                             </div>
                         </div>
-
-                        {{-- Logo del método de pago --}}
                         <div class="payment-logo-container w-full h-full flex items-center justify-center overflow-hidden">
                             @if($pm->hasLogo())
-                                <img
-                                    src="{{ asset('images/' . $pm->getLogo()) }}"
-                                    alt="{{ $pm->name }}"
-                                    class="payment-logo-img w-full h-full object-contain px-1 py-0"
-                                    loading="lazy"
-                                />
+                                <img src="{{ asset('images/' . $pm->getLogo()) }}" alt="{{ $pm->name }}"
+                                     class="payment-logo-img w-full h-full object-contain" loading="lazy" />
                             @else
-                                <div class="flex items-center justify-center w-full h-full bg-neutral-100 dark:bg-neutral-700 rounded">
-                                    <x-dynamic-component
-                                        :component="'heroicon-o-' . $pm->getIcon()"
-                                        class="w-8 h-8 text-neutral-600 dark:text-neutral-400"
-                                    />
-                                </div>
+                                <x-dynamic-component :component="'heroicon-o-' . $pm->getIcon()"
+                                    class="w-6 h-6 text-neutral-600 dark:text-neutral-400" />
                             @endif
                         </div>
                     </div>
                 @endforeach
             </div>
-        </div>
+        @else
+            {{-- Modo normal: con título --}}
+            <div class="mb-6">
+                <h3 class="text-base font-bold text-neutral-800 dark:text-neutral-200 mb-4 flex items-center gap-2">
+                    <x-heroicon-o-credit-card class="w-5 h-5 text-indigo-600 dark:text-indigo-400" />
+                    {{ __('settings.pm_select_title') }}
+                </h3>
+                <div class="flex flex-wrap gap-2">
+                    @foreach($paymentMethods as $pm)
+                        <div
+                            wire:click="togglePaymentMethod({{ $pm->id }})"
+                            class="payment-card-official {{ in_array($pm->id, $selectedPaymentMethods) ? 'payment-card-selected' : '' }}
+                                   relative flex items-center justify-center p-2 rounded-lg
+                                   h-[56px] w-[84px] shrink-0
+                                   bg-white dark:bg-neutral-800"
+                            role="button"
+                            tabindex="0"
+                            aria-pressed="{{ in_array($pm->id, $selectedPaymentMethods) ? 'true' : 'false' }}"
+                            aria-label="{{ __('settings.pm_select_aria', ['name' => $pm->name]) }}"
+                        >
+                            <div class="payment-checkmark absolute top-1 right-1 z-10">
+                                <div class="w-4.5 h-4.5 rounded-full bg-indigo-600 dark:bg-indigo-500 flex items-center justify-center shadow-md">
+                                    <x-heroicon-o-check class="w-3 h-3 text-white stroke-[3]" />
+                                </div>
+                            </div>
+                            <div class="payment-logo-container w-full h-full flex items-center justify-center overflow-hidden">
+                                @if($pm->hasLogo())
+                                    <img src="{{ asset('images/' . $pm->getLogo()) }}" alt="{{ $pm->name }}"
+                                         class="payment-logo-img w-full h-full object-contain px-1 py-0" loading="lazy" />
+                                @else
+                                    <div class="flex items-center justify-center w-full h-full bg-neutral-100 dark:bg-neutral-700 rounded">
+                                        <x-dynamic-component :component="'heroicon-o-' . $pm->getIcon()"
+                                            class="w-8 h-8 text-neutral-600 dark:text-neutral-400" />
+                                    </div>
+                                @endif
+                            </div>
+                        </div>
+                    @endforeach
+                </div>
+            </div>
+        @endif
     @else
-        <div class="mb-6 p-4 rounded-xl border-2 border-dashed border-amber-300 bg-amber-50 dark:border-amber-700 dark:bg-amber-900/20">
-            <div class="flex items-start gap-3">
-                <x-heroicon-o-exclamation-triangle class="w-6 h-6 text-amber-600 dark:text-amber-400 shrink-0 mt-0.5" />
-                <div>
-                    <div class="text-sm font-bold text-amber-900 dark:text-amber-100">
-                        {{ __('settings.pm_no_methods') }}
-                    </div>
-                    <div class="text-xs text-amber-700 dark:text-amber-300 mt-1">
-                        {!! __('settings.pm_no_methods_hint', ['url' => route('payment-methods.index')]) !!}
+        @if($compact)
+            <a href="{{ route('payment-methods.index') }}"
+               class="inline-flex items-center gap-1.5 px-2.5 py-1.5 rounded-lg text-xs font-medium
+                      text-amber-700 bg-amber-50 border border-amber-200 hover:bg-amber-100
+                      dark:text-amber-300 dark:bg-amber-900/20 dark:border-amber-700 transition-colors">
+                <x-heroicon-o-exclamation-triangle class="w-3.5 h-3.5" />
+                {{ __('settings.pm_no_methods') }}
+            </a>
+        @else
+            <div class="mb-6 p-4 rounded-xl border-2 border-dashed border-amber-300 bg-amber-50 dark:border-amber-700 dark:bg-amber-900/20">
+                <div class="flex items-start gap-3">
+                    <x-heroicon-o-exclamation-triangle class="w-6 h-6 text-amber-600 dark:text-amber-400 shrink-0 mt-0.5" />
+                    <div>
+                        <div class="text-sm font-bold text-amber-900 dark:text-amber-100">{{ __('settings.pm_no_methods') }}</div>
+                        <div class="text-xs text-amber-700 dark:text-amber-300 mt-1">
+                            {!! __('settings.pm_no_methods_hint', ['url' => route('payment-methods.index')]) !!}
+                        </div>
                     </div>
                 </div>
             </div>
-        </div>
+        @endif
     @endif
 </div>

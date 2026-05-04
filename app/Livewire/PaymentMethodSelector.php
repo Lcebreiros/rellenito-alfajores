@@ -9,6 +9,7 @@ use Livewire\Attributes\On;
 class PaymentMethodSelector extends Component
 {
     public array $selectedPaymentMethods = [];
+    public bool $compact = false;
 
     public function mount()
     {
