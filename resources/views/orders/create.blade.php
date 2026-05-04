@@ -2,7 +2,7 @@
 
 @push('styles')
 <style>
-@media (min-width: 768px) {
+@media (min-width: 1024px) {
   html, body { overflow: hidden !important; height: 100% !important; }
   .app-main { overflow: hidden !important; min-height: 0 !important; height: 100dvh !important; }
   .app-main > main { overflow: hidden !important; }
@@ -18,13 +18,13 @@
 
 @section('content')
 <div
-  class="max-w-screen-2xl mx-auto px-3 sm:px-6 md:flex md:flex-col md:overflow-hidden md:h-full"
+  class="max-w-screen-2xl mx-auto px-3 sm:px-6 lg:flex lg:flex-col lg:overflow-hidden lg:h-full"
   x-data="receiptUI()"
   x-init="init()"
 >
 
   {{-- Mensajes + payment: fijos arriba en desktop --}}
-  <div class="md:flex-shrink-0">
+  <div class="lg:flex-shrink-0">
     @if(session('ok'))
       <div class="mb-3 rounded-lg border border-green-200 bg-green-50 text-green-800 px-3 py-2 text-sm
                   dark:border-green-700 dark:bg-green-900/20 dark:text-green-200">
@@ -45,12 +45,12 @@
   </div>
 
   {{-- Layout responsive: en desktop ocupa el espacio restante sin scroll de página --}}
-  <div class="grid grid-cols-1 md:grid-cols-12 gap-4 min-w-0 md:flex-1 md:min-h-0 md:overflow-hidden">
+  <div class="grid grid-cols-1 lg:grid-cols-12 gap-4 min-w-0 lg:flex-1 lg:min-h-0 lg:overflow-hidden">
 
     {{-- IZQUIERDA: en desktop scrollea internamente --}}
-    <section class="md:col-span-8 min-w-0 md:h-full md:overflow-y-auto">
+    <section class="lg:col-span-8 min-w-0 lg:h-full lg:overflow-y-auto">
       <div class="rounded-xl border border-slate-200 bg-white p-3 dark:border-neutral-700 dark:bg-neutral-900
-                  min-h-[calc(100svh-9rem)] md:min-h-0">
+                  min-h-[calc(100svh-9rem)] lg:min-h-0">
 
         {{-- Scanner HID: detecta lectores físicos USB/Bluetooth --}}
         <div class="mb-3">
@@ -79,17 +79,17 @@
     </section>
 
     {{-- DERECHA: en desktop flex column fija, sin scroll de página --}}
-    <aside class="md:col-span-4 min-w-0 space-y-4 md:space-y-0 md:h-full md:flex md:flex-col md:gap-3 md:overflow-hidden">
-      <div class="md:flex-shrink-0">
+    <aside class="lg:col-span-4 min-w-0 space-y-4 lg:space-y-0 lg:h-full lg:flex lg:flex-col lg:gap-3 lg:overflow-hidden">
+      <div class="lg:flex-shrink-0">
         <livewire:cash-register :key="'cash-register'" />
       </div>
 
-      <div class="md:flex-shrink-0">
+      <div class="lg:flex-shrink-0">
         <livewire:schedule-order :key="'schedule-order'" />
       </div>
 
       {{-- OrderSidebar: flex-1 para ocupar el espacio restante --}}
-      <div class="md:flex-1 md:min-h-0 md:overflow-hidden">
+      <div class="lg:flex-1 lg:min-h-0 lg:overflow-hidden">
         <livewire:order-sidebar :key="'order-sidebar'" />
       </div>
     </aside>
