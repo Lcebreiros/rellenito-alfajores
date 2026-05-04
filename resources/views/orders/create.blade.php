@@ -15,7 +15,8 @@
   <h1 class="text-xl font-semibold text-gray-800 dark:text-neutral-100 leading-tight transition-colors shrink-0">
     {{ __('orders.create_title') }}
   </h1>
-  <div class="flex-1 min-w-0 flex items-center justify-end">
+  <div class="flex-1 min-w-0 flex items-center gap-2 justify-end">
+    <livewire:cash-register :compact="true" :key="'cash-register'" />
     <livewire:payment-method-selector :compact="true" :key="'payment-method-selector'" />
   </div>
 </div>
@@ -101,15 +102,11 @@
     {{-- DERECHA: en desktop flex column fija, sin scroll de página --}}
     <aside class="lg:col-span-4 min-w-0 space-y-4 lg:space-y-0 lg:h-full lg:flex lg:flex-col lg:gap-3 lg:overflow-hidden">
       <div class="lg:flex-shrink-0">
-        <livewire:cash-register :key="'cash-register'" />
-      </div>
-
-      <div class="lg:flex-shrink-0">
         <livewire:schedule-order :key="'schedule-order'" />
       </div>
 
-      {{-- OrderSidebar: flex-1 para ocupar el espacio restante --}}
-      <div class="lg:flex-1 lg:min-h-0 lg:overflow-hidden">
+      {{-- OrderSidebar: flex-1, wrapper como flex column para que h-full resuelva bien --}}
+      <div class="lg:flex-1 lg:min-h-0 lg:overflow-hidden lg:flex lg:flex-col">
         <livewire:order-sidebar :key="'order-sidebar'" />
       </div>
     </aside>

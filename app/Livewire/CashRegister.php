@@ -23,6 +23,7 @@ class CashRegister extends Component
     public string $closingNote   = '';
 
     // UI state
+    public bool $compact          = false;
     public bool $showOpenForm     = false;
     public bool $showMovementForm = false;
     public bool $showCloseForm    = false;
