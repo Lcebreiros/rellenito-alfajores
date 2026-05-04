@@ -167,6 +167,14 @@ return [
         'clear_filters'     => 'Clear search',
         'add_favorite'      => 'Add to favorites',
         'remove_favorite'   => 'Remove from favorites',
+        'tab_products'      => 'Products',
+        'tab_services'      => 'Services',
+        'search_services_ph'=> 'Search services…',
+        'sort_services_name_asc'  => 'A → Z',
+        'sort_services_name_desc' => 'Z → A',
+        'sort_services_price_asc' => 'Lowest price',
+        'sort_services_price_desc'=> 'Highest price',
+        'no_services'       => 'No services found.',
     ],
 
     'edit' => [

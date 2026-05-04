@@ -94,8 +94,10 @@
 
     @if($paymentMethods->isNotEmpty())
         @if($compact)
-            {{-- Modo compacto: solo tarjetas sin título --}}
-            <div class="flex flex-wrap gap-2">
+            {{-- Modo compacto: solo tarjetas sin título, con marco contenedor --}}
+            <div class="flex items-center gap-2 px-2 py-1.5 rounded-xl
+                        border border-neutral-200 dark:border-neutral-700
+                        bg-neutral-50 dark:bg-neutral-800/60 shadow-sm">
                 @foreach($paymentMethods as $pm)
                     <div
                         wire:click="togglePaymentMethod({{ $pm->id }})"

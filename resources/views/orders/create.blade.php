@@ -68,7 +68,6 @@
               class="px-3 py-1.5 rounded-md text-xs font-semibold transition-all duration-150"
             >{{ __('orders.create.tab_products') }}</button>
 
-            @if(isset($services) && !$services->isEmpty())
             <button
               @click="activeTab = 'services'"
               :class="activeTab === 'services'
@@ -76,7 +75,6 @@
                 : 'text-neutral-500 dark:text-neutral-400 hover:text-neutral-700 dark:hover:text-neutral-200'"
               class="px-3 py-1.5 rounded-md text-xs font-semibold transition-all duration-150"
             >{{ __('orders.create.tab_services') }}</button>
-            @endif
           </div>
 
           {{-- Scanner compacto a la derecha --}}
@@ -92,19 +90,10 @@
           <livewire:product-catalog :key="'product-catalog'" />
         </div>
 
-        {{-- Servicios --}}
-        @if(isset($services) && !$services->isEmpty())
-          <div x-show="activeTab === 'services'" x-cloak>
-            <div class="grid grid-cols-2 sm:grid-cols-3 gap-3">
-              @foreach($services as $s)
-                <livewire:service-card :service-id="$s->id" :key="'service-card-'.$s->id" />
-              @endforeach
-            </div>
-            @if($services->hasPages())
-              <div class="mt-4">{{ $services->links() }}</div>
-            @endif
-          </div>
-        @endif
+        {{-- Catálogo de servicios --}}
+        <div x-show="activeTab === 'services'" x-cloak>
+          <livewire:service-catalog :key="'service-catalog'" />
+        </div>
 
       </div>
     </section>

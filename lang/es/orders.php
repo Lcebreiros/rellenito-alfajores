@@ -168,6 +168,14 @@ return [
         'clear_filters'     => 'Limpiar búsqueda',
         'add_favorite'      => 'Agregar a favoritos',
         'remove_favorite'   => 'Quitar de favoritos',
+        'tab_products'      => 'Productos',
+        'tab_services'      => 'Servicios',
+        'search_services_ph'=> 'Buscar servicios…',
+        'sort_services_name_asc'  => 'A → Z',
+        'sort_services_name_desc' => 'Z → A',
+        'sort_services_price_asc' => 'Menor precio',
+        'sort_services_price_desc'=> 'Mayor precio',
+        'no_services'       => 'Sin servicios para esa búsqueda.',
     ],
 
     'edit' => [
