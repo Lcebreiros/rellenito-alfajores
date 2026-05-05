@@ -53,11 +53,11 @@
     </div>
   @endif
 
-  {{-- Layout responsive: flex en desktop para cadena correcta de alturas --}}
-  <div class="flex flex-col gap-4 min-w-0 lg:flex-row lg:flex-1 lg:min-h-0 lg:overflow-hidden">
+  {{-- Layout responsive: en desktop ocupa el espacio restante sin scroll de página --}}
+  <div class="grid grid-cols-1 lg:grid-cols-12 gap-4 min-w-0 lg:flex-1 lg:min-h-0 lg:overflow-hidden">
 
-    {{-- IZQUIERDA: flex-1, scrollea internamente --}}
-    <section class="min-w-0 lg:flex-1 lg:min-h-0 lg:overflow-y-auto">
+    {{-- IZQUIERDA: en desktop scrollea internamente --}}
+    <section class="lg:col-span-8 min-w-0 lg:h-full lg:overflow-y-auto">
       <div class="rounded-xl border border-slate-200 bg-white p-3 dark:border-neutral-700 dark:bg-neutral-900
                   min-h-[calc(100svh-9rem)] lg:min-h-0"
            x-data="{ activeTab: 'products' }">
@@ -105,8 +105,8 @@
       </div>
     </section>
 
-    {{-- DERECHA: ancho fijo, flex column, sin scroll de página --}}
-    <aside class="min-w-0 space-y-4 lg:space-y-0 lg:w-80 lg:shrink-0 lg:flex lg:flex-col lg:gap-3 lg:overflow-hidden lg:min-h-0">
+    {{-- DERECHA: en desktop flex column fija, sin scroll de página --}}
+    <aside class="lg:col-span-4 min-w-0 space-y-4 lg:space-y-0 lg:h-full lg:flex lg:flex-col lg:gap-3 lg:overflow-hidden">
       <div class="lg:flex-shrink-0">
         <livewire:schedule-order :key="'schedule-order'" />
       </div>
