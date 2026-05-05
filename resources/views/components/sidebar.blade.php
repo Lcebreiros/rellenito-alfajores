@@ -467,6 +467,20 @@
       </a>
       @endif
 
+      <!-- Compras -->
+      <a href="{{ route('purchases.index') }}" wire:navigate data-turbo="false" data-module="purchases"
+         class="nav-link {{ request()->routeIs('purchases.*') ? $active : $idle }}"
+                  :title="collapsed ? '{{ __('nav.purchases') }}' : null">
+        <span class="shrink-0 w-10 flex items-center justify-center py-2.5">
+          <svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M6 2 3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4z"/>
+            <line x1="3" y1="6" x2="21" y2="6"/>
+            <path d="M16 10a4 4 0 0 1-8 0"/>
+          </svg>
+        </span>
+        <span class="nav-label text-sm font-semibold pr-3">{{ __('nav.purchases') }}</span>
+      </a>
+
       <!-- Gastos -->
       <a href="{{ route('expenses.index') }}" wire:navigate data-turbo="false" data-module="expenses"
          class="nav-link {{ request()->routeIs('costs.*') ? $active : $idle }}"

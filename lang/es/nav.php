@@ -15,6 +15,7 @@ return [
     'bookings'        => 'Reservas',
     'spaces'          => 'Espacios',
     'invoicing'       => 'Facturación',
+    'purchases'       => 'Compras',
     'expenses'        => 'Gastos',
     'branches'        => 'Sucursales',
     'employees'       => 'Personal',

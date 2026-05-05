@@ -334,6 +334,13 @@ Route::middleware([
         Route::delete('rentals/duration-options/{durationOption}', [RentalSpaceController::class, 'destroyDurationOption'])->name('rentals.duration-options.destroy');
     });
 
+    // ============ COMPRAS ============
+    Route::get('/compras', [\App\Http\Controllers\PurchaseController::class, 'index'])->name('purchases.index');
+    Route::post('/compras/supply', [\App\Http\Controllers\PurchaseController::class, 'storeSupply'])->name('purchases.supply.store');
+    Route::post('/compras/expense', [\App\Http\Controllers\PurchaseController::class, 'storeExpense'])->name('purchases.expense.store');
+    Route::delete('/compras/supply/{purchase}', [\App\Http\Controllers\PurchaseController::class, 'destroySupply'])->name('purchases.supply.destroy');
+    Route::delete('/compras/expense/{expense}', [\App\Http\Controllers\PurchaseController::class, 'destroyExpense'])->name('purchases.expense.destroy');
+
     // ============ GASTOS ============
     Route::get('/expenses', [ExpenseController::class, 'index'])->name('expenses.index');
 

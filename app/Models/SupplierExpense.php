@@ -11,6 +11,18 @@ class SupplierExpense extends Model
 {
     use BelongsToUser, SoftDeletes;
 
+    public const CATEGORIES = [
+        'materia_prima' => 'Materia Prima',
+        'embalaje'      => 'Embalaje / Packaging',
+        'servicios'     => 'Servicios (luz, agua, gas)',
+        'alquiler'      => 'Alquiler',
+        'personal'      => 'Personal / Mano de obra',
+        'herramientas'  => 'Herramientas / Equipos',
+        'transporte'    => 'Transporte',
+        'impuestos'     => 'Impuestos / Tasas',
+        'otros'         => 'Otros',
+    ];
+
     protected $fillable = [
         'user_id',
         'supplier_id',
@@ -21,12 +33,15 @@ class SupplierExpense extends Model
         'unit',
         'frequency',
         'is_active',
+        'category',
+        'expense_date',
     ];
 
     protected $casts = [
-        'cost' => 'decimal:2',
-        'quantity' => 'decimal:3',
-        'is_active' => 'boolean',
+        'cost'         => 'decimal:2',
+        'quantity'     => 'decimal:3',
+        'is_active'    => 'boolean',
+        'expense_date' => 'date',
     ];
 
     /**
