@@ -1,4 +1,4 @@
-<div class="relative bg-white dark:bg-neutral-950 rounded-3xl shadow-xl shadow-violet-100/60 dark:shadow-black/40 ring-1 ring-violet-200/30 dark:ring-neutral-800/60 overflow-hidden backdrop-blur-sm max-h-[100dvh] md:max-h-screen lg:flex-1 lg:min-h-0 flex flex-col w-full max-w-full min-w-0">
+<div class="relative bg-white dark:bg-neutral-950 rounded-3xl shadow-xl shadow-violet-100/60 dark:shadow-black/40 ring-1 ring-violet-200/30 dark:ring-neutral-800/60 overflow-hidden backdrop-blur-sm max-h-[100dvh] md:max-h-screen lg:max-h-none lg:flex-1 lg:min-h-0 flex flex-col w-full max-w-full min-w-0">
 
   {{-- Header --}}
   <div class="px-6 py-4 bg-gradient-to-r from-violet-50/60 to-white/80 dark:from-neutral-900 dark:to-neutral-900/80 border-b border-violet-100/50 dark:border-neutral-800/60">

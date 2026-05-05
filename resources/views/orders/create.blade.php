@@ -5,7 +5,13 @@
 @media (min-width: 1024px) {
   html, body { overflow: hidden !important; height: 100% !important; }
   .app-main { overflow: hidden !important; min-height: 0 !important; height: 100dvh !important; }
-  .app-main > main { overflow: hidden !important; }
+  /* main necesita ser flex-column para que sus hijos puedan usar flex-1/min-h-0 correctamente */
+  .app-main > main {
+    overflow: hidden !important;
+    display: flex !important;
+    flex-direction: column !important;
+    min-height: 0 !important;
+  }
 }
 </style>
 @endpush
@@ -24,7 +30,7 @@
 
 @section('content')
 <div
-  class="max-w-screen-2xl mx-auto px-3 sm:px-6 lg:flex lg:flex-col lg:overflow-hidden lg:h-full"
+  class="max-w-screen-2xl mx-auto px-3 sm:px-6 lg:flex lg:flex-col lg:overflow-hidden lg:flex-1 lg:min-h-0"
   x-data="receiptUI()"
   x-init="init()"
 >
@@ -47,11 +53,11 @@
     </div>
   @endif
 
-  {{-- Layout responsive: en desktop ocupa el espacio restante sin scroll de página --}}
-  <div class="grid grid-cols-1 lg:grid-cols-12 gap-4 min-w-0 lg:flex-1 lg:min-h-0 lg:overflow-hidden">
+  {{-- Layout responsive: flex en desktop para cadena correcta de alturas --}}
+  <div class="flex flex-col gap-4 min-w-0 lg:flex-row lg:flex-1 lg:min-h-0 lg:overflow-hidden">
 
-    {{-- IZQUIERDA: en desktop scrollea internamente --}}
-    <section class="lg:col-span-8 min-w-0 lg:h-full lg:overflow-y-auto">
+    {{-- IZQUIERDA: flex-1, scrollea internamente --}}
+    <section class="min-w-0 lg:flex-1 lg:min-h-0 lg:overflow-y-auto">
       <div class="rounded-xl border border-slate-200 bg-white p-3 dark:border-neutral-700 dark:bg-neutral-900
                   min-h-[calc(100svh-9rem)] lg:min-h-0"
            x-data="{ activeTab: 'products' }">
@@ -99,8 +105,8 @@
       </div>
     </section>
 
-    {{-- DERECHA: en desktop flex column fija, sin scroll de página --}}
-    <aside class="lg:col-span-4 min-w-0 space-y-4 lg:space-y-0 lg:h-full lg:flex lg:flex-col lg:gap-3 lg:overflow-hidden">
+    {{-- DERECHA: ancho fijo, flex column, sin scroll de página --}}
+    <aside class="min-w-0 space-y-4 lg:space-y-0 lg:w-80 lg:shrink-0 lg:flex lg:flex-col lg:gap-3 lg:overflow-hidden lg:min-h-0">
       <div class="lg:flex-shrink-0">
         <livewire:schedule-order :key="'schedule-order'" />
       </div>

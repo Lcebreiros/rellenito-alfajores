@@ -1,4 +1,4 @@
-<div class="flex flex-col gap-3 min-h-[calc(100svh-9rem)]">
+<div class="flex flex-col gap-3 min-h-[calc(100svh-9rem)] lg:min-h-0">
 
     {{-- ── Barra de búsqueda + controles ─────────────────────────────── --}}
     <div class="flex flex-col sm:flex-row gap-2 items-stretch sm:items-center">
