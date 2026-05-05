@@ -4,12 +4,21 @@
 <style>
 @media (min-width: 1024px) {
   html, body { overflow: hidden !important; height: 100% !important; }
-  /* Forzamos a que el wrapper de Livewire y el main ocupen el 100% */
-  .app-main, .app-main > main { 
-    height: 100vh !important; 
-    display: flex !important; 
-    flex-direction: column !important; 
+
+  /* app-main ocupa exactamente el viewport */
+  .app-main {
+    height: 100dvh !important;
     overflow: hidden !important;
+  }
+
+  /* main = espacio restante después del header (NO 100vh, eso lo desborda) */
+  .app-main > main {
+    flex: 1 1 0% !important;
+    min-height: 0 !important;
+    overflow: hidden !important;
+    display: flex !important;
+    flex-direction: column !important;
+    padding: 0.5rem !important;   /* reemplaza el p-6 del layout para ganar espacio */
   }
 }
 </style>
@@ -29,7 +38,7 @@
 
 @section('content')
 <div
-  class="max-w-screen-2xl mx-auto px-3 sm:px-6 lg:flex lg:flex-col lg:flex-1 lg:min-h-0 lg:w-full lg:overflow-hidden"
+  class="px-3 sm:px-4 lg:px-0 lg:flex lg:flex-col lg:flex-1 lg:min-h-0 lg:w-full lg:overflow-hidden"
   x-data="receiptUI()"
   x-init="init()"
 >
