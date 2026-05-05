@@ -4,13 +4,12 @@
 <style>
 @media (min-width: 1024px) {
   html, body { overflow: hidden !important; height: 100% !important; }
-  .app-main { overflow: hidden !important; min-height: 0 !important; height: 100dvh !important; }
-  /* main necesita ser flex-column para que sus hijos puedan usar flex-1/min-h-0 correctamente */
-  .app-main > main {
+  /* Forzamos a que el wrapper de Livewire y el main ocupen el 100% */
+  .app-main, .app-main > main { 
+    height: 100vh !important; 
+    display: flex !important; 
+    flex-direction: column !important; 
     overflow: hidden !important;
-    display: flex !important;
-    flex-direction: column !important;
-    min-height: 0 !important;
   }
 }
 </style>
@@ -30,7 +29,7 @@
 
 @section('content')
 <div
-  class="max-w-screen-2xl mx-auto px-3 sm:px-6 lg:flex lg:flex-col lg:overflow-hidden lg:flex-1 lg:min-h-0"
+  class="max-w-screen-2xl mx-auto px-3 sm:px-6 lg:flex lg:flex-col lg:flex-1 lg:min-h-0 lg:w-full lg:overflow-hidden"
   x-data="receiptUI()"
   x-init="init()"
 >
@@ -56,14 +55,14 @@
   {{-- Layout responsive: en desktop ocupa el espacio restante sin scroll de página --}}
   <div class="grid grid-cols-1 lg:grid-cols-12 gap-4 min-w-0 lg:flex-1 lg:min-h-0 lg:overflow-hidden">
 
-    {{-- IZQUIERDA: en desktop scrollea internamente --}}
-    <section class="lg:col-span-8 min-w-0 lg:h-full lg:overflow-y-auto">
+    {{-- IZQUIERDA: flex column para que el scroll esté solo en el catálogo --}}
+    <section class="lg:col-span-8 min-w-0 lg:h-full lg:flex lg:flex-col">
       <div class="rounded-xl border border-slate-200 bg-white p-3 dark:border-neutral-700 dark:bg-neutral-900
-                  min-h-[calc(100svh-9rem)] lg:min-h-0"
+                  flex flex-col min-h-[calc(100svh-9rem)] lg:min-h-0 lg:h-full lg:overflow-hidden"
            x-data="{ activeTab: 'products' }">
 
-        {{-- Fila superior: tabs izquierda + scanner derecha --}}
-        <div class="flex items-center gap-3 mb-3">
+        {{-- Fila superior fija: tabs izquierda + scanner derecha --}}
+        <div class="flex items-center gap-3 mb-3 flex-shrink-0">
 
           {{-- Selector Productos / Servicios --}}
           <div class="flex items-center gap-0.5 p-0.5 bg-neutral-100 dark:bg-neutral-800 rounded-lg shrink-0">
@@ -92,14 +91,14 @@
           </div>
         </div>
 
-        {{-- Catálogo de productos --}}
-        <div x-show="activeTab === 'products'">
-          <livewire:product-catalog :key="'product-catalog'" />
-        </div>
-
-        {{-- Catálogo de servicios --}}
-        <div x-show="activeTab === 'services'" x-cloak>
-          <livewire:service-catalog :key="'service-catalog'" />
+        {{-- Área con scroll interno: solo el catálogo scrollea --}}
+        <div class="flex-1 overflow-y-auto min-h-0 pr-1">
+          <div x-show="activeTab === 'products'">
+            <livewire:product-catalog :key="'product-catalog'" />
+          </div>
+          <div x-show="activeTab === 'services'" x-cloak>
+            <livewire:service-catalog :key="'service-catalog'" />
+          </div>
         </div>
 
       </div>
