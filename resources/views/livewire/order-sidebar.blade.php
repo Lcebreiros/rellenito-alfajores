@@ -63,8 +63,10 @@
                   </div>
                 </div>
 
+                @php $itIsWeight = in_array($it['unit'] ?? 'u', ['g','kg']); @endphp
                 <div class="flex items-center gap-2 flex-wrap justify-end w-full">
                   <div class="flex items-center bg-slate-50 dark:bg-neutral-700 rounded-lg border border-slate-200 dark:border-neutral-600">
+                    @if(!$itIsWeight)
                     <button wire:click="sub({{ $it['id'] }})" wire:loading.attr="disabled"
                       class="h-7 w-7 flex items-center justify-center rounded-l-lg hover:bg-slate-100 dark:hover:bg-neutral-600
                              text-slate-700 dark:text-neutral-200 transition-colors duration-200"
@@ -73,16 +75,22 @@
                         <path stroke-linecap="round" stroke-linejoin="round" d="M5 12h14"/>
                       </svg>
                     </button>
-                    <input
-                      type="text"
-                      inputmode="numeric"
-                      pattern="[0-9]*"
-                      value="{{ $it['qty'] }}"
-                      wire:change="updateQty({{ $it['id'] }}, $event.target.value)"
-                      wire:keydown.enter.prevent="$wire.updateQty({{ $it['id'] }}, $event.target.value)"
-                      class="h-7 w-10 text-center bg-transparent text-slate-900 dark:text-neutral-100 text-xs font-semibold border-x border-slate-200 dark:border-neutral-500 focus:outline-none focus:ring-1 focus:ring-indigo-500/70"
-                      aria-label="{{ __('orders.sidebar.qty_label') }}"
-                    />
+                    @endif
+                    <div class="inline-flex items-center">
+                      <input
+                        type="text"
+                        inputmode="decimal"
+                        value="{{ $itIsWeight ? number_format($it['qty'], 3, '.', '') : (int)$it['qty'] }}"
+                        wire:change="updateQty({{ $it['id'] }}, $event.target.value)"
+                        wire:keydown.enter.prevent="$wire.updateQty({{ $it['id'] }}, $event.target.value)"
+                        class="h-7 {{ $itIsWeight ? 'w-16' : 'w-10' }} text-center bg-transparent text-slate-900 dark:text-neutral-100 text-xs font-semibold {{ !$itIsWeight ? 'border-x border-slate-200 dark:border-neutral-500' : 'border-l border-slate-200 dark:border-neutral-500 rounded-l-lg' }} focus:outline-none focus:ring-1 focus:ring-indigo-500/70"
+                        aria-label="{{ __('orders.sidebar.qty_label') }}"
+                      />
+                      @if($itIsWeight)
+                        <span class="h-7 px-1.5 flex items-center text-[10px] font-semibold text-slate-500 dark:text-neutral-400 border-x border-slate-200 dark:border-neutral-500">{{ $it['unit'] }}</span>
+                      @endif
+                    </div>
+                    @if(!$itIsWeight)
                     <button wire:click="add({{ $it['id'] }})" wire:loading.attr="disabled"
                       class="h-7 w-7 flex items-center justify-center rounded-r-lg hover:bg-slate-100 dark:hover:bg-neutral-600
                              text-slate-700 dark:text-neutral-200 transition-colors duration-200"
@@ -91,6 +99,7 @@
                         <path stroke-linecap="round" stroke-linejoin="round" d="M12 6v12M6 12h12"/>
                       </svg>
                     </button>
+                    @endif
                   </div>
                   
                   <button wire:click="remove({{ $it['id'] }})" wire:loading.attr="disabled"
@@ -130,18 +139,21 @@
                     <div class="font-medium text-slate-900 dark:text-neutral-100 text-sm">{{ $it['name'] }}</div>
                     <div class="text-xs text-slate-500 dark:text-neutral-400">$ {{ number_format($it['price'],2,',','.') }}</div>
                   </td>
+                  @php $itIsWeight = in_array($it['unit'] ?? 'u', ['g','kg']); @endphp
                   <td class="py-3 px-3 text-center">
                     <div class="inline-flex items-center gap-1 justify-center">
                       <input
                         type="text"
-                        inputmode="numeric"
-                        pattern="[0-9]*"
-                        value="{{ $it['qty'] }}"
+                        inputmode="decimal"
+                        value="{{ $itIsWeight ? number_format($it['qty'], 3, '.', '') : (int)$it['qty'] }}"
                         wire:change="updateQty({{ $it['id'] }}, $event.target.value)"
                         wire:keydown.enter.prevent="$wire.updateQty({{ $it['id'] }}, $event.target.value)"
-                        class="h-8 w-12 text-center rounded-lg border border-slate-200 dark:border-neutral-700 bg-slate-50 dark:bg-neutral-800 text-slate-900 dark:text-neutral-100 text-sm font-semibold focus:outline-none focus:ring-1 focus:ring-indigo-500/70"
+                        class="h-8 {{ $itIsWeight ? 'w-20' : 'w-12' }} text-center rounded-lg border border-slate-200 dark:border-neutral-700 bg-slate-50 dark:bg-neutral-800 text-slate-900 dark:text-neutral-100 text-sm font-semibold focus:outline-none focus:ring-1 focus:ring-indigo-500/70"
                         aria-label="{{ __('orders.sidebar.qty_label') }}"
                       />
+                      @if($itIsWeight)
+                        <span class="text-xs font-semibold text-slate-500 dark:text-neutral-400">{{ $it['unit'] }}</span>
+                      @endif
                     </div>
                   </td>
                   <td class="py-3 px-3 text-right">

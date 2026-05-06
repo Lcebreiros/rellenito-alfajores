@@ -10,7 +10,7 @@ class OrderItem extends Model
     use BelongsToUser;
 
     protected $fillable = ['user_id','order_id', 'product_id','service_id','quantity','unit_price','subtotal'];
-    protected $casts = ['unit_price'=>'decimal:2','subtotal'=>'decimal:2'];
+    protected $casts = ['unit_price'=>'decimal:2','subtotal'=>'decimal:2','quantity'=>'decimal:3'];
 
     public function order(){ return $this->belongsTo(Order::class); }
     public function product()

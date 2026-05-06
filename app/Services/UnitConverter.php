@@ -13,6 +13,7 @@ class UnitConverter {
     $u    = ['u'=>1, 'unidad'=>1];
 
     if ($base === 'g'  && isset($mass[$from])) return $mass[$from];
+    if ($base === 'kg' && isset($mass[$from])) return $mass[$from] / 1000;
     if ($base === 'ml' && isset($vol[$from]))  return $vol[$from];
     if ($base === 'u'  && isset($u[$from]))    return $u[$from];
 

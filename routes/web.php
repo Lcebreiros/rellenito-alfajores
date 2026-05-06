@@ -340,6 +340,8 @@ Route::middleware([
     Route::post('/compras/expense', [\App\Http\Controllers\PurchaseController::class, 'storeExpense'])->name('purchases.expense.store');
     Route::delete('/compras/supply/{purchase}', [\App\Http\Controllers\PurchaseController::class, 'destroySupply'])->name('purchases.supply.destroy');
     Route::delete('/compras/expense/{expense}', [\App\Http\Controllers\PurchaseController::class, 'destroyExpense'])->name('purchases.expense.destroy');
+    Route::post('/compras/product', [\App\Http\Controllers\PurchaseController::class, 'storeProduct'])->name('purchases.product.store');
+    Route::delete('/compras/product/{purchase}', [\App\Http\Controllers\PurchaseController::class, 'destroyProduct'])->name('purchases.product.destroy');
 
     // ============ GASTOS ============
     Route::get('/expenses', [ExpenseController::class, 'index'])->name('expenses.index');

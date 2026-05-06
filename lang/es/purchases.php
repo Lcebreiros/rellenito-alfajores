@@ -15,6 +15,7 @@ return [
     'form_title'         => 'Registrar compra o gasto',
     'tab_supply'         => 'Compra de insumo',
     'tab_expense'        => 'Gasto general',
+    'tab_product'        => 'Compra de producto',
 
     // Supply tab
     'field_supply'       => 'Insumo',
@@ -34,9 +35,18 @@ return [
     'desc_placeholder'   => 'Ej: Compra de harina, pago de alquiler...',
     'no_supplier'        => 'Sin proveedor',
 
+    // Product tab
+    'field_product'      => 'Producto',
+    'select_product'     => 'Seleccionar producto...',
+    'no_products_hint'   => 'No hay productos activos.',
+
     // Badges
     'badge_supply'       => 'Insumo',
     'badge_expense'      => 'Gasto',
+    'badge_product'      => 'Producto',
+
+    // Summary cards
+    'card_products'      => 'Compras de productos',
 
     // Empty state
     'empty'              => 'No hay registros para este mes.',
@@ -48,5 +58,6 @@ return [
     // Flash messages
     'supply_stored'      => 'Compra de insumo registrada correctamente.',
     'expense_stored'     => 'Gasto registrado correctamente.',
+    'product_stored'     => 'Compra de producto registrada. Stock actualizado.',
     'deleted'            => 'Registro eliminado.',
 ];

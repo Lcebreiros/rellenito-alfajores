@@ -11,9 +11,9 @@ use DomainException;
 class StockService
 {
     /**
-     * @param int $qtyChange positivo suma stock, negativo descuenta
+     * @param float $qtyChange positivo suma stock, negativo descuenta
      */
-    public function adjust(Product $product, int $qtyChange, string $reason = 'manual', ?Model $reference = null): Product
+    public function adjust(Product $product, float $qtyChange, string $reason = 'manual', ?Model $reference = null): Product
 {
     return DB::transaction(function () use ($product, $qtyChange, $reason, $reference) {
         // Bloqueo y recarga

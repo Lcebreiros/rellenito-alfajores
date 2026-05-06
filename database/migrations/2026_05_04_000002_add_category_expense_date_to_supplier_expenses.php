@@ -8,9 +8,14 @@ return new class extends Migration
 {
     public function up(): void
     {
+        if (!Schema::hasTable('supplier_expenses')) return;
         Schema::table('supplier_expenses', function (Blueprint $table) {
-            $table->string('category', 50)->nullable()->after('is_active');
-            $table->date('expense_date')->nullable()->after('category');
+            if (!Schema::hasColumn('supplier_expenses', 'category')) {
+                $table->string('category', 50)->nullable()->after('is_active');
+            }
+            if (!Schema::hasColumn('supplier_expenses', 'expense_date')) {
+                $table->date('expense_date')->nullable()->after('category');
+            }
         });
     }
 

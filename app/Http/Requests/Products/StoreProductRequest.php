@@ -34,7 +34,7 @@ class StoreProductRequest extends FormRequest
             'max_stock' => ['nullable', 'integer', 'min:0'],
             'category' => ['nullable', 'string', 'max:100'],
             'brand' => ['nullable', 'string', 'max:100'],
-            'unit' => ['nullable', 'string', 'max:50'],
+            'unit' => ['nullable', 'in:u,g,kg'],
             'is_active' => ['nullable', 'boolean'],
             'image' => ['nullable', new SecureFileUpload()],
         ];

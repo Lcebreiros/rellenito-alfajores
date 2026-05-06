@@ -272,7 +272,7 @@ class Order extends Model
                     'quantity' => $item->quantity
                 ]);
 
-                $stock->adjust($product, - (int) $item->quantity, 'venta', $this);
+                $stock->adjust($product, - (float) $item->quantity, 'venta', $this);
 
                 // Descontar insumos del producto
                 $this->reduceSuppliesForProduct($product, $item->quantity);

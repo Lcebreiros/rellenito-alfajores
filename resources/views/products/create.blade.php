@@ -93,6 +93,30 @@
         <p class="mt-1 text-xs text-neutral-500 dark:text-neutral-400">{{ __('products.form.barcode_hint') }}</p>
       </div>
 
+      {{-- Unidad de venta --}}
+      <div>
+        <label class="block text-sm font-medium text-neutral-700 dark:text-neutral-200 mb-2">
+          Unidad de venta
+        </label>
+        <div class="inline-flex gap-1 p-1 bg-neutral-100 dark:bg-neutral-800 rounded-lg">
+          @foreach(['u' => 'Unidades', 'g' => 'Gramos', 'kg' => 'Kilogramos'] as $val => $label)
+            <label class="cursor-pointer">
+              <input type="radio" name="unit" value="{{ $val }}"
+                     class="sr-only peer"
+                     {{ old('unit', 'u') === $val ? 'checked' : '' }}>
+              <span class="block px-3 py-1.5 rounded-md text-xs font-semibold transition-all
+                           text-neutral-500 dark:text-neutral-400
+                           peer-checked:bg-white peer-checked:text-neutral-900 peer-checked:shadow-sm
+                           dark:peer-checked:bg-neutral-700 dark:peer-checked:text-neutral-100
+                           hover:text-neutral-700 dark:hover:text-neutral-200">
+                {{ $label }}
+              </span>
+            </label>
+          @endforeach
+        </div>
+        <p class="mt-1 text-xs text-neutral-500 dark:text-neutral-400">Define cómo se mide y vende este producto.</p>
+      </div>
+
       {{-- Usa stock --}}
       <div class="flex items-center justify-between rounded-lg border border-neutral-200 bg-neutral-50 p-4
                   dark:border-neutral-800 dark:bg-neutral-950/40">

@@ -2,6 +2,8 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\Product;
+use App\Models\ProductPurchase;
 use App\Models\Supply;
 use App\Models\SupplyPurchase;
 use App\Models\Supplier;
@@ -73,17 +75,41 @@ class PurchaseController extends Controller
                 'category' => $e->category,
             ]);
 
-        $filtered       = $rawPurchases->concat($rawExpenses)->sortByDesc('date');
-        $grouped        = $filtered->groupBy('date')->sortKeysDesc();
-        $totalPurchases = $rawPurchases->sum('amount');
-        $totalExpenses  = $rawExpenses->sum('amount');
+        $rawProductPurchases = ProductPurchase::with(['product:id,name'])
+            ->where('user_id', $user->id)
+            ->where(function ($q) use ($year, $mon) {
+                $q->where(fn($q1) => $q1->whereNotNull('purchased_at')
+                    ->whereYear('purchased_at', $year)->whereMonth('purchased_at', $mon))
+                  ->orWhere(fn($q2) => $q2->whereNull('purchased_at')
+                    ->whereYear('created_at', $year)->whereMonth('created_at', $mon));
+            })
+            ->orderByRaw('IFNULL(purchased_at, DATE(created_at)) DESC')
+            ->get()
+            ->map(fn($p) => [
+                'id'       => $p->id,
+                'type'     => 'product',
+                'date'     => $p->purchased_at?->format('Y-m-d') ?? $p->created_at->format('Y-m-d'),
+                'name'     => $p->product?->name ?? '—',
+                'detail'   => $p->qty . ' ' . $p->unit,
+                'amount'   => (float) $p->total_cost,
+                'supplier' => null,
+                'category' => null,
+            ]);
+
+        $filtered        = $rawPurchases->concat($rawExpenses)->concat($rawProductPurchases)->sortByDesc('date');
+        $grouped         = $filtered->groupBy('date')->sortKeysDesc();
+        $totalPurchases  = $rawPurchases->sum('amount');
+        $totalExpenses   = $rawExpenses->sum('amount');
+        $totalProducts   = $rawProductPurchases->sum('amount');
 
         $supplies  = Supply::availableFor($user)->select('id', 'name', 'base_unit')->orderBy('name')->get();
         $suppliers = Supplier::select('id', 'name')->where('is_active', true)->orderBy('name')->get();
+        $products  = Product::where('user_id', $user->id)->where('is_active', true)
+                        ->select('id', 'name', 'unit')->orderBy('name')->get();
 
         return view('purchases.index', compact(
-            'grouped', 'totalPurchases', 'totalExpenses',
-            'currentMonth', 'months', 'supplies', 'suppliers'
+            'grouped', 'totalPurchases', 'totalExpenses', 'totalProducts',
+            'currentMonth', 'months', 'supplies', 'suppliers', 'products'
         ));
     }
 
@@ -153,6 +179,63 @@ class PurchaseController extends Controller
         ]);
 
         return back()->with('ok', __('purchases.expense_stored'));
+    }
+
+    public function storeProduct(Request $request): RedirectResponse
+    {
+        $data = $request->validate([
+            'product_id'   => ['required', 'integer'],
+            'qty'          => ['required', 'numeric', 'gt:0'],
+            'unit'         => ['required', 'in:u,g,kg'],
+            'total_cost'   => ['required', 'numeric', 'gt:0'],
+            'purchased_at' => ['nullable', 'date'],
+        ]);
+
+        $user    = auth()->user();
+        $product = Product::where('user_id', $user->id)->findOrFail($data['product_id']);
+
+        $productUnit = $product->unit ?? 'u';
+
+        try {
+            $factor  = UnitConverter::factorToBase($data['unit'], $productUnit);
+        } catch (\InvalidArgumentException) {
+            return back()->withErrors(['unit' => __('purchases.unit_incompatible')])->withInput();
+        }
+
+        $stockQty = $data['qty'] * $factor;
+
+        ProductPurchase::create([
+            'user_id'      => $user->id,
+            'product_id'   => $product->id,
+            'qty'          => $data['qty'],
+            'unit'         => $data['unit'],
+            'total_cost'   => $data['total_cost'],
+            'purchased_at' => $data['purchased_at'] ?? now()->toDateString(),
+        ]);
+
+        $product->increment('stock', $stockQty);
+
+        return back()->with('ok', __('purchases.product_stored'));
+    }
+
+    public function destroyProduct(ProductPurchase $purchase): RedirectResponse
+    {
+        $product = $purchase->product;
+
+        if ($product && $product->user_id === auth()->id()) {
+            $productUnit = $product->unit ?? 'u';
+            try {
+                $factor   = UnitConverter::factorToBase($purchase->unit, $productUnit);
+                $stockQty = $purchase->qty * $factor;
+                $product->decrement('stock', $stockQty);
+            } catch (\InvalidArgumentException) {
+                // unidad incompatible — eliminar sin revertir stock
+            }
+        }
+
+        $purchase->delete();
+
+        return back()->with('ok', __('purchases.deleted'));
     }
 
     public function destroySupply(SupplyPurchase $purchase): RedirectResponse

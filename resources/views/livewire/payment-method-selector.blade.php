@@ -99,6 +99,15 @@
         .payment-methods-scroll::-webkit-scrollbar {
             display: none;
         }
+
+        /* Tamaño fijo de las tarjetas en modo compacto — evita que el flex las ensanche */
+        .payment-methods-scroll .payment-card-official {
+            width: 4.5rem;
+            min-width: 4.5rem;
+            max-width: 4.5rem;
+            flex-shrink: 0;
+            flex-grow: 0;
+        }
     </style>
 
     @if($paymentMethods->isNotEmpty())

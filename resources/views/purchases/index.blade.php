@@ -39,17 +39,23 @@
   @endif
 
   {{-- Summary cards --}}
-  <div class="grid grid-cols-3 gap-3">
+  <div class="grid grid-cols-2 sm:grid-cols-4 gap-3">
     <div class="rounded-xl border border-slate-200 bg-white dark:border-neutral-700 dark:bg-neutral-900 p-4 space-y-1">
       <div class="text-xs font-medium text-neutral-500 dark:text-neutral-400 uppercase tracking-wide">{{ __('purchases.total_month') }}</div>
       <div class="text-2xl font-bold text-neutral-900 dark:text-neutral-100">
-        ${{ number_format($totalPurchases + $totalExpenses, 2, ',', '.') }}
+        ${{ number_format($totalPurchases + $totalExpenses + $totalProducts, 2, ',', '.') }}
       </div>
     </div>
     <div class="rounded-xl border border-slate-200 bg-white dark:border-neutral-700 dark:bg-neutral-900 p-4 space-y-1">
       <div class="text-xs font-medium text-neutral-500 dark:text-neutral-400 uppercase tracking-wide">{{ __('purchases.card_supplies') }}</div>
       <div class="text-2xl font-bold text-blue-600 dark:text-blue-400">
         ${{ number_format($totalPurchases, 2, ',', '.') }}
+      </div>
+    </div>
+    <div class="rounded-xl border border-slate-200 bg-white dark:border-neutral-700 dark:bg-neutral-900 p-4 space-y-1">
+      <div class="text-xs font-medium text-neutral-500 dark:text-neutral-400 uppercase tracking-wide">{{ __('purchases.card_products') }}</div>
+      <div class="text-2xl font-bold text-indigo-600 dark:text-indigo-400">
+        ${{ number_format($totalProducts, 2, ',', '.') }}
       </div>
     </div>
     <div class="rounded-xl border border-slate-200 bg-white dark:border-neutral-700 dark:bg-neutral-900 p-4 space-y-1">
@@ -114,11 +120,13 @@
             <div class="flex items-center gap-3 px-4 py-3 hover:bg-slate-50/60 dark:hover:bg-neutral-800/40 transition-colors group">
               {{-- Type icon --}}
               <div class="shrink-0 w-8 h-8 rounded-full flex items-center justify-center
-                          {{ $item['type'] === 'supply'
-                             ? 'bg-blue-100 text-blue-600 dark:bg-blue-900/30 dark:text-blue-400'
-                             : 'bg-amber-100 text-amber-600 dark:bg-amber-900/30 dark:text-amber-400' }}">
+                          @if($item['type'] === 'supply') bg-blue-100 text-blue-600 dark:bg-blue-900/30 dark:text-blue-400
+                          @elseif($item['type'] === 'product') bg-indigo-100 text-indigo-600 dark:bg-indigo-900/30 dark:text-indigo-400
+                          @else bg-amber-100 text-amber-600 dark:bg-amber-900/30 dark:text-amber-400 @endif">
                 @if($item['type'] === 'supply')
                   <x-heroicon-o-beaker class="w-4 h-4" />
+                @elseif($item['type'] === 'product')
+                  <x-heroicon-o-shopping-bag class="w-4 h-4" />
                 @else
                   <x-heroicon-o-document-text class="w-4 h-4" />
                 @endif
@@ -129,10 +137,12 @@
                 <div class="flex items-center gap-2">
                   <span class="text-sm font-semibold text-neutral-900 dark:text-neutral-100 truncate">{{ $item['name'] }}</span>
                   <span class="shrink-0 text-[10px] font-bold uppercase tracking-wide px-1.5 py-0.5 rounded-full
-                               {{ $item['type'] === 'supply'
-                                  ? 'bg-blue-100 text-blue-700 dark:bg-blue-900/30 dark:text-blue-300'
-                                  : 'bg-amber-100 text-amber-700 dark:bg-amber-900/30 dark:text-amber-300' }}">
-                    {{ $item['type'] === 'supply' ? __('purchases.badge_supply') : __('purchases.badge_expense') }}
+                               @if($item['type'] === 'supply') bg-blue-100 text-blue-700 dark:bg-blue-900/30 dark:text-blue-300
+                               @elseif($item['type'] === 'product') bg-indigo-100 text-indigo-700 dark:bg-indigo-900/30 dark:text-indigo-300
+                               @else bg-amber-100 text-amber-700 dark:bg-amber-900/30 dark:text-amber-300 @endif">
+                    @if($item['type'] === 'supply') {{ __('purchases.badge_supply') }}
+                    @elseif($item['type'] === 'product') {{ __('purchases.badge_product') }}
+                    @else {{ __('purchases.badge_expense') }} @endif
                   </span>
                 </div>
                 <div class="flex items-center gap-2 mt-0.5">
@@ -155,6 +165,15 @@
               <div class="shrink-0 opacity-0 group-hover:opacity-100 transition-opacity">
                 @if($item['type'] === 'supply')
                   <form method="POST" action="{{ route('purchases.supply.destroy', $item['id']) }}"
+                        onsubmit="return confirm('{{ __('purchases.confirm_delete') }}')">
+                    @csrf @method('DELETE')
+                    <button type="submit" class="p-1.5 rounded-lg text-red-400 hover:bg-red-50 dark:hover:bg-red-900/20 transition-colors"
+                            title="{{ __('purchases.delete') }}">
+                      <x-heroicon-o-trash class="w-4 h-4" />
+                    </button>
+                  </form>
+                @elseif($item['type'] === 'product')
+                  <form method="POST" action="{{ route('purchases.product.destroy', $item['id']) }}"
                         onsubmit="return confirm('{{ __('purchases.confirm_delete') }}')">
                     @csrf @method('DELETE')
                     <button type="submit" class="p-1.5 rounded-lg text-red-400 hover:bg-red-50 dark:hover:bg-red-900/20 transition-colors"
@@ -229,6 +248,15 @@
       </button>
       <button
         type="button"
+        @click="tab = 'product'"
+        :class="tab === 'product' ? 'border-b-2 border-indigo-600 text-indigo-600 dark:text-indigo-400' : 'text-neutral-500 dark:text-neutral-400 hover:text-neutral-700'"
+        class="flex-1 py-3 text-sm font-semibold transition-colors"
+      >
+        <x-heroicon-o-shopping-bag class="w-4 h-4 inline mr-1" />
+        {{ __('purchases.tab_product') }}
+      </button>
+      <button
+        type="button"
         @click="tab = 'expense'"
         :class="tab === 'expense' ? 'border-b-2 border-indigo-600 text-indigo-600 dark:text-indigo-400' : 'text-neutral-500 dark:text-neutral-400 hover:text-neutral-700'"
         class="flex-1 py-3 text-sm font-semibold transition-colors"
@@ -298,6 +326,117 @@
                 <option value="">—</option>
               </template>
               <template x-for="u in compatibleUnits" :key="u.value">
+                <option :value="u.value" x-text="u.label"></option>
+              </template>
+            </select>
+          </div>
+        </div>
+
+        {{-- Total cost --}}
+        <div>
+          <label class="block text-xs font-semibold text-neutral-700 dark:text-neutral-300 mb-1">
+            {{ __('purchases.field_total_cost') }} <span class="text-red-500">*</span>
+          </label>
+          <div class="relative">
+            <span class="absolute left-3 top-1/2 -translate-y-1/2 text-neutral-500 text-sm font-medium">$</span>
+            <input
+              type="number"
+              name="total_cost"
+              step="0.01"
+              min="0.01"
+              required
+              placeholder="0,00"
+              class="w-full rounded-lg border border-slate-200 dark:border-neutral-700 bg-white dark:bg-neutral-800 text-neutral-900 dark:text-neutral-100 text-sm pl-7 pr-3 py-2 focus:outline-none focus:ring-2 focus:ring-indigo-500"
+            />
+          </div>
+        </div>
+
+        {{-- Date --}}
+        <div>
+          <label class="block text-xs font-semibold text-neutral-700 dark:text-neutral-300 mb-1">
+            {{ __('purchases.field_date') }}
+          </label>
+          <input
+            type="date"
+            name="purchased_at"
+            value="{{ now()->toDateString() }}"
+            max="{{ now()->toDateString() }}"
+            class="w-full rounded-lg border border-slate-200 dark:border-neutral-700 bg-white dark:bg-neutral-800 text-neutral-900 dark:text-neutral-100 text-sm px-3 py-2 focus:outline-none focus:ring-2 focus:ring-indigo-500"
+          />
+        </div>
+
+        <div class="pt-2 flex gap-2">
+          <button
+            type="submit"
+            class="flex-1 rounded-lg bg-indigo-600 px-4 py-2.5 text-sm font-semibold text-white hover:bg-indigo-700 transition-colors"
+          >{{ __('purchases.btn_save') }}</button>
+          <button
+            type="button"
+            @click="closeForm()"
+            class="rounded-lg border border-slate-200 dark:border-neutral-700 px-4 py-2.5 text-sm font-semibold text-neutral-700 dark:text-neutral-300 hover:bg-neutral-50 dark:hover:bg-neutral-800 transition-colors"
+          >{{ __('purchases.btn_cancel') }}</button>
+        </div>
+      </form>
+    </div>
+
+    {{-- ===== TAB: PRODUCT PURCHASE ===== --}}
+    <div x-show="tab === 'product'" x-cloak class="flex-1 p-5">
+      <form method="POST" action="{{ route('purchases.product.store') }}" class="space-y-4">
+        @csrf
+
+        {{-- Product --}}
+        <div>
+          <label class="block text-xs font-semibold text-neutral-700 dark:text-neutral-300 mb-1">
+            {{ __('purchases.field_product') }} <span class="text-red-500">*</span>
+          </label>
+          @if($products->isEmpty())
+            <p class="text-xs text-amber-600 dark:text-amber-400">{{ __('purchases.no_products_hint') }}</p>
+          @else
+            <select
+              name="product_id"
+              x-model="selectedProductId"
+              @change="onProductChange()"
+              required
+              class="w-full rounded-lg border border-slate-200 dark:border-neutral-700 bg-white dark:bg-neutral-800 text-neutral-900 dark:text-neutral-100 text-sm px-3 py-2 focus:outline-none focus:ring-2 focus:ring-indigo-500"
+            >
+              <option value="">{{ __('purchases.select_product') }}</option>
+              @foreach($products as $p)
+                <option value="{{ $p->id }}" data-unit="{{ $p->unit ?? 'u' }}">{{ $p->name }}</option>
+              @endforeach
+            </select>
+          @endif
+        </div>
+
+        {{-- Qty + Unit --}}
+        <div class="grid grid-cols-2 gap-3">
+          <div>
+            <label class="block text-xs font-semibold text-neutral-700 dark:text-neutral-300 mb-1">
+              {{ __('purchases.field_qty') }} <span class="text-red-500">*</span>
+            </label>
+            <input
+              type="number"
+              name="qty"
+              step="0.001"
+              min="0.001"
+              required
+              placeholder="0"
+              class="w-full rounded-lg border border-slate-200 dark:border-neutral-700 bg-white dark:bg-neutral-800 text-neutral-900 dark:text-neutral-100 text-sm px-3 py-2 focus:outline-none focus:ring-2 focus:ring-indigo-500"
+            />
+          </div>
+          <div>
+            <label class="block text-xs font-semibold text-neutral-700 dark:text-neutral-300 mb-1">
+              {{ __('purchases.field_unit') }} <span class="text-red-500">*</span>
+            </label>
+            <select
+              name="unit"
+              x-model="productUnit"
+              required
+              class="w-full rounded-lg border border-slate-200 dark:border-neutral-700 bg-white dark:bg-neutral-800 text-neutral-900 dark:text-neutral-100 text-sm px-3 py-2 focus:outline-none focus:ring-2 focus:ring-indigo-500"
+            >
+              <template x-if="productUnits.length === 0">
+                <option value="">—</option>
+              </template>
+              <template x-for="u in productUnits" :key="u.value">
                 <option :value="u.value" x-text="u.label"></option>
               </template>
             </select>
@@ -456,18 +595,31 @@
 
 <script>
 function purchasesApp() {
-  const UNITS = {
+  const SUPPLY_UNITS = {
     g:  [{ value: 'g', label: 'Gramos (g)' }, { value: 'kg', label: 'Kilogramos (kg)' }],
     ml: [{ value: 'ml', label: 'Mililitros (ml)' }, { value: 'l', label: 'Litros (l)' }, { value: 'cm3', label: 'Centímetros cúbicos (cm3)' }],
     u:  [{ value: 'u', label: 'Unidades (u)' }],
   };
 
+  const PRODUCT_UNITS = {
+    u:  [{ value: 'u',  label: 'Unidades (u)' }],
+    g:  [{ value: 'g',  label: 'Gramos (g)' }, { value: 'kg', label: 'Kilogramos (kg)' }],
+    kg: [{ value: 'kg', label: 'Kilogramos (kg)' }, { value: 'g', label: 'Gramos (g)' }],
+  };
+
   return {
     open: false,
     tab: 'supply',
+
+    // Supply tab
     selectedSupplyId: '',
     supplyUnit: '',
     compatibleUnits: [],
+
+    // Product tab
+    selectedProductId: '',
+    productUnit: 'u',
+    productUnits: [{ value: 'u', label: 'Unidades (u)' }],
 
     init() {
       @if($errors->any())
@@ -482,8 +634,16 @@ function purchasesApp() {
       const sel = document.querySelector('select[name="supply_id"]');
       const opt = sel?.options[sel.selectedIndex];
       const base = opt?.dataset?.base ?? '';
-      this.compatibleUnits = UNITS[base] ?? [];
+      this.compatibleUnits = SUPPLY_UNITS[base] ?? [];
       this.supplyUnit = this.compatibleUnits[0]?.value ?? '';
+    },
+
+    onProductChange() {
+      const sel = document.querySelector('select[name="product_id"]');
+      const opt = sel?.options[sel.selectedIndex];
+      const base = opt?.dataset?.unit ?? 'u';
+      this.productUnits = PRODUCT_UNITS[base] ?? PRODUCT_UNITS.u;
+      this.productUnit = this.productUnits[0]?.value ?? 'u';
     },
   };
 }

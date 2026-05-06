@@ -8,6 +8,7 @@ return new class extends Migration
 {
     public function up(): void
     {
+        if (Schema::hasColumn('supply_purchases', 'purchased_at')) return;
         Schema::table('supply_purchases', function (Blueprint $table) {
             $table->date('purchased_at')->nullable()->after('total_cost');
         });

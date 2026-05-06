@@ -16,10 +16,14 @@ class ProductCard extends Component
     public ?Product $product = null;
     public ?int $productId = null;
 
-    public int $qty = 1;
+    public float $qty = 1.0;
     public int $currentStock = 0;
     public bool $isActive = false;
     public bool $isAdding = false;
+
+    public bool $isWeightProduct = false;
+    public float $weightInput = 100.0;
+    public string $weightUnit = 'g';
 
     public string $displayMode = 'card';
     public string $buttonText = 'Agregar';
@@ -78,9 +82,14 @@ class ProductCard extends Component
         }
 
         if ($this->product) {
-            $this->currentStock = (int) $this->product->stock;
-            $this->isActive     = (bool) $this->product->is_active;
-            $this->qty          = max(1, min($this->qty, max(0, $this->currentStock)));
+            $this->currentStock   = (int) $this->product->stock;
+            $this->isActive       = (bool) $this->product->is_active;
+            $this->qty            = max(1, min($this->qty, max(0, $this->currentStock)));
+            $unit                 = $this->product->unit ?? 'u';
+            $this->isWeightProduct = in_array($unit, ['g', 'kg']);
+            if ($this->isWeightProduct && !in_array($this->weightUnit, ['g', 'kg'])) {
+                $this->weightUnit = $unit;
+            }
         } else {
             $this->currentStock = 0;
             $this->isActive     = false;
@@ -101,7 +110,7 @@ class ProductCard extends Component
 
     public function incrementQty(): void { if ($this->qty < $this->currentStock) $this->qty++; }
     public function decrementQty(): void { if ($this->qty > 1) $this->qty--; }
-    public function updatedQty(): void   { $this->qty = max(1, min($this->qty, max(0, $this->currentStock))); }
+    public function updatedQty(): void   { $this->qty = max(0.001, (float)$this->qty); }
 
     public function add(): void
     {
@@ -127,14 +136,30 @@ class ProductCard extends Component
                 $this->dispatch('notify', type:'error', message:'Producto inactivo.');
                 return;
             }
-            if ($this->currentStock < $this->qty) {
-                $this->dispatch('notify', type:'error', message:'Stock insuficiente.');
-                return;
+
+            // Calcular cantidad a agregar (con conversión de unidad para productos de peso)
+            if ($this->isWeightProduct) {
+                try {
+                    $factor = \App\Services\UnitConverter::factorToBase($this->weightUnit, $this->product->unit ?? 'g');
+                } catch (\InvalidArgumentException) {
+                    $factor = 1.0;
+                }
+                $addQty = $this->weightInput * $factor;
+                if ($addQty <= 0) {
+                    $this->dispatch('notify', type:'error', message:'Cantidad inválida.');
+                    return;
+                }
+            } else {
+                if ($this->currentStock < $this->qty) {
+                    $this->dispatch('notify', type:'error', message:'Stock insuficiente.');
+                    return;
+                }
+                $addQty = (float) $this->qty;
             }
 
             $draftId = $this->getCurrentDraftId();
             $orders  = app(OrderService::class);
-            $orders->addItem($draftId, $this->productId, $this->qty);
+            $orders->addItem($draftId, $this->productId, $addQty);
 
             $this->refreshProduct();
 
@@ -143,7 +168,11 @@ class ProductCard extends Component
             $this->dispatch('order-updated')->to(\App\Livewire\OrderSidebar::class);
             $this->dispatch('stock-updated', productId:$this->productId)->to(\App\Livewire\OrderSidebar::class);
 
-            $msg = $this->qty === 1 ? 'Agregado al pedido' : "Agregados {$this->qty} al pedido";
+            if ($this->isWeightProduct) {
+                $msg = "Agregado: {$this->weightInput} {$this->weightUnit}";
+            } else {
+                $msg = $this->qty == 1 ? 'Agregado al pedido' : "Agregados {$this->qty} al pedido";
+            }
             $this->dispatch('notify', type:'success', message:$msg);
 
             if ($this->displayMode === 'button') $this->qty = 1;

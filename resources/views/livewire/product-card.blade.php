@@ -1,11 +1,24 @@
 {{-- resources/views/livewire/product-card.blade.php --}}
 <div class="product-card group"> {{-- ÚNICO elemento raíz --}}
   @php
-    $canAdd   = (int)($currentStock ?? 0) > 0 && (bool)($isActive ?? false);
-    $name     = $product->name ?? 'Producto';
-    $sku      = $product->sku  ?? 'N/A';
-    $priceNum = (float) ($product->price ?? 0);
-    $priceLbl = '$ ' . number_format($priceNum, 2, ',', '.');
+    $productUnit = $product->unit ?? 'u';
+    $isWeight    = $isWeightProduct ?? false;
+    $canAdd      = ($isWeight ? (bool)($isActive ?? false) : ((int)($currentStock ?? 0) > 0 && (bool)($isActive ?? false)));
+    $name        = $product->name ?? 'Producto';
+    $sku         = $product->sku  ?? 'N/A';
+    $priceNum    = (float) ($product->price ?? 0);
+    $unitLabel   = match($productUnit) { 'kg' => ' / kg', 'g' => ' / g', default => '' };
+    $priceLbl    = '$ ' . number_format($priceNum, 2, ',', '.') . $unitLabel;
+
+    // Preview precio para productos de peso
+    $pricePreview = '';
+    if ($isWeight && ($weightInput ?? 0) > 0) {
+        try {
+            $factor       = \App\Services\UnitConverter::factorToBase($weightUnit ?? 'g', $productUnit);
+            $previewAmt   = $priceNum * (($weightInput ?? 100) * $factor);
+            $pricePreview = '$ ' . number_format($previewAmt, 2, ',', '.');
+        } catch (\Exception) {}
+    }
 
     // Imagen del producto (acepta varios campos: image, image_url, photo_path, photo_url)
     $thumb = null;
@@ -48,6 +61,81 @@
   @endphp
 
   @if($displayMode === 'card')
+    @if($isWeight)
+    {{-- ── Tarjeta de producto por PESO ─────────────────────────────── --}}
+    <div class="relative w-full min-h-[100px] rounded-2xl
+                bg-white dark:bg-neutral-900 ring-1 ring-violet-200/40 dark:ring-neutral-800
+                p-3 flex flex-col gap-2 {{ !$isActive ? 'opacity-60' : '' }}">
+
+      {{-- Nombre + precio/unidad --}}
+      <div class="min-w-0">
+        <h3 class="text-xs sm:text-sm font-medium text-slate-900 dark:text-white leading-tight line-clamp-2">{{ $name }}</h3>
+        <p class="text-[10px] text-slate-500 dark:text-neutral-400 mt-0.5 truncate">{{ $priceLbl }}</p>
+      </div>
+
+      {{-- Input de peso + selector g / kg --}}
+      <div class="flex items-center gap-1.5">
+        <input
+          type="number"
+          wire:model.live="weightInput"
+          min="1"
+          step="1"
+          class="w-16 rounded-lg border border-slate-200 dark:border-neutral-700 bg-slate-50 dark:bg-neutral-800
+                 text-slate-900 dark:text-neutral-100 text-xs font-semibold px-2 py-1 text-center
+                 focus:outline-none focus:ring-1 focus:ring-indigo-500/70"
+          @disabled(!$isActive)
+        />
+        <div class="flex gap-0.5 p-0.5 bg-neutral-100 dark:bg-neutral-800 rounded-md">
+          <button type="button" wire:click="$set('weightUnit','g')"
+            class="px-1.5 py-0.5 rounded text-[10px] font-bold transition-all
+                   {{ ($weightUnit ?? 'g') === 'g'
+                      ? 'bg-white dark:bg-neutral-700 text-neutral-900 dark:text-neutral-100 shadow-sm'
+                      : 'text-neutral-500 dark:text-neutral-400 hover:text-neutral-700' }}">g</button>
+          <button type="button" wire:click="$set('weightUnit','kg')"
+            class="px-1.5 py-0.5 rounded text-[10px] font-bold transition-all
+                   {{ ($weightUnit ?? 'g') === 'kg'
+                      ? 'bg-white dark:bg-neutral-700 text-neutral-900 dark:text-neutral-100 shadow-sm'
+                      : 'text-neutral-500 dark:text-neutral-400 hover:text-neutral-700' }}">kg</button>
+        </div>
+      </div>
+
+      {{-- Preview precio + botón agregar --}}
+      <div class="flex items-center gap-1.5 mt-auto">
+        @if($pricePreview)
+          <span class="text-xs font-bold text-indigo-600 dark:text-indigo-400 flex-1">{{ $pricePreview }}</span>
+        @endif
+        <button
+          type="button"
+          wire:click="add"
+          wire:loading.attr="disabled"
+          wire:target="add"
+          @disabled(!$isActive)
+          class="inline-flex items-center gap-1 rounded-lg px-2.5 py-1 text-xs font-semibold transition-colors
+                 {{ $isActive
+                    ? 'bg-indigo-600 text-white hover:bg-indigo-700'
+                    : 'bg-slate-200 text-slate-500 cursor-not-allowed dark:bg-neutral-700 dark:text-neutral-400' }}">
+          <svg class="w-3 h-3" viewBox="0 0 24 24" fill="none" wire:loading.remove wire:target="add" aria-hidden="true">
+            <path d="M12 6v12M6 12h12" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+          </svg>
+          <svg class="w-3 h-3 animate-spin" viewBox="0 0 24 24" fill="none" wire:loading wire:target="add" aria-hidden="true">
+            <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"/>
+            <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V2A10 10 0 002 12h2z"/>
+          </svg>
+          Agregar
+        </button>
+      </div>
+
+      {{-- Overlay de carga --}}
+      <div wire:loading wire:target="add"
+           class="absolute inset-0 rounded-2xl bg-white/60 dark:bg-neutral-900/40 backdrop-blur-[2px] grid place-items-center z-10">
+        <svg class="h-4 w-4 animate-spin text-indigo-600 dark:text-indigo-400" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+          <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"/>
+          <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V2A10 10 0 002 12h2z"/>
+        </svg>
+      </div>
+    </div>
+    @else
+    {{-- ── Tarjeta de producto por UNIDAD (comportamiento original) ─── --}}
     <button type="button"
             wire:click="add"
             wire:loading.attr="disabled"
@@ -62,35 +150,24 @@
                       : 'opacity-60 cursor-not-allowed' }}">
 
       <div class="flex items-start h-full">
-        {{-- Contenido: título, SKU, stock, precio --}}
         <div class="min-w-0 flex-1 flex flex-col justify-between h-full py-0.5">
-          {{-- Sección superior: Título y SKU --}}
           <div class="min-w-0">
-            {{-- Título con límite de líneas --}}
-            <h3 class="text-xs sm:text-sm md:text-[15px] lg:text-base font-medium 
+            <h3 class="text-xs sm:text-sm md:text-[15px] lg:text-base font-medium
                        text-slate-900 dark:text-white leading-tight
                        line-clamp-2 overflow-hidden text-ellipsis">
               {{ $name }}
             </h3>
-
-            {{-- SKU con truncate para casos extremos --}}
-            <p class="mt-0.5 text-[10px] sm:text-[11px] text-slate-500 dark:text-neutral-400 
-                      truncate max-w-full">
+            <p class="mt-0.5 text-[10px] sm:text-[11px] text-slate-500 dark:text-neutral-400 truncate max-w-full">
               SKU: {{ $sku }}
             </p>
           </div>
-
-          {{-- Sección inferior: BADGE (stock) y PRECIO debajo en la misma columna --}}
           <div class="mt-2 flex flex-col items-start gap-1 min-w-0">
-            {{-- Badge responsive (stock/inactivo/sin stock) --}}
-            <span class="inline-flex items-center gap-1 sm:gap-1.5 rounded-full 
-                         px-2 sm:px-2.5 py-[2px] text-[10px] sm:text-[11px] leading-[1.2] border 
+            <span class="inline-flex items-center gap-1 sm:gap-1.5 rounded-full
+                         px-2 sm:px-2.5 py-[2px] text-[10px] sm:text-[11px] leading-[1.2] border
                          {{ $badgeRing }} {{ $badgeTxt }} whitespace-nowrap">
               <span class="h-1 w-1 sm:h-1.5 sm:w-1.5 rounded-full {{ $badgeDot }}"></span>
               <span class="truncate max-w-[120px]">{{ $badgeText }}</span>
             </span>
-
-            {{-- Precio (siempre debajo del badge, dentro de la misma columna) --}}
             <div class="text-sm font-semibold text-slate-900 dark:text-white mt-1">
               {{ $priceLbl }}
             </div>
@@ -98,17 +175,17 @@
         </div>
       </div>
 
-      {{-- Overlay de carga --}}
       <div wire:loading wire:target="add"
-           class="absolute inset-0 rounded-2xl bg-white/60 dark:bg-neutral-900/40 
+           class="absolute inset-0 rounded-2xl bg-white/60 dark:bg-neutral-900/40
                   backdrop-blur-[2px] grid place-items-center z-10">
-        <svg class="h-4 w-4 sm:h-5 sm:w-5 animate-spin text-indigo-600 dark:text-indigo-400" 
+        <svg class="h-4 w-4 sm:h-5 sm:w-5 animate-spin text-indigo-600 dark:text-indigo-400"
              viewBox="0 0 24 24" fill="none" aria-hidden="true">
           <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"/>
           <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V2A10 10 0 002 12h2z"/>
         </svg>
       </div>
     </button>
+    @endif
 
   @elseif($displayMode === 'button')
     {{-- Variante botón - Mejorada responsive --}}

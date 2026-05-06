@@ -46,9 +46,9 @@ class OrderService
     /**
      * Agrega un producto (o suma cantidad si ya existe la línea).
      */
-    public function addItem(int $orderId, int $productId, int $qty = 1): void
+    public function addItem(int $orderId, int $productId, float $qty = 1.0): void
     {
-        $qty = max(1, (int)$qty);
+        $qty = max(0.001, (float)$qty);
 
         DB::transaction(function () use ($orderId, $productId, $qty) {
             $order   = Order::lockForUpdate()->findOrFail($orderId);
@@ -179,9 +179,9 @@ class OrderService
     /**
      * Ajusta la cantidad de una línea a un valor específico (<=0 elimina la línea).
      */
-    public function setItemQuantity(int $orderId, int $itemId, int $qty): void
+    public function setItemQuantity(int $orderId, int $itemId, float $qty): void
     {
-        $qty = max(0, $qty);
+        $qty = max(0.0, (float)$qty);
 
         DB::transaction(function () use ($orderId, $itemId, $qty) {
             $order = Order::lockForUpdate()->findOrFail($orderId);
@@ -235,7 +235,8 @@ class OrderService
             return [
                 'id'       => (int)$i->id,
                 'name'     => $name,
-                'qty'      => (int)$i->quantity,
+                'qty'      => (float)$i->quantity,
+                'unit'     => ($i->product?->unit ?? 'u'),
                 'price'    => (float)$i->unit_price,
                 'subtotal' => (float)$i->subtotal,
             ];

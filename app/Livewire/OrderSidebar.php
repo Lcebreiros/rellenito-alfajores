@@ -230,8 +230,8 @@ class OrderSidebar extends Component
         $orders = app(OrderService::class);
         $this->guardDraft();
 
-        $qty = (int) filter_var($value, FILTER_SANITIZE_NUMBER_INT);
-        if ($qty < 0) $qty = 0;
+        $qty = (float) str_replace(',', '.', (string) $value);
+        if ($qty < 0) $qty = 0.0;
 
         try {
             $orders->setItemQuantity($this->orderId, $itemId, $qty);
