@@ -1,6 +1,14 @@
 {{-- resources/views/products/index.blade.php --}}
 @extends('layouts.app')
 
+@push('styles')
+<style>
+  html, body { overflow: auto !important; height: auto !important; }
+  .app-main { height: auto !important; overflow-x: hidden !important; overflow-y: auto !important; }
+  .app-main > main { overflow: visible !important; flex: 1 1 auto !important; }
+</style>
+@endpush
+
 @section('header')
   <h1 class="text-xl sm:text-2xl font-semibold text-neutral-800 dark:text-neutral-100">{{ __('products.title') }}</h1>
 @endsection
