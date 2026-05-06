@@ -3,6 +3,7 @@
 namespace App\Http\Requests\Products;
 
 use Illuminate\Foundation\Http\FormRequest;
+use Illuminate\Validation\Rule;
 use App\Rules\SecureFileUpload;
 
 class StoreProductRequest extends FormRequest
@@ -24,7 +25,7 @@ class StoreProductRequest extends FormRequest
     {
         return [
             'name' => ['required', 'string', 'max:255'],
-            'sku' => ['nullable', 'string', 'max:50', 'unique:products,sku'],
+            'sku' => ['nullable', 'string', 'max:50', Rule::unique('products', 'sku')->where('user_id', auth()->id())],
             'description' => ['nullable', 'string', 'max:1000'],
             'price' => ['required', 'numeric', 'min:0', 'max:999999.99'],
             'cost' => ['nullable', 'numeric', 'min:0', 'max:999999.99'],

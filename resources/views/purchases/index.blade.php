@@ -19,12 +19,12 @@
 
 @section('content')
 <div
-  class="max-w-4xl mx-auto px-3 sm:px-6 py-4 space-y-5"
   x-data="purchasesApp()"
   x-init="init()"
   @open-purchase-form.window="openForm()"
   @keydown.escape.window="closeForm()"
 >
+<div class="max-w-4xl mx-auto px-3 sm:px-6 py-4 space-y-5">
 
   {{-- Flash messages --}}
   @if(session('ok'))
@@ -180,7 +180,7 @@
     </div>
   @endif
 
-</div>
+</div>{{-- /max-w-4xl content --}}
 
 {{-- ===================== SLIDE-OVER FORM ===================== --}}
 <div
@@ -451,7 +451,8 @@
       </form>
     </div>
   </div>
-</div>
+</div>{{-- /slide-over panel --}}
+</div>{{-- /x-data alpine scope --}}
 
 <script>
 function purchasesApp() {

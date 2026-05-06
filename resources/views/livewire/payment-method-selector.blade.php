@@ -1,4 +1,4 @@
-<div class="{{ $compact ? '' : 'w-full' }}">
+<div class="{{ $compact ? 'w-full' : 'w-full' }}">
     <style>
         /* Animaciones y estilos para tarjetas de métodos de pago estilo oficial */
         .payment-card-official {
@@ -90,14 +90,24 @@
         .dark .payment-card-selected .payment-api-badge {
             background: rgb(129 140 248);
         }
+
+        .payment-methods-scroll {
+            scrollbar-width: none;
+            -ms-overflow-style: none;
+        }
+
+        .payment-methods-scroll::-webkit-scrollbar {
+            display: none;
+        }
     </style>
 
     @if($paymentMethods->isNotEmpty())
         @if($compact)
-            {{-- Modo compacto: solo tarjetas sin título, con marco contenedor --}}
-            <div class="flex items-center gap-2 px-2 py-1.5 rounded-xl
+            {{-- Modo compacto: solo tarjetas sin título, con marco contenedor y scroll lateral --}}
+            <div class="payment-methods-scroll flex items-center gap-2 px-2 py-1.5 rounded-xl
                         border border-neutral-200 dark:border-neutral-700
-                        bg-neutral-50 dark:bg-neutral-800/60 shadow-sm">
+                        bg-neutral-50 dark:bg-neutral-800/60 shadow-sm
+                        w-full overflow-x-auto overscroll-x-contain">
                 @foreach($paymentMethods as $pm)
                     <div
                         wire:click="togglePaymentMethod({{ $pm->id }})"

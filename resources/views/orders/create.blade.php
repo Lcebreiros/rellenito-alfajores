@@ -5,55 +5,76 @@
 @media (min-width: 1024px) {
   html, body { overflow: hidden !important; height: 100% !important; }
 
-  /* app-main ocupa exactamente el viewport */
   .app-main {
     height: 100dvh !important;
     overflow: hidden !important;
   }
 
-  /* main = espacio restante después del header (NO 100vh, eso lo desborda) */
+  /* header no participa en el reparto de altura — solo ocupa lo que necesita */
+  .app-main > header { flex-shrink: 0 !important; }
+
+  /* main = columna flex que ocupa el resto después del header */
   .app-main > main {
     flex: 1 1 0% !important;
     min-height: 0 !important;
     overflow: hidden !important;
     display: flex !important;
     flex-direction: column !important;
-    padding: 0.5rem !important;   /* reemplaza el p-6 del layout para ganar espacio */
+    padding: 0.5rem !important;
   }
+
+  /* ── cadena de layout del POS ──────────────────────────────────── */
+  /* Cada nodo especifica display, dirección y flex para no depender  */
+  /* de que Tailwind genere valores arbitrarios como [flex:2_1_0%].  */
+
+  .pos-wrap         { display: flex; flex-direction: column; flex: 1 1 0%; min-height: 0; overflow: hidden; }
+  .pos-cols         { display: flex; flex-direction: row;    flex: 1 1 0%; min-height: 0; overflow: hidden; gap: 1rem; }
+  .pos-left         { display: flex; flex-direction: column; flex: 2 1 0%; min-height: 0; overflow: hidden; }
+  .pos-right        { display: flex; flex-direction: column; flex: 1 1 0%; min-height: 0; overflow: hidden; gap: 0.75rem; }
+  .pos-sidebar-wrap { display: flex; flex-direction: column; flex: 1 1 0%; min-height: 0; overflow: hidden; }
 }
 </style>
 @endpush
 
 @section('header')
-<div class="flex items-center gap-3 min-w-0">
-  <h1 class="text-xl font-semibold text-gray-800 dark:text-neutral-100 leading-tight transition-colors shrink-0">
-    {{ __('orders.create_title') }}
-  </h1>
-  <div class="flex-1 min-w-0 flex items-center gap-2 justify-end">
-    <livewire:cash-register :compact="true" :key="'cash-register'" />
+<div class="flex flex-col gap-1.5 min-w-0 w-full lg:flex-row lg:items-center lg:gap-3">
+
+  {{-- Fila 1: título + caja registradora --}}
+  <div class="flex items-center gap-3 min-w-0 flex-1">
+    <h1 class="text-xl font-semibold text-gray-800 dark:text-neutral-100 leading-tight transition-colors shrink-0">
+      {{ __('orders.create_title') }}
+    </h1>
+    <div class="ml-auto lg:ml-0 shrink-0">
+      <livewire:cash-register :compact="true" :key="'cash-register'" />
+    </div>
+  </div>
+
+  {{-- Fila 2 en móvil / inline en desktop: medios de pago a todo el ancho con scroll lateral --}}
+  <div class="min-w-0 lg:shrink-0">
     <livewire:payment-method-selector :compact="true" :key="'payment-method-selector'" />
   </div>
+
 </div>
 @endsection
 
 @section('content')
 <div
-  class="px-3 sm:px-4 lg:px-0 lg:flex lg:flex-col lg:flex-1 lg:min-h-0 lg:w-full lg:overflow-hidden"
+  class="pos-wrap px-3 sm:px-4 lg:px-0"
   x-data="receiptUI()"
   x-init="init()"
 >
 
   {{-- Mensajes de error/éxito --}}
   @if(session('ok') || $errors->any())
-    <div class="lg:flex-shrink-0">
+    <div class="flex-shrink-0 mb-3">
       @if(session('ok'))
-        <div class="mb-3 rounded-lg border border-green-200 bg-green-50 text-green-800 px-3 py-2 text-sm
+        <div class="rounded-lg border border-green-200 bg-green-50 text-green-800 px-3 py-2 text-sm
                     dark:border-green-700 dark:bg-green-900/20 dark:text-green-200">
           {!! session('ok') !!}
         </div>
       @endif
       @if($errors->any())
-        <div class="mb-3 rounded-lg border border-red-200 bg-red-50 text-red-800 px-3 py-2 text-sm
+        <div class="rounded-lg border border-red-200 bg-red-50 text-red-800 px-3 py-2 text-sm
                     dark:border-red-700 dark:bg-red-900/20 dark:text-red-200">
           @foreach($errors->all() as $e) <div>{{ $e }}</div> @endforeach
         </div>
@@ -61,16 +82,16 @@
     </div>
   @endif
 
-  {{-- Layout responsive: en desktop ocupa el espacio restante sin scroll de página --}}
-  <div class="grid grid-cols-1 lg:grid-cols-12 gap-4 min-w-0 lg:flex-1 lg:min-h-0 lg:overflow-hidden">
+  {{-- Dos columnas: flex-col en mobile, flex-row en desktop vía .pos-cols --}}
+  <div class="flex flex-col gap-4 min-w-0 pos-cols">
 
-    {{-- IZQUIERDA: flex column para que el scroll esté solo en el catálogo --}}
-    <section class="lg:col-span-8 min-w-0 lg:h-full lg:flex lg:flex-col">
+    {{-- IZQUIERDA: 2/3 del espacio --}}
+    <section class="min-w-0 pos-left">
       <div class="rounded-xl border border-slate-200 bg-white p-3 dark:border-neutral-700 dark:bg-neutral-900
-                  flex flex-col min-h-[calc(100svh-9rem)] lg:min-h-0 lg:h-full lg:overflow-hidden"
+                  flex flex-col min-h-[calc(100svh-9rem)] lg:flex-1 lg:min-h-0 lg:overflow-hidden"
            x-data="{ activeTab: 'products' }">
 
-        {{-- Fila superior fija: tabs izquierda + scanner derecha --}}
+        {{-- Fila superior fija: tabs + scanner --}}
         <div class="flex items-center gap-3 mb-3 flex-shrink-0">
 
           {{-- Selector Productos / Servicios --}}
@@ -92,7 +113,7 @@
             >{{ __('orders.create.tab_services') }}</button>
           </div>
 
-          {{-- Scanner compacto a la derecha --}}
+          {{-- Scanner compacto --}}
           <div class="flex-1 flex justify-end">
             <div class="w-72">
               <livewire:pos-scanner :key="'pos-scanner'" />
@@ -100,7 +121,7 @@
           </div>
         </div>
 
-        {{-- Área con scroll interno: solo el catálogo scrollea --}}
+        {{-- Solo el catálogo scrollea; tabs + scanner quedan fijos --}}
         <div class="flex-1 overflow-y-auto min-h-0 pr-1">
           <div x-show="activeTab === 'products'">
             <livewire:product-catalog :key="'product-catalog'" />
@@ -113,14 +134,13 @@
       </div>
     </section>
 
-    {{-- DERECHA: en desktop flex column fija, sin scroll de página --}}
-    <aside class="lg:col-span-4 min-w-0 space-y-4 lg:space-y-0 lg:h-full lg:flex lg:flex-col lg:gap-3 lg:overflow-hidden">
+    {{-- DERECHA: 1/3 del espacio --}}
+    <aside class="min-w-0 space-y-4 lg:space-y-0 pos-right">
       <div class="lg:flex-shrink-0">
         <livewire:schedule-order :key="'schedule-order'" />
       </div>
 
-      {{-- OrderSidebar: flex-1, wrapper como flex column para que h-full resuelva bien --}}
-      <div class="lg:flex-1 lg:min-h-0 lg:overflow-hidden lg:flex lg:flex-col">
+      <div class="pos-sidebar-wrap">
         <livewire:order-sidebar :key="'order-sidebar'" />
       </div>
     </aside>
