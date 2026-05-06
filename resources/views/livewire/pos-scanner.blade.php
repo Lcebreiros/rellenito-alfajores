@@ -7,7 +7,7 @@
             this._scanTimer = setTimeout(() => $wire.resetStatus(), 2500);
         },
         init() {
-            this.$refs.scanInput?.focus();
+            // Sin auto-focus: no abrir teclado en móvil al cargar
         }
     }"
     x-on:hid-barcode.window="handleBarcode($event.detail.code)"
@@ -29,7 +29,7 @@
       type="text"
       placeholder="{{ __('scanner.pos_ready') }}"
       autocomplete="off"
-      x-on:keydown.enter.prevent="handleBarcode($el.value.trim()); $el.value = ''; $el.focus()"
+      x-on:keydown.enter.prevent="handleBarcode($el.value.trim()); $el.value = ''"
       class="w-full rounded-lg border border-neutral-200 dark:border-neutral-700 bg-white dark:bg-neutral-900
              pl-8 pr-3 py-1.5 text-xs text-neutral-700 dark:text-neutral-200 placeholder-neutral-400
              focus:outline-none focus:ring-2 focus:ring-indigo-400/40 transition"

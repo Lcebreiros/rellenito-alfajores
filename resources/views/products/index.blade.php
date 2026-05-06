@@ -224,32 +224,14 @@
   const input = document.getElementById('hid-scan-input');
   if (!input) return;
 
-  // Foco inicial
-  input.focus();
-
-  // Recuperar foco cuando se hace click en área vacía (no en inputs/buttons)
-  document.addEventListener('click', function (e) {
-    const tag = e.target?.tagName;
-    if (tag !== 'INPUT' && tag !== 'TEXTAREA' && tag !== 'BUTTON' && tag !== 'A' && tag !== 'SELECT') {
-      setTimeout(() => input.focus(), 50);
-    }
-  });
-
-  input.addEventListener('keydown', async function (e) {
-    if (e.key !== 'Enter') return;
-    e.preventDefault();
-    const code = input.value.trim();
-    input.value = '';
+  async function handleCode(code) {
     if (code.length < 3) return;
-
     input.placeholder = '{{ __("scanner.products_searching") }}';
-
     try {
       const res  = await fetch('{{ route("products.lookup") }}?barcode=' + encodeURIComponent(code), {
         headers: { 'X-Requested-With': 'XMLHttpRequest', Accept: 'application/json' }
       });
       const data = await res.json();
-
       if (data.found && data.product) {
         input.placeholder = '{{ __("scanner.products_found_opening") }}';
         setTimeout(() => { window.location.href = '/products/' + data.product.id + '/edit'; }, 400);
@@ -258,8 +240,21 @@
       }
     } catch {
       input.placeholder = '{{ __("scanner.products_placeholder") }}';
-      input.focus();
     }
+  }
+
+  // Scanner HID: usa el evento global que dispara hid-scanner.js
+  window.addEventListener('hid-barcode', function (e) {
+    handleCode(e.detail?.code ?? '');
+  });
+
+  // Entrada manual: el usuario escribe en el input visible y presiona Enter
+  input.addEventListener('keydown', function (e) {
+    if (e.key !== 'Enter') return;
+    e.preventDefault();
+    const code = input.value.trim();
+    input.value = '';
+    handleCode(code);
   });
 })();
 </script>
