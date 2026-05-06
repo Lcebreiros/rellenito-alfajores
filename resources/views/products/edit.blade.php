@@ -109,22 +109,20 @@
             <label class="block text-sm font-medium text-neutral-700 dark:text-neutral-200 mb-2">
               Unidad de venta
             </label>
-            <div class="inline-flex gap-1 p-1 bg-neutral-100 dark:bg-neutral-800 rounded-lg">
+            <div id="unit-selector" class="inline-flex gap-1 p-1 bg-neutral-100 dark:bg-neutral-800 rounded-lg">
+              @php $currentUnit = old('unit', $product->unit ?? 'u'); @endphp
               @foreach(['u' => 'Unidades', 'g' => 'Gramos', 'kg' => 'Kilogramos'] as $val => $label)
-                <label class="cursor-pointer">
-                  <input type="radio" name="unit" value="{{ $val }}"
-                         class="sr-only peer"
-                         {{ old('unit', $product->unit ?? 'u') === $val ? 'checked' : '' }}>
-                  <span class="block px-3 py-1.5 rounded-md text-xs font-semibold transition-all
-                               text-neutral-500 dark:text-neutral-400
-                               peer-checked:bg-white peer-checked:text-neutral-900 peer-checked:shadow-sm
-                               dark:peer-checked:bg-neutral-700 dark:peer-checked:text-neutral-100
-                               hover:text-neutral-700 dark:hover:text-neutral-200">
-                    {{ $label }}
-                  </span>
-                </label>
+                <button type="button"
+                        data-unit="{{ $val }}"
+                        class="unit-btn px-3 py-1.5 rounded-md text-xs font-semibold transition-all
+                               {{ $currentUnit === $val
+                                  ? 'bg-white dark:bg-neutral-700 text-neutral-900 dark:text-neutral-100 shadow-sm'
+                                  : 'text-neutral-500 dark:text-neutral-400 hover:text-neutral-700 dark:hover:text-neutral-200' }}">
+                  {{ $label }}
+                </button>
               @endforeach
             </div>
+            <input type="hidden" name="unit" id="unit-hidden" value="{{ $currentUnit }}">
             <p class="mt-1 text-xs text-neutral-500 dark:text-neutral-400">Define cómo se mide y vende este producto.</p>
           </div>
 
@@ -259,13 +257,26 @@
           @method('PATCH')
 
           <div>
-            <label for="stock" class="block text-sm font-medium text-neutral-700 dark:text-neutral-200">{{ __('products.form.quantity') }}</label>
-            <input id="stock" name="stock" type="number" min="0" required
-              value="{{ old('stock', (int)($product->stock ?? 0)) }}"
-              class="mt-1 w-full rounded-lg border border-neutral-300 bg-white px-3 py-2 text-neutral-800 placeholder-neutral-400
-                     focus:border-indigo-500 focus:ring-indigo-500
-                     dark:border-neutral-700 dark:bg-neutral-900 dark:text-neutral-100 dark:placeholder-neutral-500"
-            >
+            <label for="stock" class="block text-sm font-medium text-neutral-700 dark:text-neutral-200">
+              {{ __('products.form.quantity') }}
+              <span id="stock-unit-badge"
+                    class="ml-1 text-xs font-normal text-neutral-400 dark:text-neutral-500">
+                ({{ $product->unit ?? 'u' }})
+              </span>
+            </label>
+            <div class="relative mt-1">
+              <input id="stock" name="stock" type="number" min="0" required
+                value="{{ old('stock', (float)($product->stock ?? 0)) }}"
+                step="{{ in_array($product->unit ?? 'u', ['kg','g']) ? '0.001' : '1' }}"
+                class="w-full rounded-lg border border-neutral-300 bg-white px-3 py-2 pr-12 text-neutral-800 placeholder-neutral-400
+                       focus:border-indigo-500 focus:ring-indigo-500
+                       dark:border-neutral-700 dark:bg-neutral-900 dark:text-neutral-100 dark:placeholder-neutral-500"
+              >
+              <span id="stock-unit-inline"
+                    class="pointer-events-none absolute right-3 top-1/2 -translate-y-1/2 text-xs text-neutral-400 dark:text-neutral-500">
+                {{ $product->unit ?? 'u' }}
+              </span>
+            </div>
           </div>
 
           <div class="pt-2 flex items-center justify-end">
@@ -357,22 +368,63 @@
     }
   }
   document.addEventListener('DOMContentLoaded', () => {
+    // ── Image preview ───────────────────────────────────────────────────
     const fileInput = document.getElementById('image');
     const wrap = document.getElementById('editImagePreviewWrap');
     const img  = document.getElementById('editImagePreview');
     const current = document.getElementById('currentImage');
-    if (!fileInput) return;
-    fileInput.addEventListener('change', () => {
-      const file = fileInput.files?.[0];
-      if (!file) { if (wrap) wrap.classList.add('hidden'); return; }
-      const reader = new FileReader();
-      reader.onload = e => {
-        if (img) img.src = e.target.result;
-        if (wrap) wrap.classList.remove('hidden');
-        if (current) current.src = e.target.result;
-      };
-      reader.readAsDataURL(file);
+    if (fileInput) {
+      fileInput.addEventListener('change', () => {
+        const file = fileInput.files?.[0];
+        if (!file) { if (wrap) wrap.classList.add('hidden'); return; }
+        const reader = new FileReader();
+        reader.onload = e => {
+          if (img) img.src = e.target.result;
+          if (wrap) wrap.classList.remove('hidden');
+          if (current) current.src = e.target.result;
+        };
+        reader.readAsDataURL(file);
+      });
+    }
+
+    // ── Unit selector ───────────────────────────────────────────────────
+    const unitHidden   = document.getElementById('unit-hidden');
+    const stockBadge   = document.getElementById('stock-unit-badge');
+    const stockInline  = document.getElementById('stock-unit-inline');
+    const stockInput   = document.getElementById('stock');
+    const unitBtns     = document.querySelectorAll('.unit-btn');
+
+    const UNIT_LABELS  = { u: 'u', g: 'g', kg: 'kg' };
+    const WEIGHT_UNITS = ['g', 'kg'];
+
+    function applyUnit(value) {
+      const isDark = document.documentElement.classList.contains('dark');
+
+      unitBtns.forEach(btn => {
+        const active = btn.dataset.unit === value;
+        btn.classList.toggle('bg-white',           active && !isDark);
+        btn.classList.toggle('dark:bg-neutral-700',active);
+        btn.classList.toggle('text-neutral-900',   active && !isDark);
+        btn.classList.toggle('dark:text-neutral-100', active);
+        btn.classList.toggle('shadow-sm',          active);
+        btn.classList.toggle('text-neutral-500',   !active);
+        btn.classList.toggle('dark:text-neutral-400', !active);
+      });
+
+      if (unitHidden)  unitHidden.value = value;
+
+      const label = UNIT_LABELS[value] ?? value;
+      if (stockBadge)  stockBadge.textContent = `(${label})`;
+      if (stockInline) stockInline.textContent = label;
+      if (stockInput)  stockInput.step = WEIGHT_UNITS.includes(value) ? '0.001' : '1';
+    }
+
+    unitBtns.forEach(btn => {
+      btn.addEventListener('click', () => applyUnit(btn.dataset.unit));
     });
+
+    // Initialize
+    applyUnit(unitHidden?.value ?? 'u');
   });
 </script>
 @endpush

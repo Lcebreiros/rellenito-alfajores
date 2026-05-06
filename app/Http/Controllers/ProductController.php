@@ -471,8 +471,8 @@ public function update(Request $request, Product $product)
     // Actualizar stock desde panel
     public function updateStock(Request $request, Product $product, StockService $stock)
     {
-        $data = $request->validate(['stock'=>'required|integer|min:0']);
-        $stock->setAbsolute($product, $data['stock'], 'admin set');
+        $data = $request->validate(['stock'=>'required|numeric|min:0']);
+        $stock->setAbsolute($product, (float)$data['stock'], 'admin set');
         return back()->with('ok','Stock actualizado');
     }
 

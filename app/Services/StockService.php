@@ -46,7 +46,7 @@ class StockService
 }
 
 
-    public function setAbsolute(Product $product, int $newStock, string $reason = 'manual set'): Product
+    public function setAbsolute(Product $product, float $newStock, string $reason = 'manual set'): Product
     {
         $diff = $newStock - $product->stock;
         return $this->adjust($product, $diff, $reason);

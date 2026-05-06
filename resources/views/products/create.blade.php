@@ -98,22 +98,20 @@
         <label class="block text-sm font-medium text-neutral-700 dark:text-neutral-200 mb-2">
           Unidad de venta
         </label>
-        <div class="inline-flex gap-1 p-1 bg-neutral-100 dark:bg-neutral-800 rounded-lg">
+        @php $currentUnit = old('unit', 'u'); @endphp
+        <div id="unit-selector" class="inline-flex gap-1 p-1 bg-neutral-100 dark:bg-neutral-800 rounded-lg">
           @foreach(['u' => 'Unidades', 'g' => 'Gramos', 'kg' => 'Kilogramos'] as $val => $label)
-            <label class="cursor-pointer">
-              <input type="radio" name="unit" value="{{ $val }}"
-                     class="sr-only peer"
-                     {{ old('unit', 'u') === $val ? 'checked' : '' }}>
-              <span class="block px-3 py-1.5 rounded-md text-xs font-semibold transition-all
-                           text-neutral-500 dark:text-neutral-400
-                           peer-checked:bg-white peer-checked:text-neutral-900 peer-checked:shadow-sm
-                           dark:peer-checked:bg-neutral-700 dark:peer-checked:text-neutral-100
-                           hover:text-neutral-700 dark:hover:text-neutral-200">
-                {{ $label }}
-              </span>
-            </label>
+            <button type="button"
+                    data-unit="{{ $val }}"
+                    class="unit-btn px-3 py-1.5 rounded-md text-xs font-semibold transition-all
+                           {{ $currentUnit === $val
+                              ? 'bg-white dark:bg-neutral-700 text-neutral-900 dark:text-neutral-100 shadow-sm'
+                              : 'text-neutral-500 dark:text-neutral-400 hover:text-neutral-700 dark:hover:text-neutral-200' }}">
+              {{ $label }}
+            </button>
           @endforeach
         </div>
+        <input type="hidden" name="unit" id="unit-hidden" value="{{ $currentUnit }}">
         <p class="mt-1 text-xs text-neutral-500 dark:text-neutral-400">Define cómo se mide y vende este producto.</p>
       </div>
 
@@ -354,6 +352,28 @@
       if (v.length < 6) return;
       lookupTimer = setTimeout(() => lookupBarcode(v), 400);
     });
+
+    // ── Unit selector ─────────────────────────────────────────────────
+    const unitHidden = document.getElementById('unit-hidden');
+    const unitBtns   = document.querySelectorAll('.unit-btn');
+
+    function applyUnit(value) {
+      const isDark = document.documentElement.classList.contains('dark');
+      unitBtns.forEach(btn => {
+        const active = btn.dataset.unit === value;
+        btn.classList.toggle('bg-white',              active && !isDark);
+        btn.classList.toggle('dark:bg-neutral-700',   active);
+        btn.classList.toggle('text-neutral-900',      active && !isDark);
+        btn.classList.toggle('dark:text-neutral-100', active);
+        btn.classList.toggle('shadow-sm',             active);
+        btn.classList.toggle('text-neutral-500',      !active);
+        btn.classList.toggle('dark:text-neutral-400', !active);
+      });
+      if (unitHidden) unitHidden.value = value;
+    }
+
+    unitBtns.forEach(btn => btn.addEventListener('click', () => applyUnit(btn.dataset.unit)));
+    applyUnit(unitHidden?.value ?? 'u');
   });
 </script>
 @endsection
