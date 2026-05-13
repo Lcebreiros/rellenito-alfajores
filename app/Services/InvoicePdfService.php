@@ -284,7 +284,7 @@ class InvoicePdfService
         $html .= '
     <div class="footer">
         <small>
-            Documento electrónico generado por Gestior - Sistema de Gestión Comercial<br>
+            Documento electrónico generado por Helipso - Sistema de Gestión Comercial<br>
             Fecha de generación: ' . now()->format('d/m/Y H:i') . '
         </small>
     </div>

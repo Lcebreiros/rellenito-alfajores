@@ -106,7 +106,7 @@
   {{-- ── HEADER ──────────────────────────────────────────── --}}
   <div class="header">
     <div class="header-left">
-      <div class="brand">NEXUM <span>· Gestior</span></div>
+      <div class="brand">NEXUM <span>· Helipso</span></div>
       <div class="report-title">Reporte de Negocio — {{ $config['frequency_label'] }}</div>
       <div class="report-meta">
         Período: {{ $period['start']->format('d/m/Y') }} al {{ $period['end']->format('d/m/Y') }}
@@ -510,7 +510,7 @@
 
   {{-- ── FOOTER ─────────────────────────────────────────────── --}}
   <div class="footer">
-    Generado automáticamente por <strong>Nexum · Gestior</strong>
+    Generado automáticamente por <strong>Nexum · Helipso</strong>
     &nbsp;·&nbsp; {{ now()->format('d/m/Y H:i') }}
     &nbsp;·&nbsp; Este reporte es de uso interno y confidencial.
   </div>

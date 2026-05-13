@@ -30,7 +30,7 @@
               flex flex-col items-center text-center">
     {{-- Logo centrado --}}
     <div class="mb-4">
-      <img src="{{ route('branding.plan-logo') }}" alt="Gestior Logo" class="w-80 h-54">
+      <img src="{{ route('branding.plan-logo') }}" alt="Helipso Logo" class="w-80 h-54">
     </div>
 
     {{-- Info --}}

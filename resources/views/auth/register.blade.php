@@ -4,7 +4,7 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
   <meta name="csrf-token" content="{{ csrf_token() }}">
-  <title>Registrarse • Gestior</title>
+  <title>Registrarse • Helipso</title>
 
   {{-- Fuentes --}}
   <link rel="preconnect" href="https://fonts.bunny.net">
@@ -96,11 +96,11 @@
     <div class="w-full max-w-6xl">
       <div class="card grid grid-cols-1 md:grid-cols-2">
 
-        {{-- IZQUIERDA: Branding Gestior (logo grande, sin contenedor, sin nombre) --}}
+        {{-- IZQUIERDA: Branding Helipso (logo grande, sin contenedor, sin nombre) --}}
         <section class="brand-pane p-8 md:p-12 flex items-center">
           <div class="relative z-10 w-full text-center md:text-left">
             {{-- Logo más grande, sin bg/contorno --}}
-            <img src="{{ asset('images/Gestior.png') }}" alt="Gestior" class="h-24 md:h-28 lg:h-32 w-auto select-none" />
+            <img src="{{ asset('helipso_dark.png') }}" alt="Helipso" class="h-24 md:h-28 lg:h-32 w-auto select-none" />
 
             <h1 class="mt-6 text-4xl md:text-5xl font-extrabold tracking-tight">{{ __('auth.welcome') }}</h1>
             <p class="mt-2 text-slate-300/95 text-sm md:text-base">

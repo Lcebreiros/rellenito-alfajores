@@ -87,6 +87,16 @@
       applyThemeClasses();
       document.addEventListener('livewire:navigated', () => applyThemeClasses(), { once: false });
       document.addEventListener('turbo:load', () => applyThemeClasses(), { once: false });
+
+      // Si la página no tiene sidebar, forzar sb-collapsed para que el velo no aparezca
+      function syncSidebarClass() {
+        if (!document.querySelector('.sidebar-container')) {
+          document.documentElement.classList.add('sb-collapsed');
+        }
+      }
+      document.addEventListener('livewire:navigated', syncSidebarClass, { once: false });
+      // También al cargar la página por primera vez
+      document.addEventListener('DOMContentLoaded', syncSidebarClass, { once: true });
     })();
   </script>
 
@@ -152,6 +162,7 @@
       width: 100% !important;
       max-width: 100% !important;
     }
+    .sb-content-veil { display: none !important; }
   </style>
   @endif
   @if($theme === 'neon')
@@ -268,7 +279,7 @@
                 </p>
             </div>
             <div class="ml-3 flex-shrink-0">
-                <a href="https://gestior.com.ar/email/verify"
+                <a href="https://helipso.com.ar/email/verify"
                    class="inline-flex items-center px-3 py-2 border border-transparent text-sm leading-4 font-medium rounded-md text-yellow-800 bg-yellow-100 hover:bg-yellow-200 dark:bg-yellow-800 dark:text-yellow-100 dark:hover:bg-yellow-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-yellow-500 transition-colors">
                     {{ __('auth.verify_now') }}
                 </a>

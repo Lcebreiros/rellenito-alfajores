@@ -290,6 +290,64 @@ class EmployeeController extends Controller
         return redirect()->route('company.employees.index')->with('success', 'Empleado eliminado.');
     }
 
+    public function export(): \Symfony\Component\HttpFoundation\StreamedResponse
+    {
+        $companyId = auth()->user()->rootCompany()?->id ?? auth()->id();
+
+        $employees = Employee::with('branch')
+            ->where('company_id', $companyId)
+            ->orderBy('last_name')
+            ->get();
+
+        $filename = 'empleados-' . now()->format('Ymd') . '.csv';
+
+        return response()->streamDownload(function () use ($employees) {
+            $handle = fopen('php://output', 'w');
+            fprintf($handle, chr(0xEF) . chr(0xBB) . chr(0xBF)); // UTF-8 BOM
+            fputcsv($handle, ['Apellido', 'Nombre', 'DNI', 'Email', 'Rol', 'Sucursal', 'Tipo contrato', 'Fecha ingreso', 'Sueldo']);
+            foreach ($employees as $emp) {
+                fputcsv($handle, [
+                    $emp->last_name,
+                    $emp->first_name,
+                    $emp->dni ?? '',
+                    $emp->email ?? '',
+                    $emp->role ?? '',
+                    $emp->branch?->name ?? '',
+                    $emp->contract_type ?? '',
+                    $emp->start_date?->format('d/m/Y') ?? '',
+                    $emp->salary ?? '',
+                ]);
+            }
+            fclose($handle);
+        }, $filename, ['Content-Type' => 'text/csv; charset=UTF-8']);
+    }
+
+    public function downloadContract(Employee $employee): \Symfony\Component\HttpFoundation\BinaryFileResponse|\Illuminate\Http\RedirectResponse
+    {
+        $this->authorize('view', $employee);
+
+        if (!$employee->contract_file_path || !Storage::disk('public')->exists($employee->contract_file_path)) {
+            return back()->withErrors(['contract' => 'El archivo de contrato no está disponible.']);
+        }
+
+        $path = Storage::disk('public')->path($employee->contract_file_path);
+        $ext  = pathinfo($employee->contract_file_path, PATHINFO_EXTENSION);
+        $name = 'contrato-' . str($employee->last_name . '-' . $employee->first_name)->slug() . '.' . $ext;
+
+        return response()->download($path, $name);
+    }
+
+    public function toggleComputer(Employee $employee): RedirectResponse
+    {
+        $this->authorize('update', $employee);
+
+        $employee->update(['has_computer' => !$employee->has_computer]);
+
+        $label = $employee->has_computer ? 'asignada' : 'removida';
+
+        return back()->with('success', "Computadora {$label} correctamente.");
+    }
+
     /**
      * Endpoint para importaciones masivas (delegar a job).
      * Sube un CSV y despacha un job que procese en background.

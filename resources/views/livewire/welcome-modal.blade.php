@@ -59,8 +59,10 @@
       {{-- Contenido (fijo) --}}
       <div class="flex-1 px-8 pt-10 pb-6 text-center overflow-y-auto overflow-x-hidden">
         {{-- Logo fijo (no altera layout) --}}
-        <img src="{{ asset('images/Gestior.png') }}" alt="Gestior"
-             class="mx-auto w-14 h-14 object-contain mb-4 select-none pointer-events-none" />
+        <img src="{{ asset('helipso_light.png') }}" alt="Helipso"
+             class="mx-auto w-14 h-14 object-contain mb-4 select-none pointer-events-none dark:hidden" />
+        <img src="{{ asset('helipso_dark.png') }}" alt="Helipso"
+             class="mx-auto w-14 h-14 object-contain mb-4 select-none pointer-events-none hidden dark:block" />
 
         {{-- Indicador de progreso --}}
         <div class="flex justify-center mb-6">

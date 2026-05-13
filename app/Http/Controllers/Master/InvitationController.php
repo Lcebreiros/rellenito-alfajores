@@ -238,7 +238,7 @@ class InvitationController extends Controller
     /**
      * Consumir/validar invitación (para uso desde otros sistemas o flujos)
      * 
-     * ⚠️ NOTA: En Gestior, esto se maneja desde SubscriptionController
+     * ⚠️ NOTA: En Helipso, esto se maneja desde SubscriptionController
      * Este método es para otros flujos dentro de rellenito-alfajores
      */
     public function consume(Request $request): RedirectResponse

@@ -3,7 +3,7 @@
     use Illuminate\Support\Facades\Storage;
 
     // Fallback por defecto
-    $src = asset('gestior_blanco.png');
+    $src = asset('helipso_blanco.png');
 
     if (Auth::check() && Auth::user()->app_logo_path) {
         $path = Auth::user()->app_logo_path;
@@ -25,7 +25,7 @@
 
 <img
   src="{{ $src }}"
-  alt="{{ config('app.name', 'Gestior') }}"
+  alt="{{ config('app.name', 'Helipso') }}"
   {{ $attributes->merge(['class' => 'h-9 w-auto']) }}
   loading="lazy"
   decoding="async"

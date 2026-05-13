@@ -29,7 +29,7 @@ class SettingsController extends Controller
             'success' => true,
             'data' => [
                 'branding' => [
-                    'site_title' => Setting::get('site_title', config('app.name', 'Gestior')),
+                    'site_title' => Setting::get('site_title', config('app.name', 'Helipso')),
                     'app_logo_url' => $user->app_logo_url,
                     'receipt_logo_url' => $user->receipt_logo_url,
                 ],

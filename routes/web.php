@@ -71,7 +71,7 @@ Route::get('/branding/app-logo', function () {
 
 // Fallback de logo de comprobante por defecto desde carpeta raíz images
 Route::get('/branding/default-receipt', function () {
-    $full = base_path('images/Gestior.png');
+    $full = base_path('images/Helipso.png');
     abort_unless(is_file($full), 404);
 
     return response()->file($full, [
@@ -106,12 +106,12 @@ Route::middleware([
         abort_unless($user, 401);
 
         $map = [
-            'basic'      => 'gestior-basic.png',
-            'premium'    => 'gestior-premium.png',
-            'enterprise' => 'gestior-enterprise.png', // intentaremos esta, luego variante con doble i
+            'basic'      => 'helipso-basic.png',
+            'premium'    => 'helipso-premium.png',
+            'enterprise' => 'helipso-enterprise.png', // intentaremos esta, luego variante con doble i
         ];
 
-        $default = 'Gestior.png';
+        $default = 'Helipso.png';
 
         $file = $default;
         $level = $user->subscription_level;
@@ -120,10 +120,10 @@ Route::middleware([
 
             // Manejar enterprise con posibles nombres
             if ($level === 'enterprise') {
-                $path1 = base_path('images/gestior-enterprise.png');
+                $path1 = base_path('images/helipso-enterprise.png');
                 $path2 = base_path('images/gestiior-enterprise.png');
                 if (is_file($path1)) {
-                    $candidate = 'gestior-enterprise.png';
+                    $candidate = 'helipso-enterprise.png';
                 } elseif (is_file($path2)) {
                     $candidate = 'gestiior-enterprise.png';
                 }
@@ -439,25 +439,7 @@ Route::middleware([
         Route::post('disconnect', [GoogleCalendarController::class, 'disconnect'])->name('disconnect');
         Route::post('toggle-sync', [GoogleCalendarController::class, 'toggleSync'])->name('toggle-sync');
         Route::get('status', [GoogleCalendarController::class, 'status'])->name('status');
-
-        // Test route - remove in production
-        Route::get('debug', function () {
-            $user = auth()->user();
-            return response()->json([
-                'user_id' => $user->id,
-                'google_access_token' => $user->google_access_token ? 'SET' : 'NULL',
-                'google_refresh_token' => $user->google_refresh_token ? 'SET' : 'NULL',
-                'google_email' => $user->google_email ?? 'NULL',
-                'google_calendar_sync_enabled' => $user->google_calendar_sync_enabled ?? false,
-                'has_tokens' => ($user->google_access_token && $user->google_refresh_token) ? 'YES' : 'NO',
-            ]);
-        })->name('debug');
     });
-
-    // Test Google Calendar - remove in production
-    // Route::get('/test-google', fn () => view('test-google'))->name('test-google');
-
-    // (Revert) Recibir productos: eliminado
 
     // ============ SOPORTE ============
     Route::get('/support', [SupportController::class, 'index'])->name('support.index');
@@ -466,25 +448,6 @@ Route::middleware([
     Route::post('/support/{ticket}/reply', [SupportController::class, 'reply'])->name('support.reply');
     Route::put('/support/{ticket}/status', [SupportController::class, 'updateStatus'])->name('support.status');
 
-    // ============ PUSHER TEST ============
-    Route::post('/test-notification', function() {
-        $user = auth()->user();
-        $notification = \App\Models\UserNotification::create([
-            'user_id' => $user->id,
-            'type' => 'test',
-            'title' => 'Notificación de prueba',
-            'message' => 'Esta es una notificación de prueba de Pusher - ' . now()->format('H:i:s'),
-            'data' => ['test' => true],
-        ]);
-
-        broadcast(new \App\Events\NewNotification($notification))->toOthers();
-
-        return response()->json([
-            'success' => true,
-            'notification' => $notification,
-            'message' => 'Notificación enviada. Revisa la consola del navegador para ver el evento.'
-        ]);
-    })->name('test.notification');
 }); // end requires.subscription group
 
 // ------------------------ MASTER: Invitations (UI) ------------------------

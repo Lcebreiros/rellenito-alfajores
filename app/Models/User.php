@@ -25,8 +25,8 @@ class User extends Authenticatable
     use HasApiTokens, HasFactory, HasProfilePhoto, Notifiable, TwoFactorAuthenticatable, HasRoles, SoftDeletes;
 
     public const DEFAULT_APP_LOGO      = 'images/logo.png';
-    // No usar public/; fallback debe ser images/Gestior.png en raíz (ruteado)
-    public const DEFAULT_RECEIPT_LOGO  = 'images/Gestior.png';
+    // No usar public/; fallback debe ser images/Helipso.png en raíz (ruteado)
+    public const DEFAULT_RECEIPT_LOGO  = 'images/Helipso.png';
 
     // Jerarquía
     public const HIERARCHY_MASTER  = -1;
@@ -316,7 +316,7 @@ class User extends Authenticatable
             return route('user.receipt-logo', ['v' => $v]);
         }
 
-        // Fallback: logo por defecto "Gestior.png" desde raíz/images (nunca otro usuario)
+        // Fallback: logo por defecto "Helipso.png" desde raíz/images (nunca otro usuario)
         return route('branding.default-receipt');
     }
     public function rootCompany(): ?self

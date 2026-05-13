@@ -55,6 +55,9 @@ class RentalSpaceController extends Controller
     public function store(Request $request)
     {
         $companyId = $this->currentCompanyId();
+        if (!$companyId) {
+            return back()->withErrors(['general' => 'El usuario master no puede crear espacios sin contexto de empresa.']);
+        }
 
         $data = $request->validate([
             'name'        => 'required|string|max:100',
@@ -130,6 +133,9 @@ class RentalSpaceController extends Controller
     public function storeCategory(Request $request)
     {
         $companyId = $this->currentCompanyId();
+        if (!$companyId) {
+            return back()->withErrors(['general' => 'El usuario master no puede crear categorías sin contexto de empresa.']);
+        }
 
         $data = $request->validate([
             'name'  => 'required|string|max:100',

@@ -61,7 +61,7 @@
                 <div>
                     <label for="subscription_level" class="block text-sm font-medium text-gray-700">{{ __('master.subscription_label') }}</label>
                     @php
-                        // ✅ Actualizado para coincidir con Gestior
+                        // ✅ Actualizado para coincidir con Helipso
                         $planLabels = [
                           'basic' => 'Basic — Hasta 5 usuarios, 1 sucursal',
                           'premium' => 'Premium — Hasta 50 usuarios, 5 sucursales',

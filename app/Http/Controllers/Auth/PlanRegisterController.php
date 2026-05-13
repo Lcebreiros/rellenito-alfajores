@@ -20,7 +20,7 @@ class PlanRegisterController extends Controller
         $validPlans = ['basic', 'premium', 'enterprise'];
 
         if (!in_array($plan, $validPlans)) {
-            abort(404);
+            abort(400);
         }
 
         // Si el usuario está autenticado, crear solicitud automáticamente

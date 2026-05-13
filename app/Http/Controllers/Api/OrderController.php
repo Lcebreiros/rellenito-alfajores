@@ -430,7 +430,7 @@ class OrderController extends Controller
                 : $paymentMethod->name;
         }
 
-        // Logo: primero el del usuario, sino el default Gestior.png
+        // Logo: primero el del usuario, sino el default Helipso.png
         $logoUrl = route('branding.default-receipt');
         $logoBase64 = null;
 
@@ -451,7 +451,7 @@ class OrderController extends Controller
 
         // Si no hay logo de usuario, usar el default
         if (!$logoBase64) {
-            $defaultLogoPath = base_path('images/Gestior.png');
+            $defaultLogoPath = base_path('images/Helipso.png');
             if (file_exists($defaultLogoPath)) {
                 try {
                     $imageData = file_get_contents($defaultLogoPath);

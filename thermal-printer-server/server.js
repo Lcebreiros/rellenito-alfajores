@@ -268,7 +268,7 @@ app.post('/test', async (req, res) => {
     entry_at: new Date().toLocaleString('es-AR', { dateStyle: 'short', timeStyle: 'short' }),
     barcode: '0000000999',
     business_name: 'Estacionamiento Moreno S.R.L.',
-    app_name: 'Gestior',
+    app_name: 'Helipso',
   };
 
   try {

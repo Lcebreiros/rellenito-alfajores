@@ -84,7 +84,7 @@ return [
     'whats_next'               => 'O que vem a seguir?',
     'review_step'              => 'Nossa equipe revisará sua solicitação nas próximas <strong>24 horas</strong>',
     'credentials_step'         => 'Enviaremos um e-mail com suas <strong>credenciais de acesso</strong>',
-    'start_step'               => 'Você poderá começar a usar o <strong>Gestior imediatamente</strong>',
+    'start_step'               => 'Você poderá começar a usar o <strong>Helipso imediatamente</strong>',
     'go_to_login'              => 'Ir para login',
     'view_other_plans'         => 'Ver outros planos',
     'no_email_received'        => 'Não recebeu o e-mail? Verifique sua pasta de spam ou',
@@ -102,7 +102,7 @@ return [
     'whats_next_title'         => 'O que acontece depois?',
     'next_step_1'              => 'Revisaremos sua solicitação',
     'next_step_2'              => 'Enviaremos as credenciais de acesso por e-mail',
-    'next_step_3'              => 'Você poderá começar a usar o Gestior imediatamente',
+    'next_step_3'              => 'Você poderá começar a usar o Helipso imediatamente',
     'request_free_access'      => 'Solicitar acesso gratuito',
     'back_to_plans'            => '← Voltar aos planos',
     'already_have_account'     => 'Já tem uma conta? Entre',
@@ -118,7 +118,7 @@ return [
     'feature_stock'             => 'Controle o estoque em tempo real',
     'feature_products'          => 'Gerencie seus produtos',
     'feature_expenses'          => 'Calcule e monitore seus gastos',
-    'copyright'                 => '© :year Gestior — Todos os direitos reservados.',
+    'copyright'                 => '© :year Helipso — Todos os direitos reservados.',
 
     // Register wizard
     'what_business_type'       => 'Que tipo de negócio você tem?',

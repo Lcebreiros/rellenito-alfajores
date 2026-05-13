@@ -12,7 +12,7 @@ class WelcomeModal extends Component
 
     /** @var array<int, array<string, mixed>> */
     public $steps = [
-        1 => ['image'=>null,                'title'=>'Bienvenido a Gestior', 'description'=>'¿Qué tal un tour por lo que podés hacer?', 'icon'=>'M3 7h18M3 12h12M3 17h18'],
+        1 => ['image'=>null,                'title'=>'Bienvenido a Helipso', 'description'=>'¿Qué tal un tour por lo que podés hacer?', 'icon'=>'M3 7h18M3 12h12M3 17h18'],
         2 => ['image'=>'dashboard.png',     'title'=>'Dashboard',            'description'=>'Tu centro de visualización con un resumen de estadísticas.', 'icon'=>'M3 7h18M3 12h12M3 17h18'],
         3 => ['image'=>'crear-pedido.png',  'title'=>'Crear pedido',         'description'=>'Agregá productos y armá pedidos rápidamente.', 'icon'=>'M8 7h8M6 11h12M4 15h16'],
         4 => ['image'=>'pedidos.png',       'title'=>'Pedidos',              'description'=>'Listado de pedidos, detalle y acceso a comprobantes.', 'icon'=>'M7 7h10v10H7z'],

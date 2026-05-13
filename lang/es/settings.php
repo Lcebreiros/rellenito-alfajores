@@ -73,7 +73,7 @@ return [
     'sync_item_update'          => 'Actualización automática al cambiar fechas o detalles',
     'sync_item_delete'          => 'Eliminación automática al cancelar o eliminar ventas',
     'sync_disabled_title'       => 'Sincronización desactivada',
-    'sync_disabled_desc'        => 'Los ventas nuevas solo se guardarán en Gestior. Activá la sincronización para ver tus ventas en Google Calendar.',
+    'sync_disabled_desc'        => 'Los ventas nuevas solo se guardarán en Helipso. Activá la sincronización para ver tus ventas en Google Calendar.',
     'privacy_note'              => 'Privacidad: Solo accedemos a tu calendario para crear eventos de tus ventas. No compartimos tu información con terceros. Podés desconectar tu cuenta en cualquier momento.',
     'disconnect_confirm'        => "¿Estás seguro de que querés desconectar tu cuenta de Google Calendar?\n\nLos eventos existentes permanecerán en tu calendario, pero no se sincronizarán nuevas ventas.",
     'disconnect_google_btn'     => 'Desconectar Google Calendar',

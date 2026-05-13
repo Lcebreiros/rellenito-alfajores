@@ -86,7 +86,7 @@ class GoogleCalendarController extends Controller
 
         $message = $syncEnabled
             ? 'Sincronización activada. Los nuevos pedidos se agregarán automáticamente a tu Google Calendar.'
-            : 'Sincronización desactivada. Los pedidos solo se guardarán en Gestior.';
+            : 'Sincronización desactivada. Los pedidos solo se guardarán en Helipso.';
 
         return redirect()->route('settings')->with('success', $message);
     }

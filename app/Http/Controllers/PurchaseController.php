@@ -213,7 +213,17 @@ class PurchaseController extends Controller
             'purchased_at' => $data['purchased_at'] ?? now()->toDateString(),
         ]);
 
-        $product->increment('stock', $stockQty);
+        $oldStock   = (float) $product->stock;
+        $oldCost    = (float) $product->cost_price;
+        $newStock   = $oldStock + $stockQty;
+        $newAvgCost = $newStock > 0
+            ? round((($oldStock * $oldCost) + $data['total_cost']) / $newStock, 2)
+            : round($data['total_cost'] / $stockQty, 2);
+
+        $product->update([
+            'stock'      => $newStock,
+            'cost_price' => $newAvgCost,
+        ]);
 
         return back()->with('ok', __('purchases.product_stored'));
     }
@@ -231,9 +241,12 @@ class PurchaseController extends Controller
             } catch (\InvalidArgumentException) {
                 // unidad incompatible — eliminar sin revertir stock
             }
-        }
 
-        $purchase->delete();
+            $purchase->delete();
+            $product->recomputeCostPriceFromPurchases();
+        } else {
+            $purchase->delete();
+        }
 
         return back()->with('ok', __('purchases.deleted'));
     }

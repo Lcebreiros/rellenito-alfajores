@@ -4,7 +4,7 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
   <meta name="csrf-token" content="{{ csrf_token() }}">
-  <title>{{ __('auth.request_sent_title') }} • Gestior</title>
+  <title>{{ __('auth.request_sent_title') }} • Helipso</title>
 
   {{-- Fuentes --}}
   <link rel="preconnect" href="https://fonts.bunny.net">
@@ -53,7 +53,7 @@
 
       {{-- Logo --}}
       <div class="text-center mb-8">
-        <img src="{{ asset('images/Gestior.png') }}" alt="Gestior" class="h-16 w-auto mx-auto select-none" />
+        <img src="{{ asset('helipso_dark.png') }}" alt="Helipso" class="h-16 w-auto mx-auto select-none" />
       </div>
 
       <div class="card bg-white p-8 md:p-10 text-center">
@@ -121,13 +121,13 @@
         <div class="mt-8 pt-6 border-t border-slate-200">
           <p class="text-sm text-slate-500">
             {{ __('auth.no_email_received') }}
-            <a href="mailto:soporte@gestior.com" class="text-violet-700 hover:underline font-medium">{{ __('auth.contact_support') }}</a>
+            <a href="mailto:soporte@helipso.com" class="text-violet-700 hover:underline font-medium">{{ __('auth.contact_support') }}</a>
           </p>
         </div>
       </div>
 
       <div class="text-center mt-6">
-        <p class="text-xs text-slate-400">&copy; {{ date('Y') }} Gestior — {{ __('auth.all_rights_reserved') }}</p>
+        <p class="text-xs text-slate-400">&copy; {{ date('Y') }} Helipso — {{ __('auth.all_rights_reserved') }}</p>
       </div>
     </div>
   </div>

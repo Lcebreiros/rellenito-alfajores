@@ -12,7 +12,7 @@ return [
     |    PHP se comunica directamente con la impresora USB.
     |    No requiere servidor Node.js.
     |
-    | 2. VIA SERVIDOR (Recomendado si usas Gate + Gestior):
+    | 2. VIA SERVIDOR (Recomendado si usas Gate + Helipso):
     |    Usa servidor Node.js como intermediario.
     |    Permite que múltiples programas usen la misma impresora.
     |

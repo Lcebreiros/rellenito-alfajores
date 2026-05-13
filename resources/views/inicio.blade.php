@@ -29,7 +29,8 @@
   @endphp
   <div class="relative flex items-center justify-center w-full">
     <div class="absolute left-0 inset-y-0 flex items-center gap-2 sm:gap-3 z-10">
-      <img src="{{ asset('images/Gestior.png') }}" alt="Gestior" class="h-8 sm:h-9 lg:h-10 w-auto" />
+      <img src="{{ asset('helipso_light.png') }}" alt="Helipso" class="h-8 sm:h-9 lg:h-10 w-auto dark:hidden" />
+      <img src="{{ asset('helipso_dark.png') }}" alt="Helipso" class="h-8 sm:h-9 lg:h-10 w-auto hidden dark:block" />
       @if($levelLabel)
         <span class="text-sm sm:text-base lg:text-lg text-neutral-500 dark:text-neutral-400 font-bold">{{ $levelLabel }}</span>
       @endif

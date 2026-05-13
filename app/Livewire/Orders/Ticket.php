@@ -27,7 +27,7 @@ class Ticket extends Component
             $v = Storage::disk('public')->lastModified($userPath);
             $this->logoUrl = route('user.receipt-logo', ['v' => $v]); // streamea solo el del usuario autenticado
         }
-        // 2) Fallback: Gestior.png de raíz (no usar logo de otro usuario)
+        // 2) Fallback: Helipso.png de raíz (no usar logo de otro usuario)
         else {
             $this->logoUrl = route('branding.default-receipt');
         }

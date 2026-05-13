@@ -73,7 +73,7 @@ return [
     'sync_item_update'          => 'Automatic updates when dates or details change',
     'sync_item_delete'          => 'Automatic deletion when sales are cancelled or deleted',
     'sync_disabled_title'       => 'Synchronization disabled',
-    'sync_disabled_desc'        => 'New sales will only be saved in Gestior. Enable synchronization to see your sales in Google Calendar.',
+    'sync_disabled_desc'        => 'New sales will only be saved in Helipso. Enable synchronization to see your sales in Google Calendar.',
     'privacy_note'              => 'Privacy: We only access your calendar to create events for your sales. We do not share your information with third parties. You can disconnect your account at any time.',
     'disconnect_confirm'        => "Are you sure you want to disconnect your Google Calendar account?\n\nExisting events will remain in your calendar, but new sales will not be synced.",
     'disconnect_google_btn'     => 'Disconnect Google Calendar',

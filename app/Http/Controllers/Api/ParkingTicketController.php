@@ -50,7 +50,7 @@ class ParkingTicketController extends Controller
     {
         $ticketData = $ticketService->generateTicketData($parkingStay);
         $ticketData['business_name'] = config('parking.business_name', 'Estacionamiento Moreno S.R.L.');
-        $ticketData['app_name'] = config('app.name', 'Gestior');
+        $ticketData['app_name'] = config('app.name', 'Helipso');
 
         return $ticketData;
     }

@@ -4,6 +4,9 @@ namespace App\Livewire;
 
 use App\Models\TrialRequest;
 use App\Models\User;
+use App\Mail\TrialApprovedMail;
+use App\Mail\TrialRejectedMail;
+use Illuminate\Support\Facades\Mail;
 use Livewire\Component;
 use Livewire\WithPagination;
 use Illuminate\Support\Facades\Hash;
@@ -41,6 +44,7 @@ class TrialRequests extends Component
                 'is_active' => true,
                 'email_verified_at' => $user->email_verified_at ?? now(),
             ]);
+            Mail::to($user->email)->queue(new TrialApprovedMail($user));
         } else {
             // Flujo legacy: crear usuario con contraseña temporal
             $temporaryPassword = Str::random(12);
@@ -54,8 +58,7 @@ class TrialRequests extends Component
                 'is_active' => true,
                 'hierarchy_level' => User::HIERARCHY_COMPANY,
             ]);
-            // TODO: Enviar email al usuario con sus credenciales temporales
-            // Mail::to($user->email)->send(new TrialApprovedMail($user, $temporaryPassword));
+            Mail::to($user->email)->queue(new TrialApprovedMail($user, $temporaryPassword));
         }
 
         $request->update([
@@ -86,8 +89,7 @@ class TrialRequests extends Component
             'notes' => $notes,
         ]);
 
-        // TODO: Enviar email de rechazo
-        // Mail::to($request->email)->send(new TrialRejectedMail($request));
+        Mail::to($request->email)->queue(new TrialRejectedMail($request));
 
         session()->flash('success', 'Solicitud rechazada.');
     }

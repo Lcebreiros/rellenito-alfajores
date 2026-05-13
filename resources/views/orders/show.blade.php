@@ -70,13 +70,17 @@ $s = $statusMap[$statusKey] ?? [
   $fmt = fn($n) => '$'.number_format((float)$n, 2, ',', '.');
 
   $items = $order->items ?? collect();
-  $subtotalCalc = $items->sum(fn($it)=> (float)($it->unit_price ?? 0) * (int)($it->quantity ?? 0));
+  $subtotalCalc = $items->sum(fn($it) =>
+      !is_null($it->subtotal)
+          ? (float) $it->subtotal
+          : (float)($it->unit_price ?? 0) * (float)($it->quantity ?? 0)
+  );
   $discount = (float)($order->discount_total ?? 0);
   $shipping = (float)($order->shipping_total ?? 0);
   $tax      = (float)($order->tax_total ?? 0);
   $subtotal = (float)($order->subtotal ?? $subtotalCalc);
   $total    = (float)($order->total ?? ($subtotal - $discount + $shipping + $tax));
-  $totalItems = (int) ($items->sum('quantity') ?? 0);
+  $totalItems = (float) ($items->sum('quantity') ?? 0);
 
   $voucherUrl = \Illuminate\Support\Facades\Route::has('orders.voucher') ? route('orders.voucher', $order) : null;
 @endphp
@@ -221,10 +225,15 @@ $s = $statusMap[$statusKey] ?? [
             <div class="text-xs uppercase tracking-wide text-neutral-500 dark:text-neutral-400 mb-2">{{ __('orders.show.products') }}</div>
             @foreach ($productItems as $item)
               @php
-                $name = $item->product->name ?? $item->name ?? 'Producto';
-                $unit = (float)($item->unit_price ?? 0);
-                $qty  = (int)($item->quantity ?? 0);
-                $itemTotal = $unit * $qty;
+                $name      = $item->product->name ?? $item->name ?? 'Producto';
+                $unitPrice = (float)($item->unit_price ?? 0);
+                $qty       = (float)($item->quantity ?? 0);
+                $itemTotal = !is_null($item->subtotal) ? (float)$item->subtotal : $unitPrice * $qty;
+                $pUnit     = $item->product?->unit ?? 'u';
+                $isWeight  = in_array($pUnit, ['g', 'kg']);
+                $qtyLabel  = $isWeight
+                    ? rtrim(rtrim(number_format($qty, 3, ',', '.'), '0'), ',') . ' ' . $pUnit
+                    : number_format((int)$qty, 0, ',', '.');
               @endphp
               <div class="grid grid-cols-1 sm:grid-cols-12 items-center gap-3 py-3 border-b border-neutral-100 dark:border-neutral-800/60 last:border-0">
                 <div class="sm:col-span-7 flex items-center gap-3 min-w-0">
@@ -237,10 +246,10 @@ $s = $statusMap[$statusKey] ?? [
                   @endif
                   <div class="min-w-0">
                     <div class="font-medium text-neutral-800 dark:text-neutral-100 truncate">{{ $name }}</div>
-                    <div class="text-xs text-neutral-500 dark:text-neutral-400">{{ $fmt($unit) }} · {{ __('orders.show.unit') }}</div>
+                    <div class="text-xs text-neutral-500 dark:text-neutral-400">{{ $fmt($unitPrice) }} · {{ __('orders.show.unit') }}</div>
                   </div>
                 </div>
-                <div class="sm:col-span-2 text-neutral-600 dark:text-neutral-300 text-sm">x {{ $qty }}</div>
+                <div class="sm:col-span-2 text-neutral-600 dark:text-neutral-300 text-sm">{{ $qtyLabel }}</div>
                 <div class="sm:col-span-3 text-right font-semibold text-neutral-900 dark:text-neutral-100">{{ $fmt($itemTotal) }}</div>
               </div>
             @endforeach
@@ -250,10 +259,11 @@ $s = $statusMap[$statusKey] ?? [
             <div class="text-xs uppercase tracking-wide text-neutral-500 dark:text-neutral-400 mt-4 mb-2">{{ __('orders.show.services') }}</div>
             @foreach ($serviceItems as $item)
               @php
-                $name = $item->service->name ?? $item->name ?? 'Servicio';
-                $unit = (float)($item->unit_price ?? 0);
-                $qty  = (int)($item->quantity ?? 0);
-                $itemTotal = $unit * $qty;
+                $name      = $item->service->name ?? $item->name ?? 'Servicio';
+                $unitPrice = (float)($item->unit_price ?? 0);
+                $qty       = (float)($item->quantity ?? 0);
+                $itemTotal = !is_null($item->subtotal) ? (float)$item->subtotal : $unitPrice * $qty;
+                $qtyLabel  = number_format((int)$qty, 0, ',', '.');
               @endphp
               <div class="grid grid-cols-1 sm:grid-cols-12 items-center gap-3 py-3 border-b border-neutral-100 dark:border-neutral-800/60 last:border-0">
                 <div class="sm:col-span-7 flex items-center gap-3 min-w-0">
@@ -262,10 +272,10 @@ $s = $statusMap[$statusKey] ?? [
                   </div>
                   <div class="min-w-0">
                     <div class="font-medium text-neutral-800 dark:text-neutral-100 truncate">{{ $name }}</div>
-                    <div class="text-xs text-neutral-500 dark:text-neutral-400">{{ $fmt($unit) }} · {{ __('orders.show.service_label') }}</div>
+                    <div class="text-xs text-neutral-500 dark:text-neutral-400">{{ $fmt($unitPrice) }} · {{ __('orders.show.service_label') }}</div>
                   </div>
                 </div>
-                <div class="sm:col-span-2 text-neutral-600 dark:text-neutral-300 text-sm">x {{ $qty }}</div>
+                <div class="sm:col-span-2 text-neutral-600 dark:text-neutral-300 text-sm">{{ $qtyLabel }}</div>
                 <div class="sm:col-span-3 text-right font-semibold text-neutral-900 dark:text-neutral-100">{{ $fmt($itemTotal) }}</div>
               </div>
             @endforeach

@@ -84,7 +84,7 @@ return [
     'whats_next'               => "What's next?",
     'review_step'              => 'Our team will review your request within the next <strong>24 hours</strong>',
     'credentials_step'         => 'We will send you an email with your <strong>access credentials</strong>',
-    'start_step'               => 'You can start using <strong>Gestior immediately</strong>',
+    'start_step'               => 'You can start using <strong>Helipso immediately</strong>',
     'go_to_login'              => 'Go to login',
     'view_other_plans'         => 'View other plans',
     'no_email_received'        => "Didn't receive the email? Check your spam folder or",
@@ -102,7 +102,7 @@ return [
     'whats_next_title'         => "What happens next?",
     'next_step_1'              => 'We will review your request',
     'next_step_2'              => 'We will send your access credentials by email',
-    'next_step_3'              => 'You can start using Gestior immediately',
+    'next_step_3'              => 'You can start using Helipso immediately',
     'request_free_access'      => 'Request free access',
     'back_to_plans'            => '← Back to plans',
     'already_have_account'     => 'Already have an account? Sign in',
@@ -118,7 +118,7 @@ return [
     'feature_stock'             => 'Control stock in real time',
     'feature_products'          => 'Manage your products',
     'feature_expenses'          => 'Calculate and track your expenses',
-    'copyright'                 => '© :year Gestior — All rights reserved.',
+    'copyright'                 => '© :year Helipso — All rights reserved.',
 
     // Register wizard
     'what_business_type'       => 'What type of business do you have?',

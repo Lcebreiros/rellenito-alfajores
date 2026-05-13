@@ -51,7 +51,7 @@ class ReportReadyNotification extends Notification
             ->line('**Tamaño:** ' . $this->report->fileSizeFormatted())
             ->action('Descargar reporte', url('/nexum'))
             ->line('Podés descargarlo en cualquier momento desde tu panel de Nexum.')
-            ->salutation('— Nexum · Gestior');
+            ->salutation('— Nexum · Helipso');
     }
 
     public function toArray(object $notifiable): array

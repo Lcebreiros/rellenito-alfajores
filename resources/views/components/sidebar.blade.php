@@ -251,7 +251,7 @@
     <div class="sidebar-header flex-shrink-0 h-16 flex items-center px-3">
       <a href="{{ route('inicio') }}" wire:navigate data-turbo="false"
          class="flex items-center gap-2.5 w-full transition-opacity duration-200 hover:opacity-90"
-         title="Gestior" aria-label="Gestior">
+         title="Helipso" aria-label="Helipso">
         <span class="shrink-0 w-10 flex items-center justify-center">
           <x-application-mark class="h-7 w-auto filter drop-shadow-sm" />
         </span>
@@ -293,7 +293,7 @@
 @endphp
 
         <span class="nav-label user-info flex flex-col leading-tight">
-          <span class="font-bold text-base text-white truncate">Gestior</span>
+          <span class="font-bold text-base text-white truncate">Helipso</span>
           @if($levelLabel)
             <span class="text-[11px] font-semibold text-white/70 truncate uppercase tracking-wide">{{ $levelLabel }}</span>
           @endif

@@ -64,7 +64,7 @@ class ThermalPrinterService
             $ticketService = new ParkingTicketService();
             $ticketData = $ticketService->generateTicketData($stay);
             $ticketData['business_name'] = config('parking.business_name', 'Estacionamiento Moreno S.R.L.');
-            $ticketData['app_name'] = config('app.name', 'Gestior');
+            $ticketData['app_name'] = config('app.name', 'Helipso');
 
             $response = Http::timeout($this->timeout)
                 ->post($this->serverUrl . '/print/ticket', [
