@@ -96,11 +96,19 @@
       <div class="flex-1 space-y-2.5 overflow-y-auto dashboard-widget-scroll">
         @forelse($items as $p)
           @php
-            $min   = $hasMin ? (int)($p->min_stock ?? 0) : 0;
-            $isLow = $hasMin ? ((int)$p->stock <= $min) : ((int)$p->stock <= 0);
-            $ratio = $hasMin
-                ? max(0, min(100, $min > 0 ? round(($p->stock / max(1,$min)) * 100) : 100))
-                : ((int)$p->stock > 0 ? 100 : 0);
+            $wUnit  = $p->unit ?? 'u';
+            $wIsWt  = in_array($wUnit, ['g', 'kg']);
+            $stk    = (float)$p->stock;
+            $mnStk  = (float)($p->min_stock ?? 0);
+            $fmtW   = function(float $v) use ($wUnit, $wIsWt): string {
+                if ($wIsWt) return rtrim(rtrim(number_format($v, 3, ',', '.'), '0'), ',') . ' ' . $wUnit;
+                return number_format((int) $v, 0, ',', '.');
+            };
+            $min    = $hasMin ? $mnStk : 0;
+            $isLow  = $hasMin ? ($stk <= $min) : ($stk <= 0);
+            $ratio  = $hasMin
+                ? max(0, min(100, $min > 0 ? round(($stk / max(0.001,$min)) * 100) : 100))
+                : ($stk > 0 ? 100 : 0);
           @endphp
           <div class="flex items-center gap-3">
             <div class="flex-1 min-w-0">
@@ -116,13 +124,13 @@
                      style="width: {{ $ratio }}%"></div>
               </div>
             </div>
-            <div class="text-right w-16 shrink-0">
+            <div class="text-right shrink-0">
               <div class="text-sm font-bold tabular-nums
                           {{ $isLow ? 'text-rose-500 dark:text-rose-400' : 'text-neutral-800 dark:text-neutral-100' }}">
-                {{ (int)$p->stock }}
+                {{ $fmtW($stk) }}
               </div>
               @if($hasMin)
-                <div class="text-[10px] text-neutral-400 dark:text-neutral-500">{{ __('dashboard.min_prefix') }}{{ (int)$p->min_stock }}</div>
+                <div class="text-[10px] text-neutral-400 dark:text-neutral-500">{{ __('dashboard.min_prefix') }}{{ $fmtW($mnStk) }}</div>
               @endif
             </div>
           </div>

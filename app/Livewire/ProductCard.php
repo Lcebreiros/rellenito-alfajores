@@ -17,7 +17,7 @@ class ProductCard extends Component
     public ?int $productId = null;
 
     public float $qty = 1.0;
-    public int $currentStock = 0;
+    public float $currentStock = 0.0;
     public bool $isActive = false;
     public bool $isAdding = false;
 
@@ -82,7 +82,7 @@ class ProductCard extends Component
         }
 
         if ($this->product) {
-            $this->currentStock   = (int) $this->product->stock;
+            $this->currentStock   = (float) $this->product->stock;
             $this->isActive       = (bool) $this->product->is_active;
             $this->qty            = max(1, min($this->qty, max(0, $this->currentStock)));
             $unit                 = $this->product->unit ?? 'u';
@@ -118,9 +118,6 @@ class ProductCard extends Component
         $this->isAdding = true;
 
         try {
-            // 🔎 Log al inicio (debug temporal)
-            \Log::info('ProductCard@add fired', ['productId' => $this->productId]);
-
             if (!$this->productId) {
                 $this->dispatch('notify', type:'error', message:'Producto inválido.');
                 return;
@@ -206,17 +203,5 @@ class ProductCard extends Component
     {
         return view('livewire.product-card');
     }
-
-    // dentro de la clase ProductCard
-public int $clicks = 0; // 👈 contador de test
-
-public function testClick(): void
-{
-    $this->clicks++;
-    \Log::info('ProductCard@testClick fired', [
-        'productId' => $this->productId,
-        'clicks'    => $this->clicks,
-    ]);
-}
 
 }

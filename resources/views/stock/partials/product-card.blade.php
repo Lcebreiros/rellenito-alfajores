@@ -1,10 +1,22 @@
 @php
-  $totalStock = (int) ($product->total_stock ?? 0);
-  $branchStock = (int) ($product->stock_in_branch ?? 0);
-  $displayStock = (int) ($product->display_stock ?? ($branchId ? $branchStock : $totalStock));
-  $minStock = (int) ($product->min_stock ?? 0);
-  $price = (float) ($product->price ?? 0);
-  $value = $price * $displayStock;
+  $productUnit  = $product->unit ?? 'u';
+  $isWeightUnit = in_array($productUnit, ['g', 'kg']);
+
+  $totalStock   = (float) ($product->total_stock ?? 0);
+  $branchStock  = (float) ($product->stock_in_branch ?? 0);
+  $displayStock = (float) ($product->display_stock ?? ($branchId ? $branchStock : $totalStock));
+  $minStock     = (float) ($product->min_stock ?? 0);
+  $price        = (float) ($product->price ?? 0);
+  $value        = $price * $displayStock;
+
+  // Formatea un valor de stock según la unidad del producto
+  $stockFmt = function(float $v) use ($productUnit, $isWeightUnit): string {
+      if ($isWeightUnit) {
+          $formatted = rtrim(rtrim(number_format($v, 3, ',', '.'), '0'), ',');
+          return $formatted . ' ' . $productUnit;
+      }
+      return number_format((int) $v, 0, ',', '.');
+  };
 
   // Obtener umbral configurado por el usuario
   $userThreshold = auth()->user()?->low_stock_threshold ?? 5;
@@ -110,7 +122,7 @@
             @endif
           </div>
           <div class="text-2xl font-bold {{ $stockColor }} leading-none">
-            {{ number_format($displayStock) }}
+            {{ $stockFmt($displayStock) }}
           </div>
         </div>
 
@@ -118,7 +130,7 @@
           <div class="text-right">
             <div class="text-[10px] text-gray-500 dark:text-neutral-500 uppercase tracking-wide mb-0.5">{{ __('stock.stock_minimum') }}</div>
             <div class="text-sm font-semibold text-gray-700 dark:text-neutral-300">
-              {{ number_format($minStock) }}
+              {{ $stockFmt($minStock) }}
             </div>
           </div>
         @endif
@@ -155,7 +167,7 @@
             <i class="fas fa-warehouse text-[9px] mr-1" aria-hidden="true"></i>{{ __('stock.stock_total') }}
           </span>
           <span class="text-xs font-semibold text-gray-700 dark:text-neutral-300">
-            {{ number_format($totalStock) }}
+            {{ $stockFmt($totalStock) }}
           </span>
         </div>
       @endif

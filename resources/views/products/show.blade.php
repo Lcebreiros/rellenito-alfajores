@@ -102,10 +102,20 @@
             </div>
 
             {{-- Card de stock --}}
+            @php
+                $showUnit   = $product->unit ?? 'u';
+                $isWt       = in_array($showUnit, ['g', 'kg']);
+                $fmtStkVal  = function(float $v) use ($showUnit, $isWt): string {
+                    if ($isWt) {
+                        return rtrim(rtrim(number_format($v, 3, ',', '.'), '0'), ',') . ' ' . $showUnit;
+                    }
+                    return number_format((int) $v, 0, ',', '.');
+                };
+            @endphp
             <div class="bg-white dark:bg-neutral-900 rounded-xl border border-neutral-100 dark:border-neutral-800 p-5">
                 <div class="flex items-center justify-between mb-3">
                     <h3 class="text-sm font-semibold text-neutral-800 dark:text-neutral-200">{{ __('products.form.stock') }}</h3>
-                    <span class="text-lg font-bold text-neutral-900 dark:text-neutral-100">{{ $totalStock }}</span>
+                    <span class="text-lg font-bold text-neutral-900 dark:text-neutral-100">{{ $fmtStkVal((float)$totalStock) }}</span>
                 </div>
                 @if($locations->count())
                     <div class="space-y-1.5">
@@ -113,7 +123,7 @@
                             <div class="flex justify-between items-center py-1.5 border-b border-neutral-50 dark:border-neutral-800 last:border-0 text-sm">
                                 <span class="text-neutral-600 dark:text-neutral-300">{{ $loc->branch->name ?? 'Sucursal ' . $loc->branch_id }}</span>
                                 <span class="font-medium {{ $loc->stock > 0 ? 'text-blue-600 dark:text-blue-300' : 'text-rose-500 dark:text-rose-400' }}">
-                                    {{ $loc->stock }}
+                                    {{ $fmtStkVal((float)$loc->stock) }}
                                 </span>
                             </div>
                         @endforeach

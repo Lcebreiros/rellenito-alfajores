@@ -42,13 +42,18 @@
       $thumb = null;
     }
 
+    // Formateo de stock con unidad para productos de peso
+    $stockDisplay = ($isWeight && ($currentStock ?? 0) > 0)
+        ? rtrim(rtrim(number_format((float)$currentStock, 3, ',', '.'), '0'), ',') . ' ' . $productUnit
+        : (int)($currentStock ?? 0);
+
     if(!$isActive){
       $badgeText = __('products.status_inactive');
       $badgeDot  = 'bg-slate-400';
       $badgeRing = 'border-slate-200/80 dark:border-slate-600';
       $badgeTxt  = 'text-slate-600 dark:text-slate-300';
     } elseif(($currentStock ?? 0) > 0){
-      $badgeText = __('products.stock_label', ['count' => (int)$currentStock]);
+      $badgeText = __('products.stock_label', ['count' => $stockDisplay]);
       $badgeDot  = 'bg-emerald-500';
       $badgeRing = 'border-emerald-200/60 dark:border-emerald-800';
       $badgeTxt  = 'text-emerald-700 dark:text-emerald-300';
@@ -70,7 +75,12 @@
       {{-- Nombre + precio/unidad --}}
       <div class="min-w-0">
         <h3 class="text-xs sm:text-sm font-medium text-slate-900 dark:text-white leading-tight line-clamp-2">{{ $name }}</h3>
-        <p class="text-[10px] text-slate-500 dark:text-neutral-400 mt-0.5 truncate">{{ $priceLbl }}</p>
+        <div class="flex items-center gap-1.5 mt-0.5 flex-wrap">
+          <p class="text-[10px] text-slate-500 dark:text-neutral-400 truncate">{{ $priceLbl }}</p>
+          @if(($currentStock ?? 0) > 0)
+            <span class="text-[10px] text-emerald-600 dark:text-emerald-400 font-medium">· {{ $stockDisplay }}</span>
+          @endif
+        </div>
       </div>
 
       {{-- Input de peso + selector g / kg --}}

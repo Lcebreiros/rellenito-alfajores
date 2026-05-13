@@ -24,8 +24,8 @@ class StockAdjustment extends Model
     ];
 
     protected $casts = [
-        'quantity_change' => 'decimal:2',
-        'new_stock' => 'decimal:2',
+        'quantity_change' => 'decimal:3',
+        'new_stock' => 'decimal:3',
     ];
 
     // ================================

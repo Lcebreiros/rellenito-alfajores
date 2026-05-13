@@ -35,9 +35,19 @@
           @endif
         </div>
       </div>
+      @php
+        $pUnit      = $product->unit ?? 'u';
+        $pIsWeight  = in_array($pUnit, ['g', 'kg']);
+        $fmtStock   = function(float $v) use ($pUnit, $pIsWeight): string {
+            if ($pIsWeight) {
+                return rtrim(rtrim(number_format($v, 3, ',', '.'), '0'), ',') . ' ' . $pUnit;
+            }
+            return number_format((int) $v, 0, ',', '.');
+        };
+      @endphp
       <div class="text-right">
         <div class="text-xs text-neutral-500 dark:text-neutral-400">{{ __('stock.company_total') }}</div>
-        <div class="text-2xl font-bold text-neutral-900 dark:text-neutral-100">{{ number_format((float)$totalCompanyStock, 0, ',', '.') }}</div>
+        <div class="text-2xl font-bold text-neutral-900 dark:text-neutral-100">{{ $fmtStock((float)$totalCompanyStock) }}</div>
       </div>
     </div>
   </div>
@@ -57,7 +67,7 @@
             <div class="py-2 flex items-center justify-between">
               <div class="text-neutral-800 dark:text-neutral-200">{{ $row['name'] }}</div>
               <div class="font-semibold {{ $row['stock'] > 0 ? 'text-blue-600 dark:text-blue-300' : 'text-neutral-500 dark:text-neutral-400' }}">
-                {{ number_format((float)$row['stock'], 0, ',', '.') }}
+                {{ $fmtStock((float)$row['stock']) }}
               </div>
             </div>
           @endforeach

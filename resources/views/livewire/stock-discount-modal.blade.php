@@ -33,6 +33,28 @@
         <div class="overflow-y-auto flex-1">
           <form wire:submit.prevent="discount" class="p-5 space-y-4">
 
+          @php
+            // Formatea el stock actual con su unidad
+            $fmtStock = $isWeightProduct
+                ? rtrim(rtrim(number_format($currentStock, 3, ',', '.'), '0'), ',') . ' ' . $productUnit
+                : number_format((int)$currentStock, 0, ',', '.');
+
+            // Máximo ingresable en la unidad elegida por el usuario
+            $maxInput = $isWeightProduct && $discountUnit !== $productUnit
+                ? $currentStock * \App\Services\UnitConverter::factorToBase($productUnit, $discountUnit)
+                : $currentStock;
+
+            // Stock restante si se descuenta (en unidad nativa del producto)
+            $inputAsNative = (float)$quantity;
+            if ($isWeightProduct && $discountUnit !== $productUnit && $inputAsNative > 0) {
+                $inputAsNative *= \App\Services\UnitConverter::factorToBase($discountUnit, $productUnit);
+            }
+            $remaining = max(0, $currentStock - $inputAsNative);
+            $fmtRemaining = $isWeightProduct
+                ? rtrim(rtrim(number_format($remaining, 3, ',', '.'), '0'), ',') . ' ' . $productUnit
+                : number_format((int)$remaining, 0, ',', '.');
+          @endphp
+
           {{-- Stock actual --}}
           <div class="p-4 bg-blue-50 dark:bg-blue-900/20 border border-blue-200 dark:border-blue-800 rounded-xl">
             <div class="flex items-center justify-between">
@@ -45,7 +67,7 @@
                     {{ __('stock.discount_current') }}
                   </div>
                   <div class="text-2xl font-bold text-blue-900 dark:text-blue-100">
-                    {{ number_format($currentStock) }}
+                    {{ $fmtStock }}
                   </div>
                 </div>
               </div>
@@ -58,25 +80,56 @@
               <i class="fas fa-hashtag text-xs mr-1"></i>
               {{ __('stock.discount_qty_label') }}
             </label>
-            <input type="number"
-                   id="quantity"
-                   wire:model.defer="quantity"
-                   min="1"
-                   max="{{ $currentStock }}"
-                   class="w-full px-4 py-3 border border-gray-300 dark:border-neutral-600
-                          bg-white dark:bg-neutral-800
-                          text-gray-900 dark:text-neutral-100
-                          rounded-xl focus:ring-2 focus:ring-rose-500 focus:border-rose-500
-                          transition-colors"
-                   placeholder="{{ __('stock.discount_qty_ph') }}"
-                   required>
+
+            @if($isWeightProduct)
+              {{-- Selector de unidad para productos por peso --}}
+              <div class="flex gap-2 mb-2">
+                <button type="button"
+                        wire:click="$set('discountUnit','g')"
+                        class="flex-1 py-2 rounded-lg text-sm font-semibold border transition-colors
+                               {{ $discountUnit === 'g'
+                                  ? 'bg-rose-600 border-rose-600 text-white'
+                                  : 'border-gray-300 dark:border-neutral-600 text-gray-600 dark:text-neutral-300 hover:bg-gray-50 dark:hover:bg-neutral-800' }}">
+                  Gramos (g)
+                </button>
+                <button type="button"
+                        wire:click="$set('discountUnit','kg')"
+                        class="flex-1 py-2 rounded-lg text-sm font-semibold border transition-colors
+                               {{ $discountUnit === 'kg'
+                                  ? 'bg-rose-600 border-rose-600 text-white'
+                                  : 'border-gray-300 dark:border-neutral-600 text-gray-600 dark:text-neutral-300 hover:bg-gray-50 dark:hover:bg-neutral-800' }}">
+                  Kilogramos (kg)
+                </button>
+              </div>
+            @endif
+
+            <div class="relative">
+              <input type="{{ $isWeightProduct ? 'number' : 'number' }}"
+                     id="quantity"
+                     wire:model.live="quantity"
+                     min="{{ $isWeightProduct ? '0.001' : '1' }}"
+                     step="{{ $isWeightProduct ? '1' : '1' }}"
+                     max="{{ $maxInput }}"
+                     class="w-full px-4 py-3 border border-gray-300 dark:border-neutral-600
+                            bg-white dark:bg-neutral-800
+                            text-gray-900 dark:text-neutral-100
+                            rounded-xl focus:ring-2 focus:ring-rose-500 focus:border-rose-500
+                            transition-colors {{ $isWeightProduct ? 'pr-14' : '' }}"
+                     placeholder="{{ $isWeightProduct ? ($discountUnit === 'g' ? 'ej: 650' : 'ej: 0.650') : __('stock.discount_qty_ph') }}"
+                     required>
+              @if($isWeightProduct)
+                <span class="absolute inset-y-0 right-4 flex items-center text-sm font-bold text-gray-500 dark:text-neutral-400 pointer-events-none">
+                  {{ $discountUnit }}
+                </span>
+              @endif
+            </div>
             @error('quantity')
               <p class="mt-2 text-sm text-rose-600 dark:text-rose-400">
                 <i class="fas fa-exclamation-circle mr-1"></i>{{ $message }}
               </p>
             @enderror
             <p class="mt-2 text-xs text-gray-500 dark:text-neutral-400">
-              {{ __('stock.discount_qty_max', ['count' => number_format($currentStock)]) }}
+              Disponible: <span class="font-semibold">{{ $fmtStock }}</span>
             </p>
           </div>
 
@@ -135,7 +188,7 @@
           </div>
 
           {{-- Vista previa del resultado --}}
-          @if($quantity > 0 && $quantity <= $currentStock)
+          @if((float)$quantity > 0 && $inputAsNative <= $currentStock)
             <div class="p-4 bg-amber-50 dark:bg-amber-900/20 border border-amber-200 dark:border-amber-800 rounded-xl">
               <div class="flex items-center justify-between">
                 <div>
@@ -143,7 +196,7 @@
                     {{ __('stock.discount_result') }}
                   </div>
                   <div class="text-2xl font-bold text-amber-900 dark:text-amber-100">
-                    {{ number_format($currentStock - $quantity) }}
+                    {{ $fmtRemaining }}
                   </div>
                 </div>
                 <div class="text-right">
@@ -151,7 +204,7 @@
                     {{ __('stock.discount_will_deduct') }}
                   </div>
                   <div class="text-lg font-bold text-rose-600 dark:text-rose-400">
-                    -{{ number_format($quantity) }}
+                    -{{ number_format((float)$quantity, $isWeightProduct ? 0 : 0, ',', '.') }} {{ $isWeightProduct ? $discountUnit : '' }}
                   </div>
                 </div>
               </div>

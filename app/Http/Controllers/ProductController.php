@@ -172,9 +172,12 @@ class ProductController extends Controller
         'external_image_url' => 'nullable|url|max:500',
         'price' => 'required|numeric|min:0',
         'stock' => 'nullable|numeric|min:0',
+        'unit' => 'nullable|string|in:u,g,kg,ml,l',
         'uses_stock' => 'boolean',
         'is_active' => 'boolean'
     ]);
+
+    $data['unit'] = $data['unit'] ?? 'u';
 
     // Normalizar uses_stock desde checkbox
     $data['uses_stock'] = $request->boolean('uses_stock');
@@ -224,9 +227,12 @@ public function update(Request $request, Product $product)
         'price' => 'required|numeric|min:0',
         'image' => 'nullable|image|max:5120',
         'external_image_url' => 'nullable|url|max:500',
+        'unit' => 'nullable|string|in:u,g,kg,ml,l',
         'uses_stock' => 'boolean',
         'is_active' => 'boolean'
     ]);
+
+    $data['unit'] = $data['unit'] ?? $product->unit ?? 'u';
 
     // Normalizar uses_stock desde checkbox
     $data['uses_stock'] = $request->boolean('uses_stock');
@@ -538,7 +544,7 @@ public function lookupExternal(Request $request)
         
         $resp = Http::timeout(15)
             ->withHeaders([
-                'User-Agent' => 'Gestior-POS/1.0 (+https://gestior.com.ar)',
+                'User-Agent' => 'Helipso-POS/1.0 (+https://helipso.com.ar)',
                 'Accept' => 'application/json'
             ])
             ->get($url);
@@ -735,7 +741,7 @@ private function normalizarNombre(string $nombre): string
             // Descargar la imagen con timeout de 15 segundos
             $response = Http::timeout(15)
                 ->withHeaders([
-                    'User-Agent' => 'Gestior-POS/1.0 (+https://gestior.com.ar)',
+                    'User-Agent' => 'Helipso-POS/1.0 (+https://helipso.com.ar)',
                     'Accept' => 'image/*'
                 ])
                 ->get($url);

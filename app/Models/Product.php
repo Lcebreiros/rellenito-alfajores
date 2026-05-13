@@ -64,6 +64,11 @@ class Product extends Model
     public function orderItems() { return $this->hasMany(OrderItem::class); }
     public function recipeItems() { return $this->hasMany(ProductRecipe::class); }
 
+    public function purchases()
+    {
+        return $this->hasMany(ProductPurchase::class);
+    }
+
     public function favoritedBy()
     {
         return $this->belongsToMany(User::class, 'product_favorites')->withTimestamps();
@@ -266,6 +271,38 @@ class Product extends Model
         }
 
         return $this->stock <= $this->min_stock;
+    }
+
+    /**
+     * Recalcula cost_price como promedio ponderado de todas las compras del producto.
+     * Útil al eliminar una compra para no dejar un costo huérfano.
+     */
+    public function recomputeCostPriceFromPurchases(): void
+    {
+        $purchases = $this->purchases()->get();
+
+        if ($purchases->isEmpty()) {
+            return;
+        }
+
+        $totalBaseQty = 0.0;
+        $totalCost    = 0.0;
+        $baseUnit     = $this->unit ?? 'u';
+
+        foreach ($purchases as $p) {
+            try {
+                $factor = \App\Services\UnitConverter::factorToBase($p->unit, $baseUnit);
+            } catch (\InvalidArgumentException) {
+                $factor = 1.0;
+            }
+            $totalBaseQty += (float) $p->qty * $factor;
+            $totalCost    += (float) $p->total_cost;
+        }
+
+        if ($totalBaseQty > 0) {
+            $this->cost_price = round($totalCost / $totalBaseQty, 2);
+            $this->save();
+        }
     }
 
     /**

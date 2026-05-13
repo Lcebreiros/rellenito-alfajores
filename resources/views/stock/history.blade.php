@@ -36,7 +36,7 @@
   <div class="print-only print-header" style="display: none;">
     <div class="text-center border-b border-gray-400 pb-1">
       {{-- Aquí puedes agregar tu logo --}}
-      <img src="{{ asset('images/Gestior.png') }}" alt="Logo" class="mx-auto mb-1" style="max-height: 40px;">
+      <img src="{{ asset('helipso_light.png') }}" alt="Logo" class="mx-auto mb-1" style="max-height: 40px;">
       <h1 class="text-lg font-bold text-gray-900 mb-0">{{ __('stock.history_title') }}</h1>
       <p class="text-gray-600 text-xs mb-0">{{ __('stock.generated_at') }} {{ now()->format('d/m/Y H:i') }}</p>
     </div>
@@ -199,15 +199,25 @@
       <div class="space-y-3">
         @foreach($stockHistory as $h)
           @php
-            $change = $h->quantity_change;
-            if ($change === 0) continue;
+            $change = (float) $h->quantity_change;
+            if ($change === 0.0) continue;
 
             $badgeColor = $change > 0
                 ? 'bg-emerald-100 text-emerald-700 dark:bg-emerald-900/40 dark:text-emerald-300'
                 : 'bg-rose-100 text-rose-700 dark:bg-rose-900/40 dark:text-rose-300';
 
             $icon = $change > 0 ? 'fa-plus' : 'fa-minus';
-            $changeText = $change > 0 ? "+{$change}" : $change;
+
+            $hUnit   = optional($h->product)->unit ?? 'u';
+            $hIsWt   = in_array($hUnit, ['g', 'kg']);
+            $fmtHStk = function(float $v) use ($hUnit, $hIsWt): string {
+                if ($hIsWt) {
+                    return rtrim(rtrim(number_format(abs($v), 3, ',', '.'), '0'), ',') . ' ' . $hUnit;
+                }
+                return number_format((int) abs($v), 0, ',', '.');
+            };
+            $changeText = ($change > 0 ? '+' : '-') . $fmtHStk($change);
+            $newStockFmt = $fmtHStk((float) $h->new_stock);
           @endphp
 
           <div class="rounded-xl border border-gray-200 dark:border-neutral-700 p-4 hover:shadow-sm transition-all bg-white dark:bg-neutral-900">
@@ -243,7 +253,7 @@
                     
                     <div class="flex items-center gap-1">
                       <span class="text-gray-500 dark:text-neutral-400">{{ __('stock.final_stock_label') }}</span>
-                      <span class="font-semibold text-gray-900 dark:text-neutral-100">{{ $h->new_stock }}</span>
+                      <span class="font-semibold text-gray-900 dark:text-neutral-100">{{ $newStockFmt }}</span>
                     </div>
 
                     <span class="px-2.5 py-1 rounded-full text-xs font-medium {{ $badgeColor }}">
