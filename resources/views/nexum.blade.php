@@ -437,9 +437,12 @@
     /* ── Report generation modal ────────────────────────────────────────── */
     .nexum-modal-overlay {
       position: fixed; inset: 0; z-index: 9999;
-      background: rgba(255,255,255,0.98);
+      background: rgba(255,255,255,0.06);
+      backdrop-filter: blur(10px);
+      -webkit-backdrop-filter: blur(10px);
       display: flex; align-items: center; justify-content: center;
     }
+    /* Card solo para el estado "listo" */
     .nexum-modal-glass {
       position: relative;
       text-align: center;
@@ -449,7 +452,7 @@
       background: #fff;
       border: 1px solid #e5e7eb;
       border-radius: 16px;
-      box-shadow: 0 4px 32px rgba(0,0,0,0.08);
+      box-shadow: 0 4px 32px rgba(0,0,0,0.12);
     }
     .nexum-modal-x {
       position: absolute; top: .75rem; right: .75rem;
@@ -464,16 +467,16 @@
       line-height: 1;
     }
     .nexum-modal-x:hover { background: #e5e7eb; color: #374151; }
-    /* Spinner ring */
+    /* Spinner ring — mismo tamaño y proporciones que page-loader */
     .nexum-modal-spinner {
-      width: 52px; height: 52px; margin: 0 auto 1.5rem;
-      border: 3px solid #ede9fe;
+      width: 1.75rem; height: 1.75rem; margin: 0 auto;
+      border: 2.5px solid rgba(237,233,254,0.5);
       border-top-color: #7c3aed;
       border-radius: 50%;
       animation: nx-modal-spin 0.72s linear infinite;
     }
     @keyframes nx-modal-spin { to { transform: rotate(360deg); } }
-    /* Success ring */
+    /* Success ring (dentro de la card) */
     .nexum-modal-check {
       width: 52px; height: 52px; margin: 0 auto 1.5rem;
       border: 2px solid rgba(16,185,129,0.3);
@@ -481,6 +484,15 @@
       display: flex; align-items: center; justify-content: center;
       background: rgba(16,185,129,0.08);
     }
+    /* Títulos flotantes (estado generando — sobre fondo oscuro de nexum) */
+    .nexum-modal-title-float {
+      font-size: 1rem; font-weight: 600; color: rgba(255,255,255,0.9);
+      margin-bottom: .25rem; letter-spacing: -.01em;
+    }
+    .nexum-modal-sub-float {
+      font-size: .8rem; color: rgba(255,255,255,0.5);
+    }
+    /* Títulos de tarjeta (estado listo — sobre fondo blanco) */
     .nexum-modal-title {
       font-size: 1.1rem; font-weight: 700; color: #111827;
       margin-bottom: .35rem; letter-spacing: -.015em;

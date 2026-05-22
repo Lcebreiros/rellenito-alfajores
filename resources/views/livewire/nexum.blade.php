@@ -452,57 +452,63 @@
     style="display:none;"
     @click.self="if(done) { show = false; }"
   >
-    <div
-      class="nexum-modal-glass"
-      x-transition:enter="transition ease-out duration-280"
-      x-transition:enter-start="opacity-0 scale-95 -translate-y-3"
-      x-transition:enter-end="opacity-100 scale-100 translate-y-0"
-      x-transition:leave="transition ease-in duration-180"
-      x-transition:leave-start="opacity-100 scale-100 translate-y-0"
-      x-transition:leave-end="opacity-0 scale-95 translate-y-2"
-    >
+    {{-- Estado: Generando — flotante, sin tarjeta --}}
+    <div x-show="!done"
+         x-transition:enter="transition ease-out duration-250"
+         x-transition:enter-start="opacity-0 scale-95"
+         x-transition:enter-end="opacity-100 scale-100"
+         x-transition:leave="transition ease-in duration-180"
+         x-transition:leave-start="opacity-100 scale-100"
+         x-transition:leave-end="opacity-0 scale-95"
+         style="display:flex;flex-direction:column;align-items:center;gap:1.25rem;text-align:center;padding:0 1.5rem;">
+      <x-application-mark style="height:2rem;width:auto;opacity:0.6;" />
+      <div class="nexum-modal-spinner"></div>
+      <div>
+        <p class="nexum-modal-title-float">{{ __('nexum.modal_generating_title') }}</p>
+        <p class="nexum-modal-sub-float">{{ __('nexum.modal_generating_sub') }}</p>
+      </div>
+    </div>
 
-      {{-- X cerrar (solo cuando listo) --}}
-      <button x-show="done" @click="show = false" class="nexum-modal-x" title="{{ __('nexum.modal_close_title') }}" x-cloak>
+    {{-- Estado: Listo — tarjeta blanca --}}
+    <div x-show="done" x-cloak
+         x-transition:enter="transition ease-out duration-280"
+         x-transition:enter-start="opacity-0 scale-95 -translate-y-3"
+         x-transition:enter-end="opacity-100 scale-100 translate-y-0"
+         x-transition:leave="transition ease-in duration-180"
+         x-transition:leave-start="opacity-100 scale-100 translate-y-0"
+         x-transition:leave-end="opacity-0 scale-95 translate-y-2"
+         class="nexum-modal-glass">
+
+      <button @click="show = false" class="nexum-modal-x" title="{{ __('nexum.modal_close_title') }}">
         <svg width="13" height="13" fill="none" stroke="currentColor" stroke-width="2.2" viewBox="0 0 24 24">
           <path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12"/>
         </svg>
       </button>
 
-      {{-- Estado: Generando ──────────────────────────── --}}
-      <div x-show="!done">
-        <div class="nexum-modal-spinner"></div>
-        <p class="nexum-modal-title">{{ __('nexum.modal_generating_title') }}</p>
-        <p class="nexum-modal-sub">{{ __('nexum.modal_generating_sub') }}</p>
+      <div class="nexum-modal-check">
+        <svg width="24" height="24" fill="none" stroke="#34d399" stroke-width="2.5" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7"/>
+        </svg>
       </div>
-
-      {{-- Estado: Listo ──────────────────────────────── --}}
-      <div x-show="done" x-cloak>
-        <div class="nexum-modal-check">
-          <svg width="24" height="24" fill="none" stroke="#34d399" stroke-width="2.5" viewBox="0 0 24 24">
-            <path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7"/>
+      <p class="nexum-modal-title">{{ __('nexum.modal_ready_title') }}</p>
+      <p class="nexum-modal-sub">{{ __('nexum.modal_ready_sub') }}</p>
+      <div class="nexum-modal-actions">
+        <a :href="viewUrl" target="_blank" class="nexum-modal-btn-view">
+          <svg width="15" height="15" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/>
+            <path stroke-linecap="round" stroke-linejoin="round" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"/>
           </svg>
-        </div>
-        <p class="nexum-modal-title">{{ __('nexum.modal_ready_title') }}</p>
-        <p class="nexum-modal-sub">{{ __('nexum.modal_ready_sub') }}</p>
-        <div class="nexum-modal-actions">
-          <a :href="viewUrl" target="_blank" class="nexum-modal-btn-view">
-            <svg width="15" height="15" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
-              <path stroke-linecap="round" stroke-linejoin="round" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/>
-              <path stroke-linecap="round" stroke-linejoin="round" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"/>
-            </svg>
-            {{ __('nexum.modal_view_btn') }}
-          </a>
-          <a :href="downloadUrl" class="nexum-modal-btn-download">
-            <svg width="15" height="15" fill="none" stroke="currentColor" stroke-width="2.2" viewBox="0 0 24 24">
-              <path stroke-linecap="round" stroke-linejoin="round" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"/>
-            </svg>
-            {{ __('nexum.modal_download_btn') }}
-          </a>
-        </div>
+          {{ __('nexum.modal_view_btn') }}
+        </a>
+        <a :href="downloadUrl" class="nexum-modal-btn-download">
+          <svg width="15" height="15" fill="none" stroke="currentColor" stroke-width="2.2" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"/>
+          </svg>
+          {{ __('nexum.modal_download_btn') }}
+        </a>
       </div>
-
     </div>
+
   </div>
 
 </div>

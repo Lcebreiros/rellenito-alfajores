@@ -312,7 +312,7 @@
            x-transition:enter-start="opacity-0" x-transition:enter-end="opacity-100"
            x-transition:leave="transition-opacity duration-75"
            x-transition:leave-start="opacity-100" x-transition:leave-end="opacity-0"
-           class="px-2 pt-1 pb-0.5 text-[9px] font-bold uppercase tracking-widest text-white/35 select-none whitespace-nowrap">
+           class="px-2 pt-1 pb-0.5 text-[9px] font-bold uppercase tracking-widest text-white/70 select-none whitespace-nowrap">
         Operación
       </div>
 
@@ -408,7 +408,7 @@
            x-transition:enter-start="opacity-0" x-transition:enter-end="opacity-100"
            x-transition:leave="transition-opacity duration-75"
            x-transition:leave-start="opacity-100" x-transition:leave-end="opacity-0"
-           class="px-2 pt-3 pb-0.5 text-[9px] font-bold uppercase tracking-widest text-white/35 select-none whitespace-nowrap">
+           class="px-2 pt-3 pb-0.5 text-[9px] font-bold uppercase tracking-widest text-white/70 select-none whitespace-nowrap">
         Gestión
       </div>
 
@@ -535,7 +535,7 @@
            x-transition:enter-start="opacity-0" x-transition:enter-end="opacity-100"
            x-transition:leave="transition-opacity duration-75"
            x-transition:leave-start="opacity-100" x-transition:leave-end="opacity-0"
-           class="px-2 pt-3 pb-0.5 text-[9px] font-bold uppercase tracking-widest text-white/35 select-none whitespace-nowrap">
+           class="px-2 pt-3 pb-0.5 text-[9px] font-bold uppercase tracking-widest text-white/70 select-none whitespace-nowrap">
         Master
       </div>
 
@@ -585,7 +585,7 @@
            x-transition:enter-start="opacity-0" x-transition:enter-end="opacity-100"
            x-transition:leave="transition-opacity duration-75"
            x-transition:leave-start="opacity-100" x-transition:leave-end="opacity-0"
-           class="px-2 pt-3 pb-0.5 text-[9px] font-bold uppercase tracking-widest text-white/35 select-none whitespace-nowrap">
+           class="px-2 pt-3 pb-0.5 text-[9px] font-bold uppercase tracking-widest text-white/70 select-none whitespace-nowrap">
         Sistema
       </div>
 
