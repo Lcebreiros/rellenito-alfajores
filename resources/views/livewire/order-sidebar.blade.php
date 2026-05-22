@@ -412,10 +412,7 @@
     <div class="relative flex items-center justify-center">
       {{-- Loader (se oculta al finalizar) --}}
       <template x-if="!finished && !error">
-        <div class="relative">
-          <div class="w-16 h-16 border-[3px] border-violet-100 dark:border-white/10 rounded-full"></div>
-          <div class="absolute top-0 left-0 w-16 h-16 border-[3px] border-violet-600 dark:border-white border-t-transparent rounded-full animate-spin"></div>
-        </div>
+        <x-helipso-loader size="64px" palette="auto" />
       </template>
 
       {{-- Icono Éxito --}}

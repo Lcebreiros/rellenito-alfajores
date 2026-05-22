@@ -467,14 +467,6 @@
       line-height: 1;
     }
     .nexum-modal-x:hover { background: #e5e7eb; color: #374151; }
-    /* Spinner ring — mismo tamaño y proporciones que page-loader */
-    .nexum-modal-spinner {
-      width: 1.75rem; height: 1.75rem; margin: 0 auto;
-      border: 2.5px solid rgba(237,233,254,0.5);
-      border-top-color: #7c3aed;
-      border-radius: 50%;
-      animation: nx-modal-spin 0.72s linear infinite;
-    }
     @keyframes nx-modal-spin { to { transform: rotate(360deg); } }
     /* Success ring (dentro de la card) */
     .nexum-modal-check {

@@ -461,8 +461,7 @@
          x-transition:leave-start="opacity-100 scale-100"
          x-transition:leave-end="opacity-0 scale-95"
          style="display:flex;flex-direction:column;align-items:center;gap:1.25rem;text-align:center;padding:0 1.5rem;">
-      <x-application-mark style="height:2rem;width:auto;opacity:0.6;" />
-      <div class="nexum-modal-spinner"></div>
+      <x-helipso-loader size="56px" palette="brand" />
       <div>
         <p class="nexum-modal-title-float">{{ __('nexum.modal_generating_title') }}</p>
         <p class="nexum-modal-sub-float">{{ __('nexum.modal_generating_sub') }}</p>

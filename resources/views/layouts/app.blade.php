@@ -503,36 +503,129 @@
 
   @stack('scripts')
 
+  {{-- ── Helipso Loader Engine (global) ─────────────────────────────────── --}}
+  <script>
+  (function () {
+    var STATES = [
+      { nodes: [{x:38,y:22,r:2.6},{x:44,y:56,r:3.8},{x:40,y:90,r:2.4},{x:56,y:48,r:3.0},{x:72,y:58,r:2.4},{x:78,y:66,r:3.8},{x:74,y:90,r:2.4}],
+        lines: [{x1:38,y1:22,x2:44,y2:56},{x1:44,y1:56,x2:40,y2:90},{x1:44,y1:56,x2:56,y2:48},{x1:56,y1:48,x2:72,y2:58},{x1:72,y1:58,x2:78,y2:66},{x1:78,y1:66,x2:74,y2:90}] },
+      { nodes: [{x:50,y:14,r:3.0},{x:50,y:50,r:2.8},{x:50,y:86,r:3.4},{x:26,y:50,r:2.6},{x:76,y:50,r:2.8},{x:86,y:74,r:2.2},{x:78,y:86,r:2.2}],
+        lines: [{x1:50,y1:14,x2:50,y2:50},{x1:50,y1:50,x2:50,y2:86},{x1:26,y1:50,x2:76,y2:50},{x1:50,y1:86,x2:78,y2:86},{x1:78,y1:86,x2:86,y2:74},{x1:86,y1:74,x2:76,y2:50}] },
+      { nodes: [{x:16,y:36,r:2.8},{x:30,y:28,r:2.6},{x:44,y:34,r:2.4},{x:56,y:46,r:2.8},{x:70,y:60,r:3.2},{x:58,y:78,r:2.6},{x:46,y:64,r:2.8}],
+        lines: [{x1:16,y1:36,x2:30,y2:28},{x1:30,y1:28,x2:44,y2:34},{x1:44,y1:34,x2:56,y2:46},{x1:56,y1:46,x2:70,y2:60},{x1:70,y1:60,x2:58,y2:78},{x1:58,y1:78,x2:46,y2:64}] },
+      { nodes: [{x:16,y:42,r:2.8},{x:32,y:70,r:3.2},{x:48,y:38,r:2.8},{x:64,y:72,r:3.4},{x:82,y:32,r:2.8},{x:42,y:18,r:2.2},{x:72,y:54,r:2.2}],
+        lines: [{x1:16,y1:42,x2:32,y2:70},{x1:32,y1:70,x2:48,y2:38},{x1:48,y1:38,x2:64,y2:72},{x1:64,y1:72,x2:82,y2:32},{x1:48,y1:38,x2:42,y2:18},{x1:64,y1:72,x2:72,y2:54}] }
+    ];
+    var PALETTES = {
+      brand:   {node:'#FFFFFF',accent:'#D670F0',line:'#B79CFA',halo:'#D670F0'},
+      cosmos:  {node:'#FFFFFF',accent:'#D670F0',line:'#C4B5FD',halo:'#E879F9'},
+      violet:  {node:'#8A5CF5',accent:'#5B2FCC',line:'#8A5CF5',halo:'#8A5CF5'},
+      fuchsia: {node:'#D670F0',accent:'#A638C8',line:'#D670F0',halo:'#D670F0'},
+      white:   {node:'#FFFFFF',accent:'#FFFFFF',line:'#FFFFFF',halo:'#FFFFFF'},
+      ink:     {node:'#1A1330',accent:'#1A1330',line:'#1A1330',halo:'#1A1330'}
+    };
+    var NS = 'http://www.w3.org/2000/svg';
+
+    window.initHelipsoLoader = function (svg, opts) {
+      var palette  = opts && opts.palette  || 'brand';
+      var cycleMs  = opts && opts.cycleMs  || 7000;
+      var strokeW  = opts && opts.strokeW  || 1.2;
+      var holdRatio = 0.55;
+      var p = PALETTES[palette] || PALETTES.brand;
+
+      svg.setAttribute('viewBox', '0 0 100 100');
+      svg.innerHTML = '';
+
+      var halo = document.createElementNS(NS, 'circle');
+      halo.style.filter = 'blur(2px)';
+      halo.setAttribute('fill', p.halo);
+      svg.appendChild(halo);
+
+      var lineEls = [];
+      for (var li = 0; li < 6; li++) {
+        var ln = document.createElementNS(NS, 'line');
+        ln.setAttribute('stroke-linecap', 'round');
+        ln.setAttribute('fill', 'none');
+        ln.setAttribute('stroke', p.line);
+        ln.setAttribute('stroke-width', strokeW);
+        ln.setAttribute('opacity', '0.85');
+        svg.appendChild(ln);
+        lineEls.push(ln);
+      }
+      var nodeEls = [];
+      for (var ni = 0; ni < 7; ni++) {
+        var nd = document.createElementNS(NS, 'circle');
+        nd.setAttribute('fill', ni === 0 ? p.accent : p.node);
+        svg.appendChild(nd);
+        nodeEls.push(nd);
+      }
+
+      var running = true, start = null, raf;
+      function tick(t) {
+        if (!running) return;
+        if (start === null) start = t;
+        var el = (t - start) % cycleMs;
+        var N = STATES.length, pMs = cycleMs / N;
+        var idx = Math.floor(el / pMs);
+        var pt  = (el % pMs) / pMs;
+        var A = STATES[idx], B = STATES[(idx + 1) % N];
+        var m = pt < holdRatio ? 0 : (pt - holdRatio) / (1 - holdRatio);
+        var e = m < 0.5 ? 2 * m * m : 1 - Math.pow(-2 * m + 2, 2) / 2;
+        var tw = 1 + 0.05 * Math.sin(el / 600);
+        var hs = 1 + 0.6  * (0.5 + 0.5 * Math.sin(el / 700));
+        var ho = 0.18 + 0.10 * (0.5 + 0.5 * Math.sin(el / 700 + 1));
+        var a0 = A.nodes[0], b0 = B.nodes[0];
+        halo.setAttribute('cx', a0.x + (b0.x - a0.x) * e);
+        halo.setAttribute('cy', a0.y + (b0.y - a0.y) * e);
+        halo.setAttribute('r',  (a0.r + (b0.r - a0.r) * e) * 2.8 * hs);
+        halo.setAttribute('opacity', ho);
+        for (var i = 0; i < 7; i++) {
+          var an = A.nodes[i], bn = B.nodes[i];
+          nodeEls[i].setAttribute('cx', an.x + (bn.x - an.x) * e);
+          nodeEls[i].setAttribute('cy', an.y + (bn.y - an.y) * e);
+          nodeEls[i].setAttribute('r',  (an.r + (bn.r - an.r) * e) * tw);
+        }
+        for (var j = 0; j < 6; j++) {
+          var al = A.lines[j], bl = B.lines[j];
+          lineEls[j].setAttribute('x1', al.x1 + (bl.x1 - al.x1) * e);
+          lineEls[j].setAttribute('y1', al.y1 + (bl.y1 - al.y1) * e);
+          lineEls[j].setAttribute('x2', al.x2 + (bl.x2 - al.x2) * e);
+          lineEls[j].setAttribute('y2', al.y2 + (bl.y2 - al.y2) * e);
+        }
+        raf = requestAnimationFrame(tick);
+      }
+      start = performance.now(); tick(start); start = null;
+      raf = requestAnimationFrame(tick);
+
+      return { destroy: function () { running = false; cancelAnimationFrame(raf); } };
+    };
+  })();
+  </script>
+
   {{-- ── Loader global de navegación ────────────────────────────────────── --}}
   <div id="page-loader"
        style="position:fixed;inset:0;z-index:9999;display:flex;align-items:center;justify-content:center;
               background:white;opacity:0;pointer-events:none;transition:opacity .2s ease;">
-    <div style="display:flex;flex-direction:column;align-items:center;gap:1.25rem;">
-      <x-application-mark style="height:2.25rem;width:auto;opacity:0.65;" />
-      <div id="page-loader-ring"
-           style="width:1.75rem;height:1.75rem;border-radius:50%;
-                  border:2.5px solid #ede9fe;border-top-color:#7c3aed;
-                  animation:pl-spin .72s linear infinite;"></div>
-    </div>
+    <svg id="page-loader-svg" viewBox="0 0 100 100" style="width:72px;height:72px;"></svg>
   </div>
   <style>
-    @keyframes pl-spin { to { transform: rotate(360deg); } }
     html.dark #page-loader { background: #0a0a0b; }
-    html.dark #page-loader-ring { border-color: rgba(255,255,255,0.12); border-top-color: #fff; }
+    @media (prefers-reduced-motion: reduce) { #page-loader-svg * { animation: none !important; } }
   </style>
   <script>
     (function () {
-      var el = document.getElementById('page-loader'), t;
+      var el  = document.getElementById('page-loader');
+      var svg = document.getElementById('page-loader-svg');
+      var isDark = document.documentElement.classList.contains('dark');
+      if (window.initHelipsoLoader) {
+        window.initHelipsoLoader(svg, { palette: isDark ? 'cosmos' : 'violet', cycleMs: 7000, strokeW: 1.3 });
+      }
+      var t;
       document.addEventListener('livewire:navigate-start', function () {
-        t = setTimeout(function () {
-          el.style.opacity = '1';
-          el.style.pointerEvents = 'auto';
-        }, 160);
+        t = setTimeout(function () { el.style.opacity = '1'; el.style.pointerEvents = 'auto'; }, 160);
       });
       document.addEventListener('livewire:navigate-end', function () {
-        clearTimeout(t);
-        el.style.opacity = '0';
-        el.style.pointerEvents = 'none';
+        clearTimeout(t); el.style.opacity = '0'; el.style.pointerEvents = 'none';
       });
     })();
   </script>
