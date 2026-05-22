@@ -9,11 +9,10 @@
 
 <div wire:poll.visible.15s aria-live="polite"
      @style($minWidthPx ? "min-width: {$minWidthPx}px" : '')
-     class="h-full flex flex-col justify-center rounded-2xl overflow-hidden
-            bg-white/85 dark:bg-neutral-900/60 backdrop-blur-sm
-            shadow-[0_4px_20px_-2px_rgba(0,0,0,0.08),0_1px_6px_-1px_rgba(0,0,0,0.04)]
-            dark:shadow-[0_4px_20px_-2px_rgba(0,0,0,0.45),0_1px_6px_-1px_rgba(0,0,0,0.25)]
-            ring-1 ring-black/[0.04] dark:ring-white/[0.05]
+     class="h-full flex flex-col justify-center rounded-[14px] overflow-hidden
+            bg-white dark:bg-neutral-900
+            border border-neutral-200 dark:border-neutral-800
+            shadow-sm
             px-5 py-5">
 
   {{-- Label --}}

@@ -2,10 +2,10 @@
 <div wire:poll.60s.visible>
 @if(count($items) > 0)
 <div class="mx-4 sm:mx-5 lg:mx-6 mb-3">
-  <div class="rounded-xl overflow-hidden
-              bg-violet-50/50 dark:bg-neutral-900/65 backdrop-blur-sm
-              shadow-[0_4px_20px_-2px_rgba(109,40,217,0.07),0_1px_4px_-1px_rgba(109,40,217,0.03)]
-              dark:shadow-[0_4px_20px_-2px_rgba(0,0,0,0.4),0_1px_4px_-1px_rgba(0,0,0,0.2)]">
+  <div class="rounded-[14px] overflow-hidden
+              bg-white dark:bg-neutral-900
+              border border-neutral-200 dark:border-neutral-800
+              shadow-sm">
 
     {{-- Encabezado --}}
     <div class="px-4 py-2.5 border-b border-neutral-100 dark:border-neutral-800 flex items-center gap-2">

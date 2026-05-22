@@ -404,7 +404,7 @@
     }
   }"
   x-init="init()"
-  class="absolute inset-0 z-50 flex flex-col items-center justify-center bg-white/95 dark:bg-neutral-950/95 backdrop-blur-md rounded-3xl transition-all duration-500"
+  class="absolute inset-0 z-50 flex flex-col items-center justify-center bg-white dark:bg-neutral-950 rounded-[14px]"
 >
   <div class="text-center space-y-6">
     
@@ -413,8 +413,8 @@
       {{-- Loader (se oculta al finalizar) --}}
       <template x-if="!finished && !error">
         <div class="relative">
-          <div class="w-20 h-20 border-4 border-indigo-100 dark:border-neutral-800 rounded-full"></div>
-          <div class="absolute top-0 left-0 w-20 h-20 border-4 border-indigo-600 border-t-transparent rounded-full animate-spin"></div>
+          <div class="w-16 h-16 border-[3px] border-violet-100 dark:border-white/10 rounded-full"></div>
+          <div class="absolute top-0 left-0 w-16 h-16 border-[3px] border-violet-600 dark:border-white border-t-transparent rounded-full animate-spin"></div>
         </div>
       </template>
 

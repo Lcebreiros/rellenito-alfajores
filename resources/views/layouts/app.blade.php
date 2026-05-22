@@ -502,5 +502,39 @@
   @endif
 
   @stack('scripts')
+
+  {{-- ── Loader global de navegación ────────────────────────────────────── --}}
+  <div id="page-loader"
+       style="position:fixed;inset:0;z-index:9999;display:flex;align-items:center;justify-content:center;
+              background:white;opacity:0;pointer-events:none;transition:opacity .2s ease;">
+    <div style="display:flex;flex-direction:column;align-items:center;gap:1.25rem;">
+      <x-application-mark style="height:2.25rem;width:auto;opacity:0.65;" />
+      <div id="page-loader-ring"
+           style="width:1.75rem;height:1.75rem;border-radius:50%;
+                  border:2.5px solid #ede9fe;border-top-color:#7c3aed;
+                  animation:pl-spin .72s linear infinite;"></div>
+    </div>
+  </div>
+  <style>
+    @keyframes pl-spin { to { transform: rotate(360deg); } }
+    html.dark #page-loader { background: #0a0a0b; }
+    html.dark #page-loader-ring { border-color: rgba(255,255,255,0.12); border-top-color: #fff; }
+  </style>
+  <script>
+    (function () {
+      var el = document.getElementById('page-loader'), t;
+      document.addEventListener('livewire:navigate-start', function () {
+        t = setTimeout(function () {
+          el.style.opacity = '1';
+          el.style.pointerEvents = 'auto';
+        }, 160);
+      });
+      document.addEventListener('livewire:navigate-end', function () {
+        clearTimeout(t);
+        el.style.opacity = '0';
+        el.style.pointerEvents = 'none';
+      });
+    })();
+  </script>
 </body>
 </html>

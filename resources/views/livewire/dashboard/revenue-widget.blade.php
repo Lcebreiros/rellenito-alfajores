@@ -1,7 +1,7 @@
-<div wire:poll.visible.30s class="h-full flex flex-col rounded-2xl overflow-hidden
-     bg-violet-50/50 dark:bg-neutral-900/65 backdrop-blur-sm
-     shadow-[0_4px_20px_-2px_rgba(109,40,217,0.07),0_1px_6px_-1px_rgba(109,40,217,0.03)]
-     dark:shadow-[0_4px_20px_-2px_rgba(0,0,0,0.45),0_1px_6px_-1px_rgba(0,0,0,0.25)]">
+<div wire:poll.visible.30s class="h-full flex flex-col rounded-[14px] overflow-hidden
+     bg-white dark:bg-neutral-900
+     border border-neutral-200 dark:border-neutral-800
+     shadow-sm">
 
   {{-- Header --}}
   <div class="px-4 sm:px-5 py-3.5 flex-shrink-0

@@ -306,12 +306,22 @@
     <nav class="sidebar-nav flex-1 min-h-0 overflow-y-auto pt-4 pb-2 space-y-1 custom-scrollbar px-3"
          :class="animating ? 'pointer-events-none select-none' : ''">
 
+      {{-- Sección: OPERACIÓN --}}
+      <div x-show="!collapsed"
+           x-transition:enter="transition-opacity duration-100 delay-150"
+           x-transition:enter-start="opacity-0" x-transition:enter-end="opacity-100"
+           x-transition:leave="transition-opacity duration-75"
+           x-transition:leave-start="opacity-100" x-transition:leave-end="opacity-0"
+           class="px-2 pt-1 pb-0.5 text-[9px] font-bold uppercase tracking-widest text-white/35 select-none whitespace-nowrap">
+        Operación
+      </div>
+
       <!-- Dashboard -->
       <a href="{{ route('dashboard') }}" wire:navigate data-turbo="false" data-module="dashboard"
          class="nav-link {{ request()->routeIs('dashboard') ? $active : $idle }}"
                   :title="collapsed ? '{{ __('nav.dashboard') }}' : null">
         <span class="shrink-0 w-10 flex items-center justify-center py-2.5">
-          <img src="{{ asset('images/dashboard.png') }}" alt="{{ __('nav.dashboard') }}" class="nav-icon">
+          <img src="{{ asset('sidebar_svg/dashboard.svg') }}" alt="{{ __('nav.dashboard') }}" class="nav-icon">
         </span>
         <span class="nav-label text-sm font-semibold pr-3">{{ __('nav.dashboard') }}</span>
       </a>
@@ -321,7 +331,7 @@
          class="nav-link {{ request()->routeIs('nexum') ? $active : $idle }}"
                   :title="collapsed ? '{{ __('nav.nexum') }}' : null">
         <span class="shrink-0 w-10 flex items-center justify-center py-2.5">
-          <span style="font-size:1.05rem; font-weight:900; letter-spacing:.04em; background:linear-gradient(135deg,#ffffff 0%,#d8ccff 100%); -webkit-background-clip:text; -webkit-text-fill-color:transparent; background-clip:text; display:inline-block; line-height:1;">N</span>
+          <img src="{{ asset('sidebar_svg/nexum.svg') }}" alt="{{ __('nav.nexum') }}" class="nav-icon">
         </span>
         <span class="nav-label text-sm font-semibold pr-3">{{ __('nav.nexum') }}</span>
       </a>
@@ -331,7 +341,7 @@
          class="nav-link {{ request()->routeIs('orders.create') ? $active : $idle }}"
                   :title="collapsed ? '{{ __('nav.create_sale') }}' : null">
         <span class="shrink-0 w-10 flex items-center justify-center py-2.5">
-          <img src="{{ asset('images/crear-venta.png') }}" alt="{{ __('nav.create_sale') }}" class="nav-icon">
+          <img src="{{ asset('sidebar_svg/crear-venta.svg') }}" alt="{{ __('nav.create_sale') }}" class="nav-icon">
         </span>
         <span class="nav-label text-sm font-semibold pr-3">{{ __('nav.create_sale') }}</span>
       </a>
@@ -341,7 +351,7 @@
          class="nav-link {{ request()->routeIs('orders.index') ? $active : $idle }}"
                   :title="collapsed ? '{{ __('nav.sales_list') }}' : null">
         <span class="shrink-0 w-10 flex items-center justify-center py-2.5">
-          <img src="{{ asset('images/ventas.png') }}" alt="{{ __('nav.sales_list') }}" class="nav-icon">
+          <img src="{{ asset('sidebar_svg/ventas.svg') }}" alt="{{ __('nav.sales_list') }}" class="nav-icon">
         </span>
         <span class="nav-label text-sm font-semibold pr-3">{{ __('nav.sales_list') }}</span>
       </a>
@@ -352,7 +362,7 @@
          class="nav-link {{ request()->routeIs('products.*') ? $active : $idle }}"
                   :title="collapsed ? '{{ __('nav.products') }}' : null">
         <span class="shrink-0 w-10 flex items-center justify-center py-2.5">
-          <img src="{{ asset('images/productos.png') }}" alt="{{ __('nav.products') }}" class="nav-icon">
+          <img src="{{ asset('sidebar_svg/productos.svg') }}" alt="{{ __('nav.products') }}" class="nav-icon">
         </span>
         <span class="nav-label text-sm font-semibold pr-3">{{ __('nav.products') }}</span>
       </a>
@@ -363,7 +373,7 @@
          class="nav-link {{ request()->fullUrlIs(route('stock.index').'#stock') ? $active : $idle }}"
                   :title="collapsed ? '{{ __('nav.stock') }}' : null">
         <span class="shrink-0 w-10 flex items-center justify-center py-2.5">
-          <img src="{{ asset('images/stock.png') }}" alt="{{ __('nav.stock') }}" class="nav-icon">
+          <img src="{{ asset('sidebar_svg/stock.svg') }}" alt="{{ __('nav.stock') }}" class="nav-icon">
         </span>
         <span class="nav-label text-sm font-semibold pr-3">{{ __('nav.stock') }}</span>
       </a>
@@ -374,7 +384,7 @@
          class="nav-link {{ request()->routeIs('services.*') ? $active : $idle }}"
                   :title="collapsed ? '{{ __('nav.services') }}' : null">
         <span class="shrink-0 w-10 flex items-center justify-center py-2.5">
-          <img src="{{ asset('images/servicios.png') }}" alt="{{ __('nav.services') }}" class="nav-icon">
+          <img src="{{ asset('sidebar_svg/servicios.svg') }}" alt="{{ __('nav.services') }}" class="nav-icon">
         </span>
         <span class="nav-label text-sm font-semibold pr-3">{{ __('nav.services') }}</span>
       </a>
@@ -386,18 +396,28 @@
          class="nav-link {{ request()->routeIs('clients.*') ? $active : $idle }}"
                   :title="collapsed ? '{{ __('nav.clients') }}' : null">
         <span class="shrink-0 w-10 flex items-center justify-center py-2.5">
-          <img src="{{ asset('images/clientes.png') }}" alt="{{ __('nav.clients') }}" class="nav-icon">
+          <img src="{{ asset('sidebar_svg/clientes.svg') }}" alt="{{ __('nav.clients') }}" class="nav-icon">
         </span>
         <span class="nav-label text-sm font-semibold pr-3">{{ __('nav.clients') }}</span>
       </a>
       @endif
+
+      {{-- Sección: GESTIÓN --}}
+      <div x-show="!collapsed"
+           x-transition:enter="transition-opacity duration-100 delay-150"
+           x-transition:enter-start="opacity-0" x-transition:enter-end="opacity-100"
+           x-transition:leave="transition-opacity duration-75"
+           x-transition:leave-start="opacity-100" x-transition:leave-end="opacity-0"
+           class="px-2 pt-3 pb-0.5 text-[9px] font-bold uppercase tracking-widest text-white/35 select-none whitespace-nowrap">
+        Gestión
+      </div>
 
       <!-- Métodos de Pago -->
       <a href="{{ route('payment-methods.index') }}" wire:navigate data-turbo="false" data-module="payment"
          class="nav-link {{ request()->routeIs('payment-methods.*') ? $active : $idle }}"
                   :title="collapsed ? '{{ __('nav.payment_methods') }}' : null">
         <span class="shrink-0 w-10 flex items-center justify-center py-2.5">
-          <img src="{{ asset('images/payment.png') }}" alt="{{ __('nav.payment_methods') }}" class="nav-icon">
+          <img src="{{ asset('sidebar_svg/payment.svg') }}" alt="{{ __('nav.payment_methods') }}" class="nav-icon">
         </span>
         <span class="nav-label text-sm font-semibold pr-3">{{ __('nav.payment_methods') }}</span>
       </a>
@@ -407,9 +427,7 @@
          class="nav-link {{ request()->routeIs('discounts.*') ? $active : $idle }}"
                   :title="collapsed ? '{{ __('nav.discounts') }}' : null">
         <span class="shrink-0 w-10 flex items-center justify-center py-2.5">
-          <svg class="nav-icon w-5 h-5 text-neutral-600 dark:text-neutral-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 7h.01M7 3h5c.512 0 1.024.195 1.414.586l7 7a2 2 0 010 2.828l-7 7a2 2 0 01-2.828 0l-7-7A1.994 1.994 0 013 12V7a4 4 0 014-4z"></path>
-          </svg>
+          <img src="{{ asset('sidebar_svg/descuentos.svg') }}" alt="{{ __('nav.discounts') }}" class="nav-icon">
         </span>
         <span class="nav-label text-sm font-semibold pr-3">{{ __('nav.discounts') }}</span>
       </a>
@@ -420,9 +438,7 @@
          class="nav-link {{ request()->routeIs('rentals.calendar') ? $active : $idle }}"
                   :title="collapsed ? '{{ __('nav.rentals') }}' : null">
         <span class="shrink-0 w-10 flex items-center justify-center py-2.5">
-          <svg class="nav-icon w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"/>
-          </svg>
+          <img src="{{ asset('sidebar_svg/alquileres.svg') }}" alt="{{ __('nav.rentals') }}" class="nav-icon">
         </span>
         <span class="nav-label text-sm font-semibold pr-3">{{ __('nav.rentals') }}</span>
       </a>
@@ -432,9 +448,7 @@
          class="nav-link {{ request()->routeIs('rentals.bookings.*') ? $active : $idle }}"
                   :title="collapsed ? '{{ __('nav.bookings') }}' : null">
         <span class="shrink-0 w-10 flex items-center justify-center py-2.5">
-          <svg class="nav-icon w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2"/>
-          </svg>
+          <img src="{{ asset('sidebar_svg/reservas.svg') }}" alt="{{ __('nav.bookings') }}" class="nav-icon">
         </span>
         <span class="nav-label text-sm font-semibold pr-3">{{ __('nav.bookings') }}</span>
       </a>
@@ -444,9 +458,7 @@
          class="nav-link {{ request()->routeIs('rentals.spaces.*') ? $active : $idle }}"
                   :title="collapsed ? '{{ __('nav.spaces') }}' : null">
         <span class="shrink-0 w-10 flex items-center justify-center py-2.5">
-          <svg class="nav-icon w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4"/>
-          </svg>
+          <img src="{{ asset('sidebar_svg/espacios.svg') }}" alt="{{ __('nav.spaces') }}" class="nav-icon">
         </span>
         <span class="nav-label text-sm font-semibold pr-3">{{ __('nav.spaces') }}</span>
       </a>
@@ -458,7 +470,7 @@
          class="nav-link {{ request()->routeIs('invoices.*') ? $active : $idle }}"
                   :title="collapsed ? '{{ __('nav.invoicing') }}' : null">
         <span class="shrink-0 w-10 flex items-center justify-center py-2.5">
-          <img src="{{ asset('images/arca.png') }}" alt="{{ __('nav.invoicing') }}" class="nav-icon">
+          <img src="{{ asset('sidebar_svg/arca.svg') }}" alt="{{ __('nav.invoicing') }}" class="nav-icon">
         </span>
         <span class="nav-label text-sm font-semibold pr-3 flex items-center gap-1">
           <span class="truncate">{{ __('nav.invoicing') }}</span>
@@ -472,11 +484,7 @@
          class="nav-link {{ request()->routeIs('purchases.*') ? $active : $idle }}"
                   :title="collapsed ? '{{ __('nav.purchases') }}' : null">
         <span class="shrink-0 w-10 flex items-center justify-center py-2.5">
-          <svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
-            <path d="M6 2 3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4z"/>
-            <line x1="3" y1="6" x2="21" y2="6"/>
-            <path d="M16 10a4 4 0 0 1-8 0"/>
-          </svg>
+          <img src="{{ asset('sidebar_svg/compras.svg') }}" alt="{{ __('nav.purchases') }}" class="nav-icon">
         </span>
         <span class="nav-label text-sm font-semibold pr-3">{{ __('nav.purchases') }}</span>
       </a>
@@ -486,7 +494,7 @@
          class="nav-link {{ request()->routeIs('costs.*') ? $active : $idle }}"
                   :title="collapsed ? '{{ __('nav.expenses') }}' : null">
         <span class="shrink-0 w-10 flex items-center justify-center py-2.5">
-          <img src="{{ asset('images/calcular-costos.png') }}" alt="{{ __('nav.expenses') }}" class="nav-icon">
+          <img src="{{ asset('sidebar_svg/calcular-costos.svg') }}" alt="{{ __('nav.expenses') }}" class="nav-icon">
         </span>
         <span class="nav-label text-sm font-semibold pr-3">{{ __('nav.expenses') }}</span>
       </a>
@@ -497,7 +505,7 @@
            class="nav-link {{ request()->routeIs('company.branches.*') ? $active : $idle }}"
                       :title="collapsed ? '{{ __('nav.branches') }}' : null">
           <span class="shrink-0 w-10 flex items-center justify-center py-2.5">
-            <img src="{{ asset('images/sucursales.png') }}" alt="{{ __('nav.branches') }}" class="nav-icon">
+            <img src="{{ asset('sidebar_svg/sucursales.svg') }}" alt="{{ __('nav.branches') }}" class="nav-icon">
           </span>
           <span class="nav-label text-sm font-semibold pr-3">{{ __('nav.branches') }}</span>
         </a>
@@ -510,7 +518,7 @@
            class="nav-link {{ request()->routeIs('company.branches.*') ? $active : $idle }}"
                       :title="collapsed ? '{{ __('nav.employees') }}' : null">
           <span class="shrink-0 w-10 flex items-center justify-center py-2.5">
-            <img src="{{ asset('images/empleados.png') }}" alt="{{ __('nav.employees') }}" class="nav-icon">
+            <img src="{{ asset('sidebar_svg/empleados.svg') }}" alt="{{ __('nav.employees') }}" class="nav-icon">
           </span>
           <span class="nav-label text-sm font-semibold pr-3">{{ __('nav.employees') }}</span>
         </a>
@@ -521,12 +529,22 @@
 
 @auth
     @if(auth()->user()->isMaster())
+      {{-- Sección: MASTER --}}
+      <div x-show="!collapsed"
+           x-transition:enter="transition-opacity duration-100 delay-150"
+           x-transition:enter-start="opacity-0" x-transition:enter-end="opacity-100"
+           x-transition:leave="transition-opacity duration-75"
+           x-transition:leave-start="opacity-100" x-transition:leave-end="opacity-0"
+           class="px-2 pt-3 pb-0.5 text-[9px] font-bold uppercase tracking-widest text-white/35 select-none whitespace-nowrap">
+        Master
+      </div>
+
         <!-- Master - Agregar Usuarios -->
         <a href="{{ route('master.invitations.index') }}" wire:navigate data-turbo="false" data-module="company"
            class="nav-link {{ request()->routeIs('master.invitations.*') ? $active : $idle }}"
                       :title="collapsed ? '{{ __('nav.generate_users') }}' : null">
           <span class="shrink-0 w-10 flex items-center justify-center py-2.5">
-            <img src="{{ asset('images/agregar-user.png') }}" alt="{{ __('nav.generate_users') }}" class="nav-icon">
+            <img src="{{ asset('sidebar_svg/agregar-user.svg') }}" alt="{{ __('nav.generate_users') }}" class="nav-icon">
           </span>
           <span class="nav-label text-sm font-semibold pr-3">{{ __('nav.generate_users') }}</span>
         </a>
@@ -540,7 +558,7 @@
        class="nav-link {{ request()->routeIs('master.users.*') ? $active : $idle }}"
               :title="collapsed ? '{{ __('nav.manage_users') }}' : null">
       <span class="shrink-0 w-10 flex items-center justify-center py-2.5">
-        <img src="{{ asset('images/gestionar-user.png') }}" alt="{{ __('nav.manage_users') }}" class="nav-icon">
+        <img src="{{ asset('sidebar_svg/gestionar-user.svg') }}" alt="{{ __('nav.manage_users') }}" class="nav-icon">
       </span>
       <span class="nav-label text-sm font-semibold pr-3">{{ __('nav.manage_users') }}</span>
     </a>
@@ -554,21 +572,29 @@
              class="nav-link {{ request()->routeIs('trial-requests') ? $active : $idle }}"
                           :title="collapsed ? '{{ __('nav.requests') }}' : null">
             <span class="shrink-0 w-10 flex items-center justify-center py-2.5">
-              <svg class="w-6 h-6 text-neutral-600 dark:text-neutral-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/>
-              </svg>
+              <img src="{{ asset('sidebar_svg/solicitudes.svg') }}" alt="{{ __('nav.requests') }}" class="nav-icon">
             </span>
             <span class="nav-label text-sm font-semibold pr-3">{{ __('nav.requests') }}</span>
           </a>
         @endif
       @endauth
 
+      {{-- Sección: SISTEMA --}}
+      <div x-show="!collapsed"
+           x-transition:enter="transition-opacity duration-100 delay-150"
+           x-transition:enter-start="opacity-0" x-transition:enter-end="opacity-100"
+           x-transition:leave="transition-opacity duration-75"
+           x-transition:leave-start="opacity-100" x-transition:leave-end="opacity-0"
+           class="px-2 pt-3 pb-0.5 text-[9px] font-bold uppercase tracking-widest text-white/35 select-none whitespace-nowrap">
+        Sistema
+      </div>
+
       <!-- Configuración -->
       <a href="{{ route('settings') }}" wire:navigate data-turbo="false" data-module="company"
          class="nav-link {{ request()->routeIs('settings') ? $active : $idle }}"
                   :title="collapsed ? '{{ __('nav.settings') }}' : null">
         <span class="shrink-0 w-10 flex items-center justify-center py-2.5">
-          <img src="{{ asset('images/configuraciones.png') }}" alt="{{ __('nav.settings') }}" class="nav-icon">
+          <img src="{{ asset('sidebar_svg/configuraciones.svg') }}" alt="{{ __('nav.settings') }}" class="nav-icon">
         </span>
         <span class="nav-label text-sm font-semibold pr-3">{{ __('nav.settings') }}</span>
       </a>
@@ -578,10 +604,25 @@
          class="nav-link {{ request()->routeIs('support.*') ? $active : $idle }}"
                   :title="collapsed ? '{{ __('nav.support') }}' : null">
         <span class="shrink-0 w-10 flex items-center justify-center py-2.5">
-          <img src="{{ asset('images/soporte.png') }}" alt="{{ __('nav.support') }}" class="nav-icon">
+          <img src="{{ asset('sidebar_svg/soporte.svg') }}" alt="{{ __('nav.support') }}" class="nav-icon">
         </span>
         <span class="nav-label text-sm font-semibold pr-3">{{ __('nav.support') }}</span>
       </a>
+
+      {{-- Guía de inicio --}}
+      @auth
+        @if(!auth()->user()->isMaster())
+          <button type="button"
+                  onclick="Livewire.dispatch('openOnboardingWizard')"
+                  class="nav-link w-full text-left {{ $idle }}"
+                  :title="collapsed ? 'Guía de inicio' : null">
+            <span class="shrink-0 w-10 flex items-center justify-center py-2.5">
+              <img src="{{ asset('sidebar_svg/guia.svg') }}" alt="Guía de inicio" class="nav-icon">
+            </span>
+            <span class="nav-label text-sm font-semibold pr-3 text-neutral-500 dark:text-neutral-400">Guía de inicio</span>
+          </button>
+        @endif
+      @endauth
     </nav>
     </div>
     <!-- Fin área expandible -->

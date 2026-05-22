@@ -145,7 +145,7 @@ $s = $statusMap[$statusKey] ?? [
 
         {{-- Ver comprobante --}}
         @if($ticketUrl)
-        <a href="{{ $ticketUrl }}"
+        <a href="{{ $ticketUrl }}" wire:navigate
            class="inline-flex items-center gap-2 px-3 py-2 rounded-lg border border-indigo-200 dark:border-indigo-500/40
                   text-indigo-700 dark:text-indigo-300 bg-indigo-50 dark:bg-indigo-500/10 
                   hover:bg-indigo-100 dark:hover:bg-indigo-500/20 transition text-sm">

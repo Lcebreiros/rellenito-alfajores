@@ -43,10 +43,10 @@
       default                   => '#ef4444',
     };
 
-    $kpiBase = 'rounded-xl p-4 flex flex-col gap-1 min-w-0
-                bg-violet-50/50 dark:bg-neutral-900/65 backdrop-blur-sm
-                shadow-[0_4px_20px_-2px_rgba(109,40,217,0.07),0_1px_4px_-1px_rgba(109,40,217,0.03)]
-                dark:shadow-[0_4px_20px_-2px_rgba(0,0,0,0.4),0_1px_4px_-1px_rgba(0,0,0,0.2)]';
+    $kpiBase = 'rounded-[14px] p-4 flex flex-col gap-1 min-w-0
+                bg-white dark:bg-neutral-900
+                border border-neutral-200 dark:border-neutral-800
+                shadow-sm hover:shadow-md hover:-translate-y-px transition-all duration-200';
   @endphp
 
   <div class="grid grid-cols-2 sm:grid-cols-4 gap-3 px-4 sm:px-5 lg:px-6 mb-3">
@@ -112,12 +112,10 @@
 
     {{-- Health Score --}}
     <a href="{{ route('nexum') }}"
-       class="group rounded-xl p-4 flex flex-col gap-1 min-w-0 transition-all
-              bg-violet-100/60 dark:bg-neutral-900/65 backdrop-blur-sm
-              shadow-[0_4px_20px_-2px_rgba(109,40,217,0.10),0_1px_4px_-1px_rgba(109,40,217,0.05)]
-              dark:shadow-[0_4px_20px_-2px_rgba(0,0,0,0.4),0_1px_4px_-1px_rgba(0,0,0,0.2)]
-              hover:shadow-[0_6px_24px_-2px_rgba(139,92,246,0.18)]
-              hover:bg-violet-100/80">
+       class="group rounded-[14px] p-4 flex flex-col gap-1 min-w-0 transition-all duration-200
+              bg-violet-50 dark:bg-violet-950/30
+              border border-violet-200/70 dark:border-violet-800/40
+              shadow-sm hover:shadow-md hover:-translate-y-px">
       <span class="text-[10px] font-semibold text-violet-500 dark:text-violet-400 uppercase tracking-widest">Business Health</span>
       @if($hs['score'] !== null)
         <span class="text-xl sm:text-2xl font-bold tabular-nums" style="color: {{ $scoreColor }}">

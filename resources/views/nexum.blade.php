@@ -434,57 +434,59 @@
     }
     .nexum-ai-refresh:hover { color: var(--nx-t2); }
 
-    /* ── Report generation glass modal ─────────────────────────────────── */
+    /* ── Report generation modal ────────────────────────────────────────── */
     .nexum-modal-overlay {
       position: fixed; inset: 0; z-index: 9999;
-      background: rgba(0, 0, 0, 0.52);
-      backdrop-filter: blur(14px);
-      -webkit-backdrop-filter: blur(14px);
+      background: rgba(255,255,255,0.98);
       display: flex; align-items: center; justify-content: center;
     }
     .nexum-modal-glass {
       position: relative;
       text-align: center;
       min-width: 300px;
-      max-width: 400px;
-      padding: 1rem;
+      max-width: 360px;
+      padding: 2.5rem 2rem;
+      background: #fff;
+      border: 1px solid #e5e7eb;
+      border-radius: 16px;
+      box-shadow: 0 4px 32px rgba(0,0,0,0.08);
     }
     .nexum-modal-x {
-      position: absolute; top: -2rem; right: -1rem;
-      width: 32px; height: 32px;
+      position: absolute; top: .75rem; right: .75rem;
+      width: 28px; height: 28px;
       display: flex; align-items: center; justify-content: center;
-      background: rgba(255,255,255,0.08);
-      border: 1px solid rgba(255,255,255,0.15);
+      background: #f3f4f6;
+      border: 1px solid #e5e7eb;
       border-radius: 50%;
-      color: rgba(255,255,255,0.55);
+      color: #9ca3af;
       cursor: pointer;
       transition: background .15s, color .15s;
       line-height: 1;
     }
-    .nexum-modal-x:hover { background: rgba(255,255,255,0.16); color: #fff; }
+    .nexum-modal-x:hover { background: #e5e7eb; color: #374151; }
     /* Spinner ring */
     .nexum-modal-spinner {
-      width: 54px; height: 54px; margin: 0 auto 1.5rem;
-      border: 3px solid rgba(167,139,250,0.18);
-      border-top-color: #a78bfa;
+      width: 52px; height: 52px; margin: 0 auto 1.5rem;
+      border: 3px solid #ede9fe;
+      border-top-color: #7c3aed;
       border-radius: 50%;
-      animation: nx-modal-spin 0.75s linear infinite;
+      animation: nx-modal-spin 0.72s linear infinite;
     }
     @keyframes nx-modal-spin { to { transform: rotate(360deg); } }
     /* Success ring */
     .nexum-modal-check {
-      width: 54px; height: 54px; margin: 0 auto 1.5rem;
-      border: 2px solid rgba(52,211,153,0.4);
+      width: 52px; height: 52px; margin: 0 auto 1.5rem;
+      border: 2px solid rgba(16,185,129,0.3);
       border-radius: 50%;
       display: flex; align-items: center; justify-content: center;
-      background: rgba(52,211,153,0.10);
+      background: rgba(16,185,129,0.08);
     }
     .nexum-modal-title {
-      font-size: 1.15rem; font-weight: 700; color: #fff;
+      font-size: 1.1rem; font-weight: 700; color: #111827;
       margin-bottom: .35rem; letter-spacing: -.015em;
     }
     .nexum-modal-sub {
-      font-size: .82rem; color: rgba(255,255,255,0.45);
+      font-size: .82rem; color: #6b7280;
     }
     .nexum-modal-actions {
       display: flex; gap: .75rem; justify-content: center; margin-top: 1.65rem;
@@ -493,12 +495,12 @@
       display: inline-flex; align-items: center; gap: .45rem;
       padding: .6rem 1.2rem; border-radius: .65rem;
       font-size: .82rem; font-weight: 600; text-decoration: none;
-      background: rgba(167,139,250,0.14);
-      border: 1px solid rgba(167,139,250,0.30);
-      color: #c4b5fd;
+      background: #f5f3ff;
+      border: 1px solid #ddd6fe;
+      color: #6d28d9;
       transition: background .15s, border-color .15s;
     }
-    .nexum-modal-btn-view:hover { background: rgba(167,139,250,0.26); border-color: rgba(167,139,250,0.50); }
+    .nexum-modal-btn-view:hover { background: #ede9fe; border-color: #c4b5fd; }
     .nexum-modal-btn-download {
       display: inline-flex; align-items: center; gap: .45rem;
       padding: .6rem 1.2rem; border-radius: .65rem;
@@ -507,16 +509,16 @@
       border: 1px solid rgba(167,139,250,0.22);
       color: #fff;
       transition: opacity .15s;
-      box-shadow: 0 2px 14px rgba(109,40,217,0.38);
+      box-shadow: 0 2px 14px rgba(109,40,217,0.28);
     }
     .nexum-modal-btn-download:hover { opacity: .88; }
     .nexum-modal-close-link {
       margin-top: 1.1rem; display: block;
-      font-size: .76rem; color: rgba(255,255,255,0.30);
+      font-size: .76rem; color: #9ca3af;
       background: none; border: none; cursor: pointer;
       transition: color .15s;
     }
-    .nexum-modal-close-link:hover { color: rgba(255,255,255,0.58); }
+    .nexum-modal-close-link:hover { color: #6b7280; }
   </style>
 
   @livewire('nexum')
